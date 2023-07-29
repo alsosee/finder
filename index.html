@@ -6,15 +6,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<toolbar>
+<div id="toolbar">
     <fieldset class="radio">
         <legend>View</legend>
         <label><input type="radio" name="view" value="icons"> <span>Icons</span></label>
         <label><input type="radio" name="view" value="list"> <span>List</span></label>
         <label><input type="radio" name="view" value="columns" checked> <span>Columns</span></label>
     </fieldset>
-</toolbar>
-<container data-view="columns">
+</div>
+<div id="container" data-view="columns">
     <ul class="panel" data-level="0">
         <li class="folder active"><span>Blackmagic RAW</span></li>
         <li class="folder"><span>DaVinci Resolve</span></li>
@@ -26,10 +26,10 @@
         <li><span>Blackmagic RAW Player</span></li>
         <li class="folder"><span>Blackmagic RAW Speed Test</span></li>
     </ul>
-</container>
+</div>
 <script type="text/javascript">
-    const toolbar = document.querySelector('toolbar');
-    const container = document.querySelector('container');
+    const toolbar = document.querySelector('#toolbar');
+    const container = document.querySelector('#container');
 
     toolbar.addEventListener('change', (event) => {
         // todo: localStorage.setItem('view', event.target.value);
