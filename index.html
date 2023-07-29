@@ -31,8 +31,12 @@
     const toolbar = document.querySelector('#toolbar');
     const container = document.querySelector('#container');
 
+    let view = localStorage.getItem('view') || 'icons';
+    container.setAttribute('data-view', view);
+    toolbar.querySelector(`input[value="${view}"]`).checked = true;
+
     toolbar.addEventListener('change', (event) => {
-        // todo: localStorage.setItem('view', event.target.value);
+        localStorage.setItem('view', event.target.value);
         container.setAttribute('data-view', event.target.value);
     });
 </script>
