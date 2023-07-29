@@ -70,12 +70,12 @@ fieldset.radio label {
 
 fieldset.radio span {
     display: inline-block;
-    background-image: url('sprite.png');
-    background-repeat: no-repeat;
-    background-size: 72px 24px;
-    background-position: 0 0;
     width: 24px;
     height: 24px;
+    background-image: url('sprite.png');
+    background-repeat: no-repeat;
+    background-size: 120px 24px;
+    background-position: 0 0;
     text-indent: -5000px;
 }
 
@@ -159,11 +159,17 @@ fieldset.radio label:has(input:checked) {
 #container[data-view="icons"] .panel li span::before {
     content: "";
     display: block;
+    margin: 0 auto 10px;
     width: 100px;
     height: 100px;
-    background: var(--color-background-secondary);
-    border-radius: 10px;
-    margin: 0 auto 10px;
+    background-image: url('files.png');
+    background-repeat: no-repeat;
+    background-size: 200px 100px;
+    background-position: 0 0;
+}
+
+#container[data-view="icons"] .panel li.folder span::before {
+    background-position: -100px 0;
 }
 
 /* LIST */
@@ -184,12 +190,17 @@ fieldset.radio label:has(input:checked) {
 #container[data-view="list"] .panel li span::before {
     content: "";
     display: inline-block;
+    margin-right: 5px;
     width: 24px;
     height: 24px;
-    margin-right: 5px;
-    background: var(--color-background-secondary);
-    border-radius: 10px;
-    filter: brightness(0.8);
+    background-image: url('sprite.png');
+    background-repeat: no-repeat;
+    background-size: 120px 24px;
+    background-position: -72px 0;
+}
+
+#container[data-view="list"] .panel li.folder span::before {
+    background-position: -96px 0;
 }
 
 /* COLUMNS */
@@ -206,13 +217,18 @@ fieldset.radio label:has(input:checked) {
 #container[data-view="columns"] .panel li::before {
     content: "";
     display: inline-block;
+    flex-shrink: 0;
+    margin-right: 5px;
     width: 24px;
     height: 24px;
-    margin-right: 5px;
-    background: var(--color-background-secondary);
-    border-radius: 10px;
-    filter: brightness(0.8);
-    flex-shrink: 0;
+    background-image: url('sprite.png');
+    background-repeat: no-repeat;
+    background-size: 120px 24px;
+    background-position: -72px 0;
+}
+
+#container[data-view="columns"] .panel li.folder::before {
+    background-position: -96px 0;
 }
 
 #container[data-view="columns"] .panel li.folder {
