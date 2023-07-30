@@ -135,6 +135,7 @@ fieldset.radio label:last-of-type {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    align-items: center;
 }
 
 .panel li.active {
@@ -196,17 +197,14 @@ fieldset.radio label:last-of-type {
     display: none;
 }
 
-#container[data-view="list"] .panel li span {
-    display: flex;
-}
-
 #container[data-view="list"] .panel li:nth-child(even) {
     background: var(--color-background-secondary);
 }
 
-#container[data-view="list"] .panel li span::before {
+#container[data-view="list"] .panel li::before {
     content: "";
     display: inline-block;
+    flex-shrink: 0;
     margin-right: 5px;
     width: 24px;
     height: 24px;
@@ -216,7 +214,7 @@ fieldset.radio label:last-of-type {
     background-position: -72px 0;
 }
 
-#container[data-view="list"] .panel li.folder span::before {
+#container[data-view="list"] .panel li.folder::before {
     background-position: -96px 0;
 }
 
@@ -249,10 +247,8 @@ fieldset.radio label:last-of-type {
 }
 
 #container[data-view="columns"] .panel li.folder {
-    display: flex;
     position: relative;
     padding-right: 20px;
-    align-items: center;
 }
 
 #container[data-view="columns"] .panel li.folder::after {
