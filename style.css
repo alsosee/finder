@@ -6,11 +6,13 @@
 
   --color-background: #ffffff;
   --color-background-secondary: #f4f5f5;
-  --color-text: #222222;
-  --color-border: #e6e6e6;
+  --color-background-toolbar: var(--color-background);
   --color-background-selection: #2962D9;
+  --color-text: #222222;
   --color-text-selection: #ffffff;
   --color-text-muted: #838383;
+  --color-border: #e6e6e6;
+  --color-outline: #2962D9;
 }
 
 /* 1. Use a more-intuitive box-sizing model */
@@ -40,6 +42,7 @@ body {
   line-height: 26px;
   background: var(--color-background);
   color: var(--color-text);
+  border: 1px solid var(--color-border);
 }
 
 #toolbar {
@@ -48,6 +51,7 @@ body {
     justify-content: center;
     padding: 10px;
     gap: 10px;
+    background: var(--color-background);
     border-bottom: 1px solid var(--color-border);
 }
 
@@ -55,7 +59,6 @@ fieldset.radio {
     display: flex;
     border: 1px solid var(--color-border);
     border-radius: 8px;
-    overflow: hidden;
     user-select: none;
 }
 
@@ -77,6 +80,7 @@ fieldset.radio span {
     background-size: 120px 24px;
     background-position: 0 0;
     text-indent: -5000px;
+    filter: opacity(0.8);
 }
 
 fieldset.radio input[value="list"] + span {
@@ -93,6 +97,19 @@ fieldset.radio input {
 
 fieldset.radio label:has(input:checked) {
     background: var(--color-background-secondary);
+}
+
+fieldset.radio label:focus {
+    outline: 2px solid var(--color-outline);
+    z-index: 1;
+}
+
+fieldset.radio label:first-of-type {
+    border-radius: 8px 0 0 8px;
+}
+
+fieldset.radio label:last-of-type {
+    border-radius: 0 8px 8px 0;
 }
 
 /* container is a "view" that can show "files" as icons, list, or columns */
@@ -261,11 +278,22 @@ fieldset.radio label:has(input:checked) {
 @media (prefers-color-scheme: dark) {
   :root {
     --color-background: #222020;
-    --color-text: #dedddd;
-    --color-border: #000000;
     --color-background-selection: #0059d1;
+    --color-background-secondary: #2c2a2a;
+    --color-background-toolbar: #343b3e;
+    --color-text: #dedddd;
     --color-text-selection: var(--color-text);
     --color-text-muted: #989d9f;
-    --color-background-secondary: #2c2a2a;
+    --color-border: #000000;
+  }
+  #toolbar {
+    --color-background: #2e2b2b;
+  }
+  fieldset {
+    --color-border: #3b3838;
+    --color-background-secondary: #484545;
+  }
+  fieldset.radio span {
+    filter: invert(0.8);
   }
 }

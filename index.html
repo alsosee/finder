@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tab</title>
+    <title>Finder</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="toolbar">
-    <fieldset class="radio">
+    <fieldset class="radio" title="Show items as icons, in a list or in columns">
         <legend>View</legend>
-        <label><input type="radio" name="view" value="icons"> <span>Icons</span></label>
-        <label><input type="radio" name="view" value="list"> <span>List</span></label>
-        <label><input type="radio" name="view" value="columns" checked> <span>Columns</span></label>
+        <label tabindex="0"><input type="radio" name="view" value="icons"> <span>Icons</span></label>
+        <label tabindex="0"><input type="radio" name="view" value="list"> <span>List</span></label>
+        <label tabindex="0"><input type="radio" name="view" value="columns" checked> <span>Columns</span></label>
     </fieldset>
 </div>
 <div id="container" data-view="columns">
@@ -34,6 +34,13 @@
     let view = localStorage.getItem('view') || 'icons';
     container.setAttribute('data-view', view);
     toolbar.querySelector(`input[value="${view}"]`).checked = true;
+
+    // if enter or space is pressed on a toolbar item, check the radio button
+    toolbar.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.target.querySelector('input').checked = true;
+        }
+    });
 
     toolbar.addEventListener('change', (event) => {
         localStorage.setItem('view', event.target.value);
