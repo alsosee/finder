@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -8,12 +9,20 @@ import (
 	"sort"
 	"strings"
 	"text/template"
+	"time"
 )
 
 type File struct {
 	Name     string
 	Dir      string
 	IsFolder bool
+	IsInPath bool
+}
+
+type Dir struct {
+	InPath bool
+	Name   string
+	Path   string
 }
 
 type ByNameFolderOnTop []File
@@ -39,39 +48,70 @@ type Panel struct {
 
 type Panels []Panel
 
-func listFiles(path string) (panels Panels) {
-	root := "dir"
-	path = strings.TrimPrefix(path, "/")
-	dir := filepath.Join(root, path)
+var errNotFound = fmt.Errorf("not found")
 
-	if stat, err := os.Stat(dir); err == nil && !stat.IsDir() {
-		dir = filepath.Dir(dir)
+func listFiles(path string) (panels Panels, err error) {
+	root := "dir"
+	realDir := filepath.Join(root, path)
+
+	if stat, err := os.Stat(realDir); err == nil && !stat.IsDir() {
+		realDir = filepath.Dir(realDir)
 	}
 
-	dirs := strings.Split(dir, string(filepath.Separator))
+	dirs := strings.Split(realDir, string(filepath.Separator))
 	for i := range dirs {
-		dir = filepath.Join(dirs[:i+1]...)
-		entries, err := os.ReadDir(dir)
+		realDir = filepath.Join(dirs[:i+1]...)
+		entries, err := os.ReadDir(realDir)
 		if err != nil {
-			log.Fatal(err)
+			if os.IsNotExist(err) {
+				return nil, errNotFound
+			}
+			return nil, err
 		}
 
 		panel := Panel{
 			Files: []File{},
 		}
 
+		dir := strings.TrimPrefix(realDir, root)
+		if len(dir) == 0 {
+			dir = "/"
+		}
+
 		for _, entry := range entries {
 			panel.Files = append(panel.Files, File{
 				Name:     entry.Name(),
-				Dir:      strings.TrimPrefix(dir, root),
+				Dir:      dir,
 				IsFolder: entry.IsDir(),
+				IsInPath: entry.IsDir() && strings.HasPrefix(path, filepath.Join(dir, entry.Name())),
 			})
 		}
 		sort.Sort(ByNameFolderOnTop(panel.Files))
 		panels = append(panels, panel)
 	}
 
-	return panels
+	return panels, nil
+}
+
+func buildDirs(path string) (dirs []Dir) {
+	path = strings.TrimSuffix(path, string(filepath.Separator))
+
+	var prevPath string
+	for _, dir := range strings.Split(path, string(filepath.Separator)) {
+		if len(dir) == 0 {
+			path = "/"
+			dir = "Home"
+		} else {
+			path = filepath.Join(prevPath, dir)
+		}
+		prevPath = path
+
+		dirs = append(dirs, Dir{
+			Name: dir,
+			Path: path,
+		})
+	}
+	return dirs
 }
 
 func main() {
@@ -84,14 +124,37 @@ func main() {
 			return
 		}
 
-		// serve the index template
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		indexTemplate.Execute(w, struct {
-			Panels Panels
-		}{
-			Panels: listFiles(r.URL.Path),
-		})
+		panels, err := listFiles(r.URL.Path)
+		if err != nil {
+			if err == errNotFound {
+				http.NotFound(w, r)
+				return
+			}
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("Vary", "HX-Request")
+
+		err = indexTemplate.Execute(w, struct {
+			HXRequest   bool
+			CurrentPath string
+			Dirs        []Dir
+			Panels      Panels
+			Timestamp   int64
+		}{
+			HXRequest:   r.Header.Get("HX-Request") == "true",
+			CurrentPath: r.URL.Path,
+			Dirs:        buildDirs(r.URL.Path),
+			Panels:      panels,
+			Timestamp:   time.Now().Unix(),
+		})
+		if err != nil {
+			log.Printf("error executing template: %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	})
 
 	log.Println("Starting server on port 8080...")
@@ -108,12 +171,11 @@ var indexTemplate = template.Must(template.New("index").Funcs(map[string]interfa
 <head>
     <meta charset="UTF-8">
     <title>Finder</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/htmx.org@1.9.3"></script>
-    <script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
+    <link rel="stylesheet" href="/style.css?ts={{ .Timestamp }}">
+    <script src="https://unpkg.com/htmx.org@1.9.4" integrity="sha384-zUfuhFKKZCbHTY6aRR46gxiqszMk5tcHjsVFxnUo8VMus4kHGVdIYVbOYYNlKmHV" crossorigin="anonymous"></script>
 </head>
-<body>
-<div id="toolbar">
+<body data-view="columns">
+<div id="toolbar" hx-preserve="true">
     <fieldset class="radio" title="Show items as icons, in a list or in columns" role="menubar">
         <legend>View</legend>
         <label tabindex="0" role="menuitem"><input type="radio" name="view" value="icons"> <span>Icons</span></label>
@@ -121,29 +183,39 @@ var indexTemplate = template.Must(template.New("index").Funcs(map[string]interfa
         <label tabindex="0" role="menuitem"><input type="radio" name="view" value="columns" checked> <span>Columns</span></label>
     </fieldset>
 </div>
-<div id="container" data-view="columns" hx-swap-oob="insideHTML">
-    {{- range $index, $panel := .Panels }}
-    <ul class="panel" data-level="{{ $index }}">
-        {{- range $panel.Files }}
-        <li
-            class="{{ if .IsFolder}}folder{{ end }}"
-            hx-get="{{ join .Dir .Name }}"
-            ><span>{{ .Name }}</span></li>
+<div id="container" hx-boost="true">
+    <ul id="path">
+        {{- range .Dirs }}
+        <li><a href="{{ .Path }}"{{ if .InPath }} class="secondary"{{ end }}>{{ .Name }}</a></li>
         {{- end }}
     </ul>
-    {{- end }}
+    <div id="panels">
+        {{- range $index, $panel := .Panels }}
+        <ul class="panel" data-level="{{ $index }}">
+            {{- range $panel.Files }}
+            {{- $path := join .Dir .Name }}
+            <li>
+                <a class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .IsInPath }} in-path{{ end }}" href="{{ $path }}"
+                ><span>{{ .Name }}</span></a>
+            </li>
+            {{- end }}
+        </ul>
+        {{- end }}
+    </div>
 </div>
+{{- if not .HXRequest }}
 <script type="text/javascript">
     const toolbar = document.querySelector('#toolbar');
     const container = document.querySelector('#container');
 
     let view = localStorage.getItem('view') || 'icons';
-    container.setAttribute('data-view', view);
+    console.log('view', view);
+    document.body.setAttribute('data-view', view);
     toolbar.querySelector(` + "`input[value=${view}]`" + `).checked = true;
 
     let setView = function(value) {
         localStorage.setItem('view', value);
-        container.setAttribute('data-view', value);
+        document.body.setAttribute('data-view', value);
     };
 
     // if enter or space is pressed on a toolbar item, check the radio button
@@ -158,6 +230,7 @@ var indexTemplate = template.Must(template.New("index").Funcs(map[string]interfa
         setView(event.target.value);
     });
 </script>
+{{- end }}
 </body>
 </html>
 `))

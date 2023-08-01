@@ -5,7 +5,8 @@
   --font-monospace: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
 
   --color-background: #ffffff;
-  --color-background-secondary: #f4f5f5;
+  --color-background-secondary: #f5f7f6;
+  --color-background-tertiary: #f4f5f5;
   --color-background-toolbar: var(--color-background);
   --color-background-selection: #2962D9;
   --color-text: #222222;
@@ -29,6 +30,7 @@
 html,
 body,
 #container,
+#panels,
 .panel {
   height: 100vh;
   height: -webkit-fill-available;
@@ -112,9 +114,22 @@ fieldset.radio label:last-of-type {
     border-radius: 0 8px 8px 0;
 }
 
+#path {
+    display: flex;;
+    font-size: 10pt;
+    border-bottom: 1px solid var(--color-border);
+    list-style: none;
+}
+
+#path li a {
+    padding: 5px 10px;
+    color: var(--color-text);
+    text-decoration: none;
+}
+
 /* container is a "view" that can show "files" as icons, list, or columns */
 /* container has a list of panels, used in "columns" view to show hierachy */
-#container {
+#panels {
     display: flex;
     flex-direction: row;
     width: 100%;
@@ -131,50 +146,77 @@ fieldset.radio label:last-of-type {
 /* panel li is a file or directory */
 .panel li {
     display: flex;
-    padding: 5px 10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    align-items: center;
 }
 
-.panel li.active {
+.panel li a {
+    display: flex;
+    width: 100%;
+    padding: 5px 10px;
+    align-items: center;
+    color: var(--color-text);
+    text-decoration: none;
+    cursor: default;
+}
+
+.panel li a:active {
+    background: var(--color-background-secondary);
+}
+
+.panel li a span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.panel .in-path {
+    background: var(--color-background-secondary);
+}
+
+.panel .active {
     color: var(--color-text-selection);
-    background: var(--color-background-selection);
+    background: var(--color-background-selection) !important;
 }
 
 /* ICONS */
 
-#container[data-view="icons"] .panel {
+[data-view="icons"] .panel {
     display: flex;
     flex-direction: row;
+    align-items: baseline;
+    flex-shrink: 0;
+    flex-wrap: wrap;
 }
 
-#container[data-view="icons"] .panel:not(:last-child) {
+[data-view="icons"] .panel:not(:last-child) {
     /* hide app panels except the last one (current) */
     display: none;
 }
 
-#container[data-view="icons"] .panel li {
+[data-view="icons"] .panel li {
     display: flex;
+    justify-content: center;
+    text-align: center;
     align-items: end;
     width: 150px;
-    height: 195px;
-    text-align: center;
-    vertical-align: top;
     padding: 10px;
-    white-space: inherit;
 }
 
-#container[data-view="icons"] .panel li span {
+[data-view="icons"] .panel li a {
+    flex-direction: column;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+[data-view="icons"] .panel li a span {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: inherit;
+    border-radius: 10px;
+    overflow: visible;
 }
 
-#container[data-view="icons"] .panel li span::before {
+[data-view="icons"] .panel li a::before {
     content: "";
     display: block;
     margin: 0 auto 10px;
@@ -186,22 +228,22 @@ fieldset.radio label:last-of-type {
     background-position: 0 0;
 }
 
-#container[data-view="icons"] .panel li.folder span::before {
+[data-view="icons"] .panel .folder::before {
     background-position: -100px 0;
 }
 
 /* LIST */
 
-#container[data-view="list"] .panel:not(:last-child) {
+[data-view="list"] .panel:not(:last-child) {
     /* hide app panels except the last one (current) */
     display: none;
 }
 
-#container[data-view="list"] .panel li:nth-child(even) {
-    background: var(--color-background-secondary);
+[data-view="list"] .panel li:nth-child(even) {
+    background: var(--color-background-tertiary);
 }
 
-#container[data-view="list"] .panel li::before {
+[data-view="list"] .panel a::before {
     content: "";
     display: inline-block;
     flex-shrink: 0;
@@ -214,22 +256,26 @@ fieldset.radio label:last-of-type {
     background-position: -72px 0;
 }
 
-#container[data-view="list"] .panel li.folder::before {
+[data-view="list"] .panel .folder::before {
     background-position: -96px 0;
 }
 
 /* COLUMNS */
 
-#container[data-view="columns"] .panel {
+[data-view="columns"] .panel {
     border-right: 1px solid var(--color-border);
     width: 230px;
 }
 
-#container[data-view="columns"] .panel li:nth-child(even) {
-    background: var(--color-background-secondary);
+[data-view="columns"] .panel li:nth-child(even) {
+    background: var(--color-background-tertiary);
 }
 
-#container[data-view="columns"] .panel li::before {
+[data-view="columns"] .panel a {
+    width: 100%;
+}
+
+[data-view="columns"] .panel a::before {
     content: "";
     display: inline-block;
     flex-shrink: 0;
@@ -242,16 +288,16 @@ fieldset.radio label:last-of-type {
     background-position: -72px 0;
 }
 
-#container[data-view="columns"] .panel li.folder::before {
+[data-view="columns"] .panel .folder::before {
     background-position: -96px 0;
 }
 
-#container[data-view="columns"] .panel li.folder {
+[data-view="columns"] .panel .folder {
     position: relative;
     padding-right: 20px;
 }
 
-#container[data-view="columns"] .panel li.folder::after {
+[data-view="columns"] .panel .folder::after {
     content: "ᐳ";
     display: inline-block;
     position: absolute;
@@ -261,11 +307,11 @@ fieldset.radio label:last-of-type {
     color: #989d9f;
 }
 
-#container[data-view="columns"] .panel li.active.folder::after {
+[data-view="columns"] .panel .active .folder::after {
     color: var(--color-text-selection);
 }
 
-#container[data-view="columns"] .panel li span {
+[data-view="columns"] .panel li a {
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -274,8 +320,9 @@ fieldset.radio label:last-of-type {
 @media (prefers-color-scheme: dark) {
   :root {
     --color-background: #222020;
+    --color-background-tertiary: #2e2b2b;
+    --color-background-secondary: #484545;
     --color-background-selection: #0059d1;
-    --color-background-secondary: #2c2a2a;
     --color-background-toolbar: #343b3e;
     --color-text: #dedddd;
     --color-text-selection: var(--color-text);
@@ -287,7 +334,6 @@ fieldset.radio label:last-of-type {
   }
   fieldset {
     --color-border: #3b3838;
-    --color-background-secondary: #484545;
   }
   fieldset.radio span {
     filter: invert(0.8);
