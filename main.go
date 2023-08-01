@@ -13,10 +13,10 @@ import (
 )
 
 type File struct {
-	Name     string
-	Dir      string
-	IsFolder bool
-	IsInPath bool
+	Name            string
+	Dir             string
+	IsFolder        bool
+	IsInBreakcrumbs bool
 }
 
 type Dir struct {
@@ -80,10 +80,10 @@ func listFiles(path string) (panels Panels, err error) {
 
 		for _, entry := range entries {
 			panel.Files = append(panel.Files, File{
-				Name:     entry.Name(),
-				Dir:      dir,
-				IsFolder: entry.IsDir(),
-				IsInPath: entry.IsDir() && strings.HasPrefix(path, filepath.Join(dir, entry.Name())),
+				Name:            entry.Name(),
+				Dir:             dir,
+				IsFolder:        entry.IsDir(),
+				IsInBreakcrumbs: entry.IsDir() && strings.HasPrefix(path, filepath.Join(dir, entry.Name())),
 			})
 		}
 		sort.Sort(ByNameFolderOnTop(panel.Files))
@@ -184,7 +184,7 @@ var indexTemplate = template.Must(template.New("index").Funcs(map[string]interfa
     </fieldset>
 </div>
 <div id="container" hx-boost="true">
-    <ul id="path">
+    <ul id="breadcrumbs">
         {{- range .Dirs }}
         <li><a href="{{ .Path }}"{{ if .InPath }} class="secondary"{{ end }}>{{ .Name }}</a></li>
         {{- end }}
@@ -195,7 +195,7 @@ var indexTemplate = template.Must(template.New("index").Funcs(map[string]interfa
             {{- range $panel.Files }}
             {{- $path := join .Dir .Name }}
             <li>
-                <a class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .IsInPath }} in-path{{ end }}" href="{{ $path }}"
+                <a class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .IsInBreakcrumbs }} in-breadcrumbs{{ end }}" href="{{ $path }}"
                 ><span>{{ .Name }}</span></a>
             </li>
             {{- end }}
