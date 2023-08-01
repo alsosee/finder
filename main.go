@@ -184,9 +184,14 @@ var indexTemplate = template.Must(template.New("index").Funcs(map[string]interfa
     </fieldset>
 </div>
 <div id="container" hx-boost="true">
-    <ul id="breadcrumbs">
+    <ul id="breadcrumbs" role="navigation" aria-label="breadcrumbs">
         {{- range .Dirs }}
+        {{- $isCurrent := eq $.CurrentPath .Path }}
+        {{- if $isCurrent }}
+        <li><a href="{{ .Path }}"{{ if .InPath }} class="secondary"{{ end }} aria-current="page">{{ .Name }}</a></li>
+        {{- else }}
         <li><a href="{{ .Path }}"{{ if .InPath }} class="secondary"{{ end }}>{{ .Name }}</a></li>
+        {{- end }}
         {{- end }}
     </ul>
     <div id="panels">

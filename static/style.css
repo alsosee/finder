@@ -119,12 +119,34 @@ fieldset.radio label:last-of-type {
     font-size: 10pt;
     border-bottom: 1px solid var(--color-border);
     list-style: none;
+    overflow: hidden; /* cut off the li shadow */
 }
 
-#breadcrumbs li a {
-    padding: 5px 10px;
+#breadcrumbs li {
+    filter: drop-shadow(1px 0px 0px var(--color-border))
+}
+
+#breadcrumbs a {
+    display: inline-block;
+    padding: 0 15px;
+    background: var(--color-background);
     color: var(--color-text);
     text-decoration: none;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%, 10px 50%);
+}
+
+#breadcrumbs li:first-child a {
+    padding-left: 10px; /* to align with files in panels */
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%); /* no arrow on the left */
+}
+
+#breadcrumbs li + li a {
+    padding-left: 20px;
+    margin-left: -9px; /* to leave 1 px gap between li for border */
+}
+
+#breadcrumbs a:active {
+    background: var(--color-background-secondary);
 }
 
 /* container is a "view" that can show "files" as icons, list, or columns */
@@ -337,5 +359,8 @@ fieldset.radio label:last-of-type {
   }
   fieldset.radio span {
     filter: invert(0.8);
+  }
+  #breadcrumbs a {
+    background: var(--color-background-tertiary);
   }
 }
