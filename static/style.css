@@ -8,12 +8,13 @@
   --color-background-secondary: #f5f7f6;
   --color-background-tertiary: #f4f5f5;
   --color-background-toolbar: var(--color-background);
-  --color-background-selection: #2962D9;
+  --color-background-selection: #2962d9;
+  --color-background-selection-inactive: #dddcdc;
   --color-text: #222222;
   --color-text-selection: #ffffff;
   --color-text-muted: #838383;
   --color-border: #e6e6e6;
-  --color-outline: #2962D9;
+  --color-outline: #2962d9;
 }
 
 /* 1. Use a more-intuitive box-sizing model */
@@ -40,8 +41,8 @@ body,
 body {
   margin: 0;
   font-family: var(--font-default);
-  font-size: 18px;
-  line-height: 26px;
+  font-size: 16px;
+  line-height: 23px;
   background: var(--color-background);
   color: var(--color-text);
   border: 1px solid var(--color-border);
@@ -128,7 +129,7 @@ fieldset.radio label:last-of-type {
 
 #breadcrumbs a {
     display: inline-block;
-    padding: 0 15px;
+    padding: 0 16px;
     background: var(--color-background);
     color: var(--color-text);
     text-decoration: none;
@@ -141,12 +142,18 @@ fieldset.radio label:last-of-type {
 }
 
 #breadcrumbs li + li a {
-    padding-left: 20px;
     margin-left: -9px; /* to leave 1 px gap between li for border */
 }
 
 #breadcrumbs a:active {
     background: var(--color-background-secondary);
+}
+
+#breadcrumbs a:focus {
+    background-color: var(--color-background-secondary);
+    outline: 2px solid var(--color-outline);
+    z-index: 1;
+    filter: none;
 }
 
 /* container is a "view" that can show "files" as icons, list, or columns */
@@ -191,7 +198,7 @@ fieldset.radio label:last-of-type {
 }
 
 .panel .in-breadcrumbs {
-    background: var(--color-background-secondary);
+    background: var(--color-background-selection-inactive);
 }
 
 .panel .active {
@@ -205,6 +212,7 @@ fieldset.radio label:last-of-type {
     display: flex;
     flex-direction: row;
     align-items: baseline;
+    align-content: flex-start;
     flex-shrink: 0;
     flex-wrap: wrap;
 }
@@ -297,6 +305,13 @@ fieldset.radio label:last-of-type {
     width: 100%;
 }
 
+[data-view="columns"] .panel a:focus {
+    z-index: 1;
+    filter: none;
+    background: var(--color-background-selection);
+    color: var(--color-text-selection);
+}
+
 [data-view="columns"] .panel a::before {
     content: "";
     display: inline-block;
@@ -345,6 +360,7 @@ fieldset.radio label:last-of-type {
     --color-background-tertiary: #2e2b2b;
     --color-background-secondary: #484545;
     --color-background-selection: #0059d1;
+    --color-background-selection-inactive: #474747;
     --color-background-toolbar: #343b3e;
     --color-text: #dedddd;
     --color-text-selection: var(--color-text);
