@@ -151,8 +151,23 @@ var (
 	hideExtensions = flag.Bool("he", false, "hide file extensions")
 	ignoreFile     = flag.String("ignore", ".ignore", "file with list of files to ignore")
 
-	ignore *gitignore.GitIgnore
+	ignore        *gitignore.GitIgnore
+	indexTemplate *template.Template
 )
+
+func init() {
+	var err error
+	// parse index.gohtml with funcmap
+	indexTemplate, err = template.New("index.gohtml").Funcs(template.FuncMap{
+		"join": func(dir, name string) string {
+			return filepath.Join(dir, name)
+		},
+	}).ParseFiles("index.gohtml")
+
+	if err != nil {
+		log.Fatalf("error parsing template: %v", err)
+	}
+}
 
 func main() {
 	flag.Parse()
@@ -224,95 +239,3 @@ func main() {
 	log.Printf("Starting server on port %s", *bind)
 	log.Fatal(http.ListenAndServe(*bind, nil))
 }
-
-var indexTemplate = template.Must(template.New("index").Funcs(map[string]interface{}{
-	"join": func(dir, name string) string {
-		return filepath.Join(dir, name)
-	},
-}).Parse(`
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Finder</title>
-    <link rel="stylesheet" href="/style.css?ts={{ .Timestamp }}">
-    <script src="https://unpkg.com/htmx.org@1.9.4" integrity="sha384-zUfuhFKKZCbHTY6aRR46gxiqszMk5tcHjsVFxnUo8VMus4kHGVdIYVbOYYNlKmHV" crossorigin="anonymous"></script>
-    <script src="/navigation.js?ts={{ .Timestamp }}"></script>
-</head>
-<body data-view="columns">
-<div id="toolbar" hx-preserve="true">
-	<fieldset
-		class="radio menubar-navigation"
-		title="Show items as icons, in a list or in columns"
-		role="menubar"
-		aria-label="View"
-	>
-		<legend>View</legend>
-		<label tabindex="0" role="menuitem"><input type="radio" name="view" value="icons"> <span>Icons</span></label>
-		<label tabindex="0" role="menuitem"><input type="radio" name="view" value="list"> <span>List</span></label>
-		<label tabindex="0" role="menuitem"><input type="radio" name="view" value="columns" checked> <span>Columns</span></label>
-	</fieldset>
-</div>
-<div id="container" hx-boost="true">
-    <nav>
-        <ul id="breadcrumbs" class="menubar-navigation" role="menubar" aria-label="breadcrumbs">
-            {{- range .Dirs }}
-            {{- $isCurrent := eq $.CurrentPath .Path }}
-            {{- if $isCurrent }}
-            <li role="none"><a role="menuitem" href="{{ .Path }}"{{ if .InPath }} class="secondary"{{ end }} aria-current="page">{{ .Name }}</a></li>
-            {{- else }}
-            <li role="none"><a role="menuitem" href="{{ .Path }}"{{ if .InPath }} class="secondary"{{ end }}>{{ .Name }}</a></li>
-            {{- end }}
-            {{- end }}
-        </ul>
-    </nav>
-    <nav id="panels">
-	{{- range $index, $panel := .Panels }}
-        <ul class="panel menubar-navigation" role="menu" data-level="{{ $index }}">
-            {{- range $panel.Files }}
-            {{- $path := join .Dir .Name }}
-            <li role="none">
-                <a
-                    role="menuitem"
-                    class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .IsInBreakcrumbs }} in-breadcrumbs{{ end }}"
-                    href="{{ $path }}"
-                >
-                    <span>{{ .Name }}</span>
-                </a>
-            </li>
-            {{- end }}
-        </ul>
-        {{- end }}
-    </nav>
-</div>
-{{- if not .HXRequest }}
-<script type="text/javascript">
-    const toolbar = document.querySelector('#toolbar');
-    const container = document.querySelector('#container');
-
-    let view = localStorage.getItem('view') || 'icons';
-    console.log('view', view);
-    document.body.setAttribute('data-view', view);
-    toolbar.querySelector(` + "`input[value=${view}]`" + `).checked = true;
-
-    let setView = function(value) {
-        localStorage.setItem('view', value);
-        document.body.setAttribute('data-view', value);
-    };
-
-    // if enter or space is pressed on a toolbar item, check the radio button
-    toolbar.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-            event.target.querySelector('input').checked = true;
-            setView(event.target.querySelector('input').value);
-        }
-    });
-
-    toolbar.addEventListener('change', (event) => {
-        setView(event.target.value);
-    });
-</script>
-{{- end }}
-</body>
-</html>
-`))
