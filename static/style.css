@@ -310,6 +310,7 @@ fieldset.radio label:last-of-type {
     filter: none;
     background: var(--color-background-selection);
     color: var(--color-text-selection);
+    outline: none;
 }
 
 [data-view="columns"] .panel a::before {
