@@ -62,6 +62,10 @@ var errNotFound = fmt.Errorf("not found")
 // listFiles collects all files in the given path (and all parent directories)
 // and returns them as a list of panels.
 func listFiles(path string) (panels Panels, err error) {
+	if path == "/" {
+		path = ""
+	}
+
 	realDir := filepath.Join(*dir, path)
 
 	// ensure that the path is a directory
@@ -179,7 +183,7 @@ func main() {
 
 		// serve files from the static directory
 		// check if file exists first
-		if _, err := os.Stat("static" + r.URL.Path); err == nil {
+		if stat, err := os.Stat("static" + r.URL.Path); err == nil && !stat.IsDir() {
 			http.ServeFile(w, r, "static"+r.URL.Path)
 			return
 		}
@@ -233,7 +237,7 @@ var indexTemplate = template.Must(template.New("index").Funcs(map[string]interfa
     <title>Finder</title>
     <link rel="stylesheet" href="/style.css?ts={{ .Timestamp }}">
     <script src="https://unpkg.com/htmx.org@1.9.4" integrity="sha384-zUfuhFKKZCbHTY6aRR46gxiqszMk5tcHjsVFxnUo8VMus4kHGVdIYVbOYYNlKmHV" crossorigin="anonymous"></script>
-    <script src="/navigation.js"></script>
+    <script src="/navigation.js?ts={{ .Timestamp }}"></script>
 </head>
 <body data-view="columns">
 <div id="toolbar" hx-preserve="true">
