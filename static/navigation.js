@@ -63,22 +63,13 @@ class MenubarNavigation {
       true
     );
 
+    // Add a tab index so that the menu can receive keyboard focus
     domNode.querySelector('[role=menuitem]').tabIndex = 0;
-
-    // Initial content for page
-    if (location.href.split('#').length > 1) {
-      linkURL = location.href;
-      linkTitle = getLinkNameFromURL(location.href);
-    } else {
-      linkURL = location.href + '#home';
-      linkTitle = 'Home';
-    }
 
     this.contentGenerator = new NavigationContentGenerator(
       '#home',
       'Mythical University'
     );
-    this.updateContent(linkURL, linkTitle, false);
 
     function getLinkNameFromURL(url) {
       function capitalize(str) {
@@ -109,48 +100,6 @@ class MenubarNavigation {
       }
     }
     return false;
-  }
-
-  updateContent(linkURL, linkName, moveFocus) {
-    var h1Node, paraNodes, pathNode;
-
-    if (typeof moveFocus !== 'boolean') {
-      moveFocus = true;
-    }
-
-    // Update content area
-    h1Node = document.querySelector('.page .main h1');
-    if (h1Node) {
-      h1Node.textContent = linkName;
-      h1Node.tabIndex = -1;
-      if (moveFocus) {
-        h1Node.focus();
-      }
-    }
-    paraNodes = document.querySelectorAll('.page .main p');
-    paraNodes.forEach(
-      (p) =>
-        (p.innerHTML = this.contentGenerator.renderParagraph(linkURL, linkName))
-    );
-
-    // Update aria-current
-    this.menuitems.forEach((item) => {
-      item.removeAttribute('aria-current');
-      item.classList.remove('aria-current-path');
-      item.title = '';
-    });
-
-    this.menuitems.forEach((item) => {
-      if (item.href === linkURL) {
-        item.setAttribute('aria-current', 'page');
-        pathNode = this.getParentMenuitem(item);
-        while (pathNode) {
-          pathNode.classList.add('aria-current-path');
-          pathNode.title = 'Contains current page link';
-          pathNode = this.getParentMenuitem(pathNode);
-        }
-      }
-    });
   }
 
   getMenuitems(domNode, depth) {
@@ -568,8 +517,8 @@ class MenubarNavigation {
         } else {
           if (tgt.href !== '#') {
             this.closePopupAll();
-            this.updateContent(tgt.href, tgt.textContent.trim());
             this.setMenubarDataExpanded('false');
+            tgt.click();
           }
         }
         flag = true;
@@ -698,12 +647,13 @@ class MenubarNavigation {
         this.closePopupAll(tgt);
         this.openPopup(menuId, tgt);
       }
+      event.stopPropagation();
+      event.preventDefault();
     } else {
-      this.updateContent(tgt.href, tgt.textContent.trim());
+      console.log('click: ' + tgt.href);
       this.closePopupAll();
     }
-    event.stopPropagation();
-    event.preventDefault();
+    
   }
 
   onMenuitemPointerover(event) {
@@ -730,7 +680,6 @@ class MenubarNavigation {
 }
 
 // Initialize menubar editor
-
 window.addEventListener('load', function () {
   var menubarNavs = document.querySelectorAll('.menubar-navigation');
   for (var i = 0; i < menubarNavs.length; i++) {
