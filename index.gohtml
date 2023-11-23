@@ -61,7 +61,7 @@
     let view = localStorage.getItem('view') || 'icons';
     console.log('view', view);
     document.body.setAttribute('data-view', view);
-    toolbar.querySelector(` + "`input[value=${view}]`" + `).checked = true;
+    toolbar.querySelector(`input[value=${view}]`).checked = true;
 
     let setView = function(value) {
         localStorage.setItem('view', value);
