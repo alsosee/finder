@@ -15,6 +15,7 @@ import (
 	"time"
 
 	gitignore "github.com/sabhiram/go-gitignore"
+	"gopkg.in/yaml.v3"
 )
 
 // File represents a file or directory in the file system.
@@ -59,8 +60,38 @@ type Panel struct {
 type Panels []Panel
 
 // Content represents the content of a file.
-// todo: string for now, but will be struct later
-type Content string
+type Content struct {
+	Name     string
+	Subtitle string
+	Year     int
+	Author   string
+	Authors  string
+
+	Website         string
+	Wikipedia       string
+	GoodReads       string
+	Twitch          string
+	YouTube         string
+	IMDB            string
+	Steam           string
+	Hulu            string
+	AdultSwim       string
+	AppStore        string `yaml:"app_store"`
+	Fandom          string
+	RottenTomatoes  string `yaml:"rotten_tomatoes"`
+	Twitter         string
+	Instagram       string
+	TelegramChannel string `yaml:"telegram_channel"`
+	X               string
+
+	ISBN   string
+	ISBN10 string
+	ISBN13 string
+	OCLC   string
+
+	// unknown fields are stored in the Extra map
+	Extra map[string]interface{} `yaml:",inline"`
+}
 
 var errNotFound = fmt.Errorf("not found")
 
@@ -160,7 +191,11 @@ func readContent(path string) (*Content, error) {
 		return nil, err
 	}
 
-	content := Content(string(b))
+	var content Content
+	if err := yaml.Unmarshal(b, &content); err != nil {
+		return nil, err
+	}
+
 	return &content, nil
 }
 

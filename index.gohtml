@@ -53,7 +53,41 @@
     {{- end }}
     {{ with .Content }}
         <div id="content">
-            {{ . }}
+            <h1>{{ .Name }}</h1>
+            {{ with .Subtitle}}<p>{{ .}}</p>{{ end }}
+            {{ with .Author }}<p>Author: {{ . }}</p>{{ end }}
+            {{ with .Authors }}<p>Authors:
+                {{ range . }}
+                    {{ . }}
+                {{ end }}
+            {{ end }}
+            {{ with .Website }}<p><a href="{{ . }}">{{ . }}</a></p>{{ end }}
+            <p>
+                {{ with .Wikipedia }}<a href="{{ . }}">Wikipedia</a>{{ end }}
+                {{ with .GoodReads }}<a href="{{ . }}">GoodReads</a>{{ end }}
+                {{ with .Twitch }}<a href="{{ . }}">Twitch</a>{{ end }}
+                {{ with .YouTube }}<a href="{{ . }}">YouTube</a>{{ end }}
+                {{ with .X }}<a href="{{ . }}">X</a>{{ end }}
+                {{ with .Twitter }}<a href="{{ . }}">X</a>{{ end }}
+                {{ with .IMDB }}<a href="{{ . }}">IMDB</a>{{ end }}
+                {{ with .Steam }}<a href="{{ . }}">Steam</a>{{ end }}
+                {{ with .AppStore }}<a href="{{ . }}">App Store</a>{{ end }}
+                {{ with .Hulu }}<a href="{{ . }}">Hulu</a>{{ end }}
+                {{ with .AdultSwim }}<a href="{{ . }}">AdultSwim</a>{{ end }}
+                {{ with .Fandom }}<a href="{{ . }}">Fandom</a>{{ end }}
+                {{ with .RottenTomatoes }}<a href="{{ . }}">Rotten Tomatoes</a>{{ end }}
+                {{ with .Instagram }}<a href="{{ . }}">Instagram</a>{{ end }}
+                {{ with .TelegramChannel }}<a href="{{ . }}">Telegram channel</a>{{ end }}
+            </p>
+            
+            {{ with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
+            {{ with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}
+            {{ with .ISBN13 }}<p>ISBN13: {{ . }}</p>{{ end }}
+            {{ with .Extra }}
+                {{ range $key, $value := . }}
+                    <p>{{ $key }}: {{ $value }}</p>
+                {{ end }}
+            {{ end }}
         </div>
     {{ end }}
     </nav>
