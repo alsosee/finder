@@ -50,7 +50,12 @@
             </li>
             {{- end }}
         </ul>
-        {{- end }}
+    {{- end }}
+    {{ with .Content }}
+        <div id="content">
+            {{ . }}
+        </div>
+    {{ end }}
     </nav>
 </div>
 {{- if not .HXRequest }}

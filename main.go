@@ -2,6 +2,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -57,20 +58,31 @@ type Panel struct {
 // Panels represents a list of panels.
 type Panels []Panel
 
+// Content represents the content of a file.
+// todo: string for now, but will be struct later
+type Content string
+
 var errNotFound = fmt.Errorf("not found")
 
 // listFiles collects all files in the given path (and all parent directories)
 // and returns them as a list of panels.
-func listFiles(path string) (panels Panels, err error) {
+func listFiles(path string) (panels Panels, content *Content, err error) {
 	if path == "/" {
 		path = ""
 	}
 
 	realDir := filepath.Join(*dir, path)
 
+	content = nil
 	// ensure that the path is a directory
-	if stat, err := os.Stat(realDir); err == nil && !stat.IsDir() {
-		realDir = filepath.Dir(realDir)
+	if _, err := os.Stat(realDir); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			content = tryFiles(path)
+			if content != nil {
+				path = filepath.Dir(path)
+				realDir = filepath.Join(*dir, path)
+			}
+		}
 	}
 
 	dirs := strings.Split(path, string(filepath.Separator))
@@ -88,11 +100,10 @@ func listFiles(path string) (panels Panels, err error) {
 
 		entries, err := os.ReadDir(realDir)
 		if err != nil {
-			log.Printf("error reading directory %s: %v", realDir, err)
 			if os.IsNotExist(err) {
-				return nil, errNotFound
+				return nil, nil, errNotFound
 			}
-			return nil, err
+			return nil, nil, err
 		}
 
 		for _, entry := range entries {
@@ -121,7 +132,36 @@ func listFiles(path string) (panels Panels, err error) {
 		panels = append(panels, panel)
 	}
 
-	return panels, nil
+	return panels, content, nil
+}
+
+func tryFiles(path string) *Content {
+	// try to find a file with the same name as the directory
+	// with a ".md" extension
+	// if the file exists, read the content
+	// otherwise, return nil
+
+	extentions := []string{".yml", ".md"}
+	for _, ext := range extentions {
+		content, err := readContent(path + ext)
+		if err == nil {
+			return content
+		}
+	}
+	return nil
+}
+
+func readContent(path string) (*Content, error) {
+	b, err := os.ReadFile(filepath.Join(*dir, path))
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, errNotFound
+		}
+		return nil, err
+	}
+
+	content := Content(string(b))
+	return &content, nil
 }
 
 func buildDirs(path string) (dirs []Dir) {
@@ -203,7 +243,7 @@ func main() {
 			return
 		}
 
-		panels, err := listFiles(r.URL.Path)
+		panels, content, err := listFiles(r.URL.Path)
 		if err != nil {
 			if err == errNotFound {
 				http.NotFound(w, r)
@@ -221,12 +261,14 @@ func main() {
 			CurrentPath string
 			Dirs        []Dir
 			Panels      Panels
+			Content     *Content
 			Timestamp   int64
 		}{
 			HXRequest:   r.Header.Get("HX-Request") == "true",
 			CurrentPath: r.URL.Path,
 			Dirs:        buildDirs(r.URL.Path),
 			Panels:      panels,
+			Content:     content,
 			Timestamp:   time.Now().Unix(),
 		})
 		if err != nil {
