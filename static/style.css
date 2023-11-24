@@ -10,6 +10,7 @@
   --color-background-toolbar: var(--color-background);
   --color-background-selection: #2962d9;
   --color-background-selection-inactive: #dddcdc;
+  --color-link: #2962d9;
   --color-text: #222222;
   --color-text-selection: #ffffff;
   --color-text-muted: #838383;
@@ -46,6 +47,13 @@ body {
   border: 1px solid var(--color-border);
 }
 
+a {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
 #toolbar {
     display: flex;
     flex-direction: row;
@@ -61,6 +69,7 @@ body {
   display: flex;
   flex-direction: column;
   position: relative; /* for absolute positioning of panels */
+  overflow-x: scroll;
 }
 
 fieldset.radio {
@@ -224,7 +233,23 @@ fieldset.radio label:last-of-type {
 }
 
 #content h1 {
+    font-size: 1.5em;
     margin-bottom: 10px;
+}
+
+#content h2 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+#content p {
+    margin-bottom: 10px;
+}
+
+#content ul,
+#content ol {
+    marg#in-bottom: 10px;
+    padding-left: 20px;
 }
 
 /* ICONS */
@@ -389,6 +414,7 @@ fieldset.radio label:last-of-type {
     --color-text-selection: var(--color-text);
     --color-text-muted: #989d9f;
     --color-border: #000000;
+    --color-link: #a8c7fa;
   }
   #toolbar {
     --color-background: #2e2b2b;

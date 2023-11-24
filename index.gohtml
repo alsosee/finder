@@ -53,7 +53,8 @@
     {{- end }}
     {{ with .Content }}
         <div id="content">
-            <h1>{{ .Name }}</h1>
+            {{ with .HTML }}{{ . }}{{ end }}
+            {{ with .Name }}<h1>{{ . }}</h1>{{ end }}
             {{ with .Subtitle}}<p>{{ .}}</p>{{ end }}
             {{ with .Author }}<p>Author: {{ . }}</p>{{ end }}
             {{ with .Authors }}<p>Authors:

@@ -14,6 +14,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/gomarkdown/markdown"
 	gitignore "github.com/sabhiram/go-gitignore"
 	"gopkg.in/yaml.v3"
 )
@@ -61,6 +62,8 @@ type Panels []Panel
 
 // Content represents the content of a file.
 type Content struct {
+	HTML string `yaml:"-"` // for Markdown files
+
 	Name     string
 	Subtitle string
 	Year     int
@@ -98,10 +101,6 @@ var errNotFound = fmt.Errorf("not found")
 // listFiles collects all files in the given path (and all parent directories)
 // and returns them as a list of panels.
 func listFiles(path string) (panels Panels, content *Content, err error) {
-	if path == "/" {
-		path = ""
-	}
-
 	realDir := filepath.Join(*dir, path)
 
 	content = nil
@@ -111,9 +110,14 @@ func listFiles(path string) (panels Panels, content *Content, err error) {
 			content = tryFiles(path)
 			if content != nil {
 				path = filepath.Dir(path)
+				log.Printf("NEW PATH: %s", path)
 				realDir = filepath.Join(*dir, path)
 			}
 		}
+	}
+
+	if path == "/" {
+		path = ""
 	}
 
 	dirs := strings.Split(path, string(filepath.Separator))
@@ -172,9 +176,9 @@ func tryFiles(path string) *Content {
 	// if the file exists, read the content
 	// otherwise, return nil
 
-	extentions := []string{".yml", ".md"}
+	extentions := []string{".yml", ".yaml", ".md"}
 	for _, ext := range extentions {
-		content, err := readContent(path + ext)
+		content, err := readContent(path, ext)
 		if err == nil {
 			return content
 		}
@@ -182,8 +186,8 @@ func tryFiles(path string) *Content {
 	return nil
 }
 
-func readContent(path string) (*Content, error) {
-	b, err := os.ReadFile(filepath.Join(*dir, path))
+func readContent(path, ext string) (*Content, error) {
+	b, err := os.ReadFile(filepath.Join(*dir, path+ext))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, errNotFound
@@ -192,8 +196,17 @@ func readContent(path string) (*Content, error) {
 	}
 
 	var content Content
-	if err := yaml.Unmarshal(b, &content); err != nil {
-		return nil, err
+
+	switch ext {
+	case ".yml", ".yaml":
+		if err := yaml.Unmarshal(b, &content); err != nil {
+			return nil, err
+		}
+	case ".md":
+		htmlBody := markdown.ToHTML(b, nil, nil)
+		content = Content{
+			HTML: string(htmlBody),
+		}
 	}
 
 	return &content, nil
