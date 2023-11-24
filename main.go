@@ -110,7 +110,6 @@ func listFiles(path string) (panels Panels, content *Content, err error) {
 			content = tryFiles(path)
 			if content != nil {
 				path = filepath.Dir(path)
-				log.Printf("NEW PATH: %s", path)
 				realDir = filepath.Join(*dir, path)
 			}
 		}
