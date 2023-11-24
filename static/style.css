@@ -1,8 +1,10 @@
 @charset "UTF-8";
 
 :root {
-  --font-default: -apple-system, BlinkMacSystemFont, "Segoe UI", "Open Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-  --font-monospace: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+  --font-default: -apple-system, BlinkMacSystemFont, "Segoe UI", "Open Sans",
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-monospace: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
+    Liberation Mono, monospace;
 
   --color-background: #ffffff;
   --color-background-secondary: #f5f7f6;
@@ -19,7 +21,9 @@
 }
 
 /* 1. Use a more-intuitive box-sizing model */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -54,14 +58,33 @@ a {
   text-underline-offset: 0.3em;
 }
 
+code {
+  padding: 0 0.2em;
+  background: var(--color-background-secondary);
+  border-radius: 0.3em;
+}
+
+pre {
+  padding: 0.2em 0.4em;
+  background: var(--color-background-secondary);
+  border-radius: 0.3em;
+  margin-bottom: 10px;
+}
+
+pre code {
+  padding: 0;
+  background: none;
+  border: none;
+}
+
 #toolbar {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    padding: 10px;
-    gap: 10px;
-    background: var(--color-background);
-    border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 10px;
+  gap: 10px;
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
 }
 
 #container {
@@ -73,332 +96,348 @@ a {
 }
 
 fieldset.radio {
-    display: flex;
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    user-select: none;
+  display: flex;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  user-select: none;
 }
 
 fieldset.radio legend {
-    display: none;
+  display: none;
 }
 
 fieldset.radio label {
-    padding: 10px 15px;
-    cursor: pointer;
+  padding: 10px 15px;
+  cursor: pointer;
 }
 
 fieldset.radio span {
-    display: inline-block;
-    width: 24px;
-    height: 24px;
-    background-image: url('sprite.png');
-    background-repeat: no-repeat;
-    background-size: 120px 24px;
-    background-position: 0 0;
-    text-indent: -5000px;
-    filter: opacity(0.8);
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-image: url("sprite.png");
+  background-repeat: no-repeat;
+  background-size: 120px 24px;
+  background-position: 0 0;
+  text-indent: -5000px;
+  filter: opacity(0.8);
 }
 
 fieldset.radio input[value="list"] + span {
-    background-position: -24px 0;
+  background-position: -24px 0;
 }
 
 fieldset.radio input[value="columns"] + span {
-    background-position: -48px 0;
+  background-position: -48px 0;
 }
 
 fieldset.radio input {
-    display: none;
+  display: none;
 }
 
 fieldset.radio label:has(input:checked) {
-    background: var(--color-background-secondary);
+  background: var(--color-background-secondary);
 }
 
 fieldset.radio label:focus {
-    outline: 2px solid var(--color-outline);
-    z-index: 1;
+  outline: 2px solid var(--color-outline);
+  z-index: 1;
 }
 
 fieldset.radio label:first-of-type {
-    border-radius: 8px 0 0 8px;
+  border-radius: 8px 0 0 8px;
 }
 
 fieldset.radio label:last-of-type {
-    border-radius: 0 8px 8px 0;
+  border-radius: 0 8px 8px 0;
 }
 
 #breadcrumbs {
-    display: flex;;
-    font-size: 10pt;
-    border-bottom: 1px solid var(--color-border);
-    list-style: none;
-    overflow: hidden; /* cut off the li shadow */
+  display: flex;
+  font-size: 10pt;
+  border-bottom: 1px solid var(--color-border);
+  list-style: none;
+  overflow: hidden; /* cut off the li shadow */
 }
 
 #breadcrumbs li {
-    filter: drop-shadow(1px 0px 0px var(--color-border))
+  filter: drop-shadow(1px 0px 0px var(--color-border));
 }
 
 #breadcrumbs a {
-    display: inline-block;
-    padding: 0 16px;
-    background: var(--color-background);
-    color: var(--color-text);
-    text-decoration: none;
-    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%, 10px 50%);
+  display: inline-block;
+  padding: 0 16px;
+  background: var(--color-background);
+  color: var(--color-text);
+  text-decoration: none;
+  clip-path: polygon(
+    0 0,
+    calc(100% - 10px) 0,
+    100% 50%,
+    calc(100% - 10px) 100%,
+    0 100%,
+    10px 50%
+  );
 }
 
 #breadcrumbs li:first-child a {
-    padding-left: 10px; /* to align with files in panels */
-    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%); /* no arrow on the left */
+  padding-left: 10px; /* to align with files in panels */
+  clip-path: polygon(
+    0 0,
+    calc(100% - 10px) 0,
+    100% 50%,
+    calc(100% - 10px) 100%,
+    0 100%
+  ); /* no arrow on the left */
 }
 
 #breadcrumbs li + li a {
-    margin-left: -9px; /* to leave 1 px gap between li for border */
+  margin-left: -9px; /* to leave 1 px gap between li for border */
 }
 
 #breadcrumbs a:active {
-    background: var(--color-background-secondary);
+  background: var(--color-background-secondary);
 }
 
 #breadcrumbs a:focus {
-    background-color: var(--color-background-secondary);
-    outline: 2px solid var(--color-outline);
-    z-index: 1;
-    filter: none;
+  background-color: var(--color-background-secondary);
+  outline: 2px solid var(--color-outline);
+  z-index: 1;
+  filter: none;
 }
 
 /* container is a "view" that can show "files" as icons, list, or columns */
 /* container has a list of panels, used in "columns" view to show hierachy */
 #panels {
-    position: absolute;
-    bottom: 0;
-    top: 0;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    margin: 0 auto;
+  position: absolute;
+  bottom: 0;
+  top: 0;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  margin: 0 auto;
 }
 
 /* panel is a list of files inside one directory */
 .panel {
-    width: 100%;
-    list-style: none;
-    cursor: default;
-    overflow-y: scroll;
+  width: 100%;
+  list-style: none;
+  cursor: default;
+  overflow-y: scroll;
 }
 
 /* panel li is a file or directory */
 .panel li {
-    display: flex;
+  display: flex;
 }
 
 .panel li a {
-    display: flex;
-    width: 100%;
-    padding: 5px 10px;
-    align-items: center;
-    color: var(--color-text);
-    text-decoration: none;
-    cursor: default;
+  display: flex;
+  width: 100%;
+  padding: 5px 10px;
+  align-items: center;
+  color: var(--color-text);
+  text-decoration: none;
+  cursor: default;
 }
 
 .panel li a:active {
-    background: var(--color-background-secondary);
+  background: var(--color-background-secondary);
 }
 
 .panel li a span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .panel .in-breadcrumbs {
-    background: var(--color-background-selection-inactive);
+  background: var(--color-background-selection-inactive);
 }
 
 .panel .active {
-    color: var(--color-text-selection);
-    background: var(--color-background-selection) !important;
+  color: var(--color-text-selection);
+  background: var(--color-background-selection) !important;
 }
 
 #content {
-    min-width: 460px;
-    padding: 20px;
-    /* background: #fff9f0; */
-    /* border-right: 1px solid var(--color-border); */
+  height: 100%;
+  min-width: 460px;
+  padding: 20px;
+  overflow-y: auto;
+  /* background: #fff9f0; */
+  /* border-right: 1px solid var(--color-border); */
 }
 
 #content h1 {
-    font-size: 1.5em;
-    margin-bottom: 10px;
+  font-size: 1.5em;
+  margin-bottom: 10px;
 }
 
 #content h2 {
-    font-size: 1.2em;
-    margin-bottom: 10px;
+  font-size: 1.2em;
+  margin-top: 20px;
+  margin-bottom: 10px;
 }
 
 #content p {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 #content ul,
 #content ol {
-    marg#in-bottom: 10px;
-    padding-left: 20px;
+  margin-bottom: 10px;
+  padding-left: 20px;
 }
 
 /* ICONS */
 
 [data-view="icons"] .panel {
-    display: flex;
-    flex-direction: row;
-    align-items: baseline;
-    align-content: flex-start;
-    flex-shrink: 0;
-    flex-wrap: wrap;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  align-content: flex-start;
+  flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 [data-view="icons"] .panel:not(:last-child) {
-    /* hide app panels except the last one (current) */
-    display: none;
+  /* hide app panels except the last one (current) */
+  display: none;
 }
 
 [data-view="icons"] .panel li {
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    align-items: end;
-    width: 150px;
-    padding: 10px;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: end;
+  width: 150px;
+  padding: 10px;
 }
 
 [data-view="icons"] .panel li a {
-    flex-direction: column;
-    border-radius: 10px;
-    overflow: hidden;
+  flex-direction: column;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 [data-view="icons"] .panel li a span {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    white-space: inherit;
-    border-radius: 10px;
-    overflow: visible;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: inherit;
+  border-radius: 10px;
+  overflow: visible;
 }
 
 [data-view="icons"] .panel li a::before {
-    content: "";
-    display: block;
-    margin: 0 auto 10px;
-    width: 100px;
-    height: 100px;
-    background-image: url('files.png');
-    background-repeat: no-repeat;
-    background-size: 200px 100px;
-    background-position: 0 0;
+  content: "";
+  display: block;
+  margin: 0 auto 10px;
+  width: 100px;
+  height: 100px;
+  background-image: url("files.png");
+  background-repeat: no-repeat;
+  background-size: 200px 100px;
+  background-position: 0 0;
 }
 
 [data-view="icons"] .panel .folder::before {
-    background-position: -100px 0;
+  background-position: -100px 0;
 }
 
 /* LIST */
 
 [data-view="list"] .panel:not(:last-child) {
-    /* hide app panels except the last one (current) */
-    display: none;
+  /* hide app panels except the last one (current) */
+  display: none;
 }
 
 [data-view="list"] .panel li:nth-child(even) {
-    background: var(--color-background-tertiary);
+  background: var(--color-background-tertiary);
 }
 
 [data-view="list"] .panel a::before {
-    content: "";
-    display: inline-block;
-    flex-shrink: 0;
-    margin-right: 5px;
-    width: 24px;
-    height: 24px;
-    background-image: url('sprite.png');
-    background-repeat: no-repeat;
-    background-size: 120px 24px;
-    background-position: -72px 0;
+  content: "";
+  display: inline-block;
+  flex-shrink: 0;
+  margin-right: 5px;
+  width: 24px;
+  height: 24px;
+  background-image: url("sprite.png");
+  background-repeat: no-repeat;
+  background-size: 120px 24px;
+  background-position: -72px 0;
 }
 
 [data-view="list"] .panel .folder::before {
-    background-position: -96px 0;
+  background-position: -96px 0;
 }
 
 /* COLUMNS */
 
 [data-view="columns"] .panel {
-    border-right: 1px solid var(--color-border);
-    width: 230px;
-    flex-shrink: 0;
+  border-right: 1px solid var(--color-border);
+  width: 230px;
+  flex-shrink: 0;
 }
 
 [data-view="columns"] .panel li:nth-child(even) {
-    background: var(--color-background-tertiary);
+  background: var(--color-background-tertiary);
 }
 
 [data-view="columns"] .panel a {
-    width: 100%;
+  width: 100%;
 }
 
 [data-view="columns"] .panel a:focus {
-    z-index: 1;
-    filter: none;
-    background: var(--color-background-selection);
-    color: var(--color-text-selection);
-    outline: none;
+  z-index: 1;
+  filter: none;
+  background: var(--color-background-selection);
+  color: var(--color-text-selection);
+  outline: none;
 }
 
 [data-view="columns"] .panel a::before {
-    content: "";
-    display: inline-block;
-    flex-shrink: 0;
-    margin-right: 5px;
-    width: 24px;
-    height: 24px;
-    background-image: url('sprite.png');
-    background-repeat: no-repeat;
-    background-size: 120px 24px;
-    background-position: -72px 0;
+  content: "";
+  display: inline-block;
+  flex-shrink: 0;
+  margin-right: 5px;
+  width: 24px;
+  height: 24px;
+  background-image: url("sprite.png");
+  background-repeat: no-repeat;
+  background-size: 120px 24px;
+  background-position: -72px 0;
 }
 
 [data-view="columns"] .panel .folder::before {
-    background-position: -96px 0;
+  background-position: -96px 0;
 }
 
 [data-view="columns"] .panel .folder {
-    position: relative;
-    padding-right: 20px;
+  position: relative;
+  padding-right: 20px;
 }
 
 [data-view="columns"] .panel .folder::after {
-    content: "ᐳ";
-    display: inline-block;
-    position: absolute;
-    right: 10px;
-    font-size: 10px;
-    transform: scaleX(0.65);
-    color: #989d9f;
+  content: "ᐳ";
+  display: inline-block;
+  position: absolute;
+  right: 10px;
+  font-size: 10px;
+  transform: scaleX(0.65);
+  color: #989d9f;
 }
 
 [data-view="columns"] .panel .active .folder::after {
-    color: var(--color-text-selection);
+  color: var(--color-text-selection);
 }
 
 [data-view="columns"] .panel li a {
-    overflow: hidden;
-    text-overflow: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* dark mode */
