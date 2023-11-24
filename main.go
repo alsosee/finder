@@ -64,11 +64,15 @@ type Panels []Panel
 type Content struct {
 	HTML string `yaml:"-"` // for Markdown files
 
-	Name     string
-	Subtitle string
-	Year     int
-	Author   string
-	Authors  string
+	Name        string
+	Subtitle    string
+	Year        int
+	Author      string
+	Authors     string
+	Description string
+
+	DOB string
+	DOD string
 
 	Website         string
 	Wikipedia       string

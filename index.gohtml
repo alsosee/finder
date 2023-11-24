@@ -55,7 +55,10 @@
         <div id="content">
             {{ with .HTML }}{{ . }}{{ end }}
             {{ with .Name }}<h1>{{ . }}</h1>{{ end }}
-            {{ with .Subtitle}}<p>{{ .}}</p>{{ end }}
+            {{ with .Subtitle }}<p>{{ . }}</p>{{ end }}
+            {{ with .Description }}<p>{{ . }}</p>{{ end }}
+            {{ with .DOB }}<p>Born: {{ . }}</p>{{ end }}
+            {{ with .DOD }}<p>Died: {{ . }}</p>{{ end }}
             {{ with .Author }}<p>Author: {{ . }}</p>{{ end }}
             {{ with .Authors }}<p>Authors:
                 {{ range . }}
