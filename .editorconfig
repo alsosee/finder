@@ -1,0 +1,7 @@
+[*.yml,*.yaml]
+tab_width = 2
+indent_size = 2
+
+[*.css]
+tab_width = 2
+indent_size = 2
