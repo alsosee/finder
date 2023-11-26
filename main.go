@@ -19,6 +19,22 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Connections represents a list of connectiones that initiated by a reference.
+// Key is a file path, where reference is pointing to.
+// Value is a list of files that are pointing to the key.
+// For example, if a file "A" has a reference to file "B",
+// and file "C" has a reference to file "B" as well,
+// then the Connections map will look like this:
+//
+//	{
+//	  "B": ["A", "C"]
+//	}
+type Connections map[string]map[string]bool
+
+// Contents represents a list of contents, where key is a file path.
+// It is used to properly render references.
+type Contents map[string]Content
+
 // File represents a file or directory in the file system.
 type File struct {
 	Name            string
@@ -265,11 +281,15 @@ func buildDirs(path string) (dirs []Dir) {
 var (
 	bind           = flag.String("bind", ":8080", "address to bind to")
 	dir            = flag.String("dir", "", "root directory to serve")
+	out            = flag.String("out", "", "output directory for generated files")
 	hideExtensions = flag.Bool("he", false, "hide file extensions")
 	ignoreFile     = flag.String("ignore", ".ignore", "file with list of files to ignore")
 
 	ignore        *gitignore.GitIgnore
 	indexTemplate *template.Template
+
+	connections = Connections{}
+	contents    = Contents{}
 )
 
 func init() {
@@ -330,8 +350,25 @@ func main() {
 			return
 		}
 
+		if content != nil {
+			contents[r.URL.Path] = *content
+
+			// process references
+			for _, ref := range content.References {
+				refPath := string(filepath.Separator) + ref.Path
+
+				if _, ok := connections[refPath]; !ok {
+					connections[refPath] = map[string]bool{}
+				}
+
+				connections[refPath][r.URL.Path] = true
+			}
+		}
+
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Header().Set("Vary", "HX-Request")
+
+		log.Printf("Connections: %v", connections)
 
 		err = indexTemplate.Execute(w, struct {
 			HXRequest   bool
@@ -340,6 +377,7 @@ func main() {
 			Panels      Panels
 			Content     *Content
 			Timestamp   int64
+			Connections Connections
 		}{
 			HXRequest:   r.Header.Get("HX-Request") == "true",
 			CurrentPath: r.URL.Path,
@@ -347,6 +385,7 @@ func main() {
 			Panels:      panels,
 			Content:     content,
 			Timestamp:   time.Now().Unix(),
+			Connections: connections,
 		})
 		if err != nil {
 			log.Printf("error executing template: %v", err)
