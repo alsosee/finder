@@ -60,6 +60,30 @@ type Panel struct {
 // Panels represents a list of panels.
 type Panels []Panel
 
+// Reference represents a reference to another file.
+// Often it has only a path.
+type Reference struct {
+	Path string
+	Name string
+}
+
+// UnmarshalYAML is a custom unmarshaler for Reference.
+// It can be either a string or a map.
+func (r *Reference) UnmarshalYAML(value *yaml.Node) error {
+	if value.Kind == yaml.ScalarNode {
+		r.Path = value.Value
+		return nil
+	}
+
+	var ref Reference
+	if err := value.Decode(&ref); err != nil {
+		return err
+	}
+
+	r = &ref
+	return nil
+}
+
 // Content represents the content of a file.
 type Content struct {
 	HTML string `yaml:"-"` // for Markdown files
@@ -98,6 +122,8 @@ type Content struct {
 
 	// unknown fields are stored in the Extra map
 	Extra map[string]interface{} `yaml:",inline"`
+
+	References []Reference `yaml:"refs"`
 }
 
 var errNotFound = fmt.Errorf("not found")

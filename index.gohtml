@@ -92,6 +92,16 @@
                     <p>{{ $key }}: {{ $value }}</p>
                 {{ end }}
             {{ end }}
+
+            {{ with .References }}
+                <p>Related: </p>
+                <ul>
+                {{ range . }}
+                    <li><a href="/{{ .Path }}">{{ .Path }}</a></li>
+                {{ end }}
+                </ul>
+            {{ end }}
+
         </div>
     {{ end }}
     </nav>
