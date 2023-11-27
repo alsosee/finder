@@ -2,36 +2,41 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
-	"text/template"
 
-	gitignore "github.com/sabhiram/go-gitignore"
+	flags "github.com/jessevdk/go-flags"
 )
 
-var errNotFound = fmt.Errorf("not found")
+// Config represents an app configuration.
+type Config struct {
+	InfoDirectory      string `env:"INPUT_INFO" short:"i" long:"info" description:"Directory that contains info files" default:"info"`
+	IgnoreFile         string `env:"INPUT_IGNOREFILE" short:"f" long:"ignorefile" description:"File that contains ignore patterns" default:".ignore"`
+	TemplatesDirectory string `env:"INPUT_TEMPLATES" short:"t" long:"templates" description:"Directory that contains templates" default:"templates"`
+	OutputDirectory    string `env:"INPUT_OUTPUT" short:"o" long:"output" description:"Directory to output generated files" default:"output"`
+}
 
 var (
-	bind           = flag.String("bind", ":8080", "address to bind to")
-	dir            = flag.String("dir", "", "root directory to serve")
-	out            = flag.String("out", "", "output directory for generated files")
-	hideExtensions = flag.Bool("he", false, "hide file extensions")
-	ignoreFile     = flag.String("ignore", ".ignore", "file with list of files to ignore")
-
-	ignore        *gitignore.GitIgnore
-	indexTemplate *template.Template
-
-	connections = Connections{}
-	contents    = Contents{}
+	errNotFound = fmt.Errorf("not found")
+	cfg         Config // global config
 )
 
 func main() {
-	flag.Parse()
-
-	if *dir == "" {
-		log.Fatal("dir is required")
+	_, err := flags.Parse(&cfg)
+	if err != nil {
+		log.Fatalf("error parsing flags: %v", err)
 	}
 
-	runServer(bind)
+	if cfg.InfoDirectory == "" {
+		log.Fatalf("info directory must be specified")
+	}
+
+	generator, err := NewGenerator()
+	if err != nil {
+		log.Fatalf("error creating generator: %v", err)
+	}
+
+	if err := generator.Run(); err != nil {
+		log.Fatalf("error running generator: %v", err)
+	}
 }

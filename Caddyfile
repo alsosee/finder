@@ -1,0 +1,23 @@
+{
+  local_certs
+  auto_https disable_redirects
+  # debug
+}
+
+# Add to /etc/hosts so that Caddy can issue certificate locally
+# 127.0.0.1       culturalhub.local
+
+culturalhub.local {
+  tls internal
+
+  # serve style.css, sprite.png, navigation.js, files.png from /static directory
+  @static {
+      path *.css *.png *.js
+  }
+  root @static static
+
+  root * output
+  try_files {path}.html
+  encode gzip
+  file_server
+}

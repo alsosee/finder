@@ -56,6 +56,9 @@ type Panel struct {
 	Files []File
 }
 
+// FileLists is a map, where key is a directory path, and value is a Panel that corresponds to that directory.
+type FileLists map[string]Panel
+
 // Panels represents a list of panels.
 type Panels []Panel
 
