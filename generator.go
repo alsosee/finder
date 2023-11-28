@@ -1,11 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
+	"sync"
 	"text/template"
 	"time"
 
@@ -19,24 +22,24 @@ type Generator struct {
 	templates *template.Template
 	ignore    *gitignore.GitIgnore
 
-	fileLists   FileLists
-	connections Connections
-	contents    Contents
-}
+	contents   Contents
+	muContents sync.Mutex
 
-var fm = template.FuncMap{
-	"join": func(dir, name string) string {
-		return filepath.Join(dir, name)
-	},
+	// dirContents is a map where
+	// key is a directory path,
+	// value is a list of files and directories;
+	// used to build Panels
+	dirContents map[string][]File
+
+	// Connections keep track of references from one file to another.
+	// key is a file path, where reference is pointing to.
+	// value is a list of files that are pointing to the key.
+	connections   Connections
+	muConnections sync.Mutex
 }
 
 // NewGenerator creates a new Generator.
-func NewGenerator() (*Generator, error) {
-	t, err := template.New("").Funcs(fm).ParseGlob(cfg.TemplatesDirectory + "/*")
-	if err != nil {
-		return nil, fmt.Errorf("Error parsing templates: %v", err)
-	}
-
+func NewGenerator(cfg Config) (*Generator, error) {
 	ignore := &gitignore.GitIgnore{}
 	ignoreFilepath := filepath.Join(cfg.InfoDirectory, cfg.IgnoreFile)
 	if _, err := os.Stat(ignoreFilepath); err == nil {
@@ -47,17 +50,45 @@ func NewGenerator() (*Generator, error) {
 	}
 
 	return &Generator{
-		templates:   t,
 		ignore:      ignore,
-		connections: Connections{},
 		contents:    Contents{},
+		dirContents: map[string][]File{},
+		connections: Connections{},
 	}, nil
+}
+
+func (g *Generator) fm() template.FuncMap {
+	return template.FuncMap{
+		"join": func(dir, name string) string {
+			return filepath.Join(dir, name)
+		},
+		"connections": func(path string) []string {
+			g.muConnections.Lock()
+			defer g.muConnections.Unlock()
+
+			if m, ok := g.connections[path]; ok {
+				var connections []string
+				for k := range m {
+					connections = append(connections, k)
+				}
+				return connections
+			}
+			return nil
+		},
+	}
 }
 
 // Run runs the generator.
 func (g *Generator) Run() error {
+	t, err := template.New("").Funcs(g.fm()).ParseGlob(cfg.TemplatesDirectory + "/*")
+	if err != nil {
+		return fmt.Errorf("parsing templates: %v", err)
+	}
+	g.templates = t
+
 	defer measureTime()()
 
+	// Go through all the files in the info directory
 	var (
 		files  = make(chan string)
 		errors = make(chan error)
@@ -68,18 +99,32 @@ func (g *Generator) Run() error {
 	go g.walkInfoDirectory(files, errors)
 	go g.processFiles(files, errors, done)
 
+FILE_PROCESSING:
 	for {
 		select {
 		case err := <-errors:
 			close(files)
+			close(errors)
 			close(done)
 			return fmt.Errorf("Error walking info directory: %v", err)
 
 		case <-done:
 			log.Printf("Done processing files")
-			return nil
+			break FILE_PROCESSING
 		}
 	}
+
+	// Generate file templates
+	if err := g.generateContentTemplates(); err != nil {
+		return fmt.Errorf("generating content templates: %v", err)
+	}
+
+	// Generate index for each directory
+	if err := g.generateIndexes(); err != nil {
+		return fmt.Errorf("generating indexes: %v", err)
+	}
+
+	return nil
 }
 
 func (g *Generator) walkInfoDirectory(files chan<- string, errors chan<- error) {
@@ -92,7 +137,10 @@ func (g *Generator) walkInfoDirectory(files chan<- string, errors chan<- error) 
 				return err
 			}
 
+			relPath := path[len(cfg.InfoDirectory):]
+
 			if info.IsDir() {
+				g.addDir(relPath)
 				return nil
 			}
 
@@ -100,7 +148,8 @@ func (g *Generator) walkInfoDirectory(files chan<- string, errors chan<- error) 
 				return nil
 			}
 
-			files <- path[len(cfg.InfoDirectory):]
+			g.addFile(relPath)
+			files <- relPath
 			return nil
 		},
 	)
@@ -114,25 +163,29 @@ func (g *Generator) walkInfoDirectory(files chan<- string, errors chan<- error) 
 }
 
 func (g *Generator) processFiles(files <-chan string, errors chan<- error, done chan<- struct{}) {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Printf("Error processing files: %v", r)
-		}
-	}()
+	wg := sync.WaitGroup{}
 
-	for file := range files {
-		log.Printf("Processing %s", file)
+	for i := 0; i < cfg.NumWorkers; i++ {
 
-		err := g.processFile(file)
-		if err != nil {
-			errors <- fmt.Errorf("parsing file %q: %v", file, err)
-			continue
+		for path := range files {
+			go func(path string) {
+				wg.Add(1)
+				defer wg.Done()
+
+				if err := g.processFile(path); err != nil {
+					errors <- fmt.Errorf("processing file %q: %v", path, err)
+				}
+			}(path)
 		}
 	}
+
+	wg.Wait()
 
 	done <- struct{}{}
 }
 
+// processFile processes a single file.
+// For content files, like YAML and Markdown, it adds Content struct to g.contents.
 func (g *Generator) processFile(file string) error {
 	switch filepath.Ext(file) {
 	case ".yml", ".yaml":
@@ -159,41 +212,10 @@ func (g *Generator) processYAMLFile(file string) error {
 		return fmt.Errorf("unmarshaling yaml: %v", err)
 	}
 
-	// change the file extension to .html
-	file = file[:len(file)-len(filepath.Ext(file))] + ".html"
-	outputFilepath := filepath.Join(cfg.OutputDirectory, file)
+	g.addContent(file, content)
+	g.addConnections(file, content)
 
-	if err := os.MkdirAll(filepath.Dir(outputFilepath), 0755); err != nil {
-		return fmt.Errorf("creating output directory: %v", err)
-	}
-
-	f, err := os.Create(outputFilepath)
-	if err != nil {
-		return fmt.Errorf("creating output file: %v", err)
-	}
-	defer f.Close()
-
-	return g.templates.ExecuteTemplate(
-		f,
-		"index.gohtml",
-		struct {
-			HXRequest   bool
-			CurrentPath string
-			Dirs        []Dir
-			Panels      Panels
-			Content     *Content
-			Timestamp   int64
-			Connections Connections
-		}{
-			HXRequest:   false,
-			CurrentPath: "",
-			Dirs:        buildDirs(filepath.Dir(file)),
-			Panels:      g.buildPanels(filepath.Dir(file)),
-			Content:     &content,
-			Timestamp:   time.Now().Unix(),
-			Connections: nil,
-		},
-	)
+	return nil
 }
 
 func (g *Generator) processMarkdownFile(file string) error {
@@ -203,45 +225,9 @@ func (g *Generator) processMarkdownFile(file string) error {
 	}
 
 	htmlBody := markdown.ToHTML(b, nil, nil)
-	content := Content{
-		HTML: string(htmlBody),
-	}
 
-	// change the file extension to .html
-	file = file[:len(file)-len(filepath.Ext(file))] + ".html"
-	outputFilepath := filepath.Join(cfg.OutputDirectory, file)
-
-	if err := os.MkdirAll(filepath.Dir(outputFilepath), 0755); err != nil {
-		return fmt.Errorf("creating output directory: %v", err)
-	}
-
-	f, err := os.Create(outputFilepath)
-	if err != nil {
-		return fmt.Errorf("creating output file: %v", err)
-	}
-	defer f.Close()
-
-	return g.templates.ExecuteTemplate(
-		f,
-		"index.gohtml",
-		struct {
-			HXRequest   bool
-			CurrentPath string
-			Dirs        []Dir
-			Panels      Panels
-			Content     *Content
-			Timestamp   int64
-			Connections Connections
-		}{
-			HXRequest:   false,
-			CurrentPath: "",
-			Dirs:        buildDirs(filepath.Dir(file)),
-			Panels:      g.buildPanels(filepath.Dir(file)),
-			Content:     &content,
-			Timestamp:   time.Now().Unix(),
-			Connections: nil,
-		},
-	)
+	g.addContent(file, Content{HTML: string(htmlBody)})
+	return nil
 }
 
 func (g *Generator) processImageFile(file string) error {
@@ -252,76 +238,217 @@ func (g *Generator) processVideoFile(file string) error {
 	return nil
 }
 
-func (g *Generator) buildPanels(path string) Panels {
-	dirs := buildDirs(path)
+func (g *Generator) addContent(path string, content Content) {
+	dir := filepath.Dir(path)
+	if dir == "." {
+		dir = ""
+	}
+
+	g.muContents.Lock()
+	g.contents[removeFileExtention(path)] = content
+	g.muContents.Unlock()
+}
+
+func (g *Generator) addConnections(path string, content Content) {
+	for _, ref := range content.References {
+		g.addConnection(removeFileExtention(path), ref.Path)
+	}
+}
+
+func (g *Generator) addConnection(from, to string) {
+	g.muConnections.Lock()
+	defer g.muConnections.Unlock()
+
+	log.Printf("Adding connection from %q to %q", from, to)
+
+	if _, ok := g.connections[to]; !ok {
+		g.connections[to] = map[string]struct{}{}
+	}
+
+	g.connections[to][from] = struct{}{}
+}
+
+func (g *Generator) addFile(path string) {
+	dir := filepath.Dir(path)
+	if dir == "." {
+		dir = ""
+	}
+
+	g.dirContents[dir] = append(g.dirContents[dir], File{
+		Name:     removeFileExtention(filepath.Base(path)),
+		IsFolder: false,
+	})
+}
+
+func (g *Generator) addDir(path string) {
+	dir := filepath.Dir(path)
+	if dir == "." {
+		dir = ""
+	}
+
+	name := filepath.Base(path)
+	if name == "." {
+		return
+	}
+
+	g.dirContents[dir] = append(g.dirContents[dir], File{
+		Name:     name,
+		IsFolder: true,
+	})
+}
+
+func (g *Generator) getFilesForPath(path string) []File {
+	if files, ok := g.dirContents[path]; ok {
+		sort.Sort(ByNameFolderOnTop(files))
+		return files
+	}
+
+	return nil
+}
+
+func (g *Generator) generateContentTemplates() error {
+	for path, content := range g.contents {
+		// replace extension with .html
+		path = path[:len(path)-len(filepath.Ext(path))] + ".html"
+
+		log.Printf("Generating %q", path)
+
+		// create directory
+		if err := os.MkdirAll(filepath.Join(cfg.OutputDirectory, filepath.Dir(path)), 0755); err != nil {
+			return fmt.Errorf("creating directory: %v", err)
+		}
+
+		f, err := os.Create(filepath.Join(cfg.OutputDirectory, path))
+		if err != nil {
+			return fmt.Errorf("creating file: %v", err)
+		}
+
+		panels, breadcrumbs := g.buildPanels(removeFileExtention(path), true)
+
+		if err := g.templates.ExecuteTemplate(
+			f,
+			"index.gohtml",
+			struct {
+				HXRequest   bool
+				CurrentPath string
+				Breadcrumbs Breadcrumbs
+				Panels      Panels
+				Content     *Content
+				Timestamp   int64
+			}{
+				HXRequest:   false,
+				CurrentPath: removeFileExtention(path),
+				Breadcrumbs: breadcrumbs,
+				Panels:      panels,
+				Content:     &content,
+				Timestamp:   time.Now().Unix(),
+			},
+		); err != nil {
+			err2 := f.Close()
+			if err2 != nil {
+				err = errors.Join(err, err2)
+			}
+			return fmt.Errorf("executing template: %v", err)
+		}
+
+		if err := f.Close(); err != nil {
+			return fmt.Errorf("closing file: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func (g *Generator) generateIndexes() error {
+	for dir, files := range g.dirContents {
+		log.Printf("Generating index for %q", dir)
+		sort.Sort(ByNameFolderOnTop(files))
+
+		path := filepath.Join(cfg.OutputDirectory, dir, "index.html")
+
+		// create directory
+		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+			return fmt.Errorf("creating directory: %v", err)
+		}
+
+		f, err := os.Create(path)
+		if err != nil {
+			return fmt.Errorf("creating file: %v", err)
+		}
+
+		panels, breadcrumbs := g.buildPanels(dir, false)
+
+		if err := g.templates.ExecuteTemplate(
+			f,
+			"index.gohtml",
+			struct {
+				HXRequest   bool
+				CurrentPath string
+				Breadcrumbs []Dir
+				Panels      Panels
+				Content     *Content
+				Timestamp   int64
+				Connections Connections
+			}{
+				HXRequest:   false,
+				CurrentPath: dir,
+				Breadcrumbs: breadcrumbs,
+				Panels:      panels,
+				Content:     nil,
+				Timestamp:   time.Now().Unix(),
+				Connections: nil,
+			},
+		); err != nil {
+			err2 := f.Close()
+			if err2 != nil {
+				err = errors.Join(err, err2)
+			}
+			return fmt.Errorf("executing template: %v", err)
+		}
+
+		if err := f.Close(); err != nil {
+			return fmt.Errorf("closing file: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func (g *Generator) buildPanels(path string, isFile bool) (Panels, Breadcrumbs) {
 	panels := Panels{}
-	for i := range dirs {
-		// list files in the directory
-		if panel, ok := g.fileLists[dirs[i].Path]; ok {
-			panels = append(panels, panel)
-		} else {
-			panels = append(panels, Panel{
-				Files: g.listFiles(dirs[i].Path),
-			})
-		}
+	breadcrumbs := Breadcrumbs{}
+
+	dirs := strings.Split(path, string(filepath.Separator))
+	if path != "" {
+		dirs = append([]string{""}, dirs...)
 	}
 
-	return panels
-}
+	cumulativePath := ""
+	for _, dir := range dirs {
+		cumulativePath = filepath.Join(cumulativePath, dir)
 
-func (g *Generator) listFiles(path string) (files []File) {
-	realDir := filepath.Join(cfg.InfoDirectory, path)
-
-	entries, err := os.ReadDir(realDir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-	}
-
-	for _, entry := range entries {
-		name := entry.Name()
-
-		if g.ignore.MatchesPath(name) {
-			continue
-		}
-
-		// remove extension
-		name = strings.TrimSuffix(name, filepath.Ext(name))
-		if len(name) == 0 {
-			name = entry.Name()
-		}
-
-		files = append(files, File{
-			Name:            name,
-			Dir:             path,
-			IsFolder:        entry.IsDir(),
-			IsInBreakcrumbs: false, // todo: entry.IsDir() && strings.HasPrefix(path, filepath.Join(dir, entry.Name())),
-		})
-	}
-
-	return files
-}
-
-func buildDirs(path string) (dirs []Dir) {
-	path = strings.TrimSuffix(path, string(filepath.Separator))
-
-	var prevPath string
-	for _, dir := range strings.Split(path, string(filepath.Separator)) {
-		if len(dir) == 0 {
-			path = "/"
+		if dir == "" {
 			dir = "Home"
-		} else {
-			path = filepath.Join(prevPath, dir)
 		}
-		prevPath = path
 
-		dirs = append(dirs, Dir{
+		breadcrumbs = append(breadcrumbs, Dir{
 			Name: dir,
-			Path: path,
+			Path: cumulativePath,
+		})
+
+		// if it's a file, don't add last panel
+		// (it is the file itself, which will be rendered
+		if isFile && cumulativePath == path {
+			break
+		}
+
+		panels = append(panels, Panel{
+			Dir:   cumulativePath,
+			Files: g.getFilesForPath(cumulativePath),
 		})
 	}
-	return dirs
+
+	return panels, breadcrumbs
 }
 
 func measureTime() func() {
@@ -329,4 +456,12 @@ func measureTime() func() {
 	return func() {
 		log.Printf("Elapsed: %v", time.Since(start))
 	}
+}
+
+func removeFileExtention(path string) string {
+	withoutExt := path[:len(path)-len(filepath.Ext(path))]
+	if withoutExt != "" {
+		return withoutExt
+	}
+	return path
 }

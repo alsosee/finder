@@ -14,6 +14,7 @@ type Config struct {
 	IgnoreFile         string `env:"INPUT_IGNOREFILE" short:"f" long:"ignorefile" description:"File that contains ignore patterns" default:".ignore"`
 	TemplatesDirectory string `env:"INPUT_TEMPLATES" short:"t" long:"templates" description:"Directory that contains templates" default:"templates"`
 	OutputDirectory    string `env:"INPUT_OUTPUT" short:"o" long:"output" description:"Directory to output generated files" default:"output"`
+	NumWorkers         int    `env:"INPUT_NUMWORKERS" short:"w" long:"workers" description:"Number of workers to use" default:"4"`
 }
 
 var (
@@ -31,7 +32,7 @@ func main() {
 		log.Fatalf("info directory must be specified")
 	}
 
-	generator, err := NewGenerator()
+	generator, err := NewGenerator(cfg)
 	if err != nil {
 		log.Fatalf("error creating generator: %v", err)
 	}

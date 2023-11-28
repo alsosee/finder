@@ -12,7 +12,7 @@ culturalhub.local {
 
   # serve style.css, sprite.png, navigation.js, files.png from /static directory
   @static {
-      path *.css *.png *.js
+      path *.css sprite.png files.png navigation.js
   }
   root @static static
 

@@ -23,12 +23,12 @@
 </div>
 <nav>
     <ul id="breadcrumbs" class="menubar-navigation" role="menubar" aria-label="breadcrumbs">
-        {{- range .Dirs }}
+        {{- range .Breadcrumbs }}
         {{- $isCurrent := eq $.CurrentPath .Path }}
         {{- if $isCurrent }}
-        <li role="none"><a role="menuitem" href="{{ .Path }}"{{ if .InPath }} class="secondary"{{ end }} aria-current="page">{{ .Name }}</a></li>
+        <li role="none"><a role="menuitem" href="/{{ .Path }}"{{ if .InPath }} class="secondary"{{ end }} aria-current="page">{{ .Name }}</a></li>
         {{- else }}
-        <li role="none"><a role="menuitem" href="{{ .Path }}"{{ if .InPath }} class="secondary"{{ end }}>{{ .Name }}</a></li>
+        <li role="none"><a role="menuitem" href="/{{ .Path }}"{{ if .InPath }} class="secondary"{{ end }}>{{ .Name }}</a></li>
         {{- end }}
         {{- end }}
     </ul>
@@ -38,12 +38,12 @@
 	{{- range $index, $panel := .Panels }}
         <ul class="panel menubar-navigation" role="menu" data-level="{{ $index }}">
             {{- range $panel.Files }}
-            {{- $path := join .Dir .Name }}
+            {{- $path := join $panel.Dir .Name }}
             <li role="none">
                 <a
                     role="menuitem"
                     class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .IsInBreakcrumbs }} in-breadcrumbs{{ end }}"
-                    href="{{ $path }}"
+                    href="/{{ $path }}"
                 >
                     <span>{{ .Name }}</span>
                 </a>
@@ -102,11 +102,11 @@
                 </ul>
             {{ end }}
 
-            {{ with index $.Connections $.CurrentPath }}
+            {{ with connections $.CurrentPath }}
                 <p>Connections: </p>
                 <ul>
-                {{ range $path, $value := . }}
-                    <li><a href="{{ $path }}">{{ $path }}</a></li>
+                {{ range $path := . }}
+                    <li><a href="/{{ $path }}">{{ $path }}</a></li>
                 {{ end }}
                 </ul>
             {{ end }}
