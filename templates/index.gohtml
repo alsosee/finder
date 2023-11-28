@@ -26,7 +26,7 @@
         {{- range .Breadcrumbs }}
         {{- $isCurrent := eq $.CurrentPath .Path }}
         {{- if $isCurrent }}
-        <li role="none"><a role="menuitem" href="/{{ .Path }}"{{ if .InPath }} class="secondary"{{ end }} aria-current="page">{{ .Name }}</a></li>
+        <li role="none"><span>{{ .Name }}</span></li>
         {{- else }}
         <li role="none"><a role="menuitem" href="/{{ .Path }}"{{ if .InPath }} class="secondary"{{ end }}>{{ .Name }}</a></li>
         {{- end }}

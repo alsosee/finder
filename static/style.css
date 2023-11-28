@@ -180,6 +180,10 @@ fieldset.radio label:last-of-type {
   );
 }
 
+#breadcrumbs span {
+  padding: 0 7px; /* 16px - 9px */
+}
+
 #breadcrumbs li:first-child a {
   padding-left: 10px; /* to align with files in panels */
   clip-path: polygon(
@@ -285,6 +289,10 @@ fieldset.radio label:last-of-type {
   margin-bottom: 10px;
 }
 
+#content p + ul {
+  margin-top: -10px;
+}
+
 #content ul,
 #content ol {
   margin-bottom: 10px;
@@ -381,10 +389,6 @@ fieldset.radio label:last-of-type {
   border-right: 1px solid var(--color-border);
   width: 230px;
   flex-shrink: 0;
-}
-
-[data-view="columns"] .panel li:nth-child(even) {
-  background: var(--color-background-tertiary);
 }
 
 [data-view="columns"] .panel a {
