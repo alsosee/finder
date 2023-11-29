@@ -115,8 +115,8 @@
     {{ end }}
     </nav>
 </div>
-{{- if not .HXRequest }}
 <script type="text/javascript">
+if (typeof hasRun === 'undefined') {
     const toolbar = document.querySelector('#toolbar');
     const container = document.querySelector('#container');
 
@@ -141,7 +141,36 @@
     toolbar.addEventListener('change', (event) => {
         setView(event.target.value);
     });
+
+    scrollToTheRight = function() {
+        console.log(container.getBoundingClientRect());
+        container.scrollLeft = container.scrollWidth;
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+                setTimeout(() => {
+                    scrollToTheRight();
+                }, 300);
+            },
+        );
+    } else {
+        scrollToTheRight();
+    }
+
+    htmx.on('htmx:beforeSwap', function(evt) {
+        container.style.opacity = 0;
+    });
+
+    htmx.on('htmx:afterSettle', function(evt) {
+        scrollToTheRight();
+        container.style.opacity = 1;
+    });
+    
+    const hasRun = true;
+}
 </script>
-{{- end }}
 </body>
 </html>

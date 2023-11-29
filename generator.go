@@ -329,14 +329,12 @@ func (g *Generator) generateContentTemplates() error {
 			f,
 			"index.gohtml",
 			struct {
-				HXRequest   bool
 				CurrentPath string
 				Breadcrumbs Breadcrumbs
 				Panels      Panels
 				Content     *Content
 				Timestamp   int64
 			}{
-				HXRequest:   false,
 				CurrentPath: removeFileExtention(path),
 				Breadcrumbs: breadcrumbs,
 				Panels:      panels,
@@ -382,7 +380,6 @@ func (g *Generator) generateIndexes() error {
 			f,
 			"index.gohtml",
 			struct {
-				HXRequest   bool
 				CurrentPath string
 				Breadcrumbs []Dir
 				Panels      Panels
@@ -390,7 +387,6 @@ func (g *Generator) generateIndexes() error {
 				Timestamp   int64
 				Connections Connections
 			}{
-				HXRequest:   false,
 				CurrentPath: dir,
 				Breadcrumbs: breadcrumbs,
 				Panels:      panels,
