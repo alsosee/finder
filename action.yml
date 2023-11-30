@@ -1,0 +1,32 @@
+name: Build static site
+description: ""
+
+author: Konstantin Chukhlomin <mail@chuhlomin.com>
+
+branding:
+  icon: file-text
+  color: purple
+
+inputs:
+  info:
+    description: Directory that contains info files
+    required: true
+  output:
+    description: Directory to output static site
+    required: true
+  templates:
+    description: Directory that contains templates
+    required: false
+    default: /templates
+  ignorefile:
+    description: File that contains ignore patterns
+    required: false
+    default: .ignore
+  num_workers:
+    description: Number of workers to use
+    required: false
+    default: "4"
+
+runs:
+  using: docker
+  image: docker://ghcr.io/cultural-hub/finder:latest

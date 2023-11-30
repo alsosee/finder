@@ -47,4 +47,21 @@ jobs:
           username: chuhlomin
           password: ${{ secrets.PKG_TOKEN }}
           image_name: ${{ env.DOCKER_IMAGE }}
-          tags: ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+          tags: |
+            ${{ env.DOCKER_IMAGE }}:latest
+            ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+
+      - name: Clone info
+        uses: actions/checkout@v3
+        with:
+          repository: cultural-hub/info
+          path: info
+
+      - name: Run action
+        uses: ./
+        with:
+          info: ./info
+          output: ./output
+
+      - name: List files
+        run: ls -la ./output
