@@ -52,10 +52,11 @@ jobs:
             ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
 
       - name: Clone info
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: cultural-hub/info
           path: info
+          token: ${{ secrets.PKG_TOKEN }}
 
       - name: Run action
         uses: ./
