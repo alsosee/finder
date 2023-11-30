@@ -17,5 +17,5 @@ lint:
 
 .PHONY: run
 ## run: run the application
-run:
-	@go run . $(arguments)
+run: lint
+	@go run .

@@ -122,11 +122,5 @@ func (r *Reference) UnmarshalYAML(value *yaml.Node) error {
 		return nil
 	}
 
-	var ref Reference
-	if err := value.Decode(&ref); err != nil {
-		return err
-	}
-
-	r = &ref
-	return nil
+	return value.Decode(&r)
 }

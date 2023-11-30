@@ -2,7 +2,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	flags "github.com/jessevdk/go-flags"
@@ -17,10 +16,7 @@ type Config struct {
 	NumWorkers         int    `env:"INPUT_NUMWORKERS" short:"w" long:"workers" description:"Number of workers to use" default:"4"`
 }
 
-var (
-	errNotFound = fmt.Errorf("not found")
-	cfg         Config // global config
-)
+var cfg Config // global config
 
 func main() {
 	_, err := flags.Parse(&cfg)

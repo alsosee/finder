@@ -45,7 +45,7 @@ func NewGenerator(cfg Config) (*Generator, error) {
 	if _, err := os.Stat(ignoreFilepath); err == nil {
 		ignore, err = gitignore.CompileIgnoreFile(ignoreFilepath)
 		if err != nil {
-			log.Fatalf("error reading ignore file: %v", err)
+			return nil, fmt.Errorf("compiling ignore file: %w", err)
 		}
 	}
 
@@ -82,7 +82,7 @@ func (g *Generator) fm() template.FuncMap {
 func (g *Generator) Run() error {
 	t, err := template.New("").Funcs(g.fm()).ParseGlob(cfg.TemplatesDirectory + "/*")
 	if err != nil {
-		return fmt.Errorf("parsing templates: %v", err)
+		return fmt.Errorf("parsing templates: %w", err)
 	}
 	g.templates = t
 
@@ -90,23 +90,23 @@ func (g *Generator) Run() error {
 
 	// Go through all the files in the info directory
 	var (
-		files  = make(chan string)
-		errors = make(chan error)
-		done   = make(chan struct{}, 1)
+		files      = make(chan string)
+		errorsChan = make(chan error)
+		done       = make(chan struct{}, 1)
 	)
-	defer close(errors)
+	defer close(errorsChan)
 
-	go g.walkInfoDirectory(files, errors)
-	go g.processFiles(files, errors, done)
+	go g.walkInfoDirectory(files, errorsChan)
+	go g.processFiles(files, errorsChan, done)
 
 FILE_PROCESSING:
 	for {
 		select {
-		case err := <-errors:
+		case err := <-errorsChan:
 			close(files)
-			close(errors)
+			close(errorsChan)
 			close(done)
-			return fmt.Errorf("Error walking info directory: %v", err)
+			return fmt.Errorf("walking info directory: %w", err)
 
 		case <-done:
 			log.Printf("Done processing files")
@@ -116,18 +116,18 @@ FILE_PROCESSING:
 
 	// Generate file templates
 	if err := g.generateContentTemplates(); err != nil {
-		return fmt.Errorf("generating content templates: %v", err)
+		return fmt.Errorf("generating content templates: %w", err)
 	}
 
 	// Generate index for each directory
 	if err := g.generateIndexes(); err != nil {
-		return fmt.Errorf("generating indexes: %v", err)
+		return fmt.Errorf("generating indexes: %w", err)
 	}
 
 	return nil
 }
 
-func (g *Generator) walkInfoDirectory(files chan<- string, errors chan<- error) {
+func (g *Generator) walkInfoDirectory(files chan<- string, errorsChan chan<- error) {
 	log.Printf("Walking info directory %q", cfg.InfoDirectory)
 
 	err := filepath.Walk(
@@ -156,24 +156,23 @@ func (g *Generator) walkInfoDirectory(files chan<- string, errors chan<- error) 
 	log.Printf("Done walking info directory %q", cfg.InfoDirectory)
 
 	if err != nil {
-		errors <- err
+		errorsChan <- err
 	}
 
 	close(files)
 }
 
-func (g *Generator) processFiles(files <-chan string, errors chan<- error, done chan<- struct{}) {
+func (g *Generator) processFiles(files <-chan string, errorsChan chan<- error, done chan<- struct{}) {
 	wg := sync.WaitGroup{}
 
 	for i := 0; i < cfg.NumWorkers; i++ {
-
 		for path := range files {
+			wg.Add(1)
 			go func(path string) {
-				wg.Add(1)
 				defer wg.Done()
 
 				if err := g.processFile(path); err != nil {
-					errors <- fmt.Errorf("processing file %q: %v", path, err)
+					errorsChan <- fmt.Errorf("processing file %q: %w", path, err)
 				}
 			}(path)
 		}
@@ -197,19 +196,19 @@ func (g *Generator) processFile(file string) error {
 	case ".mp4":
 		return g.processVideoFile(file)
 	default:
-		return fmt.Errorf("Unknown file type: %q", file)
+		return fmt.Errorf("unknown file type: %q", file)
 	}
 }
 
 func (g *Generator) processYAMLFile(file string) error {
 	b, err := os.ReadFile(filepath.Join(cfg.InfoDirectory, file))
 	if err != nil {
-		return fmt.Errorf("reading file: %v", err)
+		return fmt.Errorf("reading file: %w", err)
 	}
 
 	var content Content
 	if err = yaml.Unmarshal(b, &content); err != nil {
-		return fmt.Errorf("unmarshaling yaml: %v", err)
+		return fmt.Errorf("unmarshaling yaml: %w", err)
 	}
 
 	g.addContent(file, content)
@@ -221,7 +220,7 @@ func (g *Generator) processYAMLFile(file string) error {
 func (g *Generator) processMarkdownFile(file string) error {
 	b, err := os.ReadFile(filepath.Join(cfg.InfoDirectory, file))
 	if err != nil {
-		return fmt.Errorf("reading file: %v", err)
+		return fmt.Errorf("reading file: %w", err)
 	}
 
 	htmlBody := markdown.ToHTML(b, nil, nil)
@@ -230,20 +229,15 @@ func (g *Generator) processMarkdownFile(file string) error {
 	return nil
 }
 
-func (g *Generator) processImageFile(file string) error {
+func (g *Generator) processImageFile(_ string) error {
 	return nil
 }
 
-func (g *Generator) processVideoFile(file string) error {
+func (g *Generator) processVideoFile(_ string) error {
 	return nil
 }
 
 func (g *Generator) addContent(path string, content Content) {
-	dir := filepath.Dir(path)
-	if dir == "." {
-		dir = ""
-	}
-
 	g.muContents.Lock()
 	g.contents[removeFileExtention(path)] = content
 	g.muContents.Unlock()
@@ -314,16 +308,18 @@ func (g *Generator) generateContentTemplates() error {
 		log.Printf("Generating %q", path)
 
 		// create directory
-		if err := os.MkdirAll(filepath.Join(cfg.OutputDirectory, filepath.Dir(path)), 0755); err != nil {
-			return fmt.Errorf("creating directory: %v", err)
+		if err := os.MkdirAll(filepath.Join(cfg.OutputDirectory, filepath.Dir(path)), 0o755); err != nil {
+			return fmt.Errorf("creating directory: %w", err)
 		}
 
 		f, err := os.Create(filepath.Join(cfg.OutputDirectory, path))
 		if err != nil {
-			return fmt.Errorf("creating file: %v", err)
+			return fmt.Errorf("creating file: %w", err)
 		}
 
 		panels, breadcrumbs := g.buildPanels(removeFileExtention(path), true)
+
+		cnt := content
 
 		if err := g.templates.ExecuteTemplate(
 			f,
@@ -338,7 +334,7 @@ func (g *Generator) generateContentTemplates() error {
 				CurrentPath: removeFileExtention(path),
 				Breadcrumbs: breadcrumbs,
 				Panels:      panels,
-				Content:     &content,
+				Content:     &cnt,
 				Timestamp:   time.Now().Unix(),
 			},
 		); err != nil {
@@ -346,11 +342,11 @@ func (g *Generator) generateContentTemplates() error {
 			if err2 != nil {
 				err = errors.Join(err, err2)
 			}
-			return fmt.Errorf("executing template: %v", err)
+			return fmt.Errorf("executing template: %w", err)
 		}
 
 		if err := f.Close(); err != nil {
-			return fmt.Errorf("closing file: %v", err)
+			return fmt.Errorf("closing file: %w", err)
 		}
 	}
 
@@ -365,13 +361,13 @@ func (g *Generator) generateIndexes() error {
 		path := filepath.Join(cfg.OutputDirectory, dir, "index.html")
 
 		// create directory
-		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
-			return fmt.Errorf("creating directory: %v", err)
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			return fmt.Errorf("creating directory: %w", err)
 		}
 
 		f, err := os.Create(path)
 		if err != nil {
-			return fmt.Errorf("creating file: %v", err)
+			return fmt.Errorf("creating file: %w", err)
 		}
 
 		panels, breadcrumbs := g.buildPanels(dir, false)
@@ -399,11 +395,11 @@ func (g *Generator) generateIndexes() error {
 			if err2 != nil {
 				err = errors.Join(err, err2)
 			}
-			return fmt.Errorf("executing template: %v", err)
+			return fmt.Errorf("executing template: %w", err)
 		}
 
 		if err := f.Close(); err != nil {
-			return fmt.Errorf("closing file: %v", err)
+			return fmt.Errorf("closing file: %w", err)
 		}
 	}
 
