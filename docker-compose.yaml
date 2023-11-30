@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  action:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - INPUT_INFO=/info
+      - INPUT_OUTPUT=/output
+    volumes:
+      - ../info/:/info
+      - ./output:/output
