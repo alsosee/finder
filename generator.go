@@ -127,18 +127,24 @@ FILE_PROCESSING:
 }
 
 func (g *Generator) walkInfoDirectory(files chan<- string, errorsChan chan<- error) {
-	log.Printf("Walking info directory %q", cfg.InfoDirectory)
-
 	defer close(files)
 
-	err := filepath.Walk(
-		cfg.InfoDirectory,
+	infoDir, err := filepath.Abs(cfg.InfoDirectory)
+	if err != nil {
+		errorsChan <- fmt.Errorf("getting absolute path for %q: %w", cfg.InfoDirectory, err)
+		return
+	}
+
+	log.Printf("Walking info directory %q", infoDir)
+
+	err = filepath.Walk(
+		infoDir,
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
 
-			relPath := path[len(cfg.InfoDirectory):]
+			relPath := strings.TrimPrefix(path, infoDir)
 
 			if info.IsDir() {
 				g.addDir(relPath)
