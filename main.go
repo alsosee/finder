@@ -19,21 +19,16 @@ type Config struct {
 var cfg Config // global config
 
 func main() {
-	_, err := flags.Parse(&cfg)
-	if err != nil {
-		log.Fatalf("error parsing flags: %v", err)
-	}
-
-	if cfg.InfoDirectory == "" {
-		log.Fatalf("info directory must be specified")
+	if _, err := flags.Parse(&cfg); err != nil {
+		log.Fatalf("Error parsing flags: %v", err)
 	}
 
 	generator, err := NewGenerator(cfg)
 	if err != nil {
-		log.Fatalf("error creating generator: %v", err)
+		log.Fatalf("Error creating generator: %v", err)
 	}
 
 	if err := generator.Run(); err != nil {
-		log.Fatalf("error running generator: %v", err)
+		log.Fatalf("Error running generator: %v", err)
 	}
 }

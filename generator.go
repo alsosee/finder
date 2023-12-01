@@ -103,13 +103,12 @@ FILE_PROCESSING:
 	for {
 		select {
 		case err := <-errorsChan:
-			close(files)
-			close(errorsChan)
 			close(done)
 			return fmt.Errorf("walking info directory: %w", err)
 
 		case <-done:
 			log.Printf("Done processing files")
+			close(done)
 			break FILE_PROCESSING
 		}
 	}
@@ -129,6 +128,8 @@ FILE_PROCESSING:
 
 func (g *Generator) walkInfoDirectory(files chan<- string, errorsChan chan<- error) {
 	log.Printf("Walking info directory %q", cfg.InfoDirectory)
+
+	defer close(files)
 
 	err := filepath.Walk(
 		cfg.InfoDirectory,
@@ -153,13 +154,12 @@ func (g *Generator) walkInfoDirectory(files chan<- string, errorsChan chan<- err
 			return nil
 		},
 	)
-	log.Printf("Done walking info directory %q", cfg.InfoDirectory)
 
 	if err != nil {
 		errorsChan <- err
+	} else {
+		log.Printf("Done walking info directory %q", cfg.InfoDirectory)
 	}
-
-	close(files)
 }
 
 func (g *Generator) processFiles(files <-chan string, errorsChan chan<- error, done chan<- struct{}) {
