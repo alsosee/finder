@@ -64,5 +64,13 @@ jobs:
           info: ./info
           output: ./output
 
-      - name: List files
-        run: ls -la ./output
+      - name: Copy static files
+        run: cp static/* output/
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3.3.2
+        if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[skip deploy]')
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          command: pages deploy output --project-name=finder --branch=main --commit-dirty=true
