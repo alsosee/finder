@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
+	"hash/crc32"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -77,6 +79,23 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return nil
 		},
+		"crc32": func(path string) string {
+			// calculate CRC32 checksum for a file
+			file, err := os.Open(filepath.Join(cfg.OutputDirectory, path))
+			if err != nil {
+				log.Printf("Error opening file %q: %v", path, err)
+				return ""
+			}
+			defer file.Close()
+
+			hash := crc32.NewIEEE()
+			if _, err := io.Copy(hash, file); err != nil {
+				log.Printf("Error calculating CRC32 checksum for file %q: %v", path, err)
+				return ""
+			}
+
+			return fmt.Sprintf("%x", hash.Sum32())
+		},
 	}
 }
 
@@ -98,6 +117,7 @@ func (g *Generator) Run() error {
 	)
 	defer close(errorsChan)
 
+	g.copyStaticFiles()
 	go g.walkInfoDirectory(files, errorsChan)
 	go g.processFiles(files, errorsChan, done)
 
@@ -126,6 +146,43 @@ FILE_PROCESSING:
 	}
 
 	return nil
+}
+
+func (g *Generator) copyStaticFiles() {
+	if cfg.StaticDirectory == "" {
+		return
+	}
+
+	log.Printf("Copying static files from %q to %q", cfg.StaticDirectory, cfg.OutputDirectory)
+
+	if err := os.MkdirAll(cfg.OutputDirectory, 0o755); err != nil {
+		log.Fatalf("Error creating output directory %q: %v", cfg.OutputDirectory, err)
+	}
+
+	err := filepath.Walk(
+		cfg.StaticDirectory,
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+
+			relPath := strings.TrimPrefix(path, cfg.StaticDirectory+string(filepath.Separator))
+
+			if info.IsDir() {
+				if err := os.MkdirAll(filepath.Join(cfg.OutputDirectory, relPath), 0o755); err != nil {
+					return fmt.Errorf("creating directory: %w", err)
+				}
+				return nil
+			}
+
+			return copyFile(path, filepath.Join(cfg.OutputDirectory, relPath))
+		},
+	)
+	if err != nil {
+		log.Fatalf("Error walking static directory %q: %v", cfg.StaticDirectory, err)
+	}
+
+	log.Printf("Done copying static files from %q to %q", cfg.StaticDirectory, cfg.OutputDirectory)
 }
 
 func (g *Generator) walkInfoDirectory(files chan<- string, errorsChan chan<- error) {
@@ -459,4 +516,29 @@ func removeFileExtention(path string) string {
 		return withoutExt
 	}
 	return path
+}
+
+func copyFile(src, dst string) error {
+	dir := filepath.Dir(dst)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	if _, err := io.Copy(out, in); err != nil {
+		return err
+	}
+
+	return out.Sync()
 }

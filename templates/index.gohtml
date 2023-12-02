@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ if .Content }}{{ .Content.Name }}{{ else }}Finder{{ end }}</title>
-    <link rel="stylesheet" href="/style.css?ts={{ .Timestamp }}">
+    <link rel="stylesheet" href="/style.css?crc={{ crc32 "style.css" }}">
     <script src="https://unpkg.com/htmx.org@1.9.4" integrity="sha384-zUfuhFKKZCbHTY6aRR46gxiqszMk5tcHjsVFxnUo8VMus4kHGVdIYVbOYYNlKmHV" crossorigin="anonymous"></script>
-    <script src="/navigation.js?ts={{ .Timestamp }}"></script>
 </head>
 <body data-view="columns">
 <div id="toolbar" hx-preserve="true">
