@@ -47,6 +47,8 @@ func NewGenerator(cfg Config) (*Generator, error) {
 		if err != nil {
 			return nil, fmt.Errorf("compiling ignore file: %w", err)
 		}
+	} else {
+		log.Printf("Ignore file %q not found, ignoring", ignoreFilepath)
 	}
 
 	return &Generator{
@@ -144,14 +146,14 @@ func (g *Generator) walkInfoDirectory(files chan<- string, errorsChan chan<- err
 				return err
 			}
 
-			relPath := strings.TrimPrefix(path, infoDir)
+			relPath := strings.TrimPrefix(path, infoDir+string(filepath.Separator))
 
-			if info.IsDir() {
-				g.addDir(relPath)
+			if g.ignore.MatchesPath(relPath) {
 				return nil
 			}
 
-			if g.ignore.MatchesPath(path) {
+			if info.IsDir() {
+				g.addDir(relPath)
 				return nil
 			}
 
@@ -259,8 +261,6 @@ func (g *Generator) addConnection(from, to string) {
 	g.muConnections.Lock()
 	defer g.muConnections.Unlock()
 
-	log.Printf("Adding connection from %q to %q", from, to)
-
 	if _, ok := g.connections[to]; !ok {
 		g.connections[to] = map[string]struct{}{}
 	}
@@ -311,8 +311,6 @@ func (g *Generator) generateContentTemplates() error {
 		// replace extension with .html
 		path = path[:len(path)-len(filepath.Ext(path))] + ".html"
 
-		log.Printf("Generating %q", path)
-
 		// create directory
 		if err := os.MkdirAll(filepath.Join(cfg.OutputDirectory, filepath.Dir(path)), 0o755); err != nil {
 			return fmt.Errorf("creating directory: %w", err)
@@ -361,7 +359,6 @@ func (g *Generator) generateContentTemplates() error {
 
 func (g *Generator) generateIndexes() error {
 	for dir, files := range g.dirContents {
-		log.Printf("Generating index for %q", dir)
 		sort.Sort(ByNameFolderOnTop(files))
 
 		path := filepath.Join(cfg.OutputDirectory, dir, "index.html")
