@@ -58,6 +58,9 @@ jobs:
           path: info
           token: ${{ secrets.PKG_TOKEN }}
 
+      - name: Create output directory
+        run: mkdir output
+
       - name: Run action
         uses: ./
         with:
