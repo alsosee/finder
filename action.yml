@@ -11,20 +11,9 @@ inputs:
   info:
     description: Directory that contains info files
     required: true
-  static:
-    description: Directory that contains static files
-    required: false
   output:
     description: Directory to output static site
     required: true
-  templates:
-    description: Directory that contains templates
-    required: false
-    default: /templates
-  ignorefile:
-    description: File that contains ignore patterns
-    required: false
-    default: .ignore
   num_workers:
     description: Number of workers to use
     required: false

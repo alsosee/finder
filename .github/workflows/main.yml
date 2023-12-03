@@ -51,24 +51,14 @@ jobs:
             ${{ env.DOCKER_IMAGE }}:latest
             ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
 
-      - name: Clone info
-        uses: actions/checkout@v4
-        with:
-          repository: cultural-hub/info
-          path: info
-          token: ${{ secrets.PKG_TOKEN }}
-
-      - name: Run action
-        uses: ./
-        with:
-          info: ./info
-          static: ./static
-          output: ./output
-
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3.3.2
+      - name: Trigger deploy
+        uses: actions/github-script@v6
         if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[skip deploy]')
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: pages deploy output --project-name=finder --branch=main --commit-dirty=true
+          github-token: ${{ secrets.PKG_TOKEN }}
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: "cultural-hub",
+              repo: "finder
+              event_type: "trigger"
+            });

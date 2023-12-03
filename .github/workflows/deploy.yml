@@ -1,0 +1,29 @@
+name: deploy
+
+on:
+  repository_dispatch:
+    types: [trigger]
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone info
+        uses: actions/checkout@v4
+        with:
+          repository: cultural-hub/info
+          path: info
+          token: ${{ secrets.PKG_TOKEN }}
+
+      - name: Run action
+        uses: ./
+        with:
+          info: ./info
+          output: ./output
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3.3.2
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          command: pages deploy output --project-name=finder --branch=main --commit-dirty=true

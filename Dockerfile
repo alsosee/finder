@@ -11,6 +11,9 @@ FROM gcr.io/distroless/static:966f4bd97f611354c4ad829f1ed298df9386c2ec
 # latest-amd64 -> 966f4bd97f611354c4ad829f1ed298df9386c2ec
 # https://github.com/GoogleContainerTools/distroless/tree/master/base
 
+ENV INPUT_TEMPLATES=/templates
+ENV INPUT_STATIC=/static
+
 COPY templates /templates
 COPY static /static
 COPY --from=build-env /go/bin/app /app
