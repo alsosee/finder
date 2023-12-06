@@ -52,12 +52,6 @@ jobs:
             ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
 
       - name: Trigger deploy
-        uses: actions/github-script@v6
-        if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[skip deploy]')
+        uses: peter-evans/repository-dispatch@v2
         with:
-          script: |
-            await github.rest.repos.createDispatchEvent({
-              owner: "cultural-hub",
-              repo: "finder
-              event_type: "trigger"
-            });
+          event-type: deploy
