@@ -8,10 +8,13 @@ jobs:
   main:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Clone info
         uses: actions/checkout@v4
         with:
-          repository: cultural-hub/info
+          repository: alsosee/info
           path: info
           token: ${{ secrets.PKG_TOKEN }}
 

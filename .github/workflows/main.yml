@@ -41,7 +41,7 @@ jobs:
       - name: Build and push to CR
         uses: chuhlomin/actions/docker-build-push@main
         env:
-          DOCKER_IMAGE: ghcr.io/cultural-hub/finder
+          DOCKER_IMAGE: ghcr.io/alsosee/finder
         with:
           registry: ghcr.io
           username: chuhlomin
@@ -54,4 +54,6 @@ jobs:
       - name: Trigger deploy
         uses: peter-evans/repository-dispatch@v2
         with:
+          token: ${{ secrets.PKG_TOKEN }}
+          repository: alsosee/finder
           event-type: deploy
