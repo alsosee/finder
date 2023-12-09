@@ -4,8 +4,8 @@ A project to bring the Finder experience to the web.
 
 It is part of a larger project to store information in a structured way:
 
-* [info](https://github.com/cultural-hub/info)
-* [images](https://github.com/cultural-hub/images)
+* [info](https://github.com/alsosee/info)
+* [images](https://github.com/alsosee/images)
 
 On a high level, `finder` takes a `info` directory and generates a static website that served via Cloudflare Pages.
 It also procceses the `images` directory and generates thumbnails sprites for all directories and images, and uploads them to Cloudflare R2 Storage.
@@ -18,12 +18,5 @@ While doing so, it keeps track of all "connections" between files, to use later 
 Use Make to run the project locally:
 
 ```bash
-make run arguments="-dir=~/Information/ -he=true"
+make run
 ```
-
-Available arguments:
-
-* `bind`: The address to bind to. Optional. Default: `:8080`.
-* `dir`: The directory to serve. Required.
-* `he`: Hide file extensions. Optional. Default: `false`.
-* `ignore`: Path to a file containing a list of files to ignore. Default: `.ignore`.

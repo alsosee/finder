@@ -21,4 +21,4 @@ inputs:
 
 runs:
   using: docker
-  image: docker://ghcr.io/cultural-hub/finder:latest
+  image: docker://ghcr.io/alsosee/finder:latest
