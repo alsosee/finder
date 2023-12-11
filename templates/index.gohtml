@@ -159,14 +159,14 @@ if (typeof hasRun === 'undefined') {
         scrollToTheRight();
     }
 
-    htmx.on('htmx:beforeSwap', function(evt) {
+    {% comment %} htmx.on('htmx:beforeSwap', function(evt) {
         container.style.opacity = 0;
     });
 
     htmx.on('htmx:afterSettle', function(evt) {
         scrollToTheRight();
         container.style.opacity = 1;
-    });
+    }); {% endcomment %}
     
     const hasRun = true;
 }
