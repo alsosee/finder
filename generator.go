@@ -150,6 +150,7 @@ FILE_PROCESSING:
 
 func (g *Generator) copyStaticFiles() {
 	if cfg.StaticDirectory == "" {
+		log.Printf("No static files directory specified, skipping")
 		return
 	}
 
@@ -261,6 +262,9 @@ func (g *Generator) processFile(file string) error {
 	case ".mp4":
 		return g.processVideoFile(file)
 	default:
+		if file == "_redirects" {
+			return g.copyFileAsIs(file)
+		}
 		return fmt.Errorf("unknown file type: %q", file)
 	}
 }
@@ -300,6 +304,13 @@ func (g *Generator) processImageFile(_ string) error {
 
 func (g *Generator) processVideoFile(_ string) error {
 	return nil
+}
+
+func (g *Generator) copyFileAsIs(file string) error {
+	return copyFile(
+		filepath.Join(cfg.InfoDirectory, file),
+		filepath.Join(cfg.OutputDirectory, file),
+	)
 }
 
 func (g *Generator) addContent(path string, content Content) {
@@ -519,6 +530,7 @@ func removeFileExtention(path string) string {
 }
 
 func copyFile(src, dst string) error {
+	log.Printf("Copying file %q to %q", src, dst)
 	dir := filepath.Dir(dst)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
