@@ -15,7 +15,12 @@ test:
 lint:
 	@golangci-lint run ./... --out-format colored-line-number
 
-.PHONY: run
-## run: run the application
-run: lint
+.PHONY: clean
+## clean: clean the output
+clean:
+	@rm -rf ./output
+
+.PHONY: build
+## build: build the static site
+build: lint
 	@go run .

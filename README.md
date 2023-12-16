@@ -15,8 +15,18 @@ While doing so, it keeps track of all "connections" between files, to use later 
 
 ## Local development
 
-Use Make to run the project locally:
+Use Make to build the static site locally:
 
 ```bash
-make run
+export INPUT_INFO=/<path-to-info-directory>/info
+export INPUT_STATIC=static
+export INPUT_OUTPUT=output
+
+make build
+```
+
+Use Cloudflare Wrangler to preview the site locally:
+
+```bash
+wrangler pages dev --local-protocol=https output/
 ```
