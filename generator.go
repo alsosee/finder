@@ -39,10 +39,13 @@ type Generator struct {
 	// value is a list of files that are pointing to the key.
 	connections   Connections
 	muConnections sync.Mutex
+
+	mediaDirContents map[string]map[string]interface{}
+	muMedia          sync.Mutex
 }
 
 // NewGenerator creates a new Generator.
-func NewGenerator(cfg Config) (*Generator, error) {
+func NewGenerator() (*Generator, error) {
 	ignore := &gitignore.GitIgnore{}
 	ignoreFilepath := filepath.Join(cfg.InfoDirectory, cfg.IgnoreFile)
 	if _, err := os.Stat(ignoreFilepath); err == nil {
@@ -55,10 +58,11 @@ func NewGenerator(cfg Config) (*Generator, error) {
 	}
 
 	return &Generator{
-		ignore:      ignore,
-		contents:    Contents{},
-		dirContents: map[string][]File{},
-		connections: Connections{},
+		ignore:           ignore,
+		contents:         Contents{},
+		dirContents:      map[string][]File{},
+		connections:      Connections{},
+		mediaDirContents: map[string]map[string]interface{}{},
 	}, nil
 }
 
@@ -120,6 +124,7 @@ func (g *Generator) Run() error {
 
 	g.copyStaticFiles()
 	go g.walkInfoDirectory(files, errorsChan)
+	go g.walkMediaDirectory()
 	go g.processFiles(files, errorsChan, done)
 
 FILE_PROCESSING:
@@ -222,6 +227,50 @@ func (g *Generator) walkInfoDirectory(files chan<- string, errorsChan chan<- err
 	} else {
 		log.Printf("Done walking info directory %q", cfg.InfoDirectory)
 	}
+}
+
+func (g *Generator) walkMediaDirectory() {
+	if cfg.MediaDirectory == "" {
+		log.Printf("No media files directory specified, skipping")
+		return
+	}
+
+	mediaDir, err := filepath.Abs(cfg.MediaDirectory)
+	if err != nil {
+		log.Fatalf("Error getting absolute path for %q: %v", cfg.MediaDirectory, err)
+	}
+
+	log.Printf("Walking media directory %q", mediaDir)
+
+	err = filepath.Walk(
+		mediaDir,
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+
+			relPath := strings.TrimPrefix(path, mediaDir+string(filepath.Separator))
+
+			if g.ignore.MatchesPath(relPath) {
+				return nil
+			}
+
+			if info.IsDir() {
+				return nil
+			}
+
+			log.Printf("Seeing media file %q", relPath)
+			g.addMedia(relPath)
+
+			return nil
+		},
+	)
+
+	if err != nil {
+		log.Fatalf("Error walking media directory %q: %v", cfg.MediaDirectory, err)
+	}
+
+	log.Printf("Done walking media directory %q", cfg.MediaDirectory)
 }
 
 func (g *Generator) processFiles(files <-chan string, errorsChan chan<- error, done chan<- struct{}) {
@@ -336,6 +385,22 @@ func (g *Generator) addConnection(from, to string) {
 	g.connections[to][from] = struct{}{}
 }
 
+func (g *Generator) addMedia(path string) {
+	dir := filepath.Dir(path)
+	if dir == "." {
+		dir = ""
+	}
+
+	g.muMedia.Lock()
+	if _, ok := g.mediaDirContents[dir]; !ok {
+		g.mediaDirContents[dir] = map[string]interface{}{}
+	}
+
+	g.mediaDirContents[dir][filepath.Base(path)] = struct{}{}
+
+	g.muMedia.Unlock()
+}
+
 func (g *Generator) addFile(path string) {
 	dir := filepath.Dir(path)
 	if dir == "." {
@@ -390,9 +455,12 @@ func (g *Generator) generateContentTemplates() error {
 			return fmt.Errorf("creating file: %w", err)
 		}
 
-		panels, breadcrumbs := g.buildPanels(removeFileExtention(path), true)
+		pathWithoutExt := removeFileExtention(path)
+
+		panels, breadcrumbs := g.buildPanels(pathWithoutExt, true)
 
 		cnt := content
+		cnt.Image = g.getImageForPath(pathWithoutExt)
 
 		if err := g.templates.ExecuteTemplate(
 			f,
@@ -404,7 +472,7 @@ func (g *Generator) generateContentTemplates() error {
 				Content     *Content
 				Timestamp   int64
 			}{
-				CurrentPath: removeFileExtention(path),
+				CurrentPath: pathWithoutExt,
 				Breadcrumbs: breadcrumbs,
 				Panels:      panels,
 				Content:     &cnt,
@@ -424,6 +492,30 @@ func (g *Generator) generateContentTemplates() error {
 	}
 
 	return nil
+}
+
+func (g *Generator) getImageForPath(path string) string {
+	dir := filepath.Dir(path)
+	if dir == "." {
+		dir = ""
+	}
+
+	base := filepath.Base(path)
+
+	dirContent, ok := g.mediaDirContents[dir]
+	if !ok {
+		return ""
+	}
+
+	log.Printf("dirContent: %+v", dirContent)
+
+	for name := range dirContent {
+		if strings.HasPrefix(name, base) {
+			return name
+		}
+	}
+
+	return ""
 }
 
 func (g *Generator) generateIndexes() error {

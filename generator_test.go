@@ -5,9 +5,8 @@ import (
 )
 
 func TestGetFilesForPathSimple(t *testing.T) {
-	g, err := NewGenerator(Config{
-		TemplatesDirectory: "templates",
-	})
+	cfg = Config{TemplatesDirectory: "templates"}
+	g, err := NewGenerator()
 	if err != nil {
 		t.Fatalf("error creating generator: %v", err)
 	}

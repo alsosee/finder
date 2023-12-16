@@ -54,6 +54,7 @@
     {{ with .Content }}
         <div id="content">
             {{ with .HTML }}{{ . }}{{ end }}
+            {{ if .Image }}{{ .Image }}{{ end }}
             {{ with .Name }}<h1>{{ . }}</h1>{{ end }}
             {{ with .Subtitle }}<p>{{ . }}</p>{{ end }}
             {{ with .Description }}<p>{{ . }}</p>{{ end }}

@@ -19,6 +19,7 @@ Use Make to build the static site locally:
 
 ```bash
 export INPUT_INFO=/<path-to-info-directory>/info
+export INPUT_MEDIA=/<path-to-media-directory>/media
 export INPUT_STATIC=static
 export INPUT_OUTPUT=output
 

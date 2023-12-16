@@ -10,6 +10,7 @@ import (
 // Config represents an app configuration.
 type Config struct {
 	InfoDirectory      string `env:"INPUT_INFO" short:"i" long:"info" description:"Directory that contains info files" default:"info"`
+	MediaDirectory     string `env:"INPUT_MEDIA" short:"m" long:"media" description:"Directory that contains media files" default:""`
 	StaticDirectory    string `env:"INPUT_STATIC" short:"s" long:"static" description:"Directory that contains static files" default:""`
 	IgnoreFile         string `env:"INPUT_IGNOREFILE" short:"f" long:"ignorefile" description:"File that contains ignore patterns" default:".ignore"`
 	TemplatesDirectory string `env:"INPUT_TEMPLATES" short:"t" long:"templates" description:"Directory that contains templates" default:"templates"`
@@ -24,7 +25,7 @@ func main() {
 		log.Fatalf("Error parsing flags: %v", err)
 	}
 
-	generator, err := NewGenerator(cfg)
+	generator, err := NewGenerator()
 	if err != nil {
 		log.Fatalf("Error creating generator: %v", err)
 	}

@@ -42,11 +42,16 @@ type Content struct {
 	Extra map[string]interface{} `yaml:",inline"`
 
 	References []Reference `yaml:"refs"`
+
+	Image string
 }
 
 // Contents represents a list of contents, where key is a file path.
 // It is used to properly render references.
 type Contents map[string]Content
+
+// Media represents a list of media files, where key is a file path.
+type Media map[string]string
 
 // Connections represents a list of connectiones that initiated by a reference.
 // Key is a file path, where reference is pointing to.
