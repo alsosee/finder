@@ -28,7 +28,7 @@
         {{- if $isCurrent }}
         <li role="none"><span>{{ .Name }}</span></li>
         {{- else }}
-        <li role="none"><a role="menuitem" href="/{{ .Path }}"{{ if .InPath }} class="secondary"{{ end }}>{{ .Name }}</a></li>
+        <li role="none"><a role="menuitem" href="/{{ .Path }}/"{{ if .InPath }} class="secondary"{{ end }}>{{ .Name }}</a></li>
         {{- end }}
         {{- end }}
     </ul>
@@ -43,7 +43,7 @@
                 <a
                     role="menuitem"
                     class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .IsInBreakcrumbs }} in-breadcrumbs{{ end }}"
-                    href="/{{ $path }}"
+                    href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
                 >
                     <span>{{ .Name }}</span>
                 </a>
