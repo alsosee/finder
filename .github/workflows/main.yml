@@ -50,6 +50,7 @@ jobs:
           tags: |
             ${{ env.DOCKER_IMAGE }}:latest
             ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+          platforms: linux/amd64
 
       - name: Trigger deploy
         uses: peter-evans/repository-dispatch@v2
