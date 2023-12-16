@@ -32,6 +32,7 @@ type Generator struct {
 	// value is a list of files and directories;
 	// used to build Panels
 	dirContents map[string][]File
+	muDir       sync.Mutex
 
 	// Connections keep track of references from one file to another.
 	// key is a file path, where reference is pointing to.
@@ -167,15 +168,11 @@ func (g *Generator) copyStaticFiles() {
 				return err
 			}
 
-			relPath := strings.TrimPrefix(path, cfg.StaticDirectory+string(filepath.Separator))
-
 			if info.IsDir() {
-				if err := os.MkdirAll(filepath.Join(cfg.OutputDirectory, relPath), 0o755); err != nil {
-					return fmt.Errorf("creating directory: %w", err)
-				}
 				return nil
 			}
 
+			relPath := strings.TrimPrefix(path, cfg.StaticDirectory+string(filepath.Separator))
 			return copyFile(path, filepath.Join(cfg.OutputDirectory, relPath))
 		},
 	)
@@ -215,7 +212,6 @@ func (g *Generator) walkInfoDirectory(files chan<- string, errorsChan chan<- err
 				return nil
 			}
 
-			g.addFile(relPath)
 			files <- relPath
 			return nil
 		},
@@ -254,12 +250,16 @@ func (g *Generator) processFiles(files <-chan string, errorsChan chan<- error, d
 func (g *Generator) processFile(file string) error {
 	switch filepath.Ext(file) {
 	case ".yml", ".yaml":
+		g.addFile(file)
 		return g.processYAMLFile(file)
 	case ".md":
+		g.addFile(file)
 		return g.processMarkdownFile(file)
 	case ".jpeg", ".jpg", ".png":
+		g.addFile(file)
 		return g.processImageFile(file)
 	case ".mp4":
+		g.addFile(file)
 		return g.processVideoFile(file)
 	default:
 		if file == "_redirects" {
@@ -342,10 +342,11 @@ func (g *Generator) addFile(path string) {
 		dir = ""
 	}
 
+	g.muDir.Lock()
 	g.dirContents[dir] = append(g.dirContents[dir], File{
-		Name:     removeFileExtention(filepath.Base(path)),
-		IsFolder: false,
+		Name: removeFileExtention(filepath.Base(path)),
 	})
+	g.muDir.Unlock()
 }
 
 func (g *Generator) addDir(path string) {
