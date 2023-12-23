@@ -40,7 +40,7 @@ type Generator struct {
 	connections   Connections
 	muConnections sync.Mutex
 
-	mediaDirContents map[string]map[string]interface{}
+	mediaDirContents map[string][]Media
 	muMedia          sync.Mutex
 }
 
@@ -62,7 +62,7 @@ func NewGenerator() (*Generator, error) {
 		contents:         Contents{},
 		dirContents:      map[string][]File{},
 		connections:      Connections{},
-		mediaDirContents: map[string]map[string]interface{}{},
+		mediaDirContents: map[string][]Media{},
 	}, nil
 }
 
@@ -100,6 +100,9 @@ func (g *Generator) fm() template.FuncMap {
 			}
 
 			return fmt.Sprintf("%x", hash.Sum32())
+		},
+		"div": func(a, b int) int {
+			return a / b
 		},
 	}
 }
@@ -229,6 +232,10 @@ func (g *Generator) walkInfoDirectory(files chan<- string, errorsChan chan<- err
 	}
 }
 
+// walkMediaDirectory scans the media directory for .thumbs.yml files,
+// parses them and adds to g.mediaDirContents.
+// mediaDirContents is a map where key is a directory path, and value is a list of media files in that directory.
+// Information from .thumbs.yml used later in template to build links to thumbnails.
 func (g *Generator) walkMediaDirectory() {
 	if cfg.MediaDirectory == "" {
 		log.Printf("No media files directory specified, skipping")
@@ -251,16 +258,20 @@ func (g *Generator) walkMediaDirectory() {
 
 			relPath := strings.TrimPrefix(path, mediaDir+string(filepath.Separator))
 
-			if g.ignore.MatchesPath(relPath) {
-				return nil
-			}
-
 			if info.IsDir() {
 				return nil
 			}
 
-			log.Printf("Seeing media file %q", relPath)
-			g.addMedia(relPath)
+			if info.Name() != ".thumbs.yml" {
+				return nil
+			}
+
+			media, err := parseMediaFile(path)
+			if err != nil {
+				return fmt.Errorf("parsing media file %q: %w", path, err)
+			}
+
+			g.addMedia(relPath, media)
 
 			return nil
 		},
@@ -385,19 +396,14 @@ func (g *Generator) addConnection(from, to string) {
 	g.connections[to][from] = struct{}{}
 }
 
-func (g *Generator) addMedia(path string) {
+func (g *Generator) addMedia(path string, media []Media) {
 	dir := filepath.Dir(path)
 	if dir == "." {
 		dir = ""
 	}
 
 	g.muMedia.Lock()
-	if _, ok := g.mediaDirContents[dir]; !ok {
-		g.mediaDirContents[dir] = map[string]interface{}{}
-	}
-
-	g.mediaDirContents[dir][filepath.Base(path)] = struct{}{}
-
+	g.mediaDirContents[dir] = media
 	g.muMedia.Unlock()
 }
 
@@ -467,12 +473,14 @@ func (g *Generator) generateContentTemplates() error {
 			"index.gohtml",
 			struct {
 				CurrentPath string
+				Dir         string
 				Breadcrumbs Breadcrumbs
 				Panels      Panels
 				Content     *Content
 				Timestamp   int64
 			}{
 				CurrentPath: pathWithoutExt,
+				Dir:         filepath.Dir(pathWithoutExt),
 				Breadcrumbs: breadcrumbs,
 				Panels:      panels,
 				Content:     &cnt,
@@ -494,7 +502,7 @@ func (g *Generator) generateContentTemplates() error {
 	return nil
 }
 
-func (g *Generator) getImageForPath(path string) string {
+func (g *Generator) getImageForPath(path string) *Media {
 	dir := filepath.Dir(path)
 	if dir == "." {
 		dir = ""
@@ -504,18 +512,16 @@ func (g *Generator) getImageForPath(path string) string {
 
 	dirContent, ok := g.mediaDirContents[dir]
 	if !ok {
-		return ""
+		return nil
 	}
 
-	log.Printf("dirContent: %+v", dirContent)
-
-	for name := range dirContent {
-		if strings.HasPrefix(name, base) {
-			return name
+	for _, media := range dirContent {
+		if strings.HasPrefix(media.Path, base) {
+			return &media
 		}
 	}
 
-	return ""
+	return nil
 }
 
 func (g *Generator) generateIndexes() error {

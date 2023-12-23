@@ -54,7 +54,17 @@
     {{ with .Content }}
         <div id="content">
             {{ with .HTML }}{{ . }}{{ end }}
-            {{ if .Image }}{{ .Image }}{{ end }}
+            {{ with .Image }}
+                <div class="thumb"
+                    style="
+                        background-image: url('https://media.alsosee.info/{{ $.Dir }}/{{ .ThumbPath }}');
+                        background-size: {{ div .ThumbWidth 3 }}px {{ div .ThumbHeight 3 }}px;
+                        background-position: {{ div .ThumbXOffset 3 }}px {{ div .ThumbYOffset 3 }}px;
+                        width: {{ div .ThumbWidth 3 }}px;
+                        height: {{ div .ThumbHeight 3}}px;
+                    ">
+                </div>
+            {{ end }}
             {{ with .Name }}<h1>{{ . }}</h1>{{ end }}
             {{ with .Subtitle }}<p>{{ . }}</p>{{ end }}
             {{ with .Description }}<p>{{ . }}</p>{{ end }}

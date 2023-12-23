@@ -270,8 +270,12 @@ fieldset.radio label:last-of-type {
   min-width: 460px;
   padding: 20px;
   overflow-y: auto;
+  border-right: 1px solid var(--color-border);
   /* background: #fff9f0; */
-  /* border-right: 1px solid var(--color-border); */
+}
+
+#content .thumb {
+  float: right;
 }
 
 #content h1 {
@@ -366,6 +370,10 @@ fieldset.radio label:last-of-type {
   background: var(--color-background-tertiary);
 }
 
+[data-view="list"] .panel a {
+  font-variant-numeric: tabular-nums; 
+}
+
 [data-view="list"] .panel a::before {
   content: "";
   display: inline-block;
@@ -393,6 +401,7 @@ fieldset.radio label:last-of-type {
 
 [data-view="columns"] .panel a {
   width: 100%;
+  font-variant-numeric: tabular-nums; 
 }
 
 [data-view="columns"] .panel a:focus {

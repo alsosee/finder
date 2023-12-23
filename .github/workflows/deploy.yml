@@ -18,10 +18,18 @@ jobs:
           path: info
           token: ${{ secrets.PKG_TOKEN }}
 
+      - name: Clone media
+        uses: actions/checkout@v4
+        with:
+          repository: alsosee/media
+          path: media
+          token: ${{ secrets.PKG_TOKEN }}
+
       - name: Run action
         uses: ./
         with:
           info: ./info
+          media: ./media
           output: ./output
 
       - name: Deploy to Cloudflare Pages
