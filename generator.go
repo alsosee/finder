@@ -104,6 +104,33 @@ func (g *Generator) fm() template.FuncMap {
 		"div": func(a, b int) int {
 			return a / b
 		},
+		"hasPrefix": strings.HasPrefix,
+		"initials": func(name string) string {
+			var initials string
+			for _, s := range strings.Split(name, " ") {
+				initials += strings.ToUpper(s[:1]) + " " // thin space
+			}
+			return strings.TrimSpace(initials)
+		},
+		"thumbStyle": func(media Media, width int) string {
+			if media.ThumbPath == "" {
+				return ""
+			}
+
+			return fmt.Sprintf(
+				"background-size: %dpx %dpx; background-position: -%dpx -%dpx; width: %dpx; height: %dpx",
+				media.ThumbTotalWidth*width/media.ThumbWidth,
+				media.ThumbTotalHeight*width/media.ThumbWidth,
+				media.ThumbXOffset*width/media.ThumbWidth,
+				media.ThumbYOffset*width/media.ThumbWidth,
+				width,
+				media.ThumbHeight*width/media.ThumbWidth,
+			)
+		},
+		"length": func(a time.Duration) string {
+			// format duration as "1h 2m 3s"
+			return fmt.Sprintf("%dh %dm", int(a.Hours()), int(a.Minutes())%60)
+		},
 	}
 }
 
@@ -468,6 +495,11 @@ func (g *Generator) generateContentTemplates() error {
 		cnt := content
 		cnt.Image = g.getImageForPath(pathWithoutExt)
 
+		// add image to Characters
+		for _, character := range cnt.Characters {
+			character.Image = g.getImageForPath("People/" + character.Actor)
+		}
+
 		if err := g.templates.ExecuteTemplate(
 			f,
 			"index.gohtml",
@@ -509,6 +541,7 @@ func (g *Generator) getImageForPath(path string) *Media {
 	}
 
 	base := filepath.Base(path)
+	base = strings.ReplaceAll(base, ":", "") // file names can't contain colons
 
 	dirContent, ok := g.mediaDirContents[dir]
 	if !ok {

@@ -1,11 +1,24 @@
 package main
 
-import "gopkg.in/yaml.v3"
+import (
+	"time"
+
+	"gopkg.in/yaml.v3"
+)
+
+// Character represents a character in a movie, tv show, etc.
+type Character struct {
+	Name  string
+	Actor string
+	Voice string
+	Image *Media
+}
 
 // Content represents the content of a file.
 type Content struct {
 	HTML string `yaml:"-"` // for Markdown files
 
+	// for everything
 	Name        string
 	Subtitle    string
 	Year        int
@@ -13,9 +26,11 @@ type Content struct {
 	Authors     string
 	Description string
 
-	DOB string
-	DOD string
+	// for people
+	DOB string // date of birth
+	DOD string // date of death
 
+	// general external links
 	Website         string
 	Wikipedia       string
 	GoodReads       string
@@ -29,14 +44,26 @@ type Content struct {
 	Fandom          string
 	RottenTomatoes  string `yaml:"rotten_tomatoes"`
 	Twitter         string
+	Facebook        string
 	Instagram       string
+	TikTok          string
 	TelegramChannel string `yaml:"telegram_channel"`
 	X               string
 
+	// for books
 	ISBN   string
 	ISBN10 string
 	ISBN13 string
 	OCLC   string
+
+	// for movies
+	Genres     []string
+	Trailer    string
+	Rating     string
+	Length     time.Duration
+	Writers    []string
+	Directors  []string
+	Characters []*Character
 
 	// unknown fields are stored in the Extra map
 	Extra map[string]interface{} `yaml:",inline"`

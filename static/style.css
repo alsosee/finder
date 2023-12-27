@@ -18,6 +18,9 @@
   --color-text-muted: #838383;
   --color-border: #e6e6e6;
   --color-outline: #2962d9;
+
+  --background-radial: radial-gradient(82.57% 82.57% at 50% 17.43%, #F9F9F9 0%, #EEEEEE 100%);
+  
 }
 
 /* 1. Use a more-intuitive box-sizing model */
@@ -276,11 +279,16 @@ fieldset.radio label:last-of-type {
 
 #content .thumb {
   float: right;
+  margin: 0 0 10px 10px;
+  border-radius: 2px;
+  box-shadow: 0 2px 2px rgba(0,0,0,0.2);
 }
 
 #content h1 {
   font-size: 1.5em;
   margin-bottom: 10px;
+  line-height: 1.3em;
+  margin-top: -0.3em; /* to compensate for the line-height */
 }
 
 #content h2 {
@@ -301,6 +309,75 @@ fieldset.radio label:last-of-type {
 #content ol {
   margin-bottom: 10px;
   padding-left: 20px;
+}
+
+#content .labels,
+#content .links {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#content .labels span {
+  padding: 0px 7px;
+  background: var(--color-background-secondary);
+  border-radius: 7px;
+  text-transform: capitalize;
+}
+
+#content .labels .length {
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  text-transform: none;
+}
+
+#content .characters {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  align-content: flex-start;
+  flex-shrink: 0;
+}
+
+#content .characters li {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  align-self: flex-start;
+  width: 150px;
+  padding: 10px;
+}
+
+#content .characters .image {
+  border-radius: 100%;
+  box-shadow: 0 2px 2px rgba(0,0,0,0.2);
+}
+
+#content .characters .initials {
+  width: 100px;
+  height: 100px;
+  display: inline-block;
+  background: var(--color-background-secondary);
+  background: var(--background-radial);
+  display: flex;
+  align-self: center;
+  justify-content: center;
+  align-items: center;
+  font-size: 34pt;
+  border-radius: 100%;
+  box-shadow: 0 2px 2px rgba(0,0,0,0.2);
+}
+
+#content .characters .name {
+  font-style: italic;
 }
 
 /* ICONS */
@@ -453,6 +530,10 @@ fieldset.radio label:last-of-type {
   text-overflow: ellipsis;
 }
 
+[data-view="columns"] #content {
+  max-width: 500px;
+}
+
 /* dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
@@ -467,6 +548,8 @@ fieldset.radio label:last-of-type {
     --color-text-muted: #989d9f;
     --color-border: #000000;
     --color-link: #a8c7fa;
+    --background-radial: radial-gradient(82.57% 82.57% at 50% 17.43%, #696969 0%, #484545 100%);
+    
   }
   #toolbar {
     --color-background: #2e2b2b;

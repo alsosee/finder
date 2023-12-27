@@ -55,17 +55,26 @@
         <div id="content">
             {{ with .HTML }}{{ . }}{{ end }}
             {{ with .Image }}
+                {{- $div := 3 }}
+                {{- if hasPrefix $.CurrentPath "Movies" }}
+                    {{- $div = 2 }}
+                {{- end }}
                 <div class="thumb"
                     style="
                         background-image: url('https://media.alsosee.info/{{ $.Dir }}/{{ .ThumbPath }}');
-                        background-size: {{ div .ThumbWidth 3 }}px {{ div .ThumbHeight 3 }}px;
-                        background-position: {{ div .ThumbXOffset 3 }}px {{ div .ThumbYOffset 3 }}px;
-                        width: {{ div .ThumbWidth 3 }}px;
-                        height: {{ div .ThumbHeight 3}}px;
+                        background-size: {{ div .ThumbWidth $div }}px {{ div .ThumbHeight $div }}px;
+                        background-position: {{ div .ThumbXOffset $div }}px {{ div .ThumbYOffset $div }}px;
+                        width: {{ div .ThumbWidth $div }}px;
+                        height: {{ div .ThumbHeight $div}}px;
                     ">
                 </div>
             {{ end }}
             {{ with .Name }}<h1>{{ . }}</h1>{{ end }}
+            <p class="labels">
+            {{ with .Genres }}{{ range . }}<span class="genre">{{ . }}</span>{{ end }}{{ end }}
+            <span class="rating">{{ .Rating }}</span>
+            <span class="length">{{ length .Length }}</span>
+            </p>
             {{ with .Subtitle }}<p>{{ . }}</p>{{ end }}
             {{ with .Description }}<p>{{ . }}</p>{{ end }}
             {{ with .DOB }}<p>Born: {{ . }}</p>{{ end }}
@@ -77,20 +86,23 @@
                 {{ end }}
             {{ end }}
             {{ with .Website }}<p><a href="{{ . }}">{{ . }}</a></p>{{ end }}
-            <p>
+            <p class="links">
+                {{ with .Trailer }}<a href="{{ . }}">Trailer</a>{{ end }}
                 {{ with .Wikipedia }}<a href="{{ . }}">Wikipedia</a>{{ end }}
+                {{ with .IMDB }}<a href="{{ . }}">IMDB</a>{{ end }}
                 {{ with .GoodReads }}<a href="{{ . }}">GoodReads</a>{{ end }}
+                {{ with .RottenTomatoes }}<a href="{{ . }}">Rotten Tomatoes</a>{{ end }}
+                {{ with .AppStore }}<a href="{{ . }}">App Store</a>{{ end }}
+                {{ with .Steam }}<a href="{{ . }}">Steam</a>{{ end }}
                 {{ with .Twitch }}<a href="{{ . }}">Twitch</a>{{ end }}
                 {{ with .YouTube }}<a href="{{ . }}">YouTube</a>{{ end }}
                 {{ with .X }}<a href="{{ . }}">X</a>{{ end }}
                 {{ with .Twitter }}<a href="{{ . }}">X</a>{{ end }}
-                {{ with .IMDB }}<a href="{{ . }}">IMDB</a>{{ end }}
-                {{ with .Steam }}<a href="{{ . }}">Steam</a>{{ end }}
-                {{ with .AppStore }}<a href="{{ . }}">App Store</a>{{ end }}
+                {{ with .Facebook }}<a href="{{ . }}">Facebook</a>{{ end }}
+                {{ with .TikTok }}<a href="{{ . }}">TikTok</a>{{ end }}
                 {{ with .Hulu }}<a href="{{ . }}">Hulu</a>{{ end }}
                 {{ with .AdultSwim }}<a href="{{ . }}">AdultSwim</a>{{ end }}
                 {{ with .Fandom }}<a href="{{ . }}">Fandom</a>{{ end }}
-                {{ with .RottenTomatoes }}<a href="{{ . }}">Rotten Tomatoes</a>{{ end }}
                 {{ with .Instagram }}<a href="{{ . }}">Instagram</a>{{ end }}
                 {{ with .TelegramChannel }}<a href="{{ . }}">Telegram channel</a>{{ end }}
             </p>
@@ -98,19 +110,31 @@
             {{ with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
             {{ with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}
             {{ with .ISBN13 }}<p>ISBN13: {{ . }}</p>{{ end }}
-            {{ with .Extra }}
-                {{ range $key, $value := . }}
-                    <p>{{ $key }}: {{ $value }}</p>
+
+            {{ with .Characters }}
+            <h2>Characters</h2>
+            <ul class="characters">
+                {{ range . }}
+                    <li>
+                        {{ if .Image }}
+                        <span class="image" style="background-image: url('https://media.alsosee.info/People/{{ .Image.ThumbPath }}'); {{ thumbStyle .Image 100 }}"></span>
+                        {{ else }}
+                        <span class="initials">{{ initials .Actor }}</span>
+                        {{ end }}
+                        <span class="actor">{{ .Actor }}</span>
+                        <span class="name">{{ .Name }}</span>
+                    </li>
                 {{ end }}
+            </ul>
             {{ end }}
 
             {{ with .References }}
-                <p>Related: </p>
-                <ul>
-                {{ range . }}
-                    <li><a href="/{{ .Path }}">{{ .Path }}</a></li>
-                {{ end }}
-                </ul>
+            <h2>Related</h2>
+            <ul>
+            {{ range . }}
+                <li><a href="/{{ .Path }}">{{ .Path }}</a></li>
+            {{ end }}
+            </ul>
             {{ end }}
 
             {{ with connections $.CurrentPath }}
@@ -120,6 +144,12 @@
                     <li><a href="/{{ $path }}">{{ $path }}</a></li>
                 {{ end }}
                 </ul>
+            {{ end }}
+
+            {{ with .Extra }}
+                {{ range $key, $value := . }}
+                    <p>{{ $key }}: {{ $value }}</p>
+                {{ end }}
             {{ end }}
 
         </div>
