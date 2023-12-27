@@ -44,10 +44,14 @@ type Content struct {
 	Fandom          string
 	RottenTomatoes  string `yaml:"rotten_tomatoes"`
 	Twitter         string
+	Reddit          string
 	Facebook        string
 	Instagram       string
 	TikTok          string
 	TelegramChannel string `yaml:"telegram_channel"`
+	PlayStation     string `yaml:"playstation"`
+	XBox            string `yaml:"xbox"`
+	GOG             string `yaml:"gog"`
 	X               string
 
 	// for books

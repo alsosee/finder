@@ -62,10 +62,7 @@
                 <div class="thumb"
                     style="
                         background-image: url('https://media.alsosee.info/{{ $.Dir }}/{{ .ThumbPath }}');
-                        background-size: {{ div .ThumbWidth $div }}px {{ div .ThumbHeight $div }}px;
-                        background-position: {{ div .ThumbXOffset $div }}px {{ div .ThumbYOffset $div }}px;
-                        width: {{ div .ThumbWidth $div }}px;
-                        height: {{ div .ThumbHeight $div}}px;
+                        {{ thumbStyle . 150 }}
                     ">
                 </div>
             {{ end }}
@@ -95,9 +92,9 @@
                 {{ with .GoodReads }}<a href="{{ . }}">GoodReads</a>{{ end }}
                 {{ with .RottenTomatoes }}<a href="{{ . }}">Rotten Tomatoes</a>{{ end }}
                 {{ with .AppStore }}<a href="{{ . }}">App Store</a>{{ end }}
-                {{ with .Steam }}<a href="{{ . }}">Steam</a>{{ end }}
                 {{ with .Twitch }}<a href="{{ . }}">Twitch</a>{{ end }}
                 {{ with .YouTube }}<a href="{{ . }}">YouTube</a>{{ end }}
+                {{ with .Reddit }}<a href="{{ . }}">Reddit</a>{{ end }}
                 {{ with .X }}<a href="{{ . }}">X</a>{{ end }}
                 {{ with .Twitter }}<a href="{{ . }}">X</a>{{ end }}
                 {{ with .Facebook }}<a href="{{ . }}">Facebook</a>{{ end }}
@@ -107,6 +104,10 @@
                 {{ with .Fandom }}<a href="{{ . }}">Fandom</a>{{ end }}
                 {{ with .Instagram }}<a href="{{ . }}">Instagram</a>{{ end }}
                 {{ with .TelegramChannel }}<a href="{{ . }}">Telegram channel</a>{{ end }}
+                {{ with .Steam }}<a href="{{ . }}">Steam</a>{{ end }}
+                {{ with .PlayStation }}<a href="{{ . }}">PlayStation</a>{{ end }}
+                {{ with .XBox }}<a href="{{ . }}">XBox</a>{{ end }}
+                {{ with .GOG }}<a href="{{ . }}">GOG</a>{{ end }}
             </p>
             
             {{ with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
