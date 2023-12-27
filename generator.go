@@ -131,6 +131,37 @@ func (g *Generator) fm() template.FuncMap {
 			// format duration as "1h 2m 3s"
 			return fmt.Sprintf("%dh %dm", int(a.Hours()), int(a.Minutes())%60)
 		},
+		"either": func(args ...interface{}) bool {
+			for _, arg := range args {
+				switch v := arg.(type) {
+				case bool:
+					if v {
+						return true
+					}
+
+				case string:
+					if v != "" {
+						return true
+					}
+
+				case int:
+					if v != 0 {
+						return true
+					}
+
+				case time.Duration:
+					if v != 0 {
+						return true
+					}
+
+				case []string:
+					if len(v) != 0 {
+						return true
+					}
+				}
+			}
+			return false
+		},
 	}
 }
 

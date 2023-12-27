@@ -70,11 +70,13 @@
                 </div>
             {{ end }}
             {{ with .Name }}<h1>{{ . }}</h1>{{ end }}
+            {{- if either .Genres .Rating .Length }}
             <p class="labels">
-            {{ with .Genres }}{{ range . }}<span class="genre">{{ . }}</span>{{ end }}{{ end }}
-            <span class="rating">{{ .Rating }}</span>
-            <span class="length">{{ length .Length }}</span>
+            {{- with .Genres }}{{ range . }}<span class="genre">{{ . }}</span>{{ end }}{{ end }}
+            {{- if .Rating }}<span class="rating">{{ .Rating }}</span>{{ end }}
+            {{- if .Length }}<span class="length">{{ length .Length }}</span>{{ end }}
             </p>
+            {{- end }}
             {{ with .Subtitle }}<p>{{ . }}</p>{{ end }}
             {{ with .Description }}<p>{{ . }}</p>{{ end }}
             {{ with .DOB }}<p>Born: {{ . }}</p>{{ end }}
