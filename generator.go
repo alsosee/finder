@@ -506,8 +506,8 @@ func (g *Generator) getFilesForPath(path string) []File {
 
 func (g *Generator) generateContentTemplates() error {
 	for path, content := range g.contents {
-		// replace extension with .html
-		path = path[:len(path)-len(filepath.Ext(path))] + ".html"
+		id := path[:len(path)-len(filepath.Ext(path))] // remove extension
+		path = id + ".html"                            // replace extension with .html
 
 		// create directory
 		if err := os.MkdirAll(filepath.Join(cfg.OutputDirectory, filepath.Dir(path)), 0o755); err != nil {
@@ -528,7 +528,8 @@ func (g *Generator) generateContentTemplates() error {
 
 		// add image to Characters
 		for _, character := range cnt.Characters {
-			character.Image = g.getImageForPath("People/" + character.Actor)
+			character.Image = g.getImageForPath(filepath.Join(id, "Characters", character.Name))
+			character.ActorImage = g.getImageForPath("People/" + character.Actor)
 		}
 
 		if err := g.templates.ExecuteTemplate(
@@ -566,13 +567,13 @@ func (g *Generator) generateContentTemplates() error {
 }
 
 func (g *Generator) getImageForPath(path string) *Media {
+	log.Printf("Getting image for path %q", path)
 	dir := filepath.Dir(path)
 	if dir == "." {
 		dir = ""
 	}
 
 	base := filepath.Base(path)
-	base = strings.ReplaceAll(base, ":", "") // file names can't contain colons
 
 	dirContent, ok := g.mediaDirContents[dir]
 	if !ok {

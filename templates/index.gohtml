@@ -120,12 +120,12 @@
                 {{ range . }}
                     <li>
                         {{ if .Image }}
-                        <span class="image" style="background-image: url('https://media.alsosee.info/People/{{ .Image.ThumbPath }}'); {{ thumbStyle .Image 100 }}"></span>
+                        <span class="image" style="background-image: url('https://media.alsosee.info/{{ $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStyle .Image 100 }}"></span>
                         {{ else }}
                         <span class="initials">{{ initials .Actor }}</span>
                         {{ end }}
-                        <span class="actor">{{ .Actor }}</span>
                         <span class="name">{{ .Name }}</span>
+                        <span class="actor">{{ .Actor }}</span>
                     </li>
                 {{ end }}
             </ul>

@@ -8,10 +8,11 @@ import (
 
 // Character represents a character in a movie, tv show, etc.
 type Character struct {
-	Name  string
-	Actor string
-	Voice string
-	Image *Media
+	Name       string
+	Actor      string
+	Voice      string
+	Image      *Media
+	ActorImage *Media
 }
 
 // Content represents the content of a file.
