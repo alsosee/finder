@@ -311,6 +311,20 @@ fieldset.radio label:last-of-type {
   padding-left: 20px;
 }
 
+#content ul.inline {
+  display: flex;
+  padding-left: 0;
+  list-style: none;
+}
+
+#content ul.inline li {
+  display: inline;
+}
+
+#content ul.inline li + li:before {
+  content: ", ";
+}
+
 #content .labels,
 #content .links {
   display: flex;

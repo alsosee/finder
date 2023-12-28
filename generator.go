@@ -567,7 +567,6 @@ func (g *Generator) generateContentTemplates() error {
 }
 
 func (g *Generator) getImageForPath(path string) *Media {
-	log.Printf("Getting image for path %q", path)
 	dir := filepath.Dir(path)
 	if dir == "." {
 		dir = ""

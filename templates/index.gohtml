@@ -114,6 +114,24 @@
             {{ with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}
             {{ with .ISBN13 }}<p>ISBN13: {{ . }}</p>{{ end }}
 
+            {{ with .Directors }}
+            <h2>Directors</h2>
+            <ul class="inline">
+            {{ range . }}
+                <li>{{ . }}</li>
+            {{ end }}
+            </ul>
+            {{ end }}
+
+            {{ with .Writers }}
+            <h2>Writers</h2>
+            <ul class="inline">
+            {{ range . }}
+                <li>{{ . }}</li>
+            {{ end }}
+            </ul>
+            {{ end }}
+
             {{ with .Characters }}
             <h2>Characters</h2>
             <ul class="characters">
