@@ -179,13 +179,13 @@
 </div>
 <script type="text/javascript">
 if (typeof hasRun === 'undefined') {
-    const toolbar = document.querySelector('#toolbar');
+    const toolbarEl = document.querySelector('#toolbar');
     const container = document.querySelector('#container');
 
     let view = localStorage.getItem('view') || 'icons';
     console.log('view', view);
     document.body.setAttribute('data-view', view);
-    toolbar.querySelector(`input[value=${view}]`).checked = true;
+    toolbarEl.querySelector(`input[value=${view}]`).checked = true;
 
     let setView = function(value) {
         localStorage.setItem('view', value);
@@ -193,14 +193,14 @@ if (typeof hasRun === 'undefined') {
     };
 
     // if enter or space is pressed on a toolbar item, check the radio button
-    toolbar.addEventListener('keydown', (event) => {
+    toolbarEl.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
             event.target.querySelector('input').checked = true;
             setView(event.target.querySelector('input').value);
         }
     });
 
-    toolbar.addEventListener('change', (event) => {
+    toolbarEl.addEventListener('change', (event) => {
         setView(event.target.value);
     });
 
@@ -222,14 +222,14 @@ if (typeof hasRun === 'undefined') {
         scrollToTheRight();
     }
 
-    {% comment %} htmx.on('htmx:beforeSwap', function(evt) {
+    /* htmx.on('htmx:beforeSwap', function(evt) {
         container.style.opacity = 0;
     });
 
     htmx.on('htmx:afterSettle', function(evt) {
         scrollToTheRight();
         container.style.opacity = 1;
-    }); {% endcomment %}
+    }); */
     
     const hasRun = true;
 }
