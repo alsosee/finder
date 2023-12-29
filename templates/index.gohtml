@@ -24,11 +24,15 @@
 <nav>
     <ul id="breadcrumbs" class="menubar-navigation" role="menubar" aria-label="breadcrumbs">
         {{- range .Breadcrumbs }}
+        {{- $slash := "/" }}
+        {{- if eq .Path "" }}
+        {{- $slash = "" }}
+        {{- end }}
         {{- $isCurrent := eq $.CurrentPath .Path }}
         {{- if $isCurrent }}
         <li role="none"><span>{{ .Name }}</span></li>
         {{- else }}
-        <li role="none"><a role="menuitem" href="/{{ .Path }}/"{{ if .InPath }} class="secondary"{{ end }}>{{ .Name }}</a></li>
+        <li role="none"><a role="menuitem" href="/{{ .Path }}{{ $slash }}"{{ if .InPath }} class="secondary"{{ end }}>{{ .Name }}</a></li>
         {{- end }}
         {{- end }}
     </ul>

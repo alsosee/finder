@@ -198,6 +198,10 @@ fieldset.radio label:last-of-type {
   ); /* no arrow on the left */
 }
 
+#breadcrumbs li:first-child span {
+  padding-left: 10px;
+}
+
 #breadcrumbs li + li a {
   margin-left: -9px; /* to leave 1 px gap between li for border */
 }
