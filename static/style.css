@@ -284,6 +284,10 @@ fieldset.radio label:last-of-type {
   box-shadow: 0 2px 2px rgba(0,0,0,0.2);
 }
 
+#content .thumb.png {
+  box-shadow: none;
+}
+
 #content h1 {
   font-size: 1.5em;
   margin-bottom: 10px;
@@ -454,6 +458,10 @@ fieldset.radio label:last-of-type {
   height: var(--height);
   border-radius: 2px;
   box-shadow: 0 2px 2px rgba(0,0,0,0.2);
+}
+
+[data-view="icons"] .panel li a.has-image.png::before {
+  box-shadow: none;
 }
 
 [data-view="icons"] .panel .folder::before {

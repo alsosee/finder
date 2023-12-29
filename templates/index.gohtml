@@ -43,7 +43,7 @@
                 <a
                     role="menuitem"
                     {{- if .Image }}style="--background-image: url('https://media.alsosee.info/{{ $panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStyle .Image 100 "--" }}"{{ end }}
-                    class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .Image }} has-image{{ end }}"
+                    class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .Image }} has-image{{ if isPNG .Image.Path }} png{{end}}{{ end }}"
                     href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
                 >
                     <span>{{ .Name }}</span>
@@ -60,7 +60,7 @@
                 {{- if hasPrefix $.CurrentPath "Movies" }}
                     {{- $div = 2 }}
                 {{- end }}
-                <div class="thumb"
+                <div class="thumb{{ if isPNG .Path }} png{{end}}"
                     style="
                         background-image: url('https://media.alsosee.info/{{ $.Dir }}/{{ .ThumbPath }}');
                         {{ thumbStyle . 150 }}

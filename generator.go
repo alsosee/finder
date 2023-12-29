@@ -154,6 +154,9 @@ func (g *Generator) fm() template.FuncMap {
 				height,
 			)
 		},
+		"isPNG": func(path string) bool {
+			return strings.HasSuffix(path, ".png")
+		},
 		"length": func(a time.Duration) string {
 			// format duration as "1h 2m 3s"
 			return fmt.Sprintf("%dh %dm", int(a.Hours()), int(a.Minutes())%60)
