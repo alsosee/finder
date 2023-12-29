@@ -144,7 +144,7 @@ func (g *Generator) fm() template.FuncMap {
 			marginRight := max - width - marginLeft
 
 			return fmt.Sprintf(
-				"%sbackground-size: %dpx %dpx; %sbackground-position: -%dpx -%dpx; %swidth: %dpx; %sheight: %dpx; %smargin-left: %dpx; %smargin-right: %dpx",
+				"%sbackground-size: %dpx %dpx; %sbackground-position: -%dpx -%dpx; %swidth: %dpx; %sheight: %dpx; %scomp-margin-left: %dpx; %scomp-margin-right: %dpx",
 				prefix,
 				backgroundWidth,
 				backgroundHeight,

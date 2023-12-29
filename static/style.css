@@ -502,8 +502,8 @@ fieldset.radio label:last-of-type {
   background-position: var(--small-background-position);
   width: var(--small-width);
   height: var(--small-height);
-  margin-left: var(--small-margin-left);
-  margin-right: calc(var(--small-margin-right) + 5px);
+  margin-left: var(--small-comp-margin-left);
+  margin-right: calc(var(--small-comp-margin-right) + 5px);
   border-radius: 1px;
   box-shadow: 0 1px 1px rgba(0,0,0,0.2);
 }
@@ -556,8 +556,8 @@ fieldset.radio label:last-of-type {
   background-position: var(--small-background-position);
   width: var(--small-width);
   height: var(--small-height);
-  margin-left: var(--small-margin-left);
-  margin-right: calc(var(--small-margin-right) + 5px);
+  margin-left: var(--small-comp-margin-left);
+  margin-right: calc(var(--small-comp-margin-right) + 5px);
   border-radius: 1px;
   box-shadow: 0 1px 1px rgba(0,0,0,0.2);
 }
