@@ -96,9 +96,9 @@ type Connections map[string]map[string]struct{}
 
 // File represents a file or directory in the file system.
 type File struct {
-	Name            string
-	IsFolder        bool // used to render folder icon and to sort files
-	IsInBreakcrumbs bool // todo: fix typo
+	Name     string
+	IsFolder bool // used to render folder icon and to sort files
+	Image    *Media
 }
 
 // ByNameFolderOnTop sorts files by name, with folders on top.

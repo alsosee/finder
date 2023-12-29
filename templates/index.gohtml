@@ -42,7 +42,8 @@
             <li role="none">
                 <a
                     role="menuitem"
-                    class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .IsInBreakcrumbs }} in-breadcrumbs{{ end }}"
+                    {{- if .Image }}style="--background-image: url('https://media.alsosee.info/{{ $panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStyle .Image 100 "--" }}"{{ end }}
+                    class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .Image }} has-image{{ end }}"
                     href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
                 >
                     <span>{{ .Name }}</span>

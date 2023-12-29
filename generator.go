@@ -112,19 +112,46 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return strings.TrimSpace(initials)
 		},
-		"thumbStyle": func(media Media, width int) string {
+		"thumbStyle": func(media Media, max int, prefixOpt ...string) string {
 			if media.ThumbPath == "" {
 				return ""
 			}
 
+			prefix := ""
+			if len(prefixOpt) > 0 {
+				prefix = prefixOpt[0]
+			}
+
+			var (
+				backgroundWidth  = media.ThumbTotalWidth * max / media.ThumbWidth
+				backgroundHeight = media.ThumbTotalHeight * max / media.ThumbHeight
+				positionX        = media.ThumbXOffset * max / media.ThumbWidth
+				positionY        = media.ThumbYOffset * max / media.ThumbWidth
+				width            = max
+				height           = media.ThumbHeight * max / media.ThumbWidth
+			)
+
+			if media.Height > media.Width {
+				backgroundWidth = media.ThumbTotalWidth * max / media.ThumbHeight
+				backgroundHeight = media.ThumbTotalHeight * max / media.ThumbHeight
+				positionX = media.ThumbYOffset * max / media.ThumbHeight
+				positionY = media.ThumbXOffset * max / media.ThumbHeight
+				width = media.ThumbWidth * max / media.ThumbHeight
+				height = max
+			}
+
 			return fmt.Sprintf(
-				"background-size: %dpx %dpx; background-position: -%dpx -%dpx; width: %dpx; height: %dpx",
-				media.ThumbTotalWidth*width/media.ThumbWidth,
-				media.ThumbTotalHeight*width/media.ThumbWidth,
-				media.ThumbXOffset*width/media.ThumbWidth,
-				media.ThumbYOffset*width/media.ThumbWidth,
+				"%sbackground-size: %dpx %dpx; %sbackground-position: -%dpx -%dpx; %swidth: %dpx; %sheight: %dpx",
+				prefix,
+				backgroundWidth,
+				backgroundHeight,
+				prefix,
+				positionX,
+				positionY,
+				prefix,
 				width,
-				media.ThumbHeight*width/media.ThumbWidth,
+				prefix,
+				height,
 			)
 		},
 		"length": func(a time.Duration) string {
@@ -185,7 +212,8 @@ func (g *Generator) Run() error {
 
 	g.copyStaticFiles()
 	go g.walkInfoDirectory(files, errorsChan)
-	go g.walkMediaDirectory()
+
+	g.walkMediaDirectory()
 	go g.processFiles(files, errorsChan, done)
 
 FILE_PROCESSING:
@@ -473,7 +501,8 @@ func (g *Generator) addFile(path string) {
 
 	g.muDir.Lock()
 	g.dirContents[dir] = append(g.dirContents[dir], File{
-		Name: removeFileExtention(filepath.Base(path)),
+		Name:  removeFileExtention(filepath.Base(path)),
+		Image: g.getImageForPath(removeFileExtention(path)),
 	})
 	g.muDir.Unlock()
 }
@@ -506,8 +535,8 @@ func (g *Generator) getFilesForPath(path string) []File {
 
 func (g *Generator) generateContentTemplates() error {
 	for path, content := range g.contents {
-		id := path[:len(path)-len(filepath.Ext(path))] // remove extension
-		path = id + ".html"                            // replace extension with .html
+		id := removeFileExtention(path)
+		path = id + ".html" // replace extension with .html
 
 		// create directory
 		if err := os.MkdirAll(filepath.Join(cfg.OutputDirectory, filepath.Dir(path)), 0o755); err != nil {
