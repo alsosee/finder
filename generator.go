@@ -140,8 +140,11 @@ func (g *Generator) fm() template.FuncMap {
 				height = max
 			}
 
+			marginLeft := (max - width) / 2
+			marginRight := max - width - marginLeft
+
 			return fmt.Sprintf(
-				"%sbackground-size: %dpx %dpx; %sbackground-position: -%dpx -%dpx; %swidth: %dpx; %sheight: %dpx",
+				"%sbackground-size: %dpx %dpx; %sbackground-position: -%dpx -%dpx; %swidth: %dpx; %sheight: %dpx; %smargin-left: %dpx; %smargin-right: %dpx",
 				prefix,
 				backgroundWidth,
 				backgroundHeight,
@@ -152,6 +155,10 @@ func (g *Generator) fm() template.FuncMap {
 				width,
 				prefix,
 				height,
+				prefix,
+				marginLeft,
+				prefix,
+				marginRight,
 			)
 		},
 		"isPNG": func(path string) bool {

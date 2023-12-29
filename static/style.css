@@ -496,6 +496,22 @@ fieldset.radio label:last-of-type {
   background-position: -72px 0;
 }
 
+[data-view="list"] .panel a.has-image::before {
+  background-image: var(--background-image);
+  background-size: var(--small-background-size);
+  background-position: var(--small-background-position);
+  width: var(--small-width);
+  height: var(--small-height);
+  margin-left: var(--small-margin-left);
+  margin-right: calc(var(--small-margin-right) + 5px);
+  border-radius: 1px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+}
+
+[data-view="list"] .panel a.has-image.png::before {
+  box-shadow: none;
+}
+
 [data-view="list"] .panel .folder::before {
   background-position: -96px 0;
 }
@@ -532,6 +548,22 @@ fieldset.radio label:last-of-type {
   background-repeat: no-repeat;
   background-size: 120px 24px;
   background-position: -72px 0;
+}
+
+[data-view="columns"] .panel a.has-image::before {
+  background-image: var(--background-image);
+  background-size: var(--small-background-size);
+  background-position: var(--small-background-position);
+  width: var(--small-width);
+  height: var(--small-height);
+  margin-left: var(--small-margin-left);
+  margin-right: calc(var(--small-margin-right) + 5px);
+  border-radius: 1px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+}
+
+[data-view="columns"] .panel a.has-image.png::before {
+  box-shadow: none;
 }
 
 [data-view="columns"] .panel .folder::before {
