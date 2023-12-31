@@ -218,6 +218,15 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return false
 		},
+		"dir": filepath.Dir,
+		"character": func(content Content, characterName string) *Character {
+			for _, character := range content.Characters {
+				if character.Name == characterName {
+					return character
+				}
+			}
+			return nil
+		},
 	}
 }
 
@@ -456,6 +465,15 @@ func (g *Generator) processYAMLFile(file string) error {
 	}
 
 	id := removeFileExtention(file)
+
+	content.Image = g.getImageForPath(id)
+
+	// add image to Characters
+	for _, character := range content.Characters {
+		character.Image = g.getImageForPath(filepath.Join(id, "Characters", character.Name))
+		character.ActorImage = g.getImageForPath("People/" + character.Actor)
+	}
+
 	g.addContent(id, content)
 	g.addConnections(id, content)
 
@@ -497,7 +515,6 @@ func (g *Generator) addContent(id string, content Content) {
 
 func (g *Generator) addConnections(from string, content Content) {
 	for _, ref := range content.References {
-		log.Printf("Adding connection from %q to %q", from, ref.Path)
 		g.addConnection(from, ref.Path)
 	}
 
@@ -603,13 +620,6 @@ func (g *Generator) generateContentTemplates() error {
 		panels, breadcrumbs := g.buildPanels(id, true)
 
 		cnt := content
-		cnt.Image = g.getImageForPath(id)
-
-		// add image to Characters
-		for _, character := range cnt.Characters {
-			character.Image = g.getImageForPath(filepath.Join(id, "Characters", character.Name))
-			character.ActorImage = g.getImageForPath("People/" + character.Actor)
-		}
 
 		if err := g.templates.ExecuteTemplate(
 			f,
