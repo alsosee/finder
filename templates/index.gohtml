@@ -83,6 +83,7 @@
             {{ with .Description }}<p>{{ . }}</p>{{ end }}
             {{ with .DOB }}<p>Born: {{ . }}</p>{{ end }}
             {{ with .DOD }}<p>Died: {{ . }}</p>{{ end }}
+            {{ with .Developers }}<p>Developers: {{ . }}</p>{{ end }}
             {{ with .Author }}<p>Author: {{ . }}</p>{{ end }}
             {{ with .Authors }}<p>Authors:
                 {{ range . }}
@@ -114,6 +115,8 @@
                 {{ with .PlayStation }}<a href="{{ . }}">PlayStation</a>{{ end }}
                 {{ with .XBox }}<a href="{{ . }}">XBox</a>{{ end }}
                 {{ with .GOG }}<a href="{{ . }}">GOG</a>{{ end }}
+                {{ with .Epic }}<a href="{{ . }}">Epic</a>{{ end }}
+                {{ with .Discord }}<a href="{{ . }}">Discord</a>{{ end }}
             </p>
             
             {{ with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}

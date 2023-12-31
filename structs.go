@@ -25,6 +25,7 @@ type Content struct {
 	Year        int
 	Author      string
 	Authors     string
+	Developers  string
 	Description string
 
 	// for people
@@ -55,6 +56,8 @@ type Content struct {
 	XBox            string `yaml:"xbox"`
 	GOG             string `yaml:"gog"`
 	X               string
+	Discord         string
+	Epic            string
 
 	// for books
 	ISBN   string
