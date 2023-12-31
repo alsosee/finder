@@ -93,7 +93,7 @@ type Contents map[string]Content
 //	{
 //	  "B": ["A", "C"]
 //	}
-type Connections map[string]map[string]struct{}
+type Connections map[string]map[string][]string
 
 // File represents a file or directory in the file system.
 type File struct {

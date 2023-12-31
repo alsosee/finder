@@ -46,15 +46,9 @@ type Generator struct {
 
 // NewGenerator creates a new Generator.
 func NewGenerator() (*Generator, error) {
-	ignore := &gitignore.GitIgnore{}
-	ignoreFilepath := filepath.Join(cfg.InfoDirectory, cfg.IgnoreFile)
-	if _, err := os.Stat(ignoreFilepath); err == nil {
-		ignore, err = gitignore.CompileIgnoreFile(ignoreFilepath)
-		if err != nil {
-			return nil, fmt.Errorf("compiling ignore file: %w", err)
-		}
-	} else {
-		log.Printf("Ignore file %q not found, ignoring", ignoreFilepath)
+	ignore, err := processIgnoreFile(cfg.IgnoreFile)
+	if err != nil {
+		return nil, fmt.Errorf("processing ignore file: %w", err)
 	}
 
 	return &Generator{
@@ -66,21 +60,41 @@ func NewGenerator() (*Generator, error) {
 	}, nil
 }
 
+func processIgnoreFile(ignoreFile string) (*gitignore.GitIgnore, error) {
+	ignore := &gitignore.GitIgnore{}
+	ignoreFilepath := filepath.Join(cfg.InfoDirectory, ignoreFile)
+	if _, err := os.Stat(ignoreFilepath); err == nil {
+		ignore, err = gitignore.CompileIgnoreFile(ignoreFilepath)
+		if err != nil {
+			return nil, fmt.Errorf("compiling ignore file: %w", err)
+		}
+	} else {
+		log.Printf("Ignore file %q not found, ignoring", ignoreFilepath)
+	}
+
+	return ignore, nil
+}
+
 func (g *Generator) fm() template.FuncMap {
 	return template.FuncMap{
 		"join": func(dir, name string) string {
 			return filepath.Join(dir, name)
 		},
-		"connections": func(path string) []string {
+		"content": func(id string) *Content {
+			g.muContents.Lock()
+			defer g.muContents.Unlock()
+
+			if c, ok := g.contents[id]; ok {
+				return &c
+			}
+			return nil
+		},
+		"connections": func(path string) map[string][]string {
 			g.muConnections.Lock()
 			defer g.muConnections.Unlock()
 
 			if m, ok := g.connections[path]; ok {
-				var connections []string
-				for k := range m {
-					connections = append(connections, k)
-				}
-				return connections
+				return m
 			}
 			return nil
 		},
@@ -192,6 +206,11 @@ func (g *Generator) fm() template.FuncMap {
 					}
 
 				case []string:
+					if len(v) != 0 {
+						return true
+					}
+
+				case []Reference:
 					if len(v) != 0 {
 						return true
 					}
@@ -436,8 +455,9 @@ func (g *Generator) processYAMLFile(file string) error {
 		return fmt.Errorf("unmarshaling yaml: %w", err)
 	}
 
-	g.addContent(file, content)
-	g.addConnections(file, content)
+	id := removeFileExtention(file)
+	g.addContent(id, content)
+	g.addConnections(id, content)
 
 	return nil
 }
@@ -469,27 +489,49 @@ func (g *Generator) copyFileAsIs(file string) error {
 	)
 }
 
-func (g *Generator) addContent(path string, content Content) {
+func (g *Generator) addContent(id string, content Content) {
 	g.muContents.Lock()
-	g.contents[removeFileExtention(path)] = content
+	g.contents[id] = content
 	g.muContents.Unlock()
 }
 
-func (g *Generator) addConnections(path string, content Content) {
+func (g *Generator) addConnections(from string, content Content) {
 	for _, ref := range content.References {
-		g.addConnection(removeFileExtention(path), ref.Path)
+		log.Printf("Adding connection from %q to %q", from, ref.Path)
+		g.addConnection(from, ref.Path)
+	}
+
+	// Add connections for other less obvious references
+	// (maybe it would be better to define these connections in some config.yml file,
+	// or use Go struct field tags, but for now it's fine)
+
+	for _, character := range content.Characters {
+		if character.Actor != "" {
+			g.addConnection(from, "People/"+character.Actor, "Actor", character.Name)
+		}
+		if character.Voice != "" {
+			g.addConnection(from, "People/"+character.Voice, "Voice", character.Name)
+		}
+	}
+
+	for _, writer := range content.Writers {
+		g.addConnection(from, "People/"+writer, "Writer")
+	}
+
+	for _, director := range content.Directors {
+		g.addConnection(from, "People/"+director, "Director")
 	}
 }
 
-func (g *Generator) addConnection(from, to string) {
+func (g *Generator) addConnection(from, to string, info ...string) {
 	g.muConnections.Lock()
 	defer g.muConnections.Unlock()
 
 	if _, ok := g.connections[to]; !ok {
-		g.connections[to] = map[string]struct{}{}
+		g.connections[to] = map[string][]string{}
 	}
 
-	g.connections[to][from] = struct{}{}
+	g.connections[to][from] = info
 }
 
 func (g *Generator) addMedia(path string, media []Media) {
@@ -558,12 +600,10 @@ func (g *Generator) generateContentTemplates() error {
 			return fmt.Errorf("creating file: %w", err)
 		}
 
-		pathWithoutExt := removeFileExtention(path)
-
-		panels, breadcrumbs := g.buildPanels(pathWithoutExt, true)
+		panels, breadcrumbs := g.buildPanels(id, true)
 
 		cnt := content
-		cnt.Image = g.getImageForPath(pathWithoutExt)
+		cnt.Image = g.getImageForPath(id)
 
 		// add image to Characters
 		for _, character := range cnt.Characters {
@@ -582,8 +622,8 @@ func (g *Generator) generateContentTemplates() error {
 				Content     *Content
 				Timestamp   int64
 			}{
-				CurrentPath: pathWithoutExt,
-				Dir:         filepath.Dir(pathWithoutExt),
+				CurrentPath: id,
+				Dir:         filepath.Dir(id),
 				Breadcrumbs: breadcrumbs,
 				Panels:      panels,
 				Content:     &cnt,
@@ -702,7 +742,7 @@ func (g *Generator) buildPanels(path string, isFile bool) (Panels, Breadcrumbs) 
 		})
 
 		// if it's a file, don't add last panel
-		// (it is the file itself, which will be rendered
+		// (it is the file itself, which will be rendered)
 		if isFile && cumulativePath == path {
 			break
 		}

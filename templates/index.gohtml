@@ -155,22 +155,30 @@
             </ul>
             {{ end }}
 
-            {{ with .References }}
-            <h2>Related</h2>
+            {{ with connections $.CurrentPath }}
+            <h2>Connections</h2>
             <ul>
-            {{ range . }}
-                <li><a href="/{{ .Path }}">{{ .Path }}</a></li>
-            {{ end }}
+                {{- range $path, $extra := . }}
+                {{- $content := content $path }}
+                <li>
+                    {{- if eq (len $extra) 2 }}
+                        {{- if eq (index $extra 0) "Actor" }}
+                        Played {{ index $extra 1 }} in <a href="/{{ $path }}">{{ $content.Name }}</a></li>
+                        {{- end }}
+                    {{- else }}
+                    <a href="/{{ $path }}">{{ $path }}</a></li>
+                    {{- end }}
+                {{- end }}
             </ul>
             {{ end }}
 
-            {{ with connections $.CurrentPath }}
-                <p>Connections: </p>
-                <ul>
-                {{ range $path := . }}
-                    <li><a href="/{{ $path }}">{{ $path }}</a></li>
-                {{ end }}
-                </ul>
+            {{ with .References }}}
+            <h2>Also, see</h2>
+            <ul>
+                {{- range . }}
+                <li><a href="/{{ .Path }}">{{ .Path }}</a></li>
+                {{- end }}
+            </ul>
             {{ end }}
 
             {{ with .Extra }}
