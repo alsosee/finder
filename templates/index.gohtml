@@ -149,7 +149,12 @@
                         <span class="initials">{{ initials .Actor }}</span>
                         {{ end }}
                         <span class="name">{{ .Name }}</span>
+                        {{- $person := content (join "People/" .Actor) }}
+                        {{- if $person }}
+                        <a class="actor" href="/People/{{ .Actor }}">{{ .Actor }}</a>
+                        {{- else }}
                         <span class="actor">{{ .Actor }}</span>
+                        {{- end }}
                     </li>
                 {{ end }}
             </ul>
