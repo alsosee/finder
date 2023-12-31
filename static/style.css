@@ -292,6 +292,10 @@ fieldset.radio label:last-of-type {
   box-shadow: none;
 }
 
+#content .thumb.people {
+  border-radius: 100%;
+}
+
 #content h1 {
   font-size: 1.5em;
   margin-bottom: 10px;
@@ -468,6 +472,10 @@ fieldset.radio label:last-of-type {
   box-shadow: none;
 }
 
+[data-view="icons"] .panel li a.has-image.people::before {
+  border-radius: 100%;
+}
+
 [data-view="icons"] .panel .folder::before {
   background-position: -100px 0;
 }
@@ -514,6 +522,10 @@ fieldset.radio label:last-of-type {
 
 [data-view="list"] .panel a.has-image.png::before {
   box-shadow: none;
+}
+
+[data-view="list"] .panel li a.has-image.people::before {
+  border-radius: 100%;
 }
 
 [data-view="list"] .panel .folder::before {

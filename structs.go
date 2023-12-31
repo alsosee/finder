@@ -28,8 +28,9 @@ type Content struct {
 	Description string
 
 	// for people
-	DOB string // date of birth
-	DOD string // date of death
+	DOB     string // date of birth
+	DOD     string // date of death
+	Contact string `yaml:"contact"`
 
 	// general external links
 	Website         string

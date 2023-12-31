@@ -47,7 +47,7 @@
                 <a
                     role="menuitem"
                     {{- if .Image }}style="--background-image: url('https://media.alsosee.info/{{ $panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStyle .Image 100 "--" }}; {{ thumbStyle .Image 24 "--small-" }}"{{ end }}
-                    class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .Image }} has-image{{ if isPNG .Image.Path }} png{{end}}{{ end }}"
+                    class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .Image }} has-image{{ if isPNG .Image.Path }} png{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}{{ end }}"
                     href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
                 >
                     <span>{{ .Name }}</span>
@@ -64,7 +64,7 @@
                 {{- if hasPrefix $.CurrentPath "Movies" }}
                     {{- $div = 2 }}
                 {{- end }}
-                <div class="thumb{{ if isPNG .Path }} png{{end}}"
+                <div class="thumb{{ if isPNG .Path }} png{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}"
                     style="
                         background-image: url('https://media.alsosee.info/{{ $.Dir }}/{{ .ThumbPath }}');
                         {{ thumbStyle . 150 }}
@@ -91,6 +91,7 @@
             {{ end }}
             {{ with .Website }}<p><a href="{{ . }}">{{ . }}</a></p>{{ end }}
             <p class="links">
+                {{ with .Contact }}<a href="{{ . }}">Contact</a>{{ end }}
                 {{ with .Trailer }}<a href="{{ . }}">Trailer</a>{{ end }}
                 {{ with .Wikipedia }}<a href="{{ . }}">Wikipedia</a>{{ end }}
                 {{ with .IMDB }}<a href="{{ . }}">IMDB</a>{{ end }}
