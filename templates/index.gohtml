@@ -171,30 +171,36 @@
                 <li>
                     Played
                     <span class="character{{ if $character.Image }} has-image{{ end }}"
-                        {{- if $character.Image }} style="--background-image: url('https://media.alsosee.info/{{ $path }}/Characters/{{ $character.Image.ThumbPath }}'); {{ thumbStyle $character.Image 24 "--small-" }}"{{ end }}>
-                        {{ $character.Name }}
+                        {{- if $character.Image }} style="--background-image: url('https://media.alsosee.info/{{ $path }}/Characters/{{ $character.Image.ThumbPath }}'); {{ thumbStyle $character.Image 24 "--small-" }}"{{ end }}
+                        >{{ $character.Name }}
                     </span>
                     in
                     <a href="/{{ $path }}"
                         {{- if $content.Image }}style="--background-image: url('https://media.alsosee.info/{{ dir $path }}/{{ $content.Image.ThumbPath }}'); {{ thumbStyle $content.Image 24 "--small-" }}"{{ end }}
                         class="{{ if $content.Image }} has-image{{ if isPNG $content.Image.Path }} png{{end}}{{ end }}"
-                    >
-                        {{ $content.Name }}
+                    >{{ $content.Name }}
                     </a>
                 </li>
                 {{- end }}
                 {{- else }}
-                <a href="/{{ $path }}">{{ $path }}</a></li>
+                <li><a href="/{{ $path }}"
+                    {{- if $content.Image }}style="--background-image: url('https://media.alsosee.info/{{ dir $path }}/{{ $content.Image.ThumbPath }}'); {{ thumbStyle $content.Image 24 "--small-" }}"{{ end }}
+                    class="{{ if $content.Image }} has-image{{ if isPNG $content.Image.Path }} png{{end}}{{ end }}">{{- $content.Name }}</a></li>
                 {{- end }}
                 {{- end }}
             </ul>
             {{ end }}
 
-            {{ with .References }}}
+            {{ with .References }}
             <h2>Also, see</h2>
-            <ul>
+            <ul class="connections">
                 {{- range . }}
-                <li><a href="/{{ .Path }}">{{ .Path }}</a></li>
+                {{ $path := .Path }}
+                {{- $content := content $path }}
+                <li><a href="/{{ $path }}"
+                    {{- if $content.Image }}style="--background-image: url('https://media.alsosee.info/{{ dir $path }}/{{ $content.Image.ThumbPath }}'); {{ thumbStyle $content.Image 24 "--small-" }}"{{ end }}
+                    class="{{ if $content.Image }} has-image{{ if isPNG $content.Image.Path }} png{{end}}{{ end }}">
+                    {{- $content.Name }}</a></li>
                 {{- end }}
             </ul>
             {{ end }}
