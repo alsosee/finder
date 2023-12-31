@@ -1,0 +1,8 @@
+{{ define "reference" }}
+{{- $path := . }}
+{{- $content := content . }}
+<a href="/{{ $path }}"
+{{- if $content.Image }}style="--background-image: url('https://media.alsosee.info/{{ dir $path }}/{{ $content.Image.ThumbPath }}'); {{ thumbStyle $content.Image 24 "--small-" }}"{{ end }}
+class="{{ if $content.Image }} has-image{{ if isPNG $content.Image.Path }} png{{end}}{{ end }}">
+{{- $content.Name }}</a>
+{{ end }}

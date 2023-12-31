@@ -164,28 +164,12 @@
             <h2>Connections</h2>
             <ul class="connections">
                 {{- range $path, $extra := . }}
-                {{- $content := content $path }}
                 {{- if eq (len $extra) 2 }}
                 {{- if eq (index $extra 0) "Actor" }}
-                {{- $character := character $content (index $extra 1) }}
-                <li>
-                    Played
-                    <span class="character{{ if $character.Image }} has-image{{ end }}"
-                        {{- if $character.Image }} style="--background-image: url('https://media.alsosee.info/{{ $path }}/Characters/{{ $character.Image.ThumbPath }}'); {{ thumbStyle $character.Image 24 "--small-" }}"{{ end }}
-                        >{{ $character.Name }}
-                    </span>
-                    in
-                    <a href="/{{ $path }}"
-                        {{- if $content.Image }}style="--background-image: url('https://media.alsosee.info/{{ dir $path }}/{{ $content.Image.ThumbPath }}'); {{ thumbStyle $content.Image 24 "--small-" }}"{{ end }}
-                        class="{{ if $content.Image }} has-image{{ if isPNG $content.Image.Path }} png{{end}}{{ end }}"
-                    >{{ $content.Name }}
-                    </a>
-                </li>
+                <li>Played {{ template "character" dict "Path" $path "Character" (index $extra 1) }} in {{ template "reference" $path }}</li>
                 {{- end }}
                 {{- else }}
-                <li><a href="/{{ $path }}"
-                    {{- if $content.Image }}style="--background-image: url('https://media.alsosee.info/{{ dir $path }}/{{ $content.Image.ThumbPath }}'); {{ thumbStyle $content.Image 24 "--small-" }}"{{ end }}
-                    class="{{ if $content.Image }} has-image{{ if isPNG $content.Image.Path }} png{{end}}{{ end }}">{{- $content.Name }}</a></li>
+                <li>{{ template "reference" $path }}</li>
                 {{- end }}
                 {{- end }}
             </ul>
@@ -195,12 +179,7 @@
             <h2>Also, see</h2>
             <ul class="connections">
                 {{- range . }}
-                {{ $path := .Path }}
-                {{- $content := content $path }}
-                <li><a href="/{{ $path }}"
-                    {{- if $content.Image }}style="--background-image: url('https://media.alsosee.info/{{ dir $path }}/{{ $content.Image.ThumbPath }}'); {{ thumbStyle $content.Image 24 "--small-" }}"{{ end }}
-                    class="{{ if $content.Image }} has-image{{ if isPNG $content.Image.Path }} png{{end}}{{ end }}">
-                    {{- $content.Name }}</a></li>
+                <li>{{ template "reference" .Path }}</li>
                 {{- end }}
             </ul>
             {{ end }}
