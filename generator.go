@@ -120,6 +120,9 @@ func (g *Generator) fm() template.FuncMap {
 		},
 		"hasPrefix": strings.HasPrefix,
 		"initials": func(name string) string {
+			if name == "" {
+				return ""
+			}
 			var initials string
 			for _, s := range strings.Split(name, " ") {
 				initials += strings.ToUpper(s[:1]) + " " // thin space
@@ -658,7 +661,7 @@ func (g *Generator) generateContentTemplates() error {
 			if err2 != nil {
 				err = errors.Join(err, err2)
 			}
-			return fmt.Errorf("executing template: %w", err)
+			return fmt.Errorf("executing template for %q: %w", id, err)
 		}
 
 		if err := f.Close(); err != nil {
