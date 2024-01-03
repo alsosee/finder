@@ -38,7 +38,7 @@
 
 html,
 body {
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -342,14 +342,16 @@ fieldset.radio label:last-of-type {
   display: flex;
   padding-left: 0;
   list-style: none;
+  flex-wrap: wrap;
 }
 
 #content ul.inline li {
   display: inline;
 }
 
-#content ul.inline li + li:before {
-  content: ", ";
+#content ul.inline li:not(:last-child)::after {
+  content: ",";
+  margin-right: 0.33em;
 }
 
 #content .labels,
@@ -381,9 +383,10 @@ fieldset.radio label:last-of-type {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  flex-shrink: 0;
   align-items: baseline;
   align-content: flex-start;
-  flex-shrink: 0;
+  justify-content: space-around;
 }
 
 #content .characters li {
@@ -697,12 +700,19 @@ fieldset.radio label:last-of-type {
     overflow-x: scroll;
     white-space: nowrap;
   }
+  #breadcrumbs::-webkit-scrollbar {
+    display: none;
+  }
   #panels .panel:not(:last-child) {
     display: none;
   }
-  #content {
+  #content, [data-view="columns"] .panel {
     width: 100%;
     min-width: auto;
+    border-right: none;
+  }
+  #content a {
+    overflow-wrap: break-word;
   }
 }
 
