@@ -289,7 +289,7 @@ fieldset.radio label:last-of-type {
 
 #content {
   height: 100%;
-  min-width: 460px;
+  width: 650px;
   padding: 20px;
   overflow-y: auto;
   border-right: 1px solid var(--color-border);
@@ -386,7 +386,6 @@ fieldset.radio label:last-of-type {
   flex-shrink: 0;
   align-items: baseline;
   align-content: flex-start;
-  justify-content: space-around;
 }
 
 #content .characters li {
@@ -658,10 +657,6 @@ fieldset.radio label:last-of-type {
   text-overflow: ellipsis;
 }
 
-[data-view="columns"] #content {
-  max-width: 500px;
-}
-
 /* dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
@@ -713,6 +708,9 @@ fieldset.radio label:last-of-type {
   }
   #content a {
     overflow-wrap: break-word;
+  }
+  #content .characters {
+    justify-content: space-around;
   }
 }
 

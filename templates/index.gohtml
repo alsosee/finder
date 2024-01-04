@@ -67,7 +67,7 @@
                 <div class="thumb{{ if isPNG .Path }} png{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}"
                     style="
                         background-image: url('https://media.alsosee.info/{{ $.Dir }}/{{ .ThumbPath }}');
-                        {{ thumbStyle . 150 }}
+                        {{ thumbStyle . 200 "width" }}
                     ">
                 </div>
             {{ end }}
@@ -105,11 +105,11 @@
                 {{ with .X }}<a href="{{ . }}">X</a>{{ end }}
                 {{ with .Twitter }}<a href="{{ . }}">X</a>{{ end }}
                 {{ with .Facebook }}<a href="{{ . }}">Facebook</a>{{ end }}
+                {{ with .Instagram }}<a href="{{ . }}">Instagram</a>{{ end }}
                 {{ with .TikTok }}<a href="{{ . }}">TikTok</a>{{ end }}
                 {{ with .Hulu }}<a href="{{ . }}">Hulu</a>{{ end }}
                 {{ with .AdultSwim }}<a href="{{ . }}">AdultSwim</a>{{ end }}
                 {{ with .Fandom }}<a href="{{ . }}">Fandom</a>{{ end }}
-                {{ with .Instagram }}<a href="{{ . }}">Instagram</a>{{ end }}
                 {{ with .TelegramChannel }}<a href="{{ . }}">Telegram channel</a>{{ end }}
                 {{ with .Steam }}<a href="{{ . }}">Steam</a>{{ end }}
                 {{ with .PlayStation }}<a href="{{ . }}">PlayStation</a>{{ end }}

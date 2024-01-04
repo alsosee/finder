@@ -129,26 +129,34 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return strings.TrimSpace(initials)
 		},
-		"thumbStyle": func(media Media, max int, prefixOpt ...string) string {
+		"thumbStyle": func(media Media, max int, opt ...string) string {
 			if media.ThumbPath == "" {
 				return ""
 			}
 
-			prefix := ""
-			if len(prefixOpt) > 0 {
-				prefix = prefixOpt[0]
-			}
-
 			var (
 				backgroundWidth  = media.ThumbTotalWidth * max / media.ThumbWidth
-				backgroundHeight = media.ThumbTotalHeight * max / media.ThumbHeight
+				backgroundHeight = media.ThumbTotalHeight * max / media.ThumbWidth
 				positionX        = media.ThumbXOffset * max / media.ThumbWidth
 				positionY        = media.ThumbYOffset * max / media.ThumbWidth
 				width            = max
 				height           = media.ThumbHeight * max / media.ThumbWidth
 			)
 
-			if media.Height > media.Width {
+			useMax := true
+			if len(opt) > 0 {
+				if opt[0] == "width" {
+					useMax = false
+					opt = opt[1:]
+				}
+			}
+
+			prefix := ""
+			if len(opt) > 0 {
+				prefix = opt[0]
+			}
+
+			if useMax && media.Height > media.Width {
 				backgroundWidth = media.ThumbTotalWidth * max / media.ThumbHeight
 				backgroundHeight = media.ThumbTotalHeight * max / media.ThumbHeight
 				positionX = media.ThumbYOffset * max / media.ThumbHeight
