@@ -309,7 +309,7 @@ fieldset.radio label:last-of-type {
   padding: 20px;
   overflow-y: auto;
   border-right: 1px solid var(--color-border);
-  /* background: #fff9f0; */
+  flex-shrink: 0;
 }
 
 #content .thumb {
