@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ if .Content }}{{ .Content.Name }}{{ else }}Finder{{ end }}</title>
+    <title>{{ if .Content }}{{ .Content.Name }}{{ else }}Also, see{{ end }}</title>
     <link rel="stylesheet" href="/style.css?crc={{ crc32 "style.css" }}">
     <script src="https://unpkg.com/htmx.org@1.9.4" integrity="sha384-zUfuhFKKZCbHTY6aRR46gxiqszMk5tcHjsVFxnUo8VMus4kHGVdIYVbOYYNlKmHV" crossorigin="anonymous"></script>
 </head>
 <body data-view="columns">
 <div id="toolbar" hx-preserve="true">
-	<fieldset
-		class="radio menubar-navigation"
-		title="Show items as icons, in a list or in columns"
-		role="menubar"
-		aria-label="View"
-	>
-		<legend>View</legend>
-		<label tabindex="0" role="menuitem"><input type="radio" name="view" value="icons"> <span>Icons</span></label>
-		<label tabindex="0" role="menuitem"><input type="radio" name="view" value="list"> <span>List</span></label>
-		<label tabindex="0" role="menuitem"><input type="radio" name="view" value="columns" checked> <span>Columns</span></label>
-	</fieldset>
+    <div id="logo"><a href="/"></a></div>
+    <fieldset
+        class="radio menubar-navigation"
+        title="Show items as icons, in a list or in columns"
+        role="menubar"
+        aria-label="View"
+    >
+        <legend>View</legend>
+        <label tabindex="0" role="menuitem"><input type="radio" name="view" value="icons"> <span>Icons</span></label>
+        <label tabindex="0" role="menuitem"><input type="radio" name="view" value="list"> <span>List</span></label>
+        <label tabindex="0" role="menuitem"><input type="radio" name="view" value="columns" checked> <span>Columns</span></label>
+    </fieldset>
 </div>
 <nav>
     <ul id="breadcrumbs" class="menubar-navigation" role="menubar" aria-label="breadcrumbs">
