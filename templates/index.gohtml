@@ -49,7 +49,7 @@
                 <a
                     role="menuitem"
                     {{- if .Image }}style="--background-image: url('https://media.alsosee.info/{{ $panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStyle .Image 100 "--" }}; {{ thumbStyle .Image 24 "--small-" }}"{{ end }}
-                    class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .Image }} has-image{{ if isPNG .Image.Path }} png{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}{{ end }}"
+                    class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .Image }} has-image{{ if isJPG .Image.Path }} jpg{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}{{ end }}"
                     href="/{{ $path }}{{ if .IsFolder }}/{{ end }}#_"
                 >
                     <span>{{ .Name }}</span>
@@ -66,7 +66,7 @@
                 {{- if hasPrefix $.CurrentPath "Movies" }}
                     {{- $div = 2 }}
                 {{- end }}
-                <div class="thumb{{ if isPNG .Path }} png{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}"
+                <div class="thumb{{ if isJPG .Path }} jpg{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}"
                     style="
                         background-image: url('https://media.alsosee.info/{{ $.Dir }}/{{ .ThumbPath }}');
                         {{ thumbStyle . 200 "width" }}

@@ -275,18 +275,11 @@ fieldset.radio label:last-of-type {
   background: var(--color-background-secondary);
 }
 
-[data-view="list"] .panel li a.has-image:active::before,
-[data-view="list"] .panel li a.has-image.active::before,
-[data-view="columns"] .panel li a.has-image:active::before,
-[data-view="columns"] .panel li a.has-image.active::before {
+[data-view="list"] .panel li a.has-image.jpg:active::before,
+[data-view="list"] .panel li a.has-image.jpg.active::before,
+[data-view="columns"] .panel li a.has-image.jpg:active::before,
+[data-view="columns"] .panel li a.has-image.jpg.active::before {
   outline: 1px solid white;
-}
-
-.panel li a:active.png::before,
-.panel li a:active.folder::before,
-.panel li a.active.png::before,
-.panel li a.active.folder::before {
-  outline: none;
 }
 
 .panel li a span {
@@ -317,11 +310,10 @@ fieldset.radio label:last-of-type {
   float: right;
   margin: 0 0 10px 10px;
   border-radius: 2px;
-  box-shadow: 0 2px 2px rgba(0,0,0,0.2);
 }
 
-.content .thumb.png {
-  box-shadow: none;
+.content .thumb.jpg {
+  box-shadow: 0 2px 2px rgba(0,0,0,0.2);
 }
 
 .content .thumb.people {
@@ -458,13 +450,9 @@ fieldset.radio label:last-of-type {
   box-shadow: 0 1px 1px rgba(0,0,0,0.2);
 }
 
-.content .connections .character.has-image::before,
-.content .connections a.people.has-image::before {
+.content .connections .character.has-image.jpg::before,
+.content .connections a.people.has-image.jpg::before {
   border-radius: 100%;
-}
-
-.content .connections a.has-image.png::before {
-  box-shadow: none;
 }
 
 /* ICONS */
@@ -526,11 +514,10 @@ fieldset.radio label:last-of-type {
   width: var(--width);
   height: var(--height);
   border-radius: 2px;
-  box-shadow: 0 2px 2px rgba(0,0,0,0.2);
 }
 
-[data-view="icons"] .panel li a.has-image.png::before {
-  box-shadow: none;
+[data-view="icons"] .panel li a.has-image.jpg::before {
+  box-shadow: 0 2px 2px rgba(0,0,0,0.2);
 }
 
 [data-view="icons"] .panel li a.has-image.people::before {
@@ -578,11 +565,10 @@ fieldset.radio label:last-of-type {
   margin-left: var(--small-comp-margin-left);
   margin-right: calc(var(--small-comp-margin-right) + 5px);
   border-radius: 1px;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.2);
 }
 
-[data-view="list"] .panel a.has-image.png::before {
-  box-shadow: none;
+[data-view="list"] .panel a.has-image.jpg::before {
+  box-shadow: 0 1px 1px rgba(0,0,0,0.2);
 }
 
 [data-view="list"] .panel li a.has-image.people::before {
@@ -636,11 +622,10 @@ fieldset.radio label:last-of-type {
   margin-left: var(--small-comp-margin-left);
   margin-right: calc(var(--small-comp-margin-right) + 5px);
   border-radius: 1px;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.2);
 }
 
-[data-view="columns"] .panel a.has-image.png::before {
-  box-shadow: none;
+[data-view="columns"] .panel a.has-image.jpg::before {
+  box-shadow: 0 1px 1px rgba(0,0,0,0.2);
 }
 
 [data-view="columns"] .panel a.has-image.people::before {
@@ -678,7 +663,7 @@ fieldset.radio label:last-of-type {
 /* dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: #222020;
+    --color-background: #333030;
     --color-background-tertiary: #2e2b2b;
     --color-background-secondary: #484545;
     --color-background-selection: #0059d1;
@@ -687,7 +672,7 @@ fieldset.radio label:last-of-type {
     --color-text: #dedddd;
     --color-text-selection: var(--color-text);
     --color-text-muted: #989d9f;
-    --color-border: #000000;
+    --color-border: #222222;
     --color-link: #a8c7fa;
     --background-radial: radial-gradient(82.57% 82.57% at 50% 17.43%, #696969 0%, #484545 100%);
     
