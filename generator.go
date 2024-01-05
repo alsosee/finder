@@ -252,6 +252,23 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return dict, nil
 		},
+		"type": func(c Content) string {
+			// get first part of the Source path
+			// (e.g. "People" or "Book")
+			pathType := strings.Split(c.Source, string(filepath.Separator))[0]
+			switch pathType {
+			case "People":
+				return "person"
+			case "Books":
+				return "book"
+			case "Movies":
+				return "movie"
+			case "Games":
+				return "game"
+			default:
+				return strings.ToLower(pathType)
+			}
+		},
 	}
 }
 
@@ -491,6 +508,7 @@ func (g *Generator) processYAMLFile(file string) error {
 
 	id := removeFileExtention(file)
 
+	content.Source = file
 	content.Image = g.getImageForPath(id)
 
 	// add image to Characters
@@ -513,7 +531,10 @@ func (g *Generator) processMarkdownFile(file string) error {
 
 	htmlBody := markdown.ToHTML(b, nil, nil)
 
-	g.addContent(file, Content{HTML: string(htmlBody)})
+	g.addContent(file, Content{
+		Source: file,
+		HTML:   string(htmlBody),
+	})
 	return nil
 }
 

@@ -17,7 +17,8 @@ type Character struct {
 
 // Content represents the content of a file.
 type Content struct {
-	HTML string `yaml:"-"` // for Markdown files
+	Source string `yaml:"-"` // path to the file
+	HTML   string `yaml:"-"` // for Markdown files
 
 	// for everything
 	Name        string
@@ -27,6 +28,7 @@ type Content struct {
 	Authors     string
 	Developers  string
 	Description string
+	CoverArtist string `yaml:"cover_artist"`
 
 	// for people
 	DOB     string // date of birth
@@ -37,6 +39,7 @@ type Content struct {
 	Website         string
 	Wikipedia       string
 	GoodReads       string
+	Bookshop        string
 	Twitch          string
 	YouTube         string
 	IMDB            string
@@ -60,10 +63,11 @@ type Content struct {
 	Epic            string
 
 	// for books
-	ISBN   string
-	ISBN10 string
-	ISBN13 string
-	OCLC   string
+	ISBN      string
+	ISBN10    string
+	ISBN13    string
+	OCLC      string
+	Publisher string
 
 	// for movies
 	Genres     []string
