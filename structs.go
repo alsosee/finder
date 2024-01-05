@@ -61,6 +61,7 @@ type Content struct {
 	X               string
 	Discord         string
 	Epic            string
+	IGN             string `yaml:"ign"`
 
 	// for books
 	ISBN      string
