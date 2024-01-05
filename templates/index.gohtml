@@ -92,12 +92,20 @@
                 {{ end }}
             {{ end }}
             {{ with .Website }}<p><a href="{{ . }}">{{ . }}</a></p>{{ end }}
+
+            {{ with .Publisher }}<p>Publisher: {{ . }}</p>{{ end }}
+            {{ with .CoverArtist }}<p>Cover Artist: {{ . }}</p>{{ end }}
+            {{ with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
+            {{ with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}
+            {{ with .ISBN13 }}<p>ISBN13: {{ . }}</p>{{ end }}
+
             <p class="links">
                 {{ with .Contact }}<a href="{{ . }}">Contact</a>{{ end }}
                 {{ with .Trailer }}<a href="{{ . }}">Trailer</a>{{ end }}
                 {{ with .Wikipedia }}<a href="{{ . }}">Wikipedia</a>{{ end }}
                 {{ with .IMDB }}<a href="{{ . }}">IMDB</a>{{ end }}
                 {{ with .GoodReads }}<a href="{{ . }}">GoodReads</a>{{ end }}
+                {{ with .Bookshop }}<a href="{{ . }}">Bookshop</a>{{ end }}
                 {{ with .RottenTomatoes }}<a href="{{ . }}">Rotten Tomatoes</a>{{ end }}
                 {{ with .AppStore }}<a href="{{ . }}">App Store</a>{{ end }}
                 {{ with .Twitch }}<a href="{{ . }}">Twitch</a>{{ end }}
@@ -120,12 +128,6 @@
                 {{ with .Discord }}<a href="{{ . }}">Discord</a>{{ end }}
             </p>
             
-            {{ with .Publisher }}<p>Publisher: {{ . }}</p>{{ end }}
-            {{ with .CoverArtist }}<p>Cover Artist: {{ . }}</p>{{ end }}
-            {{ with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
-            {{ with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}
-            {{ with .ISBN13 }}<p>ISBN13: {{ . }}</p>{{ end }}
-
             {{ with .Directors }}
             <h2>Directors</h2>
             <ul class="inline">
