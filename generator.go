@@ -269,6 +269,9 @@ func (g *Generator) fm() template.FuncMap {
 				return strings.ToLower(pathType)
 			}
 		},
+		"isLast": func(i, total int) bool {
+			return i == total-1
+		},
 	}
 }
 

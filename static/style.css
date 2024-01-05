@@ -304,7 +304,7 @@ fieldset.radio label:last-of-type {
   background: var(--color-background-selection) !important;
 }
 
-#content {
+.content {
   height: 100%;
   width: 650px;
   padding: 20px;
@@ -313,87 +313,87 @@ fieldset.radio label:last-of-type {
   flex-shrink: 0;
 }
 
-#content .thumb {
+.content .thumb {
   float: right;
   margin: 0 0 10px 10px;
   border-radius: 2px;
   box-shadow: 0 2px 2px rgba(0,0,0,0.2);
 }
 
-#content .thumb.png {
+.content .thumb.png {
   box-shadow: none;
 }
 
-#content .thumb.people {
+.content .thumb.people {
   border-radius: 100%;
 }
 
-#content h1 {
+.content h1 {
   font-size: 1.5em;
   margin-bottom: 10px;
   line-height: 1.3em;
   margin-top: -0.3em; /* to compensate for the line-height */
 }
 
-#content h2 {
+.content h2 {
   font-size: 1.2em;
   margin-top: 20px;
   margin-bottom: 10px;
 }
 
-#content p {
+.content p {
   margin-bottom: 10px;
 }
 
-#content p + ul {
+.content p + ul {
   margin-top: -10px;
 }
 
-#content ul,
-#content ol {
+.content ul,
+.content ol {
   margin-bottom: 10px;
   padding-left: 20px;
 }
 
-#content ul.inline {
+.content ul.inline {
   display: flex;
   padding-left: 0;
   list-style: none;
   flex-wrap: wrap;
 }
 
-#content ul.inline li {
+.content ul.inline li {
   display: inline;
 }
 
-#content ul.inline li:not(:last-child)::after {
+.content ul.inline li:not(:last-child)::after {
   content: ",";
   margin-right: 0.33em;
 }
 
-#content .labels,
-#content .links {
+.content .labels,
+.content .links {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   gap: 10px;
 }
 
-#content .labels span {
+.content .labels span {
   padding: 0px 7px;
   background: var(--color-background-secondary);
   border-radius: 7px;
   text-transform: capitalize;
 }
 
-#content .labels .length {
+.content .labels .length {
   padding: 0;
   background: none;
   border-radius: 0;
   text-transform: none;
 }
 
-#content .characters {
+.content .characters {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -405,7 +405,7 @@ fieldset.radio label:last-of-type {
   align-content: flex-start;
 }
 
-#content .characters li {
+.content .characters li {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -416,12 +416,12 @@ fieldset.radio label:last-of-type {
   padding: 10px;
 }
 
-#content .characters .image {
+.content .characters .image {
   border-radius: 100%;
   box-shadow: 0 2px 2px rgba(0,0,0,0.2);
 }
 
-#content .characters .initials {
+.content .characters .initials {
   width: 100px;
   height: 100px;
   display: inline-block;
@@ -436,12 +436,12 @@ fieldset.radio label:last-of-type {
   box-shadow: 0 2px 2px rgba(0,0,0,0.2);
 }
 
-#content .characters .actor {
+.content .characters .actor {
   font-style: italic;
 }
 
-#content .connections a.has-image::before,
-#content .connections .character.has-image::before {
+.content .connections a.has-image::before,
+.content .connections .character.has-image::before {
   content: "";
   display: inline-block;
   flex-shrink: 0;
@@ -458,12 +458,12 @@ fieldset.radio label:last-of-type {
   box-shadow: 0 1px 1px rgba(0,0,0,0.2);
 }
 
-#content .connections .character.has-image::before,
-#content .connections a.people.has-image::before {
+.content .connections .character.has-image::before,
+.content .connections a.people.has-image::before {
   border-radius: 100%;
 }
 
-#content .connections a.has-image.png::before {
+.content .connections a.has-image.png::before {
   box-shadow: none;
 }
 
@@ -722,18 +722,18 @@ fieldset.radio label:last-of-type {
   #breadcrumbs::-webkit-scrollbar {
     display: none;
   }
-  #panels .panel:not(:last-child) {
+  [data-view="list"] .panel:not(:last-child) {
     display: none;
   }
-  #content, [data-view="columns"] .panel {
+  .content, [data-view="columns"] .panel {
     width: 100%;
     min-width: auto;
     border-right: none;
   }
-  #content a {
+  .content a {
     overflow-wrap: break-word;
   }
-  #content .characters {
+  .content .characters {
     justify-content: space-around;
   }
 }
