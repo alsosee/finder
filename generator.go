@@ -612,10 +612,12 @@ func (g *Generator) addDir(path string) {
 		return
 	}
 
+	g.muDir.Lock()
 	g.dirContents[dir] = append(g.dirContents[dir], File{
 		Name:     name,
 		IsFolder: true,
 	})
+	g.muDir.Unlock()
 }
 
 func (g *Generator) getFilesForPath(path string) []File {
