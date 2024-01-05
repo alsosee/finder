@@ -458,7 +458,8 @@ fieldset.radio label:last-of-type {
   box-shadow: 0 1px 1px rgba(0,0,0,0.2);
 }
 
-#content .connections .character.has-image::before {
+#content .connections .character.has-image::before,
+#content .connections a.people.has-image::before {
   border-radius: 100%;
 }
 
