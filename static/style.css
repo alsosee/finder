@@ -179,7 +179,8 @@ fieldset.radio label:last-of-type {
   overflow: hidden; /* cut off the li shadow */
 }
 
-#breadcrumbs li {
+#breadcrumbs li:not(:last-child) {
+  /* makes arrow-ed border between li */
   filter: drop-shadow(1px 0px 0px var(--color-border));
 }
 
@@ -274,10 +275,10 @@ fieldset.radio label:last-of-type {
   background: var(--color-background-secondary);
 }
 
-[data-view="list"] .panel li a:active::before,
-[data-view="list"] .panel li a.active::before,
-[data-view="columns"] .panel li a:active::before,
-[data-view="columns"] .panel li a.active::before {
+[data-view="list"] .panel li a.has-image:active::before,
+[data-view="list"] .panel li a.has-image.active::before,
+[data-view="columns"] .panel li a.has-image:active::before,
+[data-view="columns"] .panel li a.has-image.active::before {
   outline: 1px solid white;
 }
 
