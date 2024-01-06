@@ -59,7 +59,7 @@
         </ul>
     {{- end }}
     {{ with .Content }}
-        <div id="_" class="content">
+        <div class="content">
             {{ with .HTML }}{{ . }}{{ end }}
             {{ with .Image }}
                 {{- $div := 3 }}
@@ -200,11 +200,14 @@
                 {{ end }}
             {{ end }}
         </div>
+        <div id="_"></div>
     {{ end }}
     </nav>
 </div>
 <script type="text/javascript">
 if (typeof hasRun === 'undefined') {
+    document.getElementById("_").scrollIntoView();
+
     const toolbarEl = document.querySelector('#toolbar');
     const container = document.querySelector('#container');
 

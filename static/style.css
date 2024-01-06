@@ -723,9 +723,8 @@ fieldset.radio label:last-of-type {
   [data-view="list"] .panel:not(:last-child) {
     display: none;
   }
-  .content, [data-view="columns"] .panel {
+  .content {
     width: 100%;
-    min-width: auto;
     border-right: none;
   }
   .content a {
