@@ -48,7 +48,7 @@
             <li role="none">
                 <a
                     role="menuitem"
-                    {{- if .Image }}style="--background-image: url('https://media.alsosee.info/{{ $panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStyle .Image 100 "--" }}; {{ thumbStyle .Image 24 "--small-" }}"{{ end }}
+                    {{- if .Image }}style="--background-image: url('https://media.alsosee.info/{{ $panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStylePx .Image 100 "--" }}; {{ thumbStylePx .Image 24 "--small-" }}"{{ end }}
                     class="{{ if .IsFolder }}folder{{ if hasPrefix $.CurrentPath $path }} in-path{{ end }}{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .Image }} has-image{{ if isJPG .Image.Path }} jpg{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}{{ end }}"
                     href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
                 >
@@ -67,9 +67,8 @@
                     {{- $div = 2 }}
                 {{- end }}
                 <div class="thumb{{ if isJPG .Path }} jpg{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}"
-                    style="
-                        background-image: url('https://media.alsosee.info/{{ $.Dir }}/{{ .ThumbPath }}');
-                        {{ thumbStyle . 200 "width" }}
+                    style="background-image: url('https://media.alsosee.info/{{ $.Dir }}/{{ .ThumbPath }}');
+                        {{- thumbStylePct . -}}
                     ">
                 </div>
             {{ end }}
@@ -154,7 +153,7 @@
                 {{ range . }}
                     <li>
                         {{ if .Image }}
-                        <span class="image" style="background-image: url('https://media.alsosee.info/{{ $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStyle .Image 100 }}"></span>
+                        <span class="image" style="background-image: url('https://media.alsosee.info/{{ $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStylePct .Image }}"></span>
                         {{ else }}
                         <span class="initials">{{ initials .Actor }}</span>
                         {{ end }}

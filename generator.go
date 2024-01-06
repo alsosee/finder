@@ -129,7 +129,7 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return strings.TrimSpace(initials)
 		},
-		"thumbStyle": func(media Media, max int, opt ...string) string {
+		"thumbStylePx": func(media Media, max int, opt ...string) string {
 			if media.ThumbPath == "" {
 				return ""
 			}
@@ -143,20 +143,12 @@ func (g *Generator) fm() template.FuncMap {
 				height           = media.ThumbHeight * max / media.ThumbWidth
 			)
 
-			useMax := true
+			p := ""
 			if len(opt) > 0 {
-				if opt[0] == "width" {
-					useMax = false
-					opt = opt[1:]
-				}
+				p = opt[0]
 			}
 
-			prefix := ""
-			if len(opt) > 0 {
-				prefix = opt[0]
-			}
-
-			if useMax && media.Height > media.Width {
+			if media.Height > media.Width {
 				backgroundWidth = media.ThumbTotalWidth * max / media.ThumbHeight
 				backgroundHeight = media.ThumbTotalHeight * max / media.ThumbHeight
 				positionX = media.ThumbYOffset * max / media.ThumbHeight
@@ -170,20 +162,60 @@ func (g *Generator) fm() template.FuncMap {
 
 			return fmt.Sprintf(
 				"%sbackground-size: %dpx %dpx; %sbackground-position: -%dpx -%dpx; %swidth: %dpx; %sheight: %dpx; %scomp-margin-left: %dpx; %scomp-margin-right: %dpx",
-				prefix,
-				backgroundWidth,
-				backgroundHeight,
-				prefix,
-				positionX,
-				positionY,
-				prefix,
-				width,
-				prefix,
-				height,
-				prefix,
-				marginLeft,
-				prefix,
-				marginRight,
+				p, backgroundWidth, backgroundHeight,
+				p, positionX, positionY,
+				p, width,
+				p, height,
+				p, marginLeft,
+				p, marginRight,
+			)
+		},
+		"thumbStylePct": func(media Media, prefix ...string) string {
+			if media.ThumbPath == "" {
+				return ""
+			}
+
+			p := ""
+			if len(prefix) > 0 {
+				p = prefix[0]
+			}
+
+			// assume than image width is 100%
+			// how much bigger the whole sprite is?
+			width := media.ThumbTotalWidth * 100 / media.ThumbWidth
+			height := media.ThumbTotalHeight * 100 / media.ThumbHeight
+
+			positionX := 0.0
+			positionY := 0.0
+			if media.ThumbTotalWidth != media.ThumbWidth {
+				// position 100% is the right edge of the image
+				// assuming here that last image in the sprite has the same width as the current one
+				positionX = float64(media.ThumbXOffset) * 100 / float64(media.ThumbTotalWidth-media.ThumbWidth)
+			}
+			if media.ThumbTotalHeight != media.ThumbHeight {
+				positionY = float64(media.ThumbYOffset) * 100 / float64(media.ThumbTotalHeight-media.ThumbHeight)
+			}
+
+			arX := media.ThumbWidth
+			arY := media.ThumbHeight
+			if arX == arY {
+				arX = 1
+				arY = 1
+			}
+
+			if positionX == 0 && positionY == 0 {
+				return fmt.Sprintf(
+					"%sbackground-size: %d%% %d%%; %saspect-ratio: %d/%d;",
+					p, width, height,
+					p, arX, arY,
+				)
+			}
+
+			return fmt.Sprintf(
+				"%sbackground-size: %d%% %d%%; %sbackground-position: %.2f%% %.2f%%; %saspect-ratio: %d/%d;",
+				p, width, height,
+				p, positionX, positionY,
+				p, arX, arY,
 			)
 		},
 		"isPNG": func(path string) bool {

@@ -3,7 +3,7 @@
 {{- $content := content .Path }}
 {{ if $content }}
 <a href="/{{ $path }}"
-{{- if $content.Image }}style="--background-image: url('https://media.alsosee.info/{{ dir $path }}/{{ $content.Image.ThumbPath }}'); {{ thumbStyle $content.Image 24 "--small-" }}"{{ end }}
+{{- if $content.Image }}style="--background-image: url('https://media.alsosee.info/{{ dir $path }}/{{ $content.Image.ThumbPath }}'); {{ thumbStylePx $content.Image 24 "--" }}"{{ end }}
 class="{{- if hasPrefix .Path "People" }} people{{ end }}{{ if $content.Image }} has-image{{ if isJPG $content.Image.Path }} jpg{{end}}{{ end }}">
 {{- $content.Name }}</a>{{ if eq $content.Name .From.Name }} ({{ type $content }}){{ end }}
 {{ else }}

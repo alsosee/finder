@@ -2,7 +2,7 @@
 {{- $content := content .Path }}
 {{- $character := character $content .Character }}
 <span class="character{{ if $character.Image }} has-image{{ if isJPG $content.Image.Path }} jpg{{end}}{{ end }}"
-{{- if $character.Image }} style="--background-image: url('https://media.alsosee.info/{{ .Path }}/Characters/{{ $character.Image.ThumbPath }}'); {{ thumbStyle $character.Image 24 "--small-" }}"{{ end }}>
+{{- if $character.Image }} style="--background-image: url('https://media.alsosee.info/{{ .Path }}/Characters/{{ $character.Image.ThumbPath }}'); {{ thumbStylePx $character.Image 24 "--" }}"{{ end }}>
 {{- $character.Name -}}
 </span>
 {{ end }}

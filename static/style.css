@@ -309,6 +309,8 @@ fieldset.radio label:last-of-type {
 
 .content .thumb {
   float: right;
+  width: 200px;
+  max-width: 50%;
   margin: 0 0 10px 10px;
   border-radius: var(--border-radius-medium);
 }
@@ -419,6 +421,7 @@ fieldset.radio label:last-of-type {
 }
 
 .content .characters .image {
+  width: 100px;
   border-radius: var(--border-radius-avatar);
   box-shadow: var(--shadow-avatar);
 }
@@ -448,13 +451,13 @@ fieldset.radio label:last-of-type {
   flex-shrink: 0;
   margin-bottom: -7px; /* compensate for line height */
   background-image: var(--background-image);
-  background-size: var(--small-background-size);
-  background-position: var(--small-background-position);
+  background-size: var(--background-size);
+  background-position: var(--background-position);
   background-repeat: no-repeat;
-  width: var(--small-width);
-  height: var(--small-height);
-  margin-left: var(--small-comp-margin-left);
-  margin-right: calc(var(--small-comp-margin-right) + 5px);
+  width: var(--width);
+  height: var(--height);
+  margin-left: var(--comp-margin-left);
+  margin-right: calc(var(--comp-margin-right) + 5px);
 }
 
 .content .connections .has-image.jpg::before {
@@ -732,6 +735,14 @@ fieldset.radio label:last-of-type {
   }
   .content .characters {
     justify-content: space-around;
+  }
+}
+
+@media (max-width: 370px) {
+  .content .thumb {
+    float: none;
+    margin: 0 auto 1em;
+    max-width: 100%;
   }
 }
 
