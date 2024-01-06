@@ -275,13 +275,6 @@ fieldset.radio label:last-of-type {
   background: var(--color-background-secondary);
 }
 
-[data-view="list"] .panel li a.has-image.jpg:active::before,
-[data-view="list"] .panel li a.has-image.jpg.active::before,
-[data-view="columns"] .panel li a.has-image.jpg:active::before,
-[data-view="columns"] .panel li a.has-image.jpg.active::before {
-  outline: 1px solid white;
-}
-
 .panel li a span {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -345,6 +338,15 @@ fieldset.radio label:last-of-type {
 .content ol {
   margin-bottom: 10px;
   padding-left: 20px;
+}
+
+.content ul.flat {
+  list-style: none;
+  padding-left: 0;
+}
+
+.content ul.flat li + li {
+  margin-top: 0.33em;
 }
 
 .content ul.inline {

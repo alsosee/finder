@@ -172,7 +172,7 @@
 
             {{ with connections $.CurrentPath }}
             <h2>Connections</h2>
-            <ul class="connections">
+            <ul class="connections flat">
                 {{- range $path, $extra := . }}
                 {{- if eq (len $extra) 2 }}
                 {{- if eq (index $extra 0) "Actor" }}
@@ -187,7 +187,7 @@
 
             {{ with .References }}
             <h2>Also, see</h2>
-            <ul class="connections">
+            <ul class="connections flat">
                 {{- range . }}
                 <li>{{ template "reference" dict "Path" .Path "From" $.Content }}</li>
                 {{- end }}
