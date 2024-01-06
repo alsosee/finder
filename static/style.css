@@ -446,12 +446,15 @@ fieldset.radio label:last-of-type {
   height: var(--small-height);
   margin-left: var(--small-comp-margin-left);
   margin-right: calc(var(--small-comp-margin-right) + 5px);
+}
+
+.content .connections a.has-image.jpg::before {
   border-radius: 1px;
   box-shadow: 0 1px 1px rgba(0,0,0,0.2);
 }
 
-.content .connections .character.has-image.jpg::before,
-.content .connections a.people.has-image.jpg::before {
+.content .connections .character.has-image::before,
+.content .connections .people.has-image::before {
   border-radius: 100%;
 }
 
