@@ -289,7 +289,7 @@ fieldset.radio label:last-of-type {
   white-space: nowrap;
 }
 
-.panel .in-breadcrumbs {
+.panel .in-path {
   background: var(--color-background-selection-inactive);
 }
 

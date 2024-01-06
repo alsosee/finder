@@ -33,7 +33,7 @@
         {{- if $isCurrent }}
         <li role="none"><span>{{ .Name }}</span></li>
         {{- else }}
-        <li role="none"><a role="menuitem" href="/{{ .Path }}{{ $slash }}"{{ if .InPath }} class="secondary"{{ end }}>{{ .Name }}</a></li>
+        <li role="none"><a role="menuitem" href="/{{ .Path }}{{ $slash }}">{{ .Name }}</a></li>
         {{- end }}
         {{- end }}
     </ul>
@@ -49,7 +49,7 @@
                 <a
                     role="menuitem"
                     {{- if .Image }}style="--background-image: url('https://media.alsosee.info/{{ $panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStyle .Image 100 "--" }}; {{ thumbStyle .Image 24 "--small-" }}"{{ end }}
-                    class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .Image }} has-image{{ if isJPG .Image.Path }} jpg{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}{{ end }}"
+                    class="{{ if .IsFolder }}folder{{ if hasPrefix $.CurrentPath $path }} in-path{{ end }}{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .Image }} has-image{{ if isJPG .Image.Path }} jpg{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}{{ end }}"
                     href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
                 >
                     <span>{{ .Name }}</span>

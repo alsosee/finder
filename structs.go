@@ -136,9 +136,8 @@ type Panel struct {
 
 // Dir represents a directory in the breadcrumbs.
 type Dir struct {
-	InPath bool
-	Name   string
-	Path   string
+	Name string
+	Path string
 }
 
 // FileLists is a map, where key is a directory path, and value is a Panel that corresponds to that directory.
