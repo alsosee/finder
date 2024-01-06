@@ -33,7 +33,7 @@
         {{- if $isCurrent }}
         <li role="none"><span>{{ .Name }}</span></li>
         {{- else }}
-        <li role="none"><a role="menuitem" href="/{{ .Path }}{{ $slash }}#_"{{ if .InPath }} class="secondary"{{ end }}>{{ .Name }}</a></li>
+        <li role="none"><a role="menuitem" href="/{{ .Path }}{{ $slash }}"{{ if .InPath }} class="secondary"{{ end }}>{{ .Name }}</a></li>
         {{- end }}
         {{- end }}
     </ul>
@@ -50,7 +50,7 @@
                     role="menuitem"
                     {{- if .Image }}style="--background-image: url('https://media.alsosee.info/{{ $panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStyle .Image 100 "--" }}; {{ thumbStyle .Image 24 "--small-" }}"{{ end }}
                     class="{{ if .IsFolder }}folder{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .Image }} has-image{{ if isJPG .Image.Path }} jpg{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}{{ end }}"
-                    href="/{{ $path }}{{ if .IsFolder }}/{{ end }}#_"
+                    href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
                 >
                     <span>{{ .Name }}</span>
                 </a>
@@ -161,7 +161,7 @@
                         <span class="name">{{ .Name }}</span>
                         {{- $person := content (join "People/" .Actor) }}
                         {{- if $person }}
-                        <a class="actor" href="/People/{{ .Actor }}#_">{{ .Actor }}</a>
+                        <a class="actor" href="/People/{{ .Actor }}">{{ .Actor }}</a>
                         {{- else }}
                         <span class="actor">{{ .Actor }}</span>
                         {{- end }}
@@ -216,6 +216,7 @@ if (typeof hasRun === 'undefined') {
     let setView = function(value) {
         localStorage.setItem('view', value);
         document.body.setAttribute('data-view', value);
+        document.getElementById("_").scrollIntoView();
     };
 
     // if enter or space is pressed on a toolbar item, check the radio button
@@ -230,14 +231,9 @@ if (typeof hasRun === 'undefined') {
         setView(event.target.value);
     });
 
-    /* htmx.on('htmx:beforeSwap', function(evt) {
-        container.style.opacity = 0;
+    htmx.on('htmx:afterSwap', function(evt) {
+        document.getElementById("_").scrollIntoView();
     });
-
-    htmx.on('htmx:afterSettle', function(evt) {
-        scrollToTheRight();
-        container.style.opacity = 1;
-    }); */
     
     const hasRun = true;
 }
