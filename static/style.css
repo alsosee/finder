@@ -20,6 +20,16 @@
   --color-outline: #2962d9;
 
   --background-radial: radial-gradient(82.57% 82.57% at 50% 17.43%, #F9F9F9 0%, #EEEEEE 100%);
+
+  --border-radius-avatar: 100%;
+  --border-radius-medium: 2px;
+  --border-radius-small: 1px;
+
+  --shadow-thumb: 0 2px 2px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(0,0,0,0.2);
+  --shadow-avatar: 0 2px 2px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(0,0,0,0.2);
+  --shadow-small: 0 1px 1px rgba(0,0,0,0.2);
+
+  --outline-small: 0.5px solid rgba(0,0,0,0.5);
   
 }
 
@@ -302,15 +312,15 @@ fieldset.radio label:last-of-type {
 .content .thumb {
   float: right;
   margin: 0 0 10px 10px;
-  border-radius: 2px;
+  border-radius: var(--border-radius-medium);
 }
 
 .content .thumb.jpg {
-  box-shadow: 0 2px 2px rgba(0,0,0,0.2);
+  box-shadow: var(--shadow-thumb);
 }
 
 .content .thumb.people {
-  border-radius: 100%;
+  border-radius: var(--border-radius-avatar);
 }
 
 .content h1 {
@@ -411,8 +421,8 @@ fieldset.radio label:last-of-type {
 }
 
 .content .characters .image {
-  border-radius: 100%;
-  box-shadow: 0 2px 2px rgba(0,0,0,0.2);
+  border-radius: var(--border-radius-avatar);
+  box-shadow: var(--shadow-avatar);
 }
 
 .content .characters .initials {
@@ -426,16 +436,15 @@ fieldset.radio label:last-of-type {
   justify-content: center;
   align-items: center;
   font-size: 34pt;
-  border-radius: 100%;
-  box-shadow: 0 2px 2px rgba(0,0,0,0.2);
+  border-radius: var(--border-radius-avatar);
+  box-shadow: var(--shadow-avatar);
 }
 
 .content .characters .actor {
   font-style: italic;
 }
 
-.content .connections a.has-image::before,
-.content .connections .character.has-image::before {
+.content .connections .has-image::before {
   content: "";
   display: inline-block;
   flex-shrink: 0;
@@ -450,14 +459,15 @@ fieldset.radio label:last-of-type {
   margin-right: calc(var(--small-comp-margin-right) + 5px);
 }
 
-.content .connections a.has-image.jpg::before {
-  border-radius: 1px;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+.content .connections .has-image.jpg::before {
+  border-radius: var(--border-radius-small);
+  box-shadow: var(--shadow-small);
+  outline: var(--outline-small);
 }
 
-.content .connections .character.has-image::before,
-.content .connections .people.has-image::before {
-  border-radius: 100%;
+.content .connections .has-image.character::before,
+.content .connections .has-image.people::before {
+  border-radius: var(--border-radius-avatar);
 }
 
 /* ICONS */
@@ -518,15 +528,15 @@ fieldset.radio label:last-of-type {
   background-position: var(--background-position);
   width: var(--width);
   height: var(--height);
-  border-radius: 2px;
+  border-radius: var(--border-radius-medium);
 }
 
 [data-view="icons"] .panel li a.has-image.jpg::before {
-  box-shadow: 0 2px 2px rgba(0,0,0,0.2);
+  box-shadow: var(--shadow-avatar);
 }
 
 [data-view="icons"] .panel li a.has-image.people::before {
-  border-radius: 100%;
+  border-radius: var(--border-radius-avatar);
 }
 
 [data-view="icons"] .panel .folder::before {
@@ -569,15 +579,16 @@ fieldset.radio label:last-of-type {
   height: var(--small-height);
   margin-left: var(--small-comp-margin-left);
   margin-right: calc(var(--small-comp-margin-right) + 5px);
-  border-radius: 1px;
 }
 
 [data-view="list"] .panel a.has-image.jpg::before {
-  box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+  border-radius: var(--border-radius-small);
+  box-shadow: var(--shadow-small);
+  outline: var(--outline-small);
 }
 
 [data-view="list"] .panel li a.has-image.people::before {
-  border-radius: 100%;
+  border-radius: var(--border-radius-avatar);
 }
 
 [data-view="list"] .panel .folder::before {
@@ -626,15 +637,16 @@ fieldset.radio label:last-of-type {
   height: var(--small-height);
   margin-left: var(--small-comp-margin-left);
   margin-right: calc(var(--small-comp-margin-right) + 5px);
-  border-radius: 1px;
 }
 
 [data-view="columns"] .panel a.has-image.jpg::before {
-  box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+  border-radius: var(--border-radius-small);
+  box-shadow: var(--shadow-small);
+  outline: var(--outline-small);
 }
 
 [data-view="columns"] .panel a.has-image.people::before {
-  border-radius: 100%;
+  border-radius: var(--border-radius-avatar);
 }
 
 [data-view="columns"] .panel .folder::before {

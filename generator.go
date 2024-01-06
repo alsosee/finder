@@ -190,7 +190,7 @@ func (g *Generator) fm() template.FuncMap {
 			return strings.HasSuffix(path, ".png")
 		},
 		"isJPG": func(path string) bool {
-			return strings.HasSuffix(path, ".jpg")
+			return strings.HasSuffix(path, ".jpg") || strings.HasSuffix(path, ".jpeg")
 		},
 		"length": func(a time.Duration) string {
 			// format duration as "1h 2m 3s"
