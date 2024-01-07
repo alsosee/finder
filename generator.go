@@ -77,9 +77,9 @@ func processIgnoreFile(ignoreFile string) (*gitignore.GitIgnore, error) {
 
 func (g *Generator) fm() template.FuncMap {
 	return template.FuncMap{
-		"join": func(dir, name string) string {
-			return filepath.Join(dir, name)
-		},
+		"join": filepath.Join,
+		// "content" returns a Content struct for a given file path (without extension)
+		// It is used to render references.
 		"content": func(id string) *Content {
 			g.muContents.Lock()
 			defer g.muContents.Unlock()
@@ -89,6 +89,7 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return nil
 		},
+		// "connections" returns a list of connections for a given file path (without extension)
 		"connections": func(path string) map[string][]string {
 			g.muConnections.Lock()
 			defer g.muConnections.Unlock()
@@ -98,6 +99,9 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return nil
 		},
+		// "crc32" calculates CRC32 checksum for a file.
+		// It's used to add a get parameter to a static file URL,
+		// so that when the file is updated, the browser will download the new version.
 		"crc32": func(path string) string {
 			// calculate CRC32 checksum for a file
 			file, err := os.Open(filepath.Join(cfg.OutputDirectory, path))
@@ -129,6 +133,9 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return strings.TrimSpace(initials)
 		},
+		// "thumbStylePx" returns CSS styles for a thumbnail image,
+		// where background-size is in pixels.
+		// It's used for non-responsive images, and more reliable than "thumbStylePct".
 		"thumbStylePx": func(media Media, max int, opt ...string) string {
 			if media.ThumbPath == "" {
 				return ""
@@ -170,6 +177,12 @@ func (g *Generator) fm() template.FuncMap {
 				p, marginRight,
 			)
 		},
+		// "thumbStylePct" returns CSS styles for a thumbnail image,
+		// where background-size is in percents. It's used for responsive images.
+		// It can be used when last image in the sprite has the same width as the current one,
+		// which is the case for most people/characters images.
+		// Also, it doesn't add "comp-margin-left" and "comp-margin-right" styles,
+		// which are used to center the image in lists.
 		"thumbStylePct": func(media Media, prefix ...string) string {
 			if media.ThumbPath == "" {
 				return ""
@@ -221,6 +234,8 @@ func (g *Generator) fm() template.FuncMap {
 		"isPNG": func(path string) bool {
 			return strings.HasSuffix(path, ".png")
 		},
+		// "isJPG" is used to add "jpg" class to links that have JPG image thumbnails
+		// (to add a shadow and border radius to them)
 		"isJPG": func(path string) bool {
 			return strings.HasSuffix(path, ".jpg") || strings.HasSuffix(path, ".jpeg")
 		},
@@ -228,6 +243,10 @@ func (g *Generator) fm() template.FuncMap {
 			// format duration as "1h 2m 3s"
 			return fmt.Sprintf("%dh %dm", int(a.Hours()), int(a.Minutes())%60)
 		},
+		// "either" returns true if any of the arguments is true-ish
+		// (bool true, string not empty, int not 0, time.Duration not 0, []string not empty, []Reference not empty)
+		// it's useful for checking if "either" of the fields is set in the template
+		// to avoid rendering empty HTML tags (e.g. ".labels" paragraph)
 		"either": func(args ...interface{}) bool {
 			for _, arg := range args {
 				switch v := arg.(type) {
@@ -273,6 +292,8 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return nil
 		},
+		// "dict" used to pass multiple key-value pairs to a template
+		// (e.g. {{ template "something" dict "Key1" "value1" "Key2" "value2" }})
 		"dict": func(values ...interface{}) (map[string]interface{}, error) {
 			if len(values)%2 != 0 {
 				return nil, errors.New("invalid dict call")
@@ -287,6 +308,10 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return dict, nil
 		},
+		// "type" return a type of the content in singular form
+		// (e.g. "person" for "People", "book" for "Books", etc.)
+		// it used to add an additional context to reference link
+		// when current page and the reference have the same name
 		"type": func(c Content) string {
 			// get first part of the Source path
 			// (e.g. "People" or "Book")
