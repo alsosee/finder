@@ -91,7 +91,11 @@
                     {{ . }}
                 {{ end }}
             {{ end }}
-            {{ with .Website }}<p><a href="{{ . }}">{{ . }}</a></p>{{ end }}
+            {{ with .Website}}<p><a href="{{ . }}">{{ . }}</a></p>{{ end }}
+            {{ with .Websites }}{{ range . }}
+                <p><a href="{{ . }}">{{ . }}</a></p>
+            {{ end }}{{ end }}
+            
 
             {{ with .Publisher }}<p>Publisher: {{ . }}</p>{{ end }}
             {{ with .CoverArtist }}<p>Cover Artist: {{ . }}</p>{{ end }}

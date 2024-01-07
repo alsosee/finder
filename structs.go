@@ -37,6 +37,7 @@ type Content struct {
 
 	// general external links
 	Website         string
+	Websites        []string
 	Wikipedia       string
 	GoodReads       string
 	Bookshop        string
