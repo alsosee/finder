@@ -158,8 +158,8 @@ func (g *Generator) fm() template.FuncMap {
 			if media.Height > media.Width {
 				backgroundWidth = media.ThumbTotalWidth * max / media.ThumbHeight
 				backgroundHeight = media.ThumbTotalHeight * max / media.ThumbHeight
-				positionX = media.ThumbYOffset * max / media.ThumbHeight
-				positionY = media.ThumbXOffset * max / media.ThumbHeight
+				positionX = media.ThumbXOffset * max / media.ThumbHeight
+				positionY = media.ThumbYOffset * max / media.ThumbHeight
 				width = media.ThumbWidth * max / media.ThumbHeight
 				height = max
 			}
