@@ -5,6 +5,10 @@ on:
     types: [deploy]
   workflow_dispatch:
 
+concurrency:
+  group: main
+  cancel-in-progress: false
+
 jobs:
   main:
     runs-on: ubuntu-latest
