@@ -107,7 +107,8 @@ type Connections map[string]map[string][]string
 // File represents a file or directory in the file system.
 type File struct {
 	Name     string
-	IsFolder bool // used to render folder icon and to sort files
+	Title    string // value from YAML "name" field, may contain colons
+	IsFolder bool   // used to render folder icon and to sort files
 	Image    *Media
 }
 
