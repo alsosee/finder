@@ -157,7 +157,7 @@
                 {{ range . }}
                     <li>
                         {{ if .Image }}
-                        <span class="image" style="background-image: url('https://media.alsosee.info/{{ $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStylePct .Image }}"></span>
+                        <span class="image" style="background-image: url('https://media.alsosee.info/{{ escape $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStylePct .Image }}"></span>
                         {{ else }}
                         <span class="initials">{{ initials .Actor }}</span>
                         {{ end }}

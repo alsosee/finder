@@ -307,6 +307,9 @@ func (g *Generator) fm() template.FuncMap {
 		"isLast": func(i, total int) bool {
 			return i == total-1
 		},
+		"escape": func(s string) string {
+			return strings.ReplaceAll(s, `'`, `\'`)
+		},
 	}
 }
 
