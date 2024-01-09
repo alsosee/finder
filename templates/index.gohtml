@@ -179,7 +179,7 @@
                 {{- range $path, $extra := . }}
                 {{- if eq (len $extra) 2 }}
                 {{- if eq (index $extra 0) "Actor" }}
-                <li>Played {{ template "character" dict "Path" $path "Character" (index $extra 1) }} in {{ template "reference" dict "Path" $path "From" $.Content }}</li>
+                <li>Played {{ template "character" dict "Path" $path "Character" (index $extra 1) }} in {{ template "reference" dict "Path" $path "From" $.Content "HideType" true }}</li>
                 {{- end }}
                 {{- else }}
                 <li>{{ template "reference" dict "Path" $path "From" $.Content }}</li>
