@@ -314,8 +314,6 @@ if (typeof hasRun === 'undefined') {
                     .quality(85)
                     .getBuffer(Jimp.MIME_JPEG, function(err, buffer) {
 
-                    const binary = String.fromCharCode.apply(null, buffer);
-
                     {{/* download(binary, image.getMIME()); */}}
 
                     fetch('/upload', {
@@ -332,7 +330,6 @@ if (typeof hasRun === 'undefined') {
                     }).then(function(data) {
                         console.log(data);
                         uploader_cancel();
-                        location.reload();
                     }).catch(function(error) {
                         console.log('There has been a problem with your fetch operation: ', error.message);
                     });
