@@ -340,12 +340,12 @@ if (typeof hasRun === 'undefined') {
 
     document.addEventListener('dragstart', function (event) {
         event.dataTransfer.setData('text/plain', event.target.id);
-        event.dataTransfer.dropEffect = 'move';
+        event.dataTransfer.dropEffect = 'copy';
     });
 
     document.addEventListener('dragover', function (event) {
         event.preventDefault();
-        event.dataTransfer.dropEffect = 'move';
+        event.dataTransfer.dropEffect = 'copy';
     });
 
     document.addEventListener('drop', function (event) {
@@ -375,7 +375,27 @@ if (typeof hasRun === 'undefined') {
                 url: e.target.result
             });
         }
-        reader.readAsDataURL(event.dataTransfer.files[0]);
+
+        if (event.dataTransfer.files.length > 0) {
+            reader.readAsDataURL(event.dataTransfer.files[0]);
+        } else if (event.dataTransfer.items.length > 0) {
+            let link = event.dataTransfer.getData('text/x-moz-url');
+
+            if (link.match(/src="([^"]*)"/)) {
+                // parse <img src ...> from link
+                link = link.match(/src="([^"]*)"/)[1];
+            }
+
+            if (link) {
+                request = new XMLHttpRequest();
+                request.open('GET', "/get?url="+encodeURIComponent(link));
+                request.responseType = 'blob';
+                request.onload = function() {
+                    reader.readAsDataURL(request.response);
+                };
+                request.send();
+            }
+        }
     });
     
     const hasRun = true;
