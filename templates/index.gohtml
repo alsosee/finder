@@ -6,6 +6,7 @@
     <title>{{ if .Content }}{{ .Content.Name }}{{ else }}Also, see{{ end }}</title>
     <link rel="stylesheet" href="/style.css?crc={{ crc32 "style.css" }}">
     <script src="https://unpkg.com/htmx.org@1.9.4" integrity="sha384-zUfuhFKKZCbHTY6aRR46gxiqszMk5tcHjsVFxnUo8VMus4kHGVdIYVbOYYNlKmHV" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.css">
 </head>
 <body data-view="columns">
 <div id="toolbar" hx-preserve="true">
@@ -95,6 +96,14 @@
             {{ with .Websites }}{{ range . }}
                 <p><a href="{{ . }}">{{ . }}</a></p>
             {{ end }}{{ end }}
+
+            {{ with .BasedOn }}
+            <p>Based on
+            {{ range . }}
+                <span class="list">{{ template "reference" dict "Path" . "From" $.Content "HideType" true}}</span>
+            {{ end }}
+            </p>
+            {{ end }}
             
 
             {{ with .Publisher }}<p>Publisher: {{ . }}</p>{{ end }}
@@ -120,6 +129,8 @@
                 {{ with .Facebook }}<a href="{{ . }}">Facebook</a>{{ end }}
                 {{ with .Instagram }}<a href="{{ . }}">Instagram</a>{{ end }}
                 {{ with .TikTok }}<a href="{{ . }}">TikTok</a>{{ end }}
+                {{ with .Netflix }}<a href="{{ . }}">Netflix</a>{{ end }}
+                {{ with .Spotify }}<a href="{{ . }}">Spotify</a>{{ end }}
                 {{ with .Hulu }}<a href="{{ . }}">Hulu</a>{{ end }}
                 {{ with .AdultSwim }}<a href="{{ . }}">AdultSwim</a>{{ end }}
                 {{ with .Fandom }}<a href="{{ . }}">Fandom</a>{{ end }}
@@ -157,15 +168,15 @@
                 {{ range . }}
                     <li>
                         {{ if .Image }}
-                        <span class="image" style="background-image: url('https://media.alsosee.info/{{ escape $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStylePct .Image }}"></span>
+                        <span class="image drop" style="background-image: url('https://media.alsosee.info/{{ escape $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStylePct .Image }}"></span>
                         {{ else }}
-                        <span class="initials">{{ initials .Actor }}</span>
+                        <span class="initials drop">{{ initials .Actor }}</span>
                         {{ end }}
                         <span class="name">{{ .Name }}</span>
                         {{- $person := content (join "People/" .Actor) }}
                         {{- if $person }}
                         <a class="actor" href="/People/{{ .Actor }}">{{ .Actor }}</a>
-                        {{- else }}
+                        {{- else if .Actor }}
                         <span class="actor">{{ .Actor }}</span>
                         {{- end }}
                     </li>
@@ -207,12 +218,26 @@
     {{ end }}
     </nav>
 </div>
+<div id="backdrop" style="display: none"></div>
+<div id="uploader" style="display: none">
+    <h1 id="uploader_target"></h1>
+    <div id="uploader_preview"></div>
+    <div class="buttons">
+      <button class="dismiss" onclick="uploader_cancel()">Cancel</button>
+      <button class="primary" onclick="uploader_upload()">Upload</button>
+    </div>
+</div>
 <script type="text/javascript">
 if (typeof hasRun === 'undefined') {
     document.getElementById("_").scrollIntoView();
 
     const toolbarEl = document.querySelector('#toolbar');
     const container = document.querySelector('#container');
+
+    const backdrop = document.querySelector('#backdrop');
+    const uploader = document.querySelector('#uploader');
+    const uploader_target = document.querySelector('#uploader_target');
+    const uploader_preview = document.querySelector('#uploader_preview');
 
     let view = localStorage.getItem('view') || 'icons';
     console.log('view', view);
@@ -240,9 +265,93 @@ if (typeof hasRun === 'undefined') {
     htmx.on('htmx:afterSwap', function(evt) {
         document.getElementById("_").scrollIntoView();
     });
+
+    /* handle drag and drop */
+    var c = null; /* croppie instance */
+
+    function uploader_cancel() {
+        backdrop.style.display = 'none';
+        uploader.style.display = 'none';
+        c.destroy();
+    }
+
+    function uploader_upload() {
+        c.result({
+            type: 'blob',
+            size: 'viewport'
+        }).then(function(blob) {
+            Jimp.read(c.data.url).then(function(image) {
+                / * formData.append('points', c.get()["points"].join(",")); */
+                image.resize(400, 400).quality(85).getBuffer(Jimp.MIME_JPEG, function(err, buffer) {
+                    const binary = String.fromCharCode.apply(null, buffer);
+
+                    fetch('/upload', {
+                      method: 'POST',
+                      headers: {
+                        'X-Path': "{{ $.CurrentPath }}/Characters/" + uploader.dataset.target
+                      },
+                      body: buffer
+                    }).then(function(response) {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Network response was not ok.');
+                    }).then(function(data) {
+                        console.log(data);
+                        uploader_cancel();
+                        location.reload();
+                    }).catch(function(error) {
+                        console.log('There has been a problem with your fetch operation: ', error.message);
+                    });
+                });
+            });
+        });
+    }
+
+    document.addEventListener('dragstart', function (event) {
+        event.dataTransfer.setData('text/plain', event.target.id);
+        event.dataTransfer.dropEffect = 'move';
+    });
+
+    document.addEventListener('dragover', function (event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+    });
+
+    document.addEventListener('drop', function (event) {
+        event.preventDefault();
+
+        let target = event.target;
+        target = target.nextElementSibling;
+
+        uploader_target.innerText = target.innerText;
+        uploader.dataset.target = target.innerText;
+
+        backdrop.style.display = 'block';
+        uploader.style.display = 'flex';
+
+        opts = {
+            viewport: {
+                type: "circle",
+                width: 400,
+                height: 400
+            }
+        }
+        c = new Croppie(uploader_preview, opts);
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            c.bind({
+                url: e.target.result
+            });
+        }
+        reader.readAsDataURL(event.dataTransfer.files[0]);
+    });
     
     const hasRun = true;
 }
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jimp@0.6.4/browser/lib/jimp.min.js"></script>
 </body>
 </html>

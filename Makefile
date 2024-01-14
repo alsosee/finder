@@ -24,3 +24,8 @@ clean:
 ## build: build the static site
 build: lint
 	@go run .
+
+.PHONY: serve
+## serve: serve the static site
+serve: build
+	@wrangler pages dev --local-protocol=https output/ --compatibility-date=2024-01-14 --local=false

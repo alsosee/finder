@@ -7,6 +7,7 @@
     Liberation Mono, monospace;
 
   --color-background: #ffffff;
+  --color-background-higher: #f9f9f9;
   --color-background-secondary: #f5f7f6;
   --color-background-tertiary: #f4f5f5;
   --color-background-toolbar: var(--color-background);
@@ -28,6 +29,9 @@
   --shadow-thumb: 0 2px 2px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(0,0,0,0.2);
   --shadow-avatar: 0 2px 2px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(0,0,0,0.2);
   --shadow-small: 0 1px 1px rgba(0,0,0,0.2);
+  --shadow-big: 0 10px 20px rgba(0,0,0,0.2), 0 5px 5px rgba(0,0,0,0.2), inset 0 1px 1px 0px rgba(255,255,255,0.2);
+  --shadow-text-light: 0 1px 0px rgba(255,255,255,0.5);
+  --shadow-text-dark: 0 -1px 0px rgba(0,0,0,0.5);
 
   --outline-small: 0.5px solid rgba(0,0,0,0.5);
   
@@ -445,7 +449,7 @@ fieldset.radio label:last-of-type {
   font-style: italic;
 }
 
-.content .connections .has-image::before {
+.reference.has-image::before {
   content: "";
   display: inline-block;
   flex-shrink: 0;
@@ -460,14 +464,14 @@ fieldset.radio label:last-of-type {
   margin-right: calc(var(--comp-margin-right) + 5px);
 }
 
-.content .connections .has-image.jpg::before {
+.reference.has-image.jpg::before {
   border-radius: var(--border-radius-small);
   box-shadow: var(--shadow-small);
   outline: var(--outline-small);
 }
 
-.content .connections .has-image.character::before,
-.content .connections .has-image.people::before {
+.reference.has-image.character::before,
+.reference.has-image.people::before {
   border-radius: var(--border-radius-avatar);
 }
 
@@ -678,12 +682,114 @@ fieldset.radio label:last-of-type {
   text-overflow: ellipsis;
 }
 
+#backdrop {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.25);
+  z-index: 100;
+}
+
+#uploader {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 101;
+  margin: auto;
+  width: 400px;
+  height: 543px; /* emperically determined */
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  background: transparent;
+  box-shadow: var(--shadow-big);
+  overflow: hidden; /* crop .buttons background */
+}
+
+#uploader h1 {
+  font-size: 16pt;
+  font-weight: 500;
+  padding: 14px 20px;
+  margin: 0;
+  text-align: center;
+}
+
+#uploader h1,
+#uploader_preview {
+  background: var(--color-background-secondary);
+  /* not adding background to .buttons container
+     to avoid visual artifacts around rounded corners */
+}
+
+#uploader .croppie-container .cr-boundary {
+  width: 400px;
+  height: 400px;
+}
+
+#uploader .croppie-container .cr-slider-wrap {
+  display: flex;
+}
+
+#uploader .croppie-container .cr-viewport {
+  border: none;
+  box-shadow: 0 0 2000px 2000px rgba(255,255,255,.8);
+}
+
+#uploader .cr-slider::-webkit-slider-thumb {
+  background: var(--background-radial);
+  box-shadow: var(--shadow-avatar);
+}
+
+#uploader .buttons {
+  display: flex;
+  flex-direction: row;
+  background: linear-gradient(90deg, var(--color-background-higher) 49.9%, var(--color-background-selection) 50%);
+  border-radius: 0 0 20px 20px;
+}
+
+#uploader .buttons button {
+  width: 50%;
+  padding: 10px 10px;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: var(--font-default);
+  color: var(--color-text);
+  border: none;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-background-higher);
+  box-shadow: inset 0 1px 1px 0px rgba(255,255,255,0.2), inset 0 -10px 20px 0px rgba(0,0,0,0.2);
+  text-shadow: var(--shadow-text-light);
+}
+
+#uploader .buttons button:first-child {
+  border-radius: 0 0 0 20px;
+}
+
+#uploader .buttons button:last-child {
+  border-radius: 0 0 20px 0;
+}
+
+#uploader .buttons button.primary {
+  background: var(--color-background-selection);
+  color: var(--color-text-selection);
+  text-shadow: var(--shadow-text-dark);
+  border-top: 1px solid var(--color-background-selection);
+}
+
 /* dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
     --color-background: #333030;
     --color-background-tertiary: #2e2b2b;
     --color-background-secondary: #484545;
+    --color-background-higher: #696969;
     --color-background-selection: #0059d1;
     --color-background-selection-inactive: #474747;
     --color-background-toolbar: #343b3e;
@@ -710,6 +816,21 @@ fieldset.radio label:last-of-type {
   }
   #breadcrumbs a {
     background: var(--color-background-tertiary);
+  }
+
+  #backdrop {
+    background: rgba(0,0,0,0.5);
+  }
+
+  #uploader .croppie-container .cr-viewport {
+    box-shadow: 0 0 2000px 2000px rgba(0,0,0,.8);
+  }
+  #uploader .buttons button {
+    text-shadow: var(--shadow-text-dark);
+  }
+  #uploader .buttons button.primary {
+    border-top: 1px solid var(--color-border);
+    border-left: 1px solid var(--color-border);
   }
 }
 

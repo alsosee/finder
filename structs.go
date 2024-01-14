@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -13,6 +14,32 @@ type Character struct {
 	Voice      string
 	Image      *Media
 	ActorImage *Media
+}
+
+// BasedOn represents a list of references to other files.
+type BasedOn []string
+
+// UnmarshalYAML makes BasedOn support both a string and a list of strings.
+func (b *BasedOn) UnmarshalYAML(value *yaml.Node) error {
+	if value.Kind == yaml.ScalarNode {
+		*b = []string{value.Value}
+		return nil
+	}
+
+	if value.Kind != yaml.SequenceNode {
+		return fmt.Errorf("based_on must be a string or a list of strings")
+	}
+
+	if len(value.Content) == 0 {
+		return nil
+	}
+
+	*b = make([]string, len(value.Content))
+	for i, v := range value.Content {
+		(*b)[i] = v.Value
+	}
+
+	return nil
 }
 
 // Content represents the content of a file.
@@ -30,6 +57,8 @@ type Content struct {
 	Description string
 	CoverArtist string `yaml:"cover_artist"`
 
+	BasedOn BasedOn `yaml:"based_on"`
+
 	// for people
 	DOB     string // date of birth
 	DOD     string // date of death
@@ -45,6 +74,8 @@ type Content struct {
 	YouTube         string
 	IMDB            string
 	Steam           string
+	Netflix         string
+	Spotify         string
 	Hulu            string
 	AdultSwim       string
 	AppStore        string `yaml:"app_store"`

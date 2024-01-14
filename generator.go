@@ -167,15 +167,20 @@ func (g *Generator) fm() template.FuncMap {
 			marginLeft := (max - width) / 2
 			marginRight := max - width - marginLeft
 
-			return fmt.Sprintf(
-				"%sbackground-size: %dpx %dpx; %sbackground-position: -%dpx -%dpx; %swidth: %dpx; %sheight: %dpx; %scomp-margin-left: %dpx; %scomp-margin-right: %dpx",
+			style := fmt.Sprintf(
+				"%sbackground-size: %dpx %dpx; %swidth: %dpx; %sheight: %dpx; %scomp-margin-left: %dpx; %scomp-margin-right: %dpx",
 				p, backgroundWidth, backgroundHeight,
-				p, positionX, positionY,
 				p, width,
 				p, height,
 				p, marginLeft,
 				p, marginRight,
 			)
+
+			if positionX != 0 || positionY != 0 {
+				style += fmt.Sprintf("; %sbackground-position: -%dpx -%dpx", p, positionX, positionY)
+			}
+
+			return style
 		},
 		// "thumbStylePct" returns CSS styles for a thumbnail image,
 		// where background-size is in percents. It's used for responsive images.
@@ -649,6 +654,10 @@ func (g *Generator) addConnections(from string, content Content) {
 
 	for _, director := range content.Directors {
 		g.addConnection(from, "People/"+director, "Director")
+	}
+
+	for _, ref := range content.BasedOn {
+		g.addConnection(from, ref, "Based on")
 	}
 }
 
