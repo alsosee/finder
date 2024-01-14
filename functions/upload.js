@@ -1,9 +1,10 @@
 export async function onRequest(context) {
   try {
     switch (context.request.method) {
-      case 'POST':
-        await context.env.MEDIA.put("temp", context.request.body);
-        return new Response(`Put ${"temp"} successfully!`);
+      case 'PUT':
+        const key = context.request.headers.get("x-file-name");
+        await context.env.MEDIA.put(key, context.request.body);
+        return new Response(`Put ${key} successfully!`);
 
       default:
         return new Response(`${context.request.method} is not allowed.`, {

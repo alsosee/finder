@@ -269,6 +269,26 @@ if (typeof hasRun === 'undefined') {
     /* handle drag and drop */
     var c = null; /* croppie instance */
 
+    function extension(mime) {
+        switch (mime) {
+        case "image/jpeg":
+            return ".jpg";
+        case "image/png":
+            return ".png";
+        case "image/gif":
+            return ".gif";
+        default:
+            return "";
+        }
+    }
+
+    function download(binary, mime) {
+        const a = document.createElement('a');
+        a.href = 'data:' + mime + ';base64,' + btoa(binary);
+        a.download = uploader.dataset.target;
+        a.click();
+    }
+
     function uploader_cancel() {
         backdrop.style.display = 'none';
         uploader.style.display = 'none';
@@ -281,14 +301,27 @@ if (typeof hasRun === 'undefined') {
             size: 'viewport'
         }).then(function(blob) {
             Jimp.read(c.data.url).then(function(image) {
-                / * formData.append('points', c.get()["points"].join(",")); */
-                image.resize(400, 400).quality(85).getBuffer(Jimp.MIME_JPEG, function(err, buffer) {
+                const points = c.get()["points"].map(function(p) {
+                    return parseInt(p);
+                });
+                image
+                    .crop(
+                        points[0],
+                        points[1],
+                        points[2] - points[0],
+                        points[3] - points[1]
+                    )
+                    .quality(85)
+                    .getBuffer(Jimp.MIME_JPEG, function(err, buffer) {
+
                     const binary = String.fromCharCode.apply(null, buffer);
 
+                    {{/* download(binary, image.getMIME()); */}}
+
                     fetch('/upload', {
-                      method: 'POST',
+                      method: 'PUT',
                       headers: {
-                        'X-Path': "{{ $.CurrentPath }}/Characters/" + uploader.dataset.target
+                        'x-file-name': "{{ $.CurrentPath }}/Characters/" + uploader.dataset.target + extension(image.getMIME()),
                       },
                       body: buffer
                     }).then(function(response) {
