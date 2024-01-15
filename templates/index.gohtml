@@ -105,6 +105,37 @@
             {{ end }}
             </p>
             {{ end }}
+
+            {{ with .Director }}<p>Director: {{ . }}</p>{{ end }}
+            {{ with .Cinematography }}<p>Cinematography: {{ . }}</p>{{ end }}
+            {{ with .Editor }}<p>Editor: {{ . }}</p>{{ end }}
+            {{ with .Music }}<p>Music: {{ . }}</p>{{ end }}
+
+            {{ with .Producers }}
+            <p>Producers:
+            {{ range . }}
+                <span class="list">{{ . }}</span>
+            {{ end }}
+            </p>
+            {{ end }}
+
+            {{ with .Production }}
+            <p>Production:
+            {{ range . }}
+                <span class="list">{{ . }}</span>
+            {{ end }}
+            </p>
+            {{ end }}
+
+            {{ with .Distributor }}<p>Distributer: {{ . }}</p>{{ end }}
+
+            {{ with .Writers }}
+            <p>Writers
+            {{ range . }}
+                <span class="list">{{ . }}</span>
+            {{ end }}
+            </p>
+            {{ end }}
             
 
             {{ with .Publisher }}<p>Publisher: {{ . }}</p>{{ end }}
@@ -146,24 +177,6 @@
                 {{ with .IGN }}<a href="{{ . }}">IGN</a>{{ end }}
             </p>
             
-            {{ with .Directors }}
-            <h2>Directors</h2>
-            <ul class="inline">
-            {{ range . }}
-                <li>{{ . }}</li>
-            {{ end }}
-            </ul>
-            {{ end }}
-
-            {{ with .Writers }}
-            <h2>Writers</h2>
-            <ul class="inline">
-            {{ range . }}
-                <li>{{ . }}</li>
-            {{ end }}
-            </ul>
-            {{ end }}
-
             {{ with .Characters }}
             <h2>Characters</h2>
             <ul class="characters">

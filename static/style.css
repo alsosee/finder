@@ -383,6 +383,10 @@ fieldset.radio label:last-of-type {
   margin-right: 0.33em;
 }
 
+.content .list:not(:last-child)::after {
+  content: ",";
+}
+
 .content .labels,
 .content .links {
   display: flex;

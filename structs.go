@@ -16,11 +16,11 @@ type Character struct {
 	ActorImage *Media
 }
 
-// BasedOn represents a list of references to other files.
-type BasedOn []string
+// oneOrMany represents a list of strings that can be passed as a single string in YAML.
+type oneOrMany []string
 
 // UnmarshalYAML makes BasedOn support both a string and a list of strings.
-func (b *BasedOn) UnmarshalYAML(value *yaml.Node) error {
+func (b *oneOrMany) UnmarshalYAML(value *yaml.Node) error {
 	if value.Kind == yaml.ScalarNode {
 		*b = []string{value.Value}
 		return nil
@@ -58,7 +58,8 @@ type Content struct {
 	CoverArtist string `yaml:"cover_artist"`
 	Designer    string
 
-	BasedOn BasedOn `yaml:"based_on"`
+	BasedOn oneOrMany `yaml:"based_on"`
+	Series  string
 
 	// for people
 	DOB     string // date of birth
@@ -105,13 +106,19 @@ type Content struct {
 	Publication string // date or year of publication
 
 	// for movies
-	Genres     []string
-	Trailer    string
-	Rating     string
-	Length     time.Duration
-	Writers    []string
-	Directors  []string
-	Characters []*Character
+	Genres         []string
+	Trailer        string
+	Rating         string
+	Length         time.Duration
+	Writers        []string
+	Editor         string
+	Director       string
+	Cinematography string
+	Producers      oneOrMany
+	Music          string
+	Production     oneOrMany
+	Distributor    string
+	Characters     []*Character
 
 	// unknown fields are stored in the Extra map
 	Extra map[string]interface{} `yaml:",inline"`

@@ -644,7 +644,7 @@ func (g *Generator) processGoMarkdownFile(file string) error {
 		HTML:   string(b),
 	})
 
-	// convertion to HTML is done in generateGoTemplates()
+	// conversion to HTML is done in generateGoTemplates()
 	// after all the files are processed
 
 	return nil
@@ -693,8 +693,8 @@ func (g *Generator) addConnections(from string, content Content) {
 		g.addConnection(from, "People/"+writer, "Writer")
 	}
 
-	for _, director := range content.Directors {
-		g.addConnection(from, "People/"+director, "Director")
+	if content.Director != "" {
+		g.addConnection(from, "People/"+content.Director, "Director")
 	}
 
 	for _, ref := range content.BasedOn {
