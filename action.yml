@@ -11,6 +11,9 @@ inputs:
   info:
     description: Directory that contains info files
     required: true
+  media:
+    description: Directory that contains media files
+    required: true
   output:
     description: Directory to output static site
     required: true
