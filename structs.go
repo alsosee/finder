@@ -127,13 +127,20 @@ type Contents map[string]Content
 
 // Connections represents a list of connectiones that initiated by a reference.
 // Key is a file path, where reference is pointing to.
-// Value is a list of files that are pointing to the key.
-// For example, if a file "A" has a reference to file "B",
-// and file "C" has a reference to file "B" as well,
-// then the Connections map will look like this:
+// Value is a map, where key is a file path, where reference is located,
+// and value is a type of reference.
+// For example, three files "A", "B" and "C" are referencing to file "D",
+// but in different contexts. File "A" just has a reference to file "D",
+// file "B" has a reference "D" as an "Author",
+// and file "C" has a reference "D" as a "Voice" for "Bob" (presumably, a character).
+// Then the Connections map will look like this:
 //
 //	{
-//	  "B": ["A", "C"]
+//		"D": {
+//			"A": []
+//			"B": ["Auhor"]
+//			"C": ["Voice", "Bob"],
+//		}
 //	}
 type Connections map[string]map[string][]string
 

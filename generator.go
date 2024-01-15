@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"hash/crc32"
@@ -340,6 +341,21 @@ func (g *Generator) fm() template.FuncMap {
 		"escape": func(s string) string {
 			return strings.ReplaceAll(s, `'`, `\'`)
 		},
+		"missing": func() map[string]map[string][]string {
+			missing := map[string]map[string][]string{}
+
+			g.muConnections.Lock()
+			g.muContents.Lock()
+			for to, from := range g.connections {
+				if _, ok := g.contents[to]; !ok && len(from) > 1 {
+					missing[to] = from
+				}
+			}
+			g.muContents.Unlock()
+			g.muConnections.Unlock()
+
+			return missing
+		},
 	}
 }
 
@@ -379,6 +395,11 @@ FILE_PROCESSING:
 			close(done)
 			break FILE_PROCESSING
 		}
+	}
+
+	// Render Go templates
+	if err := g.generateGoTemplates(); err != nil {
+		return fmt.Errorf("generating go templates: %w", err)
 	}
 
 	// Generate file templates
@@ -549,6 +570,9 @@ func (g *Generator) processFile(file string) error {
 	case ".yml", ".yaml":
 		g.addFile(file)
 		return g.processYAMLFile(file)
+	case ".gomd":
+		g.addFile(file)
+		return g.processGoMarkdownFile(file)
 	case ".md":
 		g.addFile(file)
 		return g.processMarkdownFile(file)
@@ -606,6 +630,23 @@ func (g *Generator) processMarkdownFile(file string) error {
 		Source: file,
 		HTML:   string(htmlBody),
 	})
+	return nil
+}
+
+func (g *Generator) processGoMarkdownFile(file string) error {
+	b, err := os.ReadFile(filepath.Join(cfg.InfoDirectory, file))
+	if err != nil {
+		return fmt.Errorf("reading file: %w", err)
+	}
+
+	g.addContent(file, Content{
+		Source: file,
+		HTML:   string(b),
+	})
+
+	// convertion to HTML is done in generateGoTemplates()
+	// after all the files are processed
+
 	return nil
 }
 
@@ -781,6 +822,32 @@ func (g *Generator) generateContentTemplates() error {
 		if err := f.Close(); err != nil {
 			return fmt.Errorf("closing file: %w", err)
 		}
+	}
+
+	return nil
+}
+
+func (g *Generator) generateGoTemplates() error {
+	for path, content := range g.contents {
+		if filepath.Ext(path) != ".gomd" {
+			continue
+		}
+
+		// render Go template
+		t, err := g.templates.New("").Funcs(g.fm()).Parse(content.HTML)
+		if err != nil {
+			return fmt.Errorf("parsing template: %w", err)
+		}
+
+		var buf bytes.Buffer
+		if err := t.Execute(&buf, nil); err != nil {
+			return fmt.Errorf("executing template: %w", err)
+		}
+
+		htmlBody := markdown.ToHTML(buf.Bytes(), nil, nil)
+		content.HTML = string(htmlBody)
+
+		g.contents[path] = content
 	}
 
 	return nil

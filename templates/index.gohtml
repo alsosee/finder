@@ -101,7 +101,7 @@
             {{ with .BasedOn }}
             <p>Based on
             {{ range . }}
-                <span class="list">{{ template "reference" dict "Path" . "From" $.Content "HideType" true}}</span>
+                <span class="list">{{ template "reference" dict "Path" . "HideType" true}}</span>
             {{ end }}
             </p>
             {{ end }}
@@ -198,15 +198,7 @@
             {{ with connections $.CurrentPath }}
             <h2>Connections</h2>
             <ul class="connections flat">
-                {{- range $path, $extra := . }}
-                {{- if eq (len $extra) 2 }}
-                {{- if eq (index $extra 0) "Actor" }}
-                <li>Played {{ template "character" dict "Path" $path "Character" (index $extra 1) }} in {{ template "reference" dict "Path" $path "From" $.Content "HideType" true }}</li>
-                {{- end }}
-                {{- else }}
-                <li>{{ template "reference" dict "Path" $path "From" $.Content }}</li>
-                {{- end }}
-                {{- end }}
+                {{ template "connections" . }}
             </ul>
             {{ end }}
 
@@ -214,7 +206,7 @@
             <h2>Also, see</h2>
             <ul class="connections flat">
                 {{- range . }}
-                <li>{{ template "reference" dict "Path" .Path "From" $.Content }}</li>
+                <li>{{ template "reference" dict "Path" .Path }}</li>
                 {{- end }}
             </ul>
             {{ end }}
