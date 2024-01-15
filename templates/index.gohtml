@@ -96,6 +96,7 @@
             {{ with .Websites }}{{ range . }}
                 <p><a href="{{ . }}">{{ . }}</a></p>
             {{ end }}{{ end }}
+            {{ with .Designer }}<p>Designer: {{ . }}</p>{{ end }}
 
             {{ with .BasedOn }}
             <p>Based on
@@ -107,6 +108,7 @@
             
 
             {{ with .Publisher }}<p>Publisher: {{ . }}</p>{{ end }}
+            {{ with .Publication }}<p>Publication: {{ . }}</p>{{ end }}
             {{ with .CoverArtist }}<p>Cover Artist: {{ . }}</p>{{ end }}
             {{ with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
             {{ with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}
@@ -173,11 +175,20 @@
                         <span class="initials drop">{{ initials .Actor }}</span>
                         {{ end }}
                         <span class="name">{{ .Name }}</span>
-                        {{- $person := content (join "People/" .Actor) }}
-                        {{- if $person }}
-                        <a class="actor" href="/People/{{ .Actor }}">{{ .Actor }}</a>
-                        {{- else if .Actor }}
-                        <span class="actor">{{ .Actor }}</span>
+                        {{ if .Actor }}
+                            {{- $person := content (join "People/" .Actor) }}
+                            {{- if $person }}
+                            <a class="actor" href="/People/{{ .Actor }}">{{ .Actor }}</a>
+                            {{- else }}
+                            <span class="actor">{{ .Actor }}</span>
+                            {{- end }}
+                        {{- else if .Voice }}
+                            {{- $person := content (join "People/" .Voice) }}
+                            {{- if $person }}
+                            <a class="actor" href="/People/{{ .Voice }}">{{ .Voice }}</a>
+                            {{- else }}
+                            <span class="actor">{{ .Voice }}</span>
+                            {{- end }}
                         {{- end }}
                     </li>
                 {{ end }}

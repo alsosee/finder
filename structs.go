@@ -56,6 +56,7 @@ type Content struct {
 	Developers  string
 	Description string
 	CoverArtist string `yaml:"cover_artist"`
+	Designer    string
 
 	BasedOn BasedOn `yaml:"based_on"`
 
@@ -96,11 +97,12 @@ type Content struct {
 	IGN             string `yaml:"ign"`
 
 	// for books
-	ISBN      string
-	ISBN10    string
-	ISBN13    string
-	OCLC      string
-	Publisher string
+	ISBN        string
+	ISBN10      string
+	ISBN13      string
+	OCLC        string
+	Publisher   string
+	Publication string // date or year of publication
 
 	// for movies
 	Genres     []string
