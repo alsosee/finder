@@ -3,6 +3,12 @@ export async function onRequest(context) {
     switch (context.request.method) {
       case 'PUT':
         const key = context.request.headers.get("x-file-name");
+        if (!key) {
+          return new Response(
+            JSON.stringify({ error: "Missing x-file-name header" }),
+            { status: 400 }
+          );
+        }
 
         await context.env.MEDIA.put(key, context.request.body);
 
