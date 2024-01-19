@@ -108,10 +108,23 @@
             </p>
             {{ end }}
 
-            {{ with .Director }}<p>Director: {{ . }}</p>{{ end }}
+            {{ with .Directors }}<p>Directors:
+            {{ range . }}
+                <span class="list">{{ . }}</span>
+            {{ end }}
+            </p>
+            {{ end }}
+
             {{ with .Cinematography }}<p>Cinematography: {{ . }}</p>{{ end }}
             {{ with .Editor }}<p>Editor: {{ . }}</p>{{ end }}
             {{ with .Music }}<p>Music: {{ . }}</p>{{ end }}
+            {{ with .Artists }}<p>Artists:
+            {{ range . }}
+                <span class="list">{{ . }}</span>
+            {{ end }}
+            </p>
+            {{ end }}
+            {{ with .Colorist }}<p>Colorist: {{ . }}</p>{{ end }}
 
             {{ with .Producers }}
             <p>Producers:
@@ -132,7 +145,7 @@
             {{ with .Distributor }}<p>Distributer: {{ . }}</p>{{ end }}
 
             {{ with .Writers }}
-            <p>Writers
+            <p>Writers:
             {{ range . }}
                 <span class="list">{{ . }}</span>
             {{ end }}
@@ -146,6 +159,7 @@
             {{ with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
             {{ with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}
             {{ with .ISBN13 }}<p>ISBN13: {{ . }}</p>{{ end }}
+            {{ with .UPC }}<p>UPC: {{ . }}</p>{{ end }}
 
             <p class="links">
                 {{ with .Contact }}<a href="{{ . }}">Contact</a>{{ end }}

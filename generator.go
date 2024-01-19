@@ -626,6 +626,12 @@ func (g *Generator) processMarkdownFile(file string) error {
 
 	htmlBody := markdown.ToHTML(b, nil, nil)
 
+	// replace [ ] and [x] with checkboxes and break lines with <br> at the end of the line with checkbox
+	// except for the first line
+	htmlBody = bytes.ReplaceAll(htmlBody, []byte("[ ] "), []byte(`<br><input type="checkbox" disabled> `))
+	htmlBody = bytes.ReplaceAll(htmlBody, []byte("[x] "), []byte(`<br><input type="checkbox" disabled checked> `))
+	htmlBody = bytes.ReplaceAll(htmlBody, []byte("<p><br>"), []byte("<p>"))
+
 	g.addContent(file, Content{
 		Source: file,
 		HTML:   string(htmlBody),
@@ -693,8 +699,8 @@ func (g *Generator) addConnections(from string, content Content) {
 		g.addConnection(from, "People/"+writer, "Writer")
 	}
 
-	if content.Director != "" {
-		g.addConnection(from, "People/"+content.Director, "Director")
+	for _, director := range content.Directors {
+		g.addConnection(from, "People/"+director, "Director")
 	}
 
 	for _, ref := range content.BasedOn {

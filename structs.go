@@ -105,14 +105,19 @@ type Content struct {
 	Publisher   string
 	Publication string // date or year of publication
 
+	// for comics
+	Artists  oneOrMany
+	Colorist string
+	UPC      string
+
 	// for movies
 	Genres         []string
 	Trailer        string
 	Rating         string
 	Length         time.Duration
-	Writers        []string
+	Writers        oneOrMany
 	Editor         string
-	Director       string
+	Directors      oneOrMany
 	Cinematography string
 	Producers      oneOrMany
 	Music          string
