@@ -34,7 +34,13 @@
         {{- end }}
         {{- $isCurrent := eq $.CurrentPath .Path }}
         {{- if $isCurrent }}
-        <li role="none"><span>{{ if $.Content }}{{ $.Content.Name }}{{ else }}{{ .Name }}{{ end }}</span></li>
+        <li role="none"><span>
+            {{- if and $.Content $.Content.Name }}
+                {{- $.Content.Name }}
+            {{- else }}
+                {{- .Name }}
+            {{- end -}}
+        </span></li>
         {{- else }}
         <li role="none"><a role="menuitem" href="/{{ .Path }}{{ $slash }}">{{ .Name }}</a></li>
         {{- end }}
