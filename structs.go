@@ -227,3 +227,8 @@ func (r *Reference) UnmarshalYAML(value *yaml.Node) error {
 
 	return value.Decode(&r)
 }
+
+type Missing struct {
+	To   string
+	From map[string][]string
+}

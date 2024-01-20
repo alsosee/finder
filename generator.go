@@ -342,7 +342,7 @@ func (g *Generator) fm() template.FuncMap {
 		"escape": func(s string) string {
 			return strings.ReplaceAll(s, `'`, `\'`)
 		},
-		"missing": func() map[string]map[string][]string {
+		"missing": func() []Missing {
 			missing := map[string]map[string][]string{}
 
 			g.muConnections.Lock()
@@ -355,7 +355,18 @@ func (g *Generator) fm() template.FuncMap {
 			g.muContents.Unlock()
 			g.muConnections.Unlock()
 
-			return missing
+			result := []Missing{}
+			for to, from := range missing {
+				result = append(result, Missing{To: to, From: from})
+			}
+
+			// sort by number of references (descending)
+			// so that the most referenced files are on top
+			sort.Slice(result, func(i, j int) bool {
+				return len(result[i].From) > len(result[j].From)
+			})
+
+			return result
 		},
 	}
 }
