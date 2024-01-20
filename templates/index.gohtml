@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-title" content="Also, see">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>{{ if .Content }}{{ .Content.Name }}{{ else }}Also, see{{ end }}</title>
     <link rel="stylesheet" href="/style.css?crc={{ crc32 "style.css" }}">
@@ -200,6 +201,13 @@
                 {{ with .Epic }}<a href="{{ . }}">Epic</a>{{ end }}
                 {{ with .Discord }}<a href="{{ . }}">Discord</a>{{ end }}
                 {{ with .IGN }}<a href="{{ . }}">IGN</a>{{ end }}
+                {{ with .Amazon }}<a href="{{ . }}">Amazon</a>{{ end }}
+                {{ with .AppleTV }}<a href="{{ . }}">AppleTV</a>{{ end }}
+                {{ with .GooglePlay }}<a href="{{ . }}">GooglePlay</a>{{ end }}
+                {{ with .MicrosoftStore }}<a href="{{ . }}">Microsoft Store</a>{{ end }}
+                {{ with .Row8 }}<a href="{{ . }}">Row8</a>{{ end }}
+                {{ with .Redbox }}<a href="{{ . }}">Redbox</a>{{ end }}
+                {{ with .Vudu }}<a href="{{ . }}">Vudu</a>{{ end }}
             </p>
             
             {{ with .Characters }}

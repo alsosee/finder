@@ -96,6 +96,13 @@ type Content struct {
 	Discord         string
 	Epic            string
 	IGN             string `yaml:"ign"`
+	Amazon          string
+	AppleTV         string `yaml:"apple_tv"`
+	GooglePlay      string `yaml:"google_play"`
+	MicrosoftStore  string `yaml:"microsoft_store"`
+	Row8            string
+	Redbox          string
+	Vudu            string
 
 	// for books
 	ISBN        string
