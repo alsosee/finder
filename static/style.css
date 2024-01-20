@@ -128,9 +128,12 @@ pre code {
 
 fieldset.radio {
   display: flex;
-  border: 1px solid var(--color-border);
+  border: 0.5px solid var(--color-border);
   border-radius: 8px;
   user-select: none;
+  box-shadow: inset 0 -3px 10px rgba(0,0,0,0.1),
+    inset 0 -2px 2px rgba(0,0,0,0.1),
+    0 2px 10px rgba(0,0,0,0.1);
 }
 
 fieldset.radio legend {
@@ -166,12 +169,20 @@ fieldset.radio input {
   display: none;
 }
 
+fieldset.radio label + label {
+  border-left: 0.5px solid rgba(0,0,0,0.25);
+}
+
 fieldset.radio label:has(input:checked) {
   background: var(--color-background-secondary);
+  box-shadow: inset 0 3px 10px rgba(0,0,0,0.05),
+    inset 0 3px 7px rgba(0,0,0,0.1),
+    inset 0 -3px 7px rgba(0,0,0,0.1),
+    inset 0 -1px 1px rgba(0,0,0,0.1);
 }
 
 fieldset.radio label:focus {
-  outline: 2px solid var(--color-outline);
+  outline: thin solid var(--color-outline);
   z-index: 1;
 }
 
@@ -210,11 +221,14 @@ fieldset.radio label:last-of-type {
     0 100%,
     10px 50%
   );
+  box-shadow: inset 0 -5px 5px rgba(0,0,0,.05);
+  cursor: default;
 }
 
 #breadcrumbs span {
-  display: block;;
+  display: block;
   padding: 0 7px; /* 16px - 9px */
+  cursor: default;
 }
 
 #breadcrumbs li:first-child a {
@@ -791,6 +805,20 @@ fieldset.radio label:last-of-type {
   border-top: 1px solid var(--color-background-selection);
 }
 
+#uploader .buttons button:active {
+  background: var(--color-background-secondary);
+  border-top-color: rgba(0,0,0,0.3);
+  box-shadow: inset 0 10px 20px 0px rgba(0,0,0,0.2),
+    inset 0 3px 5px 0 rgba(0,0,0,0.1);
+}
+
+#uploader .buttons button.primary:active {
+  background: var(--color-background-selection);
+  border-top-color: rgba(0,0,0,0.3);
+  box-shadow: inset 0 10px 20px 0px rgba(0,0,0,0.2),
+    inset 0 3px 5px 0 rgba(0,0,0,0.1);
+}
+
 /* dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
@@ -817,13 +845,23 @@ fieldset.radio label:last-of-type {
     background-size: cover;
   }
   fieldset {
-    --color-border: #3b3838;
+    --color-border: #222222;
+  }
+  fieldset.radio {
+    background: #3b3838;
+    box-shadow: inset 0 -3px 10px rgba(0,0,0,0.2),
+      inset 0 -2px 2px rgba(0,0,0,0.2),
+      0 2px 10px rgba(0,0,0,0.1);
   }
   fieldset.radio span {
-    filter: invert(0.8);
+    filter: invert(0.8); /* invert sprite black to white */
+  }
+  fieldset.radio label:has(input:checked) {
+    background: var(--color-background-tertiary);
   }
   #breadcrumbs a {
     background: var(--color-background-tertiary);
+    box-shadow: inset 0 -5px 5px rgba(0,0,0,.2);
   }
 
   #backdrop {
