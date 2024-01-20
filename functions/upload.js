@@ -2,7 +2,7 @@ export async function onRequest(context) {
   try {
     switch (context.request.method) {
       case 'PUT':
-        const key = context.request.headers.get("x-file-name");
+        const key = decodeURIComponent(context.request.headers.get("x-file-name"));
         if (!key) {
           return new Response(
             JSON.stringify({ error: "Missing x-file-name header" }),

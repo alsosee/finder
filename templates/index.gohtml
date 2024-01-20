@@ -369,7 +369,7 @@ if (typeof hasRun === 'undefined') {
                     fetch('/upload', {
                       method: 'PUT',
                       headers: {
-                        'x-file-name': "{{ $.CurrentPath }}/Characters/" + uploader.dataset.target + extension(image.getMIME()),
+                        'x-file-name': encodeURIComponent("{{ $.CurrentPath }}/Characters/" + uploader.dataset.target + extension(image.getMIME())),
                       },
                       body: buffer
                     }).then(function(response) {
