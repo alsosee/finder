@@ -52,7 +52,7 @@ type Content struct {
 	Subtitle    string
 	Year        int
 	Author      string
-	Authors     string
+	Authors     oneOrMany
 	Developers  string
 	Description string
 	CoverArtist string `yaml:"cover_artist"`
