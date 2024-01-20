@@ -321,8 +321,8 @@ func (g *Generator) fm() template.FuncMap {
 		"type": func(c Content) string {
 			// get first part of the Source path
 			// (e.g. "People" or "Book")
-			pathType := strings.Split(c.Source, string(filepath.Separator))[0]
-			switch pathType {
+			root := pathType(c.Source)
+			switch root {
 			case "People":
 				return "person"
 			case "Books":
@@ -332,9 +332,10 @@ func (g *Generator) fm() template.FuncMap {
 			case "Games":
 				return "game"
 			default:
-				return strings.ToLower(pathType)
+				return strings.ToLower(root)
 			}
 		},
+		"series": series,
 		"isLast": func(i, total int) bool {
 			return i == total-1
 		},
@@ -703,8 +704,16 @@ func (g *Generator) addConnections(from string, content Content) {
 		g.addConnection(from, "People/"+director, "Director")
 	}
 
+	for _, producer := range content.Producers {
+		g.addConnection(from, "People/"+producer, "Producer")
+	}
+
 	for _, ref := range content.BasedOn {
 		g.addConnection(from, ref, "Based on")
+	}
+
+	if content.Series != "" {
+		g.addConnection(from, series(content), "Series")
 	}
 }
 
@@ -1009,4 +1018,21 @@ func copyFile(src, dst string) error {
 	}
 
 	return out.Sync()
+}
+
+func pathType(path string) string {
+	return strings.Split(path, string(filepath.Separator))[0]
+}
+
+// series generates path to a series page
+// for Movies: /Movies/Series/<Series name>
+// for Video Games: /Games/Video/Series/<Series name>
+// Since most of the content arranged in a folders by year,
+// series page is 2 levels up from the current page.
+func series(c Content) string {
+	return filepath.Join(
+		filepath.Dir(filepath.Dir(c.Source)),
+		"Series",
+		c.Series,
+	)
 }
