@@ -78,6 +78,7 @@ type Content struct {
 	Steam           string
 	Netflix         string
 	Spotify         string
+	Soundcloud      string
 	Hulu            string
 	AdultSwim       string
 	AppStore        string `yaml:"app_store"`
