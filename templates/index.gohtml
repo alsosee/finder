@@ -99,17 +99,17 @@
             {{ with .DOB }}<p>Born: {{ . }}</p>{{ end }}
             {{ with .DOD }}<p>Died: {{ . }}</p>{{ end }}
             {{ with .Developers }}<p>Developers: {{ . }}</p>{{ end }}
-            {{ with .Author }}<p>Author: {{ . }}</p>{{ end }}
+            {{ with .Author }}<p>Author: {{ template "person" . }}</p>{{ end }}
             {{ with .Authors }}<p>Authors:
-                {{ range . }}
-                    {{ . }}
-                {{ end }}
+            {{ range . }}
+                <span class="list">{{ template "person" . }}</span>
+            {{ end }}
             {{ end }}
             {{ with .Website}}<p><a href="{{ . }}">{{ . }}</a></p>{{ end }}
             {{ with .Websites }}{{ range . }}
                 <p><a href="{{ . }}">{{ . }}</a></p>
             {{ end }}{{ end }}
-            {{ with .Designer }}<p>Designer: {{ . }}</p>{{ end }}
+            {{ with .Designer }}<p>Designer: {{ template "person" . }}</p>{{ end }}
 
             {{ with .BasedOn }}
             <p>Based on
@@ -121,26 +121,26 @@
 
             {{ with .Directors }}<p>Directors:
             {{ range . }}
-                <span class="list">{{ . }}</span>
+                <span class="list">{{ template "person" . }}</span>
             {{ end }}
             </p>
             {{ end }}
 
-            {{ with .Cinematography }}<p>Cinematography: {{ . }}</p>{{ end }}
-            {{ with .Editor }}<p>Editor: {{ . }}</p>{{ end }}
-            {{ with .Music }}<p>Music: {{ . }}</p>{{ end }}
+            {{ with .Cinematography }}<p>Cinematography: {{ template "person" . }}</p>{{ end }}
+            {{ with .Editor }}<p>Editor: {{ template "person" . }}</p>{{ end }}
+            {{ with .Music }}<p>Music: {{ template "person" . }}</p>{{ end }}
             {{ with .Artists }}<p>Artists:
             {{ range . }}
-                <span class="list">{{ . }}</span>
+                <span class="list">{{ template "person" . }}</span>
             {{ end }}
             </p>
             {{ end }}
-            {{ with .Colorist }}<p>Colorist: {{ . }}</p>{{ end }}
+            {{ with .Colorist }}<p>Colorist: {{ template "person" . }}</p>{{ end }}
 
             {{ with .Producers }}
             <p>Producers:
             {{ range . }}
-                <span class="list">{{ . }}</span>
+                <span class="list">{{ template "person" . }}</span>
             {{ end }}
             </p>
             {{ end }}
@@ -148,7 +148,7 @@
             {{ with .Production }}
             <p>Production:
             {{ range . }}
-                <span class="list">{{ . }}</span>
+                <span class="list">{{ template "person" . }}</span>
             {{ end }}
             </p>
             {{ end }}
@@ -158,7 +158,7 @@
             {{ with .Writers }}
             <p>Writers:
             {{ range . }}
-                <span class="list">{{ . }}</span>
+                <span class="list">{{ template "person" . }}</span>
             {{ end }}
             </p>
             {{ end }}
@@ -166,7 +166,7 @@
 
             {{ with .Publisher }}<p>Publisher: {{ . }}</p>{{ end }}
             {{ with .Publication }}<p>Publication: {{ . }}</p>{{ end }}
-            {{ with .CoverArtist }}<p>Cover Artist: {{ . }}</p>{{ end }}
+            {{ with .CoverArtist }}<p>Cover Artist: {{ template "person" . }}</p>{{ end }}
             {{ with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
             {{ with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}
             {{ with .ISBN13 }}<p>ISBN13: {{ . }}</p>{{ end }}
