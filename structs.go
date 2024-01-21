@@ -190,6 +190,34 @@ func (a ByNameFolderOnTop) Less(i, j int) bool {
 	return a[i].Name < a[j].Name
 }
 
+// ByYearDesk sorts files by year, with newest on top.
+// Directories that does not match the year format are sorted alphabetically.
+type ByYearDesk []File
+
+func (f ByYearDesk) Len() int      { return len(f) }
+func (f ByYearDesk) Swap(i, j int) { f[i], f[j] = f[j], f[i] }
+func (f ByYearDesk) Less(i, j int) bool {
+	a, err := time.Parse("2006", f[i].Name)
+	aIsYear := err == nil
+
+	b, err := time.Parse("2006", f[j].Name)
+	bIsYear := err == nil
+
+	if aIsYear && bIsYear {
+		return a.After(b)
+	}
+
+	if aIsYear && !bIsYear {
+		return false
+	}
+
+	if !aIsYear && bIsYear {
+		return true
+	}
+
+	return ByNameFolderOnTop(f).Less(i, j)
+}
+
 // Panel represents a single directory with files.
 type Panel struct {
 	Dir   string

@@ -785,8 +785,9 @@ func (g *Generator) addDir(path string) {
 
 func (g *Generator) getFilesForPath(path string) []File {
 	if files, ok := g.dirContents[path]; ok {
-		sort.Sort(ByNameFolderOnTop(files))
-		// update Name if content has it
+		sort.Sort(ByYearDesk(files))
+
+		// update Title if content has it
 		for i, file := range files {
 			if content := g.contents[filepath.Join(path, file.Name)]; content.Name != "" {
 				files[i].Title = content.Name
