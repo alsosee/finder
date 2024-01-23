@@ -1,4 +1,4 @@
-module github.com/chuhlomin/finder-web
+module github.com/alsosee/finder
 
 go 1.20
 

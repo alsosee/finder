@@ -18,6 +18,8 @@ import (
 	"github.com/gomarkdown/markdown"
 	gitignore "github.com/sabhiram/go-gitignore"
 	"gopkg.in/yaml.v3"
+
+	"github.com/alsosee/finder/structs"
 )
 
 // Generator is a struct that generates a static site.
@@ -25,23 +27,23 @@ type Generator struct {
 	templates *template.Template
 	ignore    *gitignore.GitIgnore
 
-	contents   Contents
+	contents   structs.Contents
 	muContents sync.Mutex
 
 	// dirContents is a map where
 	// key is a directory path,
 	// value is a list of files and directories;
 	// used to build Panels
-	dirContents map[string][]File
+	dirContents map[string][]structs.File
 	muDir       sync.Mutex
 
 	// Connections keep track of references from one file to another.
 	// key is a file path, where reference is pointing to.
 	// value is a list of files that are pointing to the key.
-	connections   Connections
+	connections   structs.Connections
 	muConnections sync.Mutex
 
-	mediaDirContents map[string][]Media
+	mediaDirContents map[string][]structs.Media
 	muMedia          sync.Mutex
 }
 
@@ -54,10 +56,10 @@ func NewGenerator() (*Generator, error) {
 
 	return &Generator{
 		ignore:           ignore,
-		contents:         Contents{},
-		dirContents:      map[string][]File{},
-		connections:      Connections{},
-		mediaDirContents: map[string][]Media{},
+		contents:         structs.Contents{},
+		dirContents:      map[string][]structs.File{},
+		connections:      structs.Connections{},
+		mediaDirContents: map[string][]structs.Media{},
 	}, nil
 }
 
@@ -81,7 +83,7 @@ func (g *Generator) fm() template.FuncMap {
 		"join": filepath.Join,
 		// "content" returns a Content struct for a given file path (without extension)
 		// It is used to render references.
-		"content": func(id string) *Content {
+		"content": func(id string) *structs.Content {
 			g.muContents.Lock()
 			defer g.muContents.Unlock()
 
@@ -137,7 +139,7 @@ func (g *Generator) fm() template.FuncMap {
 		// "thumbStylePx" returns CSS styles for a thumbnail image,
 		// where background-size is in pixels.
 		// It's used for non-responsive images, and more reliable than "thumbStylePct".
-		"thumbStylePx": func(media Media, max int, opt ...string) string {
+		"thumbStylePx": func(media structs.Media, max int, opt ...string) string {
 			if media.ThumbPath == "" {
 				return ""
 			}
@@ -189,7 +191,7 @@ func (g *Generator) fm() template.FuncMap {
 		// which is the case for most people/characters images.
 		// Also, it doesn't add "comp-margin-left" and "comp-margin-right" styles,
 		// which are used to center the image in lists.
-		"thumbStylePct": func(media Media, prefix ...string) string {
+		"thumbStylePct": func(media structs.Media, prefix ...string) string {
 			if media.ThumbPath == "" {
 				return ""
 			}
@@ -281,7 +283,7 @@ func (g *Generator) fm() template.FuncMap {
 						return true
 					}
 
-				case []Reference:
+				case []structs.Reference:
 					if len(v) != 0 {
 						return true
 					}
@@ -290,7 +292,7 @@ func (g *Generator) fm() template.FuncMap {
 			return false
 		},
 		"dir": filepath.Dir,
-		"character": func(content Content, characterName string) *Character {
+		"character": func(content structs.Content, characterName string) *structs.Character {
 			for _, character := range content.Characters {
 				if character.Name == characterName {
 					return character
@@ -318,7 +320,7 @@ func (g *Generator) fm() template.FuncMap {
 		// (e.g. "person" for "People", "book" for "Books", etc.)
 		// it used to add an additional context to reference link
 		// when current page and the reference have the same name
-		"type": func(c Content) string {
+		"type": func(c structs.Content) string {
 			// get first part of the Source path
 			// (e.g. "People" or "Book")
 			root := pathType(c.Source)
@@ -342,7 +344,7 @@ func (g *Generator) fm() template.FuncMap {
 		"escape": func(s string) string {
 			return strings.ReplaceAll(s, `'`, `\'`)
 		},
-		"missing": func() []Missing {
+		"missing": func() []structs.Missing {
 			missing := map[string]map[string][]string{}
 
 			g.muConnections.Lock()
@@ -355,9 +357,9 @@ func (g *Generator) fm() template.FuncMap {
 			g.muContents.Unlock()
 			g.muConnections.Unlock()
 
-			result := []Missing{}
+			result := []structs.Missing{}
 			for to, from := range missing {
-				result = append(result, Missing{To: to, From: from})
+				result = append(result, structs.Missing{To: to, From: from})
 			}
 
 			// sort by number of references (descending)
@@ -536,7 +538,7 @@ func (g *Generator) walkMediaDirectory() {
 				return nil
 			}
 
-			media, err := parseMediaFile(path)
+			media, err := structs.ParseMediaFile(path)
 			if err != nil {
 				return fmt.Errorf("parsing media file %q: %w", path, err)
 			}
@@ -608,7 +610,7 @@ func (g *Generator) processYAMLFile(file string) error {
 		return fmt.Errorf("reading file: %w", err)
 	}
 
-	var content Content
+	var content structs.Content
 	if err = yaml.Unmarshal(b, &content); err != nil {
 		return fmt.Errorf("unmarshaling yaml: %w", err)
 	}
@@ -644,7 +646,7 @@ func (g *Generator) processMarkdownFile(file string) error {
 	htmlBody = bytes.ReplaceAll(htmlBody, []byte("[x] "), []byte(`<br><input type="checkbox" disabled checked> `))
 	htmlBody = bytes.ReplaceAll(htmlBody, []byte("<p><br>"), []byte("<p>"))
 
-	g.addContent(file, Content{
+	g.addContent(file, structs.Content{
 		Source: file,
 		HTML:   string(htmlBody),
 	})
@@ -657,7 +659,7 @@ func (g *Generator) processGoMarkdownFile(file string) error {
 		return fmt.Errorf("reading file: %w", err)
 	}
 
-	g.addContent(file, Content{
+	g.addContent(file, structs.Content{
 		Source: file,
 		HTML:   string(b),
 	})
@@ -683,13 +685,13 @@ func (g *Generator) copyFileAsIs(file string) error {
 	)
 }
 
-func (g *Generator) addContent(id string, content Content) {
+func (g *Generator) addContent(id string, content structs.Content) {
 	g.muContents.Lock()
 	g.contents[id] = content
 	g.muContents.Unlock()
 }
 
-func (g *Generator) addConnections(from string, content Content) {
+func (g *Generator) addConnections(from string, content structs.Content) {
 	for _, ref := range content.References {
 		g.addConnection(from, ref.Path)
 	}
@@ -739,7 +741,7 @@ func (g *Generator) addConnection(from, to string, info ...string) {
 	g.connections[to][from] = info
 }
 
-func (g *Generator) addMedia(path string, media []Media) {
+func (g *Generator) addMedia(path string, media []structs.Media) {
 	dir := filepath.Dir(path)
 	if dir == "." {
 		dir = ""
@@ -757,7 +759,7 @@ func (g *Generator) addFile(path string) {
 	}
 
 	g.muDir.Lock()
-	g.dirContents[dir] = append(g.dirContents[dir], File{
+	g.dirContents[dir] = append(g.dirContents[dir], structs.File{
 		Name:  removeFileExtention(filepath.Base(path)),
 		Image: g.getImageForPath(removeFileExtention(path)),
 	})
@@ -776,16 +778,16 @@ func (g *Generator) addDir(path string) {
 	}
 
 	g.muDir.Lock()
-	g.dirContents[dir] = append(g.dirContents[dir], File{
+	g.dirContents[dir] = append(g.dirContents[dir], structs.File{
 		Name:     name,
 		IsFolder: true,
 	})
 	g.muDir.Unlock()
 }
 
-func (g *Generator) getFilesForPath(path string) []File {
+func (g *Generator) getFilesForPath(path string) []structs.File {
 	if files, ok := g.dirContents[path]; ok {
-		sort.Sort(ByYearDesk(files))
+		sort.Sort(structs.ByYearDesk(files))
 
 		// update Title if content has it
 		for i, file := range files {
@@ -826,9 +828,9 @@ func (g *Generator) generateContentTemplates() error {
 			struct {
 				CurrentPath string
 				Dir         string
-				Breadcrumbs Breadcrumbs
-				Panels      Panels
-				Content     *Content
+				Breadcrumbs structs.Breadcrumbs
+				Panels      structs.Panels
+				Content     *structs.Content
 				Timestamp   int64
 			}{
 				CurrentPath: id,
@@ -880,7 +882,7 @@ func (g *Generator) generateGoTemplates() error {
 	return nil
 }
 
-func (g *Generator) getImageForPath(path string) *Media {
+func (g *Generator) getImageForPath(path string) *structs.Media {
 	dir := filepath.Dir(path)
 	if dir == "." {
 		dir = ""
@@ -904,7 +906,7 @@ func (g *Generator) getImageForPath(path string) *Media {
 
 func (g *Generator) generateIndexes() error {
 	for dir, files := range g.dirContents {
-		sort.Sort(ByNameFolderOnTop(files))
+		sort.Sort(structs.ByNameFolderOnTop(files))
 
 		path := filepath.Join(cfg.OutputDirectory, dir, "index.html")
 
@@ -925,11 +927,11 @@ func (g *Generator) generateIndexes() error {
 			"index.gohtml",
 			struct {
 				CurrentPath string
-				Breadcrumbs []Dir
-				Panels      Panels
-				Content     *Content
+				Breadcrumbs []structs.Dir
+				Panels      structs.Panels
+				Content     *structs.Content
 				Timestamp   int64
-				Connections Connections
+				Connections structs.Connections
 			}{
 				CurrentPath: dir,
 				Breadcrumbs: breadcrumbs,
@@ -954,9 +956,9 @@ func (g *Generator) generateIndexes() error {
 	return nil
 }
 
-func (g *Generator) buildPanels(path string, isFile bool) (Panels, Breadcrumbs) {
-	panels := Panels{}
-	breadcrumbs := Breadcrumbs{}
+func (g *Generator) buildPanels(path string, isFile bool) (structs.Panels, structs.Breadcrumbs) {
+	panels := structs.Panels{}
+	breadcrumbs := structs.Breadcrumbs{}
 
 	dirs := strings.Split(path, string(filepath.Separator))
 	if path != "" {
@@ -971,7 +973,7 @@ func (g *Generator) buildPanels(path string, isFile bool) (Panels, Breadcrumbs) 
 			dir = "Home"
 		}
 
-		breadcrumbs = append(breadcrumbs, Dir{
+		breadcrumbs = append(breadcrumbs, structs.Dir{
 			Name: dir,
 			Path: cumulativePath,
 		})
@@ -982,7 +984,7 @@ func (g *Generator) buildPanels(path string, isFile bool) (Panels, Breadcrumbs) 
 			break
 		}
 
-		panels = append(panels, Panel{
+		panels = append(panels, structs.Panel{
 			Dir:   cumulativePath,
 			Files: g.getFilesForPath(cumulativePath),
 		})
@@ -1041,7 +1043,7 @@ func pathType(path string) string {
 // for Video Games: /Games/Video/Series/<Series name>
 // Since most of the content arranged in a folders by year,
 // series page is 2 levels up from the current page.
-func series(c Content) string {
+func series(c structs.Content) string {
 	return filepath.Join(
 		filepath.Dir(filepath.Dir(c.Source)),
 		"Series",

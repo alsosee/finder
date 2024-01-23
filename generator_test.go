@@ -2,6 +2,8 @@ package main
 
 import (
 	"testing"
+
+	"github.com/alsosee/finder/structs"
 )
 
 func TestGetFilesForPathSimple(t *testing.T) {
@@ -14,7 +16,7 @@ func TestGetFilesForPathSimple(t *testing.T) {
 	tt := []struct {
 		operations func(g *Generator)
 		path       string
-		expected   []File
+		expected   []structs.File
 	}{
 		{
 			operations: func(g *Generator) {
@@ -22,7 +24,7 @@ func TestGetFilesForPathSimple(t *testing.T) {
 				g.addFile("test2.md")
 			},
 			path: "",
-			expected: []File{
+			expected: []structs.File{
 				{Name: "test1"},
 				{Name: "test2"},
 			},
@@ -37,7 +39,7 @@ func TestGetFilesForPathSimple(t *testing.T) {
 				g.addFile("dir2/test4")
 			},
 			path: "dir1",
-			expected: []File{
+			expected: []structs.File{
 				{Name: "test3"},
 			},
 		},
@@ -50,15 +52,15 @@ func TestGetFilesForPathSimple(t *testing.T) {
 				g.addFile("dir1/dir2/dir3/test3")
 			},
 			path: "dir1/dir2",
-			expected: []File{
+			expected: []structs.File{
 				{Name: "dir3", IsFolder: true},
 				{Name: "test2"},
 			},
 		},
 	}
 	for _, tc := range tt {
-		g.contents = Contents{}
-		g.dirContents = map[string][]File{}
+		g.contents = structs.Contents{}
+		g.dirContents = map[string][]structs.File{}
 
 		tc.operations(g)
 

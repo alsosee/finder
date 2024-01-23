@@ -1,4 +1,4 @@
-package main
+package structs
 
 import (
 	"os"
@@ -21,7 +21,7 @@ type Media struct {
 	BlurhashImageBase64 string `yaml:"blurhash_image_base64,omitempty"`
 }
 
-func parseMediaFile(path string) ([]Media, error) {
+func ParseMediaFile(path string) ([]Media, error) {
 	var media []Media
 	data, err := os.ReadFile(path)
 	if err != nil {
