@@ -896,7 +896,7 @@ func (g *Generator) getImageForPath(path string) *structs.Media {
 	}
 
 	for _, media := range dirContent {
-		if strings.HasPrefix(media.Path, base) {
+		if removeFileExtention(media.Path) == base {
 			return &media
 		}
 	}
