@@ -282,7 +282,7 @@
 if (typeof hasRun === 'undefined') {
     document.getElementById("_").scrollIntoView();
 
-    const toolbarEl = document.querySelector('#toolbar');
+    const viewSwitcher = document.querySelector('#toolbar fieldset');
     const container = document.querySelector('#container');
 
     const backdrop = document.querySelector('#backdrop');
@@ -291,9 +291,11 @@ if (typeof hasRun === 'undefined') {
     const uploader_preview = document.querySelector('#uploader_preview');
 
     let view = localStorage.getItem('view') || 'icons';
-    console.log('view', view);
+    if (view != 'icons' && view != 'list' && view != 'columns') {
+        view = 'icons';
+    }
     document.body.setAttribute('data-view', view);
-    toolbarEl.querySelector(`input[value=${view}]`).checked = true;
+    viewSwitcher.querySelector(`input[value=${view}]`).checked = true;
 
     let setView = function(value) {
         localStorage.setItem('view', value);
@@ -302,14 +304,14 @@ if (typeof hasRun === 'undefined') {
     };
 
     // if enter or space is pressed on a toolbar item, check the radio button
-    toolbarEl.addEventListener('keydown', (event) => {
+    viewSwitcher.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
             event.target.querySelector('input').checked = true;
             setView(event.target.querySelector('input').value);
         }
     });
 
-    toolbarEl.addEventListener('change', (event) => {
+    viewSwitcher.addEventListener('change', (event) => {
         setView(event.target.value);
     });
 
