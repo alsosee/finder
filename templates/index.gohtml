@@ -85,7 +85,8 @@
                     ">
                 </div>
             {{ end }}
-            {{ with .Name }}<h1>{{ . }}</h1>{{ end }}
+            {{ if .Name }}<h1{{ if .Subtitle }} class="with-subtitle"{{ end }}>{{ .Name }}</h1>{{ end }}
+            {{ with .Subtitle }}<p class="subtitle">{{ . }}</p>{{ end }}
             {{ if .Series }}<p class="series">Series: {{ template "reference" dict "Path" (series .) "HideType" true }}</p>{{ end }}
             {{- if either .Genres .Rating .Length }}
             <p class="labels">
@@ -94,7 +95,6 @@
             {{- if .Length }}<span class="length">{{ length .Length }}</span>{{ end }}
             </p>
             {{- end }}
-            {{ with .Subtitle }}<p>{{ . }}</p>{{ end }}
             {{ with .Description }}<p>{{ . }}</p>{{ end }}
             {{ with .DOB }}<p>Born: {{ . }}</p>{{ end }}
             {{ with .DOD }}<p>Died: {{ . }}</p>{{ end }}

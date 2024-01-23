@@ -348,6 +348,10 @@ fieldset.radio label:last-of-type {
   margin-top: -0.3em; /* to compensate for the line-height */
 }
 
+.content h1.with-subtitle {
+  margin-bottom: 0;
+}
+
 .content h2 {
   font-size: 1.2em;
   margin-top: 20px;
