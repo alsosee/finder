@@ -1,4 +1,7 @@
 {
+    "name": "Also, see",
+    "description": "",
+    "display": "standalone",
     "icons": [
         {
             "src": "/favicon_192.png",
@@ -10,5 +13,7 @@
             "type": "image/png",
             "sizes": "512x512"
         }
-    ]
+    ],
+    "start_url": "/",
+    "scope": "/"
 }
