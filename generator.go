@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -80,7 +81,9 @@ func processIgnoreFile(ignoreFile string) (*gitignore.GitIgnore, error) {
 
 func (g *Generator) fm() template.FuncMap {
 	return template.FuncMap{
-		"join": filepath.Join,
+		"join":      filepath.Join,
+		"dir":       filepath.Dir,
+		"hasPrefix": strings.HasPrefix,
 		// "content" returns a Content struct for a given file path (without extension)
 		// It is used to render references.
 		"content": func(id string) *structs.Content {
@@ -125,7 +128,6 @@ func (g *Generator) fm() template.FuncMap {
 		"div": func(a, b int) int {
 			return a / b
 		},
-		"hasPrefix": strings.HasPrefix,
 		"initials": func(name string) string {
 			if name == "" {
 				return ""
@@ -291,7 +293,6 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return false
 		},
-		"dir": filepath.Dir,
 		"character": func(content structs.Content, characterName string) *structs.Character {
 			for _, character := range content.Characters {
 				if character.Name == characterName {
@@ -369,6 +370,21 @@ func (g *Generator) fm() template.FuncMap {
 			})
 
 			return result
+		},
+		"title": func(b structs.Breadcrumbs) string {
+			b = b[1:] // skip the first element (it's always "Home")
+			if len(b) == 0 {
+				return "Also, see"
+			}
+
+			var dirs []string
+			for _, dir := range b {
+				dirs = append(dirs, dir.Name)
+			}
+
+			slices.Reverse(dirs)
+
+			return strings.Join(dirs, " \\ ")
 		},
 	}
 }
