@@ -16,7 +16,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: "1.20"
+          go-version: "1.21"
 
       - name: Go Format
         run: gofmt -s -w -l $(find . -type f -name '*.go'| grep -v "/vendor/") && git diff --exit-code
