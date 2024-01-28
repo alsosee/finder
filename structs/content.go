@@ -100,6 +100,7 @@ type Content struct {
 	Epic            string   `json:",omitempty"`
 	IGN             string   `yaml:"ign" json:",omitempty"`
 	Amazon          string   `json:",omitempty"`
+	PrimeVideo      string   `yaml:"prime_video" json:",omitempty"`
 	AppleTV         string   `yaml:"apple_tv" json:",omitempty"`
 	GooglePlay      string   `yaml:"google_play" json:",omitempty"`
 	MicrosoftStore  string   `yaml:"microsoft_store" json:",omitempty"`
