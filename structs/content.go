@@ -76,6 +76,7 @@ type Content struct {
 	Twitch          string   `json:",omitempty"`
 	YouTube         string   `json:",omitempty"`
 	IMDB            string   `json:",omitempty"`
+	TMDB            string   `json:",omitempty"`
 	Steam           string   `json:",omitempty"`
 	Netflix         string   `json:",omitempty"`
 	Spotify         string   `json:",omitempty"`
