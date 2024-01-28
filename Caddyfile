@@ -1,0 +1,26 @@
+{
+  local_certs
+  auto_https disable_redirects
+  # debug
+}
+
+# Add to /etc/hosts so that Caddy can issue certificate locally
+# 127.0.0.1       alsosee.local
+# 127.0.0.1       search.alsosee.local
+
+alsosee.local {
+  tls internal
+  reverse_proxy https://localhost:8788 {
+    transport http {
+      tls
+      tls_insecure_skip_verify
+    }
+  }
+  encode gzip
+}
+
+search.alsosee.local {
+  tls internal
+  reverse_proxy 127.0.0.1:7700
+  encode gzip
+}
