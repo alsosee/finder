@@ -121,8 +121,8 @@ pre code {
 #logo a {
   float: left;
   border-radius: 8px;
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   background: url("/logo.png?a=1") no-repeat;
   background-size: cover;
 }
@@ -137,6 +137,7 @@ pre code {
 
 fieldset.radio {
   display: flex;
+  height: 44ppx;
   border: 0.5px solid var(--color-border);
   border-radius: 8px;
   user-select: none;
@@ -159,9 +160,9 @@ fieldset.radio span {
   display: inline-block;
   width: 24px;
   height: 24px;
-  background-image: url("sprite.png");
+  background-image: url("sprite.png?crc=8d1d874f");
   background-repeat: no-repeat;
-  background-size: 120px 24px;
+  background-size: 144px 24px;
   background-position: 0 0;
   text-indent: -5000px;
   filter: opacity(0.8);
@@ -199,6 +200,47 @@ fieldset.radio label:first-of-type {
 
 fieldset.radio label:last-of-type {
   border-radius: 0 7px 7px 0; /* 8px -1px to compensate for the gap */
+}
+
+#searchWrapper {
+  position: absolute;
+  right: 10px;
+  z-index: 100;
+}
+#searchWrapper::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 24px;
+  height: 24px;
+  background-image: url("sprite.png?crc=8d1d874f");
+  background-repeat: no-repeat;
+  background-size: 144px 24px;
+  background-position: -120px 0;
+  pointer-events: none;
+  cursor: text;
+}
+
+#search {
+  width: 200px;
+  height: 44px;
+  padding: 0 15px 0 40px;
+  font-size: 16px;
+  line-height: 23px;
+  border-radius: 100px;
+  color: var(--color-text);
+  background-color: var(--color-background);
+  border: none;
+  box-shadow:
+    inset 0 12px 23px rgba(0, 0, 0, 0.05),
+    inset 0 2px 3px rgba(0, 0, 0, 0.1),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.1);
+}
+#search:focus {
+  outline: thin solid var(--color-outline);
+  z-index: 1;
 }
 
 #breadcrumbs {
@@ -598,7 +640,7 @@ fieldset.radio label:last-of-type {
 }
 
 [data-view="list"] .panel a {
-  font-variant-numeric: tabular-nums; 
+  font-variant-numeric: tabular-nums;
 }
 
 [data-view="list"] .panel a::before {
@@ -608,9 +650,9 @@ fieldset.radio label:last-of-type {
   margin-right: 5px;
   width: 24px;
   height: 24px;
-  background-image: url("sprite.png");
+  background-image: url("sprite.png?crc=8d1d874f");
   background-repeat: no-repeat;
-  background-size: 120px 24px;
+  background-size: 144px 24px;
   background-position: -72px 0;
 }
 
@@ -649,7 +691,7 @@ fieldset.radio label:last-of-type {
 
 [data-view="columns"] .panel a {
   width: 100%;
-  font-variant-numeric: tabular-nums; 
+  font-variant-numeric: tabular-nums;
 }
 
 [data-view="columns"] .panel a:focus {
@@ -667,9 +709,9 @@ fieldset.radio label:last-of-type {
   margin-right: 5px;
   width: 24px;
   height: 24px;
-  background-image: url("sprite.png");
+  background-image: url("sprite.png?crc=8d1d874f");
   background-repeat: no-repeat;
-  background-size: 120px 24px;
+  background-size: 144px 24px;
   background-position: -72px 0;
 }
 
@@ -895,6 +937,16 @@ fieldset.radio label:last-of-type {
   fieldset.radio label:focus span {
     filter: invert(1); /* make icon brighter */
   }
+  #search {
+    box-shadow:
+      inset 0 12px 23px rgba(0, 0, 0, 0.3),
+      inset 0 1px 2px rgba(0, 0, 0, 0.4),
+      inset 0 -1px 1px rgba(255, 255, 255, 0.1);
+  }
+  #searchWrapper::before {
+    filter: invert(0.6);
+  }
+
   #breadcrumbs a {
     background: var(--color-background-tertiary);
     box-shadow: inset 0 -5px 5px rgba(0, 0, 0, 0.2);
@@ -931,6 +983,43 @@ fieldset.radio label:last-of-type {
   }
   [data-view="icons"] .panel {
     justify-content: space-around;
+  }
+  fieldset.radio {
+    opacity: 1;
+    transition: opacity 0.2s ease-in-out;
+  }
+  #searchWrapper {
+    width: 44px;
+    transition: width 0.2s ease-in-out;
+  }
+  #search {
+    width: 100%;
+    padding: 0 15px;
+    color: transparent;
+    text-indent: -5000px; /* so that when cursor is placed in the field, it always at the end of the input text */
+    padding-right: 0px;
+    transition: padding-right 0.2s ease-in-out;
+  }
+  #search::placeholder {
+    color: transparent;
+  }
+  #search:focus {
+    width: 100%;
+    padding: 0 15px 0 40px;
+    color: inherit;
+    text-indent: 0;
+  }
+  #searchWrapper:has(#search:focus) {
+    width: calc(
+      100% - 20px /* body padding */ - 44px /* logo width */ - 10px
+        /* additional margin */
+    );
+    /* transition: width 0.2s ease-in-out 0.2s; */
+  }
+  /* hide fieldset.radio if #searchWrapper after it has focused #search input */
+  #searchWrapper:has(#search:focus) + fieldset.radio {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out 0.2s;
   }
   .content {
     width: 100%;

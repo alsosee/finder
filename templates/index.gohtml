@@ -13,10 +13,14 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon_192r.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/favicon_512r.png">
     <link rel="manifest" href="/manifest.webmanifest">
+    <script src="/meilisearch.umd.js"></script>
 </head>
 <body data-view="columns">
 <div id="toolbar" hx-preserve="true">
     <div id="logo"><a href="/"></a></div>
+    <label id="searchWrapper">
+        <input id="search" type="search" role="searchbox" placeholder="Search" oninput="search(event)" autocomplete="off">
+    </label>
     <fieldset
         class="radio menubar-navigation"
         title="Show items as icons, in a list or in columns"
@@ -162,7 +166,6 @@
             {{ end }}
             </p>
             {{ end }}
-            
 
             {{ with .Publisher }}<p>Publisher: {{ . }}</p>{{ end }}
             {{ with .Publication }}<p>Publication: {{ . }}</p>{{ end }}
@@ -211,7 +214,7 @@
                 {{ with .Redbox }}<a href="{{ . }}">Redbox</a>{{ end }}
                 {{ with .Vudu }}<a href="{{ . }}">Vudu</a>{{ end }}
             </p>
-            
+
             {{ with .Characters }}
             <h2>Characters</h2>
             <ul class="characters">
@@ -284,6 +287,9 @@ if (typeof hasRun === 'undefined') {
 
     const viewSwitcher = document.querySelector('#toolbar fieldset');
     const container = document.querySelector('#container');
+    const breakcrumbs = document.querySelector('#breakcrumbs');
+    const panels = document.querySelector('#panels');
+    const searchInput = document.querySelector('#search');
 
     const backdrop = document.querySelector('#backdrop');
     const uploader = document.querySelector('#uploader');
@@ -317,6 +323,187 @@ if (typeof hasRun === 'undefined') {
 
     htmx.on('htmx:afterSwap', function(evt) {
         document.getElementById("_").scrollIntoView();
+    });
+
+    /* search */
+    const client = new MeiliSearch({
+        host: "{{ config "SearchHost" }}",
+        apiKey: "{{ config "SearchAPIKey" }}",
+    });
+
+    function thumbStylePx(media, max, prefix) {
+        if (!media) {
+            return "";
+        }
+
+        var backgroundWidth = media.ThumbTotalWidth * max / media.ThumbWidth;
+        var backgroundHeight = media.ThumbTotalHeight * max / media.ThumbWidth;
+        var positionX = (media.ThumbXOffset || 0) * max / media.ThumbWidth;
+        var positionY = (media.ThumbYOffset || 0) * max / media.ThumbWidth;
+        var width = max;
+        var height = media.ThumbHeight * max / media.ThumbWidth;
+
+        if (media.Height > media.Width) {
+          backgroundWidth = media.ThumbTotalWidth * max / media.ThumbHeight;
+          backgroundHeight = media.ThumbTotalHeight * max / media.ThumbHeight;
+          positionX = (media.ThumbXOffset || 0) * max / media.ThumbHeight;
+          positionY = (media.ThumbYOffset || 0) * max / media.ThumbHeight;
+          width = media.ThumbWidth * max / media.ThumbHeight;
+          height = max;
+        }
+
+        const marginLeft = (max - width) / 2;
+        const marginRight = max - width - marginLeft;
+
+        var style = `${prefix}background-size: ${backgroundWidth.toFixed(2)}px ${backgroundHeight.toFixed(2)}px; ${prefix}width: ${width.toFixed(2)}px; ${prefix}height: ${height.toFixed(2)}px; ${prefix}comp-margin-left: ${marginLeft.toFixed(2)}px; ${prefix}comp-margin-right: ${marginRight.toFixed(2)}px`;
+
+        if (positionX != 0 || positionY != 0) {
+          style += `; ${prefix}background-position: -${positionX.toFixed(2)}px -${positionY.toFixed(2)}px`;
+        }
+
+        return style;
+    }
+
+    /* Because search naviration is not a real navigation,
+     * we need to backup the state of the page
+     * before search, and restore it after search is cleared */
+    var titleBackup = "";
+    var breadcrumbsBackup;
+    var panelsBackup = "";
+    var previousQuery = "";
+    var urlBackup = "";
+
+    function search(event, pushState = true) {
+        const query = event.target.value || "";
+        if (query.length == 0) {
+            // query is cleared, restore the original state
+            if (breadcrumbsBackup) {
+                breadcrumbs.innerHTML = breadcrumbsBackup;
+                breadcrumbsBackup = "";
+            }
+            if (panelsBackup) {
+                panels.innerHTML = panelsBackup;
+                panelsBackup = "";
+            }
+            if (titleBackup) {
+                document.title = titleBackup;
+                titleBackup = "";
+            }
+            previousQuery = "";
+            console.log("Restoring original state", urlBackup, titleBackup);
+            if (urlBackup.length == 0) {
+                // a corner case when page is loaded with a query, and then the query is cleared
+                console.log("Navigating to home");
+                logo.querySelector("a").click();
+                return;
+            }
+            if (pushState) {
+                console.log("Pushing state", urlBackup);
+                history.pushState({}, "", urlBackup);
+                urlBackup = "";
+            }
+            return;
+        }
+        if (previousQuery.length == 0) {
+            // previous query was empty, save the state
+            breadcrumbsBackup = breadcrumbs.innerHTML;
+            panelsBackup = panels.innerHTML;
+            urlBackup = window.location.href;
+            titleBackup = document.title;
+            console.log("Saving original state", window.location.href);
+        }
+        console.log("Setting previousQuery to", query);
+        previousQuery = query;
+
+        // push history update and change URL
+        if (pushState) {
+            console.log("Pushing state", query);
+            history.pushState({query: query}, "", "/search?q=" + encodeURIComponent(query));
+            document.title = "Search: " + query;
+        }
+
+        breadcrumbs.innerHTML = `<li role="none"><a role="menuitem" href="/">Home</a></li><li role="none"><span>Search: ${query}</span></li>`;
+        panels.innerHTML = `<ul class="panel menubar-navigation" role="menu" data-level="0" id="_"></ul>`;
+
+        client.index("info").search(query, {limit: 100}).then((response) => {
+            // if the query has changed, ignore the response
+            if (previousQuery != query) {
+                return;
+            }
+
+            const results = response.hits.map(function(hit) {
+                const path = hit.Source.substring(0, hit.Source.lastIndexOf('.'))
+                const dir = path.substring(0, path.lastIndexOf('/'));
+                var attr = "";
+                if (hit.Image) {
+                    const ext = hit.Image.Path.substring(hit.Image.Path.lastIndexOf('.') + 1)
+                    var linkClass = "has-image";
+                    if (ext == "jpg" || ext == "jpeg") {
+                        linkClass += " jpg";
+                    }
+
+                    attr = `style="--background-image: url('https://media.alsosee.info/${dir}/${hit.Image.ThumbPath}'); ${thumbStylePx(hit.Image, 100, "--")}; ${thumbStylePx(hit.Image, 24, "--small-")}" class="${linkClass}"`;
+                }
+                return {
+                    name: hit.Name,
+                    href: path,
+                    attr: attr,
+                };
+            });
+
+            const resultsHTML = results.map(function(result) {
+                return `<li role="none">
+                    <a role="menuitem" ${result.attr} href="/${result.href}">
+                        <span>${result.name}</span>
+                    </a>
+                </li>`;
+            }).join("");
+
+            panels.innerHTML = `<ul class="panel menubar-navigation" role="menu" data-level="0" id="_">${resultsHTML}</ul>`;
+        });
+    }
+    // restore the search query if the user navigates back
+    window.addEventListener('popstate', function(event) {
+        console.log("Popstate", event.state, "URL", window.location.href);
+        var query = "";
+        if (event.state !== null && event.state.query !== undefined) {
+            // if (event.state.htmx === true && previousQuery.length > 0) {
+                // this is a weird case when the user navigates back to the empty
+                // search
+                // return;
+            // }
+            query = event.state.query;
+            document.title = "Search: " + query;
+            search({target: {value: query}}, false);
+            searchInput.value = query;
+        }
+
+        if (event.state == null) {
+            // check, maybe there is a query in the URL
+            if (window.location.pathname.startsWith("/search")) {
+                const url = new URL(window.location.href);
+                query = url.searchParams.get("q");
+                document.title = "Search: " + query;
+                search({target: {value: query}}, false);
+                searchInput.value = query;
+                return;
+            }
+
+            // return to empty search state
+            search({target: {value: ""}}, false);
+            searchInput.value = "";
+        }
+    });
+    // on page load, restore the search query if there is one
+    window.addEventListener('load', function(event) {
+        const url = new URL(window.location.href);
+        const query = url.searchParams.get("q");
+        if (query) {
+            previousQuery = query; // bugfix for cases where the user navigates back to the empty search from a page that was loaded directly with a search query
+            search({target: {value: query}}, false);
+            document.title = "Search: " + query;
+            searchInput.value = query;
+        }
     });
 
     /* handle drag and drop */
@@ -450,7 +637,7 @@ if (typeof hasRun === 'undefined') {
             }
         }
     });
-    
+
     const hasRun = true;
 }
 </script>

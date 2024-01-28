@@ -17,6 +17,12 @@ inputs:
   output:
     description: Directory to output static site
     required: true
+  search_host:
+    description: Host of MeiliSearch
+    required: false
+  search_api_key:
+    description: Public API key of MeiliSearch
+    required: false
   num_workers:
     description: Number of workers to use
     required: false

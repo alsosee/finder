@@ -36,6 +36,8 @@ jobs:
           info: ./info
           media: ./media
           output: ./output
+          search_host: https://search.alsosee.info
+          search_api_key: ${{ secrets.MEILISEARCH_KEY }}
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3.3.2

@@ -60,3 +60,11 @@ jobs:
           token: ${{ secrets.PKG_TOKEN }}
           repository: alsosee/finder
           event-type: deploy
+
+      - name: Trigger index
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.PKG_TOKEN }}
+          repository: alsosee/search
+          event-type: index

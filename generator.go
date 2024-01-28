@@ -81,6 +81,7 @@ func processIgnoreFile(ignoreFile string) (*gitignore.GitIgnore, error) {
 
 func (g *Generator) fm() template.FuncMap {
 	return template.FuncMap{
+		"config":    cfg.GetString,
 		"join":      filepath.Join,
 		"dir":       filepath.Dir,
 		"hasPrefix": strings.HasPrefix,
