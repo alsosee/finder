@@ -285,16 +285,16 @@
 if (typeof hasRun === 'undefined') {
     document.getElementById("_").scrollIntoView();
 
-    const viewSwitcher = document.querySelector('#toolbar fieldset');
-    const container = document.querySelector('#container');
-    const breakcrumbs = document.querySelector('#breakcrumbs');
-    const panels = document.querySelector('#panels');
-    const searchInput = document.querySelector('#search');
+    var viewSwitcher = document.querySelector('#toolbar fieldset');
+    var container = document.querySelector('#container');
+    var breakcrumbs = document.querySelector('#breakcrumbs');
+    var panels = document.querySelector('#panels');
+    var searchInput = document.querySelector('#search');
 
-    const backdrop = document.querySelector('#backdrop');
-    const uploader = document.querySelector('#uploader');
-    const uploader_target = document.querySelector('#uploader_target');
-    const uploader_preview = document.querySelector('#uploader_preview');
+    var backdrop = document.querySelector('#backdrop');
+    var uploader = document.querySelector('#uploader');
+    var uploader_target = document.querySelector('#uploader_target');
+    var uploader_preview = document.querySelector('#uploader_preview');
 
     let view = localStorage.getItem('view') || 'icons';
     if (view != 'icons' && view != 'list' && view != 'columns') {
@@ -326,7 +326,7 @@ if (typeof hasRun === 'undefined') {
     });
 
     /* search */
-    const client = new MeiliSearch({
+    var client = new MeiliSearch({
         host: "{{ config "SearchHost" }}",
         apiKey: "{{ config "SearchAPIKey" }}",
     });
@@ -352,8 +352,8 @@ if (typeof hasRun === 'undefined') {
           height = max;
         }
 
-        const marginLeft = (max - width) / 2;
-        const marginRight = max - width - marginLeft;
+        var marginLeft = (max - width) / 2;
+        var marginRight = max - width - marginLeft;
 
         var style = `${prefix}background-size: ${backgroundWidth.toFixed(2)}px ${backgroundHeight.toFixed(2)}px; ${prefix}width: ${width.toFixed(2)}px; ${prefix}height: ${height.toFixed(2)}px; ${prefix}comp-margin-left: ${marginLeft.toFixed(2)}px; ${prefix}comp-margin-right: ${marginRight.toFixed(2)}px`;
 
@@ -374,7 +374,7 @@ if (typeof hasRun === 'undefined') {
     var urlBackup = "";
 
     function search(event, pushState = true) {
-        const query = event.target.value || "";
+        var query = event.target.value || "";
         if (query.length == 0) {
             // query is cleared, restore the original state
             if (breadcrumbsBackup) {
