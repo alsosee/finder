@@ -296,14 +296,14 @@ if (typeof hasRun === 'undefined') {
     var uploader_target = document.querySelector('#uploader_target');
     var uploader_preview = document.querySelector('#uploader_preview');
 
-    let view = localStorage.getItem('view') || 'icons';
+    var view = localStorage.getItem('view') || 'icons';
     if (view != 'icons' && view != 'list' && view != 'columns') {
         view = 'icons';
     }
     document.body.setAttribute('data-view', view);
     viewSwitcher.querySelector(`input[value=${view}]`).checked = true;
 
-    let setView = function(value) {
+    var setView = function(value) {
         localStorage.setItem('view', value);
         document.body.setAttribute('data-view', value);
         document.getElementById("_").scrollIntoView();
@@ -594,7 +594,7 @@ if (typeof hasRun === 'undefined') {
     document.addEventListener('drop', function (event) {
         event.preventDefault();
 
-        let target = event.target;
+        var target = event.target;
         target = target.nextElementSibling;
 
         uploader_target.innerText = target.innerText;
@@ -622,7 +622,7 @@ if (typeof hasRun === 'undefined') {
         if (event.dataTransfer.files.length > 0) {
             reader.readAsDataURL(event.dataTransfer.files[0]);
         } else if (event.dataTransfer.items.length > 0) {
-            let link = event.dataTransfer.getData('text/x-moz-url');
+            var link = event.dataTransfer.getData('text/x-moz-url');
 
             if (link.match(/src="([^"]*)"/)) {
                 // parse <img src ...> from link
