@@ -929,6 +929,9 @@ fieldset.radio label:last-of-type {
   [data-view="list"] .panel:not(:last-child) {
     display: none;
   }
+  [data-view="icons"] .panel {
+    justify-content: space-around;
+  }
   .content {
     width: 100%;
     border-right: none;
