@@ -412,8 +412,6 @@ if (typeof hasRun === 'undefined') {
             titleBackup = document.title;
             console.log("Saving original state", window.location.href);
         }
-        console.log("Setting previousQuery to", query);
-        previousQuery = query;
 
         // push history update and change URL
         if (pushState) {
@@ -423,7 +421,12 @@ if (typeof hasRun === 'undefined') {
         }
 
         breadcrumbs.innerHTML = `<li role="none"><a role="menuitem" href="/">Home</a></li><li role="none"><span>Search: ${query}</span></li>`;
-        panels.innerHTML = `<ul class="panel menubar-navigation" role="menu" data-level="0" id="_"></ul>`;
+        if (previousQuery.length == 0) {
+            panels.innerHTML = `<ul class="panel menubar-navigation" role="menu" data-level="0" id="_"></ul>`;
+        }
+
+        console.log("Setting previousQuery to", query);
+        previousQuery = query;
 
         client.index("info").search(query, {limit: 100}).then((response) => {
             // if the query has changed, ignore the response
