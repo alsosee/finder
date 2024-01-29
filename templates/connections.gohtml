@@ -1,22 +1,15 @@
 {{ define "connections" }}
 {{- range $path, $extra := . }}
-
-{{- if gt (len $extra) 0 }}
-
+{{- if gt (len $extra) 1 }}
     {{- if eq (index $extra 0) "Actor" -}}
     <li>Played {{ template "character" dict "Path" $path "Character" (index $extra 1) }} in {{ template "reference" dict "Path" $path "HideType" true }}</li>
     {{- else if eq (index $extra 0) "Voice" -}}
     <li>Voiced {{ template "character" dict "Path" $path "Character" (index $extra 1) }} in {{ template "reference" dict "Path" $path "HideType" true }}</li>
-    {{- else if eq (index $extra 0) "Producer" }}
-    <li>Producer of {{ template "reference" dict "Path" $path "HideType" true }}</li>
-    {{- else if eq (index $extra 0) "Director" }}
-    <li>Director of {{ template "reference" dict "Path" $path "HideType" true }}</li>
-    {{- else if eq (index $extra 0) "Writer" }}
-    <li>Writer of {{ template "reference" dict "Path" $path "HideType" true }}</li>
-    {{- else }}
-    <li>{{ template "reference" dict "Path" $path  }}</li>
+    {{ else }}
+    <li>{{ strjoin $extra ", " }} of {{ template "reference" dict "Path" $path "HideType" true }}</li>
     {{- end }}
-
+{{ else if eq (len $extra) 1 }}
+    <li>{{ index $extra 0 }} of {{ template "reference" dict "Path" $path  }}</li>
 {{- else }}
 <li>{{ template "reference" dict "Path" $path  }}</li>
 {{- end }}

@@ -85,6 +85,7 @@ func (g *Generator) fm() template.FuncMap {
 		"join":      filepath.Join,
 		"dir":       filepath.Dir,
 		"hasPrefix": strings.HasPrefix,
+		"strjoin":   strings.Join,
 		// "content" returns a Content struct for a given file path (without extension)
 		// It is used to render references.
 		"content": func(id string) *structs.Content {
@@ -726,6 +727,18 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		}
 	}
 
+	if content.Author != "" {
+		g.addConnection(from, "People/"+content.Author, "Author")
+	}
+
+	for _, author := range content.Authors {
+		g.addConnection(from, "People/"+author, "Author")
+	}
+
+	if content.Designer != "" {
+		g.addConnection(from, "People/"+content.Designer, "Designer")
+	}
+
 	for _, writer := range content.Writers {
 		g.addConnection(from, "People/"+writer, "Writer")
 	}
@@ -742,8 +755,48 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		g.addConnection(from, ref, "Based on")
 	}
 
+	if content.Cinematography != "" {
+		g.addConnection(from, "People/"+content.Cinematography, "Cinematography")
+	}
+
+	if content.Editor != "" {
+		g.addConnection(from, "People/"+content.Editor, "Editor")
+	}
+
+	if content.Music != "" {
+		g.addConnection(from, "People/"+content.Music, "Music")
+	}
+
+	for _, artist := range content.Artists {
+		g.addConnection(from, "People/"+artist, "Artist")
+	}
+
+	if content.CoverArtist != "" {
+		g.addConnection(from, "People/"+content.CoverArtist, "Cover Artist")
+	}
+
+	if content.Colorist != "" {
+		g.addConnection(from, "People/"+content.Colorist, "Colorist")
+	}
+
 	if content.Series != "" {
 		g.addConnection(from, series(content), "Series")
+	}
+
+	if content.Distributor != "" {
+		g.addConnection(from, "Companies/"+content.Distributor, "Distributor")
+	}
+
+	if content.Publisher != "" {
+		g.addConnection(from, "Companies/"+content.Publisher, "Publisher")
+	}
+
+	for _, production := range content.Production {
+		g.addConnection(from, "Companies/"+production, "Production")
+	}
+
+	if content.Developers != "" {
+		g.addConnection(from, "Companies/"+content.Developers, "Developers")
 	}
 }
 
@@ -755,7 +808,12 @@ func (g *Generator) addConnection(from, to string, info ...string) {
 		g.connections[to] = map[string][]string{}
 	}
 
-	g.connections[to][from] = info
+	if _, ok := g.connections[to][from]; !ok {
+		g.connections[to][from] = info
+		return
+	}
+
+	g.connections[to][from] = append(g.connections[to][from], info...)
 }
 
 func (g *Generator) addMedia(path string, media []structs.Media) {

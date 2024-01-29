@@ -100,9 +100,14 @@
             </p>
             {{- end }}
             {{ with .Description }}<p>{{ . }}</p>{{ end }}
+
             {{ with .DOB }}<p>Born: {{ . }}</p>{{ end }}
             {{ with .DOD }}<p>Died: {{ . }}</p>{{ end }}
-            {{ with .Developers }}<p>Developers: {{ . }}</p>{{ end }}
+            {{ with .Founded }}<p>Founded: {{ . }}</p>{{ end }}
+            {{ with .Publication }}<p>Publication: {{ . }}</p>{{ end }}
+            {{ with .Released }}<p>Released: {{ . }}</p>{{ end }}
+
+            {{ with .Developers }}<p>Developers: {{ template "company" . }}</p>{{ end }}
             {{ with .Author }}<p>Author: {{ template "person" . }}</p>{{ end }}
             {{ with .Authors }}<p>Authors:
             {{ range . }}
@@ -149,16 +154,6 @@
             </p>
             {{ end }}
 
-            {{ with .Production }}
-            <p>Production:
-            {{ range . }}
-                <span class="list">{{ template "person" . }}</span>
-            {{ end }}
-            </p>
-            {{ end }}
-
-            {{ with .Distributor }}<p>Distributer: {{ . }}</p>{{ end }}
-
             {{ with .Writers }}
             <p>Writers:
             {{ range . }}
@@ -167,8 +162,17 @@
             </p>
             {{ end }}
 
-            {{ with .Publisher }}<p>Publisher: {{ . }}</p>{{ end }}
-            {{ with .Publication }}<p>Publication: {{ . }}</p>{{ end }}
+            {{ with .Production }}
+            <p>Production:
+            {{ range . }}
+                <span class="list">{{ template "company" . }}</span>
+            {{ end }}
+            </p>
+            {{ end }}
+
+            {{ with .Distributor }}<p>Distributor: {{ template "company" . }}</p>{{ end }}
+
+            {{ with .Publisher }}<p>Publisher: {{ template "company" . }}</p>{{ end }}
             {{ with .CoverArtist }}<p>Cover Artist: {{ template "person" . }}</p>{{ end }}
             {{ with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
             {{ with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}

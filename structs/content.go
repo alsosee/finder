@@ -67,6 +67,9 @@ type Content struct {
 	DOD     string `json:",omitempty"` // date of death
 	Contact string `yaml:"contact" json:",omitempty"`
 
+	Founded  string `json:",omitempty"` // for companies
+	Released string `json:",omitempty"` // for games, ...
+
 	// general external links
 	Website         string   `json:",omitempty"`
 	Websites        []string `json:",omitempty"`
