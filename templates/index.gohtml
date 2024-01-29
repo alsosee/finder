@@ -91,7 +91,7 @@
             {{ end }}
             {{ if .Name }}<h1{{ if .Subtitle }} class="with-subtitle"{{ end }}>{{ .Name }}</h1>{{ end }}
             {{ with .Subtitle }}<p class="subtitle">{{ . }}</p>{{ end }}
-            {{ if .Series }}<p class="series">Series: {{ template "reference" dict "Path" (series .) "HideType" true }}</p>{{ end }}
+            {{ if .Series }}<p class="series">Series: {{ template "reference" dict "Path" (series .) "HideType" true "Fallback" .Series }}</p>{{ end }}
             {{- if either .Genres .Rating .Length }}
             <p class="labels">
             {{- with .Genres }}{{ range . }}<span class="genre">{{ . }}</span>{{ end }}{{ end }}

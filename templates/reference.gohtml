@@ -10,6 +10,6 @@
 class="reference{{- if hasPrefix $content.Source "People" }} people{{ end }}{{ if $content.Image }} has-image{{ if isJPG $content.Image.Path }} jpg{{end}}{{ end }}">
 {{- $content.Name }}</a>{{ if not .HideType }} ({{ type $content }}){{ end }}
 {{ else }}
-<span class="missing">{{ .Path }}</span>
+<span class="missing">{{ if .Fallback }}{{ .Fallback }}{{ else }}{{ .Path }}{{ end }}</span>
 {{ end }}
 {{ end }}
