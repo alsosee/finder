@@ -173,6 +173,8 @@ func (g *Generator) fm() template.FuncMap {
 
 			marginLeft := (max - width) / 2
 			marginRight := max - width - marginLeft
+			marginTop := (max - height) / 2
+			marginBottom := max - height - marginTop
 
 			style := fmt.Sprintf(
 				"%sbackground-size: %dpx %dpx; %swidth: %dpx; %sheight: %dpx; %scomp-margin-left: %dpx; %scomp-margin-right: %dpx",
@@ -182,6 +184,10 @@ func (g *Generator) fm() template.FuncMap {
 				p, marginLeft,
 				p, marginRight,
 			)
+
+			if marginTop != 0 || marginBottom != 0 {
+				style += fmt.Sprintf("; %scomp-margin-top: %dpx; %scomp-margin-bottom: %dpx", p, marginTop, p, marginBottom)
+			}
 
 			if positionX != 0 || positionY != 0 {
 				style += fmt.Sprintf("; %sbackground-position: -%dpx -%dpx", p, positionX, positionY)

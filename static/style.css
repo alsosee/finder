@@ -44,6 +44,10 @@
     inset 0 -1px 1px rgba(0, 0, 0, 0.1);
 
   --outline-small: 0.5px solid rgba(0, 0, 0, 0.5);
+
+  /* default values */
+  --comp-margin-bottom: 0px;
+  --comp-margin-top: 0px;
 }
 
 /* 1. Use a more-intuitive box-sizing model */
@@ -532,7 +536,6 @@ fieldset.radio label:last-of-type {
   content: "";
   display: inline-block;
   flex-shrink: 0;
-  margin-bottom: -7px; /* compensate for line height */
   background-image: var(--background-image);
   background-size: var(--background-size);
   background-position: var(--background-position);
@@ -541,6 +544,10 @@ fieldset.radio label:last-of-type {
   height: var(--height);
   margin-left: var(--comp-margin-left);
   margin-right: calc(var(--comp-margin-right) + 5px);
+  margin-top: var(--comp-margin-top);
+  margin-bottom: calc(
+    var(--comp-margin-bottom) - 7px
+  ); /* compensate for line height */
 }
 
 .reference.has-image.jpg::before {
@@ -559,7 +566,7 @@ fieldset.radio label:last-of-type {
 [data-view="icons"] .panel {
   display: flex;
   flex-direction: row;
-  align-items: baseline;
+  align-items: flex-start;
   align-content: flex-start;
   flex-shrink: 0;
   flex-wrap: wrap;
@@ -613,6 +620,8 @@ fieldset.radio label:last-of-type {
   width: var(--width);
   height: var(--height);
   border-radius: var(--border-radius-medium);
+  margin-top: var(--comp-margin-top);
+  margin-bottom: var(--comp-margin-bottom);
 }
 
 [data-view="icons"] .panel li a.has-image.jpg::before {
