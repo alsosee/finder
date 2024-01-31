@@ -494,6 +494,7 @@ fieldset.radio label:last-of-type {
   flex-shrink: 0;
   align-items: baseline;
   align-content: flex-start;
+  clear: both;
 }
 
 .content .characters li {
