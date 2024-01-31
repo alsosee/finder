@@ -802,6 +802,10 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		g.addConnection(from, "Companies/"+production, "Production")
 	}
 
+	if content.Network != "" {
+		g.addConnection(from, "Companies/"+content.Network, "Network")
+	}
+
 	if content.Developers != "" {
 		g.addConnection(from, "Companies/"+content.Developers, "Developers")
 	}

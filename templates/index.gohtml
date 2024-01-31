@@ -172,6 +172,8 @@
 
             {{ with .Distributor }}<p>Distributor: {{ template "company" . }}</p>{{ end }}
 
+            {{ with .Network }}<p>Network: {{ template "company" . }}</p>{{ end }}
+
             {{ with .Publisher }}<p>Publisher: {{ template "company" . }}</p>{{ end }}
             {{ with .CoverArtist }}<p>Cover Artist: {{ template "person" . }}</p>{{ end }}
             {{ with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}

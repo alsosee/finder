@@ -137,6 +137,7 @@ type Content struct {
 	Music          string        `json:",omitempty"`
 	Production     oneOrMany     `json:",omitempty"`
 	Distributor    string        `json:",omitempty"`
+	Network        string        `json:",omitempty"`
 	Characters     []*Character  `json:",omitempty"`
 
 	// unknown fields are stored in the Extra map

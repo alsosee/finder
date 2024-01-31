@@ -9,9 +9,9 @@
     <li>{{ strjoin $extra ", " }} of {{ template "reference" dict "Path" $path "HideType" true }}</li>
     {{- end }}
 {{- else if eq (len $extra) 1 }}
-    {{- if eq (index $extra 0) "Series" }}
+    {{- if in (index $extra 0) "Series" "Network" }}
     <li>{{ template "reference" dict "Path" $path "HideType" true }}</li>
-    {{- else if eq (index $extra 0) "Based on" }}
+    {{- else if eq (index $extra 0) "Based on"}}
     <li>{{ template "reference" dict "Path" $path "HideType" false }}</li>
     {{- else }}
     <li>{{ index $extra 0 }} of {{ template "reference" dict "Path" $path "HideType" true }}</li>
