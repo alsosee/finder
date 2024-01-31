@@ -86,6 +86,7 @@ func (g *Generator) fm() template.FuncMap {
 		"dir":       filepath.Dir,
 		"hasPrefix": strings.HasPrefix,
 		"strjoin":   strings.Join,
+		"in":        in,
 		// "content" returns a Content struct for a given file path (without extension)
 		// It is used to render references.
 		"content": func(id string) *structs.Content {
@@ -1130,4 +1131,13 @@ func series(c structs.Content) string {
 		"Series",
 		c.Series,
 	)
+}
+
+func in(needle string, slice ...string) bool {
+	for _, s := range slice {
+		if needle == s {
+			return true
+		}
+	}
+	return false
 }
