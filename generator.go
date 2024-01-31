@@ -178,13 +178,15 @@ func (g *Generator) fm() template.FuncMap {
 			marginBottom := max - height - marginTop
 
 			style := fmt.Sprintf(
-				"%sbackground-size: %dpx %dpx; %swidth: %dpx; %sheight: %dpx; %scomp-margin-left: %dpx; %scomp-margin-right: %dpx",
+				"%sbackground-size: %dpx %dpx; %swidth: %dpx; %sheight: %dpx",
 				p, backgroundWidth, backgroundHeight,
 				p, width,
 				p, height,
-				p, marginLeft,
-				p, marginRight,
 			)
+
+			if marginLeft != 0 || marginRight != 0 {
+				style += fmt.Sprintf("; %scomp-margin-left: %dpx; %scomp-margin-right: %dpx", p, marginLeft, p, marginRight)
+			}
 
 			if marginTop != 0 || marginBottom != 0 {
 				style += fmt.Sprintf("; %scomp-margin-top: %dpx; %scomp-margin-bottom: %dpx", p, marginTop, p, marginBottom)

@@ -365,7 +365,11 @@ if (typeof hasRun === 'undefined') {
         var marginTop = (max - height) / 2;
         var marginBottom = max - height - marginTop;
 
-        var style = `${prefix}background-size: ${backgroundWidth.toFixed(2)}px ${backgroundHeight.toFixed(2)}px; ${prefix}width: ${width.toFixed(2)}px; ${prefix}height: ${height.toFixed(2)}px; ${prefix}comp-margin-left: ${marginLeft.toFixed(2)}px; ${prefix}comp-margin-right: ${marginRight.toFixed(2)}px`;
+        var style = `${prefix}background-size: ${backgroundWidth.toFixed(2)}px ${backgroundHeight.toFixed(2)}px; ${prefix}width: ${width.toFixed(2)}px; ${prefix}height: ${height.toFixed(2)}px`;
+
+        if (marginLeft != 0 || marginRight != 0) {
+          style += `; ${prefix}comp-margin-left: ${marginLeft.toFixed(2)}px; ${prefix}comp-margin-right: ${marginRight.toFixed(2)}px`;
+        }
 
         if (marginTop != 0 || marginBottom != 0) {
           style += `; ${prefix}comp-margin-top: ${marginTop.toFixed(2)}px; ${prefix}comp-margin-bottom: ${marginBottom.toFixed(2)}px`;

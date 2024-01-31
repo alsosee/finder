@@ -46,8 +46,12 @@
   --outline-small: 0.5px solid rgba(0, 0, 0, 0.5);
 
   /* default values */
-  --comp-margin-bottom: 0px;
   --comp-margin-top: 0px;
+  --comp-margin-right: 0px;
+  --comp-margin-bottom: 0px;
+  --comp-margin-left: 0px;
+  --small-comp-margin-right: 0px;
+  --small-comp-margin-left: 0px;
 }
 
 /* 1. Use a more-intuitive box-sizing model */
