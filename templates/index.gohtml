@@ -271,9 +271,11 @@
             {{ end }}
 
             {{ with .Extra }}
-                {{ range $key, $value := . }}
-                    <p>{{ $key }}: {{ $value }}</p>
-                {{ end }}
+            <pre>
+                {{- range $key, $value := . }}
+                {{- $key }}: {{ $value }}
+                {{- end -}}
+            </pre>
             {{ end }}
         </div>
         <div id="_"></div>
