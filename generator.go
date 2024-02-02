@@ -673,10 +673,16 @@ func (g *Generator) processMarkdownFile(file string) error {
 	htmlBody = bytes.ReplaceAll(htmlBody, []byte("[x] "), []byte(`<br><input type="checkbox" disabled checked> `))
 	htmlBody = bytes.ReplaceAll(htmlBody, []byte("<p><br>"), []byte("<p>"))
 
-	g.addContent(file, structs.Content{
-		Source: file,
-		HTML:   string(htmlBody),
-	})
+	id := removeFileExtention(file)
+
+	g.addContent(
+		id,
+		structs.Content{
+			ID:     id,
+			Source: file,
+			HTML:   string(htmlBody),
+		},
+	)
 	return nil
 }
 
@@ -686,7 +692,9 @@ func (g *Generator) processGoMarkdownFile(file string) error {
 		return fmt.Errorf("reading file: %w", err)
 	}
 
-	g.addContent(file, structs.Content{
+	id := removeFileExtention(file)
+	g.addContent(id, structs.Content{
+		ID:     id,
 		Source: file,
 		HTML:   string(b),
 	})
@@ -892,9 +900,8 @@ func (g *Generator) getFilesForPath(path string) []structs.File {
 }
 
 func (g *Generator) generateContentTemplates() error {
-	for path, content := range g.contents {
-		id := removeFileExtention(path)
-		path = id + ".html" // replace extension with .html
+	for id, content := range g.contents {
+		path := id + ".html" // replace extension with .html
 
 		// create directory
 		if err := os.MkdirAll(filepath.Join(cfg.OutputDirectory, filepath.Dir(path)), 0o755); err != nil {
@@ -945,8 +952,8 @@ func (g *Generator) generateContentTemplates() error {
 }
 
 func (g *Generator) generateGoTemplates() error {
-	for path, content := range g.contents {
-		if filepath.Ext(path) != ".gomd" {
+	for id, content := range g.contents {
+		if filepath.Ext(content.Source) != ".gomd" {
 			continue
 		}
 
@@ -964,7 +971,7 @@ func (g *Generator) generateGoTemplates() error {
 		htmlBody := markdown.ToHTML(buf.Bytes(), nil, nil)
 		content.HTML = string(htmlBody)
 
-		g.contents[path] = content
+		g.contents[id] = content
 	}
 
 	return nil

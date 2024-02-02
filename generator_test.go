@@ -76,3 +76,30 @@ func TestGetFilesForPathSimple(t *testing.T) {
 		}
 	}
 }
+
+func TestRemoveFileExtention(t *testing.T) {
+	tt := []struct {
+		input    string
+		expected string
+	}{
+		{
+			input:    "test1.yml",
+			expected: "test1",
+		},
+		{
+			input:    "test.something.md",
+			expected: "test.something",
+		},
+		{
+			input:    "Mrs. Davis.md",
+			expected: "Mrs. Davis",
+		},
+	}
+
+	for _, tc := range tt {
+		got := removeFileExtention(tc.input)
+		if got != tc.expected {
+			t.Fatalf("got %s, expected %s", got, tc.expected)
+		}
+	}
+}
