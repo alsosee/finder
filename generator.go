@@ -764,6 +764,10 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		g.addConnection(from, "People/"+director, "Director")
 	}
 
+	for _, creator := range content.Creators {
+		g.addConnection(from, "People/"+creator, "Creator")
+	}
+
 	for _, producer := range content.Producers {
 		g.addConnection(from, "People/"+producer, "Producer")
 	}

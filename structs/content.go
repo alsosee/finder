@@ -130,6 +130,7 @@ type Content struct {
 	Trailer        string        `json:",omitempty"`
 	Rating         string        `json:",omitempty"`
 	Length         time.Duration `json:",omitempty"`
+	Creators       oneOrMany     `json:",omitempty"`
 	Writers        oneOrMany     `json:",omitempty"`
 	Editor         string        `json:",omitempty"`
 	Directors      oneOrMany     `json:",omitempty"`

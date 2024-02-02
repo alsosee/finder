@@ -162,6 +162,14 @@
             </p>
             {{ end }}
 
+            {{ with .Creators }}
+            <p>Creators:
+            {{ range . }}
+                <span class="list">{{ template "person" . }}</span>
+            {{ end }}
+            </p>
+            {{ end }}
+
             {{ with .Production }}
             <p>Production:
             {{ range . }}
