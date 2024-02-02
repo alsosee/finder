@@ -105,6 +105,7 @@ type Content struct {
 	Amazon          string   `json:",omitempty"`
 	PrimeVideo      string   `yaml:"prime_video" json:",omitempty"`
 	AppleTV         string   `yaml:"apple_tv" json:",omitempty"`
+	Peacock         string   `json:",omitempty"`
 	GooglePlay      string   `yaml:"google_play" json:",omitempty"`
 	MicrosoftStore  string   `yaml:"microsoft_store" json:",omitempty"`
 	Row8            string   `json:",omitempty"`
