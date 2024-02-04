@@ -30,6 +30,9 @@
   --border-radius-medium: 2px;
   --border-radius-small: 1px;
 
+  --shadow-button: inset 0 -3px 10px rgba(0, 0, 0, 0.1),
+    inset 0 -2px 2px rgba(0, 0, 0, 0.1), 0 2px 10px rgba(0, 0, 0, 0.1);
+
   --shadow-thumb: 0 2px 2px rgba(0, 0, 0, 0.2),
     inset 0 0 0 1px rgba(0, 0, 0, 0.2);
   --shadow-avatar: 0px 1px 1px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2),
@@ -146,14 +149,11 @@ pre code {
 
 fieldset.radio {
   display: flex;
-  height: 44ppx;
+  height: 44px;
   border: 0.5px solid var(--color-border);
   border-radius: 8px;
   user-select: none;
-  box-shadow:
-    inset 0 -3px 10px rgba(0, 0, 0, 0.1),
-    inset 0 -2px 2px rgba(0, 0, 0, 0.1),
-    0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-button);
 }
 
 fieldset.radio legend {
@@ -800,11 +800,11 @@ fieldset.radio label:last-of-type {
   z-index: 101;
   margin: auto;
   width: 400px;
-  height: 543px; /* emperically determined */
+  height: 553px; /* emperically determined */
   display: flex;
   flex-direction: column;
   border-radius: 20px;
-  background: transparent;
+  background: var(--color-background-secondary);
   box-shadow: var(--shadow-big);
   overflow: hidden; /* crop .buttons background */
 }
@@ -815,13 +815,8 @@ fieldset.radio label:last-of-type {
   padding: 14px 20px;
   margin: 0;
   text-align: center;
-}
-
-#uploader h1,
-#uploader_preview {
-  background: var(--color-background-secondary);
-  /* not adding background to .buttons container
-     to avoid visual artifacts around rounded corners */
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 #uploader .croppie-container .cr-boundary {
@@ -846,59 +841,39 @@ fieldset.radio label:last-of-type {
 #uploader .buttons {
   display: flex;
   flex-direction: row;
-  background: linear-gradient(
-    90deg,
-    var(--color-background-higher) 49.9%,
-    var(--color-background-selection) 50%
-  );
-  border-radius: 0 0 20px 20px;
+  margin: 0 10px 10px;
+  gap: 10px;
 }
 
 #uploader .buttons button {
-  width: 50%;
+  flex-grow: 1;
+  height: 44px;
   padding: 10px 10px;
   font-size: 16px;
   font-weight: 500;
   font-family: var(--font-default);
   color: var(--color-text);
-  border: none;
-  border-top: 1px solid var(--color-border);
+  border-radius: 8px;
+  border: 0.5px solid var(--color-border);
   background: var(--color-background-higher);
-  box-shadow:
-    inset 0 1px 1px 0px rgba(255, 255, 255, 0.2),
-    inset 0 -10px 20px 0px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-button);
   text-shadow: var(--shadow-text-light);
-}
-
-#uploader .buttons button:first-child {
-  border-radius: 0 0 0 20px;
-}
-
-#uploader .buttons button:last-child {
-  border-radius: 0 0 20px 0;
+  user-select: none;
 }
 
 #uploader .buttons button.primary {
   background: var(--color-background-selection);
   color: var(--color-text-selection);
   text-shadow: var(--shadow-text-dark);
-  border-top: 1px solid var(--color-background-selection);
 }
 
 #uploader .buttons button:active {
   background: var(--color-background-secondary);
-  border-top-color: rgba(0, 0, 0, 0.3);
-  box-shadow:
-    inset 0 10px 20px 0px rgba(0, 0, 0, 0.2),
-    inset 0 3px 5px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-depth);
 }
 
 #uploader .buttons button.primary:active {
   background: var(--color-background-selection);
-  border-top-color: rgba(0, 0, 0, 0.3);
-  box-shadow:
-    inset 0 10px 20px 0px rgba(0, 0, 0, 0.2),
-    inset 0 3px 5px 0 rgba(0, 0, 0, 0.1);
 }
 
 /* dark mode */
@@ -921,6 +896,8 @@ fieldset.radio label:last-of-type {
       #696969 0%,
       #484545 100%
     );
+    --shadow-button: inset 0 -3px 10px rgba(0, 0, 0, 0.2),
+      inset 0 -2px 2px rgba(0, 0, 0, 0.2), 0 2px 10px rgba(0, 0, 0, 0.1);
   }
   #toolbar {
     --color-background: #2e2b2b;
@@ -934,10 +911,6 @@ fieldset.radio label:last-of-type {
   }
   fieldset.radio {
     background: #3b3838;
-    box-shadow:
-      inset 0 -3px 10px rgba(0, 0, 0, 0.2),
-      inset 0 -2px 2px rgba(0, 0, 0, 0.2),
-      0 2px 10px rgba(0, 0, 0, 0.1);
   }
   fieldset.radio span {
     filter: invert(0.8); /* invert sprite black to white */
