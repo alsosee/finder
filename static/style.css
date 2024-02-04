@@ -416,6 +416,12 @@ fieldset.radio label:last-of-type {
   margin-bottom: 10px;
 }
 
+.content h3 {
+  font-size: 1.1em;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
 .content p {
   margin-bottom: 10px;
 }

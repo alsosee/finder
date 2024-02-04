@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"text/template"
@@ -397,6 +398,7 @@ func (g *Generator) fm() template.FuncMap {
 
 			return strings.Join(dirs, " \\ ")
 		},
+		"prefix": prefix,
 	}
 }
 
@@ -1157,4 +1159,25 @@ func in(needle string, slice ...string) bool {
 		}
 	}
 	return false
+}
+
+// prefix returns a path prefix to a content referenced by the given content.
+// For example, "Movies/Awards/Oscar/2023.yml" will return "Movies/2022"
+func prefix(c structs.Content) string {
+	yearSt := removeFileExtention(filepath.Base(c.Source))
+
+	if strings.Contains(c.Source, "/Oscar/") {
+		// decrease year by 1 for Oscar awards
+		// since they are awarded for the previous year
+		// (e.g. 2023 Oscar awards are for movies released in 2022)
+		// TODO: make it more generic
+		year, err := strconv.Atoi(yearSt)
+		if err != nil {
+			log.Printf("Error parsing year from %q: %v", c.Source, err)
+			return ""
+		}
+		yearSt = strconv.Itoa(year - 1)
+	}
+
+	return "Movies/" + yearSt
 }

@@ -187,6 +187,37 @@
     </ul>
     {{ end }}
 
+    {{ with .Categories }}
+    <h2>Categories</h2>
+    {{ $prefix := prefix $.Content }}
+    {{ range . }}
+        <h3>{{ .Name }}</h3>
+        {{ if .Winner.Actor }}
+            {{ template "reference" dict "Path" .Winner.Actor "Prefix" "People" "HideType" true }} in
+            {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
+        {{ else if .Winner.Directors }}
+            <span>
+            {{ range .Winner.Directors }}
+                <span class="list">{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
+            {{ end }}
+            </span> in
+            {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
+        {{ else if .Winner.Writers }}
+            <span>
+            {{ range .Winner.Writers }}
+                <span class="list">{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
+            {{ end }}
+            </span> in
+            {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
+        {{ else if .Winner.Track }}
+            “{{ .Winner.Track }}” in
+            {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
+        {{ else if .Winner.Movie }}
+            {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
+        {{ end }}
+    {{ end }}
+    {{ end }}
+
     {{ with connections $.CurrentPath }}
     <h2>Connections</h2>
     <ul class="connections flat">
