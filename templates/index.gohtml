@@ -610,11 +610,6 @@ if (typeof hasRun === 'undefined') {
         });
     }
 
-    document.addEventListener('dragstart', function (event) {
-        event.dataTransfer.setData('text/plain', event.target.id);
-        event.dataTransfer.dropEffect = 'copy';
-    });
-
     document.addEventListener('dragover', function (event) {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'copy';
@@ -625,6 +620,14 @@ if (typeof hasRun === 'undefined') {
 
         var target = event.target;
         target = target.nextElementSibling;
+
+        // if target element has no "name" class, then it's not a dropzone
+        if (target === null) {
+            return;
+        }
+        if (!target.classList.contains("name")) {
+            return;
+        }
 
         uploader_target.innerText = target.innerText;
         uploader.dataset.target = target.innerText;
