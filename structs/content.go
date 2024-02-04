@@ -142,10 +142,26 @@ type Content struct {
 	Network        string        `json:",omitempty"`
 	Characters     []*Character  `json:",omitempty"`
 
+	// for awards
+	Categories []Category `json:",omitempty"`
+
 	// unknown fields are stored in the Extra map
 	Extra map[string]interface{} `yaml:",inline" json:",omitempty"`
 
 	References []Reference `yaml:"refs" json:",omitempty"`
 
 	Image *Media `json:",omitempty"`
+}
+
+type Category struct {
+	Name   string `json:",omitempty"`
+	Winner Winner `json:",omitempty"`
+}
+
+type Winner struct {
+	Movie     string    `json:",omitempty"`
+	Actor     string    `json:",omitempty"`
+	Directors oneOrMany `json:",omitempty"`
+	Writers   oneOrMany `json:",omitempty"`
+	Track     string    `json:",omitempty"`
 }
