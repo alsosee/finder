@@ -1,0 +1,5 @@
+{{ define "awards" }}
+{{ range . }}
+<a class="award" title="{{ .Category }}" href="/{{ .Reference }}"></a>
+{{ end }}
+{{ end }}

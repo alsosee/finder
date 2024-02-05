@@ -6,6 +6,9 @@
   --font-monospace: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
     Liberation Mono, monospace;
 
+  --sprite-url: url("sprite.png?crc=3814b2bf");
+  --sprite-size: 168px 24px;
+
   --color-background: #ffffff;
   --color-background-higher: #f9f9f9;
   --color-background-secondary: #f5f7f6;
@@ -169,9 +172,9 @@ fieldset.radio span {
   display: inline-block;
   width: 24px;
   height: 24px;
-  background-image: url("sprite.png?crc=8d1d874f");
+  background-image: var(--sprite-url);
   background-repeat: no-repeat;
-  background-size: 144px 24px;
+  background-size: var(--sprite-size);
   background-position: 0 0;
   text-indent: -5000px;
   filter: opacity(0.8);
@@ -224,9 +227,9 @@ fieldset.radio label:last-of-type {
   left: 10px;
   width: 24px;
   height: 24px;
-  background-image: url("sprite.png?crc=8d1d874f");
+  background-image: var(--sprite-url);
   background-repeat: no-repeat;
-  background-size: 144px 24px;
+  background-size: var(--sprite-size);
   background-position: -120px 0;
   pointer-events: none;
   cursor: text;
@@ -671,9 +674,9 @@ fieldset.radio label:last-of-type {
   margin-right: 5px;
   width: 24px;
   height: 24px;
-  background-image: url("sprite.png?crc=8d1d874f");
+  background-image: var(--sprite-url);
   background-repeat: no-repeat;
-  background-size: 144px 24px;
+  background-size: var(--sprite-size);
   background-position: -72px 0;
 }
 
@@ -730,9 +733,9 @@ fieldset.radio label:last-of-type {
   margin-right: 5px;
   width: 24px;
   height: 24px;
-  background-image: url("sprite.png?crc=8d1d874f");
+  background-image: var(--sprite-url);
   background-repeat: no-repeat;
-  background-size: 144px 24px;
+  background-size: var(--sprite-size);
   background-position: -72px 0;
 }
 
@@ -783,6 +786,21 @@ fieldset.radio label:last-of-type {
 [data-view="columns"] .panel li a {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.award {
+  display: inline-block;
+  margin: -8px -7px -6px; /* align with the text */
+  width: 24px;
+  height: 24px;
+  background-image: var(--sprite-url);
+  background-repeat: no-repeat;
+  background-size: var(--sprite-size);
+  background-position: -144px 0;
+}
+
+.labels .award {
+  margin: 0 -5px;
 }
 
 #backdrop {
@@ -939,6 +957,10 @@ fieldset.radio label:last-of-type {
   }
   #searchWrapper::before {
     filter: invert(0.6);
+  }
+
+  .award {
+    filter: invert(0.8);
   }
 
   #breadcrumbs a {

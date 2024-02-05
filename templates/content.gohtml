@@ -16,11 +16,12 @@
     {{ if .Name }}<h1{{ if .Subtitle }} class="with-subtitle"{{ end }}>{{ .Name }}</h1>{{ end }}
     {{ with .Subtitle }}<p class="subtitle">{{ . }}</p>{{ end }}
     {{ if .Series }}<p class="series">Series: {{ template "reference" dict "Path" (series .) "HideType" true "Fallback" .Series }}</p>{{ end }}
-    {{- if either .Genres .Rating .Length }}
+    {{- if either .Genres .Rating .Length .Awards }}
     <p class="labels">
     {{- with .Genres }}{{ range . }}<span class="genre">{{ . }}</span>{{ end }}{{ end }}
     {{- if .Rating }}<span class="rating">{{ .Rating }}</span>{{ end }}
     {{- if .Length }}<span class="length">{{ length .Length }}</span>{{ end }}
+    {{ template "awards" .Awards }}
     </p>
     {{- end }}
     {{ with .Description }}<p>{{ . }}</p>{{ end }}
@@ -52,7 +53,7 @@
     </p>
     {{ end }}
 
-    {{ with .Directors }}<p>Directors:
+    {{ with .Directors }}<p>{{ template "awards" $.Content.DirectorsAwards }}Directors:
     {{ range . }}
         <span class="list">{{ template "person" . }}</span>
     {{ end }}
@@ -79,7 +80,7 @@
     {{ end }}
 
     {{ with .Writers }}
-    <p>Writers:
+    <p>{{ template "awards" $.Content.WritersAwards }}Writers:
     {{ range . }}
         <span class="list">{{ template "person" . }}</span>
     {{ end }}
@@ -170,16 +171,16 @@
                 {{ if .Actor }}
                     {{- $person := content (join "People/" .Actor) }}
                     {{- if $person }}
-                    <a class="actor" href="/People/{{ .Actor }}">{{ .Actor }}</a>
+                    <a class="actor" href="/People/{{ .Actor }}">{{ .Actor }}{{ template "awards" .Awards }}</a>
                     {{- else }}
-                    <span class="actor">{{ .Actor }}</span>
+                    <span class="actor">{{ .Actor }}{{ template "awards" .Awards }}</span>
                     {{- end }}
                 {{- else if .Voice }}
                     {{- $person := content (join "People/" .Voice) }}
                     {{- if $person }}
-                    <a class="actor" href="/People/{{ .Voice }}">{{ .Voice }}</a>
+                    <a class="actor" href="/People/{{ .Voice }}">{{ .Voice }}{{ template "awards" .Awards }}</a>
                     {{- else }}
-                    <span class="actor">{{ .Voice }}</span>
+                    <span class="actor">{{ .Voice }}{{ template "awards" .Awards }}</span>
                     {{- end }}
                 {{- end }}
             </li>

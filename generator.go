@@ -47,6 +47,9 @@ type Generator struct {
 
 	mediaDirContents map[string][]structs.Media
 	muMedia          sync.Mutex
+
+	awardPages   []string
+	muAwardPages sync.Mutex
 }
 
 // NewGenerator creates a new Generator.
@@ -440,6 +443,8 @@ FILE_PROCESSING:
 		}
 	}
 
+	g.addAwards()
+
 	// Render Go templates
 	if err := g.generateGoTemplates(); err != nil {
 		return fmt.Errorf("generating go templates: %w", err)
@@ -825,6 +830,11 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 	if content.Developers != "" {
 		g.addConnection(from, "Companies/"+content.Developers, "Developers")
 	}
+
+	// Prepare for adding Awards
+	if len(content.Categories) > 0 {
+		g.addAwardPage(from)
+	}
 }
 
 func (g *Generator) addConnection(from, to string, info ...string) {
@@ -841,6 +851,15 @@ func (g *Generator) addConnection(from, to string, info ...string) {
 	}
 
 	g.connections[to][from] = append(g.connections[to][from], info...)
+}
+
+func (g *Generator) addAwardPage(id string) {
+	g.muAwardPages.Lock()
+	defer g.muAwardPages.Unlock()
+
+	// track all pages that have awards
+	// will be used to add Awards to content after all files are processed
+	g.awardPages = append(g.awardPages, id)
 }
 
 func (g *Generator) addMedia(path string, media []structs.Media) {
@@ -1055,6 +1074,58 @@ func (g *Generator) generateIndexes() error {
 	}
 
 	return nil
+}
+
+func (g *Generator) addAwards() {
+	for _, awardPage := range g.awardPages {
+		content := g.contents[awardPage]
+
+		p := prefix(content)
+
+		for _, category := range content.Categories {
+			var (
+				id             string
+				awadredContent structs.Content
+				ok             bool
+			)
+			if category.Winner.Movie != "" {
+				id = p + "/" + category.Winner.Movie
+				if awadredContent, ok = g.contents[id]; !ok {
+					// log.Printf("No content found for %q", category.Winner.Movie)
+					continue
+				}
+			}
+
+			award := structs.Award{
+				Category:  category.Name,
+				Reference: awardPage,
+			}
+
+			switch true {
+			case category.Winner.Actor != "":
+				// loop through all characters and find actor with the same name
+				var found bool
+				for _, character := range awadredContent.Characters {
+					if character.Actor == category.Winner.Actor {
+						character.Awards = append(character.Awards, award)
+						found = true
+						break
+					}
+				}
+				if !found {
+					log.Printf("No character found for %q", category.Winner.Actor)
+				}
+			case len(category.Winner.Writers) > 0:
+				awadredContent.WritersAwards = append(awadredContent.WritersAwards, award)
+			case len(category.Winner.Directors) > 0:
+				awadredContent.DirectorsAwards = append(awadredContent.DirectorsAwards, award)
+			default:
+				awadredContent.Awards = append(awadredContent.Awards, award)
+			}
+
+			g.contents[id] = awadredContent
+		}
+	}
 }
 
 func (g *Generator) buildPanels(path string, isFile bool) (structs.Panels, structs.Breadcrumbs) {

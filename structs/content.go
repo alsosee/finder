@@ -7,15 +7,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Character represents a character in a movie, tv show, etc.
-type Character struct {
-	Name       string
-	Actor      string `json:",omitempty"`
-	Voice      string `json:",omitempty"`
-	Image      *Media `json:",omitempty"`
-	ActorImage *Media `json:",omitempty"`
-}
-
 // oneOrMany represents a list of strings that can be passed as a single string in YAML.
 type oneOrMany []string
 
@@ -150,7 +141,28 @@ type Content struct {
 
 	References []Reference `yaml:"refs" json:",omitempty"`
 
-	Image *Media `json:",omitempty"`
+	// fields populated by the generator
+	Image           *Media  `yaml:"-" json:",omitempty"`
+	Awards          []Award `yaml:"-" json:",omitempty"`
+	WritersAwards   []Award `yaml:"-" json:",omitempty"`
+	DirectorsAwards []Award `yaml:"-" json:",omitempty"`
+}
+
+// Character represents a character in a movie, tv show, etc.
+type Character struct {
+	Name       string
+	Actor      string `json:",omitempty"`
+	Voice      string `json:",omitempty"`
+	Image      *Media `json:",omitempty"`
+	ActorImage *Media `json:",omitempty"`
+
+	// populated by the generator
+	Awards []Award `yml:"-" json:",omitempty"`
+}
+
+type Award struct {
+	Category  string `json:",omitempty"`
+	Reference string `json:",omitempty"` // who gave the award
 }
 
 type Category struct {
@@ -161,7 +173,7 @@ type Category struct {
 type Winner struct {
 	Movie     string    `json:",omitempty"`
 	Actor     string    `json:",omitempty"`
+	Track     string    `json:",omitempty"`
 	Directors oneOrMany `json:",omitempty"`
 	Writers   oneOrMany `json:",omitempty"`
-	Track     string    `json:",omitempty"`
 }
