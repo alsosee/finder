@@ -13,7 +13,7 @@
             ">
         </div>
     {{ end }}
-    {{ if .Name }}<h1{{ if .Subtitle }} class="with-subtitle"{{ end }}>{{ .Name }}</h1>{{ end }}
+    {{ if either .Name .Title }}<h1{{ if .Subtitle }} class="with-subtitle"{{ end }}>{{ if .Title }}{{ .Title }}{{ else }}{{ .Name }}{{ end }}</h1>{{ end }}
     {{ with .Subtitle }}<p class="subtitle">{{ . }}</p>{{ end }}
     {{ if .Series }}<p class="series">Series: {{ template "reference" dict "Path" (series .) "HideType" true "Fallback" .Series }}</p>{{ end }}
     {{- if either .Genres .Rating .Length .Awards }}
@@ -21,7 +21,7 @@
     {{- with .Genres }}{{ range . }}<span class="genre">{{ . }}</span>{{ end }}{{ end }}
     {{- if .Rating }}<span class="rating">{{ .Rating }}</span>{{ end }}
     {{- if .Length }}<span class="length">{{ length .Length }}</span>{{ end }}
-    {{ template "awards" .Awards }}
+    {{ template "awards_with_text" .Awards }}
     </p>
     {{- end }}
     {{ with .Description }}<p>{{ . }}</p>{{ end }}
@@ -60,16 +60,13 @@
     </p>
     {{ end }}
 
-    {{ with .Cinematography }}<p>Cinematography: {{ template "person" . }}</p>{{ end }}
-    {{ with .Editor }}<p>Editor: {{ template "person" . }}</p>{{ end }}
-    {{ with .Music }}<p>Music: {{ template "person" . }}</p>{{ end }}
-    {{ with .Artists }}<p>Artists:
+    {{ with .Creators }}
+    <p>Creators:
     {{ range . }}
         <span class="list">{{ template "person" . }}</span>
     {{ end }}
     </p>
     {{ end }}
-    {{ with .Colorist }}<p>Colorist: {{ template "person" . }}</p>{{ end }}
 
     {{ with .Producers }}
     <p>Producers:
@@ -78,7 +75,6 @@
     {{ end }}
     </p>
     {{ end }}
-
     {{ with .Writers }}
     <p>{{ template "awards" $.Content.WritersAwards }}Writers:
     {{ range . }}
@@ -86,14 +82,16 @@
     {{ end }}
     </p>
     {{ end }}
-
-    {{ with .Creators }}
-    <p>Creators:
+    {{ with .Editor }}<p>{{ template "awards" $.Content.EditorAwards }}Editor: {{ template "person" . }}</p>{{ end }}
+    {{ with .Cinematography }}<p>Cinematography: {{ template "person" . }}</p>{{ end }}
+    {{ with .Music }}<p>Music: {{ template "person" . }}</p>{{ end }}
+    {{ with .Artists }}<p>Artists:
     {{ range . }}
         <span class="list">{{ template "person" . }}</span>
     {{ end }}
     </p>
     {{ end }}
+    {{ with .Colorist }}<p>Colorist: {{ template "person" . }}</p>{{ end }}
 
     {{ with .Production }}
     <p>Production:
@@ -195,14 +193,24 @@
         <h3>{{ .Name }}</h3>
         {{ if .Winner.Actor }}
             {{ template "reference" dict "Path" .Winner.Actor "Prefix" "People" "HideType" true }} in
-            {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
+            {{ if .Winner.Movie }}
+                {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
+            {{ else if .Winner.Game }}
+                {{ template "reference" dict "Path" .Winner.Game "Prefix" $prefix "HideType" true }}
+            {{ else if .Winner.Series }}
+                {{ template "reference" dict "Path" .Winner.Series "Prefix" $prefix "HideType" true }}
+            {{ end }}
         {{ else if .Winner.Directors }}
             <span>
             {{ range .Winner.Directors }}
                 <span class="list">{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
             {{ end }}
             </span> in
-            {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
+            {{ if .Winner.Movie }}
+                {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
+            {{ else if .Winner.Series }}
+                {{ template "reference" dict "Path" .Winner.Series "Prefix" $prefix "HideType" true }}
+            {{ end }}
         {{ else if .Winner.Writers }}
             <span>
             {{ range .Winner.Writers }}
@@ -215,6 +223,12 @@
             {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
         {{ else if .Winner.Movie }}
             {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
+        {{ else if .Winner.Game }}
+            {{ template "reference" dict "Path" .Winner.Game "Prefix" $prefix "HideType" true }}
+        {{ else if .Winner.Series }}
+            {{ template "reference" dict "Path" .Winner.Series "Prefix" $prefix "HideType" true }}
+        {{ else if .Winner.Person }}
+            {{ template "reference" dict "Path" .Winner.Person "Prefix" "People" "HideType" true }}
         {{ end }}
     {{ end }}
     {{ end }}

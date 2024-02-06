@@ -304,6 +304,11 @@ func (g *Generator) fm() template.FuncMap {
 					if len(v) != 0 {
 						return true
 					}
+
+				case []structs.Award:
+					if len(v) != 0 {
+						return true
+					}
 				}
 			}
 			return false
@@ -1088,12 +1093,17 @@ func (g *Generator) addAwards() {
 				awadredContent structs.Content
 				ok             bool
 			)
-			if category.Winner.Movie != "" {
+			switch {
+			case category.Winner.Movie != "":
 				id = p + "/" + category.Winner.Movie
-				if awadredContent, ok = g.contents[id]; !ok {
-					// log.Printf("No content found for %q", category.Winner.Movie)
-					continue
-				}
+			case category.Winner.Game != "":
+				id = p + "/" + category.Winner.Game
+			case category.Winner.Series != "":
+				id = p + "/" + category.Winner.Series
+			}
+
+			if awadredContent, ok = g.contents[id]; !ok {
+				continue
 			}
 
 			award := structs.Award{
@@ -1115,6 +1125,8 @@ func (g *Generator) addAwards() {
 				if !found {
 					log.Printf("No character found for %q", category.Winner.Actor)
 				}
+			case category.Winner.Editor != "":
+				awadredContent.EditorAwards = append(awadredContent.EditorAwards, award)
 			case len(category.Winner.Writers) > 0:
 				awadredContent.WritersAwards = append(awadredContent.WritersAwards, award)
 			case len(category.Winner.Directors) > 0:
@@ -1235,6 +1247,7 @@ func in(needle string, slice ...string) bool {
 // prefix returns a path prefix to a content referenced by the given content.
 // For example, "Movies/Awards/Oscar/2023.yml" will return "Movies/2022"
 func prefix(c structs.Content) string {
+	contentType := pathType(c.Source)
 	yearSt := removeFileExtention(filepath.Base(c.Source))
 
 	if strings.Contains(c.Source, "/Oscar/") {
@@ -1250,5 +1263,9 @@ func prefix(c structs.Content) string {
 		yearSt = strconv.Itoa(year - 1)
 	}
 
-	return "Movies/" + yearSt
+	if contentType == "Games" {
+		contentType = "Games/Video"
+	}
+
+	return contentType + "/" + yearSt
 }

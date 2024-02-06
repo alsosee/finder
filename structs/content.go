@@ -40,7 +40,8 @@ type Content struct {
 	HTML   string `yaml:"-" json:",omitempty"` // for Markdown files
 
 	// for everything
-	Name        string    `json:",omitempty"`
+	Name        string    `json:",omitempty"` // name of the file, used in the breadcrumbs
+	Title       string    `json:",omitempty"` // override for the name, used as page title, fallback to Name
 	Subtitle    string    `json:",omitempty"`
 	Year        int       `json:",omitempty"`
 	Author      string    `json:",omitempty"`
@@ -144,6 +145,7 @@ type Content struct {
 	// fields populated by the generator
 	Image           *Media  `yaml:"-" json:",omitempty"`
 	Awards          []Award `yaml:"-" json:",omitempty"`
+	EditorAwards    []Award `yaml:"-" json:",omitempty"`
 	WritersAwards   []Award `yaml:"-" json:",omitempty"`
 	DirectorsAwards []Award `yaml:"-" json:",omitempty"`
 }
@@ -172,7 +174,11 @@ type Category struct {
 
 type Winner struct {
 	Movie     string    `json:",omitempty"`
+	Game      string    `json:",omitempty"`
+	Series    string    `json:",omitempty"`
+	Person    string    `json:",omitempty"`
 	Actor     string    `json:",omitempty"`
+	Editor    string    `json:",omitempty"`
 	Track     string    `json:",omitempty"`
 	Directors oneOrMany `json:",omitempty"`
 	Writers   oneOrMany `json:",omitempty"`

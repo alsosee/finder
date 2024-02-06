@@ -6,8 +6,9 @@
   --font-monospace: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
     Liberation Mono, monospace;
 
-  --sprite-url: url("sprite.png?crc=3814b2bf");
-  --sprite-size: 168px 24px;
+  --sprite-url: url("sprite.png?crc=38f07e9b");
+  --sprite-size: 216px 24px;
+  --sprite-size-small: 162px 18px; /* 75% */
 
   --color-background: #ffffff;
   --color-background-higher: #f9f9f9;
@@ -482,6 +483,7 @@ fieldset.radio label:last-of-type {
   flex-direction: row;
   flex-wrap: wrap;
   gap: 10px;
+  align-items: center;
 }
 
 .content .labels span {
@@ -790,17 +792,53 @@ fieldset.radio label:last-of-type {
 
 .award {
   display: inline-block;
-  margin: -8px -7px -6px; /* align with the text */
-  width: 24px;
-  height: 24px;
+  margin: -8px -2px -3px; /* align with the text */
+  width: 18px;
+  height: 18px;
   background-image: var(--sprite-url);
   background-repeat: no-repeat;
-  background-size: var(--sprite-size);
-  background-position: -144px 0;
+  background-size: var(--sprite-size-small);
+  background-position: -108px 0;
+}
+
+.award.with-text {
+  margin: auto;
+  width: auto;
+  height: auto;
+  background: none;
+}
+
+.award.with-text::before {
+  content: "";
+  display: inline-block;
+  margin: -8px 3px -3px;
+  width: 18px;
+  height: 18px;
+  background-image: var(--sprite-url);
+  background-repeat: no-repeat;
+  background-size: var(--sprite-size-small);
+  background-position: -108px 0;
 }
 
 .labels .award {
-  margin: 0 -5px;
+  margin: 0 3px 0 -3px;
+}
+
+.award[href*="/Oscar/"],
+.award.with-text[href*="/Oscar/"]::before {
+  background-position: -126px 0;
+}
+.award[href*="/Oscar/"] {
+  margin: -8px -3px -3px;
+}
+
+.labels .award.with-text[href*="/Oscar/"] {
+  margin: 0 5px 0 -5px;
+}
+
+.award[href*="/The Game Awards/"],
+.award.with-text[href*="/The Game Awards/"]::before {
+  background-position: -144px 0;
 }
 
 #backdrop {
@@ -960,6 +998,13 @@ fieldset.radio label:last-of-type {
   }
 
   .award {
+    filter: invert(0.8);
+  }
+
+  .award.with-text {
+    filter: none;
+  }
+  .award.with-text::before {
     filter: invert(0.8);
   }
 
