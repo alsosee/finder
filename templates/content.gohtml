@@ -192,43 +192,35 @@
     {{ range . }}
         <h3>{{ .Name }}</h3>
         {{ if .Winner.Actor }}
-            {{ template "reference" dict "Path" .Winner.Actor "Prefix" "People" "HideType" true }} in
-            {{ if .Winner.Movie }}
-                {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
-            {{ else if .Winner.Game }}
-                {{ template "reference" dict "Path" .Winner.Game "Prefix" $prefix "HideType" true }}
-            {{ else if .Winner.Series }}
-                {{ template "reference" dict "Path" .Winner.Series "Prefix" $prefix "HideType" true }}
+            {{ $character := characterByActor (content .Winner.Reference) .Winner.Actor }}
+            {{ template "reference" dict "Path" .Winner.Actor "Prefix" "People" "HideType" true }}
+
+            {{ if $character }}
+            as
+            {{ template "character" dict "Path" .Winner.Reference "Character" $character.Name }}
             {{ end }}
+
+            in
+            {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
         {{ else if .Winner.Directors }}
             <span>
             {{ range .Winner.Directors }}
                 <span class="list">{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
             {{ end }}
             </span> in
-            {{ if .Winner.Movie }}
-                {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
-            {{ else if .Winner.Series }}
-                {{ template "reference" dict "Path" .Winner.Series "Prefix" $prefix "HideType" true }}
-            {{ end }}
+            {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
         {{ else if .Winner.Writers }}
             <span>
             {{ range .Winner.Writers }}
                 <span class="list">{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
             {{ end }}
             </span> in
-            {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
+            {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
         {{ else if .Winner.Track }}
             “{{ .Winner.Track }}” in
-            {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
-        {{ else if .Winner.Movie }}
-            {{ template "reference" dict "Path" .Winner.Movie "Prefix" $prefix "HideType" true }}
-        {{ else if .Winner.Game }}
-            {{ template "reference" dict "Path" .Winner.Game "Prefix" $prefix "HideType" true }}
-        {{ else if .Winner.Series }}
-            {{ template "reference" dict "Path" .Winner.Series "Prefix" $prefix "HideType" true }}
-        {{ else if .Winner.Person }}
-            {{ template "reference" dict "Path" .Winner.Person "Prefix" "People" "HideType" true }}
+            {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
+        {{ else }}
+            {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
         {{ end }}
     {{ end }}
     {{ end }}

@@ -526,9 +526,10 @@ fieldset.radio label:last-of-type {
 
 .content .characters .image {
   width: 100px;
+  margin-bottom: 10px;
+  backgrond: var(--background-radial);
   border-radius: var(--border-radius-avatar);
   box-shadow: var(--shadow-avatar);
-  margin-bottom: 10px;
 }
 
 .content .characters .initials {

@@ -173,6 +173,7 @@ type Category struct {
 }
 
 type Winner struct {
+	Reference string    `yaml:"ref" json:",omitempty"` // full path to referenced content
 	Movie     string    `json:",omitempty"`
 	Game      string    `json:",omitempty"`
 	Series    string    `json:",omitempty"`
@@ -182,4 +183,6 @@ type Winner struct {
 	Track     string    `json:",omitempty"`
 	Directors oneOrMany `json:",omitempty"`
 	Writers   oneOrMany `json:",omitempty"`
+
+	Fallback string `yaml:"-" json:"-,omitempty"` // used to store the fallback value for template
 }

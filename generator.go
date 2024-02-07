@@ -321,6 +321,20 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return nil
 		},
+		"characterByActor": func(content *structs.Content, characterName string) *structs.Character {
+			if content == nil {
+				return nil
+			}
+			for _, character := range content.Characters {
+				if character.Actor == characterName {
+					return character
+				}
+				if character.Voice == characterName {
+					return character
+				}
+			}
+			return nil
+		},
 		// "dict" used to pass multiple key-value pairs to a template
 		// (e.g. {{ template "something" dict "Key1" "value1" "Key2" "value2" }})
 		"dict": func(values ...interface{}) (map[string]interface{}, error) {
@@ -1087,22 +1101,36 @@ func (g *Generator) addAwards() {
 
 		p := prefix(content)
 
-		for _, category := range content.Categories {
+		for i, category := range content.Categories {
+			switch {
+			case category.Winner.Reference != "":
+				// reference is already set
+			case category.Winner.Movie != "":
+				category.Winner.Reference = p + "/" + category.Winner.Movie
+				category.Winner.Fallback = category.Winner.Movie
+			case category.Winner.Game != "":
+				category.Winner.Reference = p + "/" + category.Winner.Game
+				category.Winner.Fallback = category.Winner.Game
+			case category.Winner.Series != "":
+				category.Winner.Reference = p + "/" + category.Winner.Series
+				category.Winner.Fallback = category.Winner.Series
+			case category.Winner.Person != "":
+				category.Winner.Reference = filepath.Join("People", category.Winner.Person)
+			}
+			content.Categories[i] = category
+
+			id := category.Winner.Reference
+			if id == "" {
+				log.Printf("Unknown winner reference in %q for %q", awardPage, category.Name)
+				continue
+			}
+
 			var (
-				id             string
 				awadredContent structs.Content
 				ok             bool
 			)
-			switch {
-			case category.Winner.Movie != "":
-				id = p + "/" + category.Winner.Movie
-			case category.Winner.Game != "":
-				id = p + "/" + category.Winner.Game
-			case category.Winner.Series != "":
-				id = p + "/" + category.Winner.Series
-			}
-
 			if awadredContent, ok = g.contents[id]; !ok {
+				log.Printf("No content found for %q", id)
 				continue
 			}
 
@@ -1137,6 +1165,8 @@ func (g *Generator) addAwards() {
 
 			g.contents[id] = awadredContent
 		}
+
+		g.contents[awardPage] = content
 	}
 }
 
