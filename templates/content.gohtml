@@ -244,7 +244,7 @@
     {{ with .Extra }}
     <pre>
         {{- range $key, $value := . }}
-        {{- $key }}: {{ $value }}
+        {{- $key }}: {{ $value }}<br>
         {{- end -}}
     </pre>
     {{ end }}
