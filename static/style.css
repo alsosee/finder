@@ -803,6 +803,7 @@ fieldset.radio label:last-of-type {
 }
 
 .award.with-text {
+  display: inline-flex;
   margin: auto;
   width: auto;
   height: auto;
@@ -810,9 +811,10 @@ fieldset.radio label:last-of-type {
 }
 
 .award.with-text::before {
+  flex-shrink: 0;
   content: "";
   display: inline-block;
-  margin: -8px 3px -3px;
+  margin: 2px 3px 0;
   width: 18px;
   height: 18px;
   background-image: var(--sprite-url);
