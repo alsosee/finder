@@ -105,8 +105,22 @@
 
     {{ with .Network }}<p>Network: {{ template "company" . }}</p>{{ end }}
 
-    {{ with .Publisher }}<p>Publisher: {{ template "company" . }}</p>{{ end }}
+    {{ with .Publishers }}
+    <p>Publisher:
+    {{ range . }}
+        <span class="list">{{ template "company" . }}</span>
+    {{ end }}
+    </p>
+    {{ end }}
+    {{ with .Imprint }}<p>Imprint: {{ template "company" . }}</p>{{ end }}
     {{ with .CoverArtist }}<p>Cover Artist: {{ template "person" . }}</p>{{ end }}
+    {{ with .Illustrators }}
+    <p>Illustrators:
+    {{ range . }}
+        <span class="list">{{ template "person" . }}</span>
+    {{ end }}
+    </p>
+    {{ end }}
     {{ with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
     {{ with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}
     {{ with .ISBN13 }}<p>ISBN13: {{ . }}</p>{{ end }}

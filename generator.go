@@ -834,8 +834,8 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		g.addConnection(from, "Companies/"+content.Distributor, "Distributor")
 	}
 
-	if content.Publisher != "" {
-		g.addConnection(from, "Companies/"+content.Publisher, "Publisher")
+	for _, publisher := range content.Publishers {
+		g.addConnection(from, "Companies/"+publisher, "Publisher")
 	}
 
 	for _, production := range content.Production {

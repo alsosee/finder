@@ -51,8 +51,9 @@ type Content struct {
 	CoverArtist string    `yaml:"cover_artist" json:",omitempty"`
 	Designer    string    `json:",omitempty"`
 
-	BasedOn oneOrMany `yaml:"based_on,omitempty" json:",omitempty"`
-	Series  string    `json:",omitempty"`
+	BasedOn  oneOrMany `yaml:"based_on,omitempty" json:",omitempty"`
+	Series   string    `json:",omitempty"`
+	Previous string    `json:",omitempty"` // reference to previous in the series
 
 	// for people
 	DOB     string `json:",omitempty"` // date of birth
@@ -105,17 +106,19 @@ type Content struct {
 	Vudu            string   `json:",omitempty"`
 
 	// for books
-	ISBN        string `json:",omitempty"`
-	ISBN10      string `json:",omitempty"`
-	ISBN13      string `json:",omitempty"`
-	OCLC        string `json:",omitempty"`
-	Publisher   string `json:",omitempty"`
-	Publication string `json:",omitempty"` // date or year of publication
+	ISBN        string    `json:",omitempty"`
+	ISBN10      string    `json:",omitempty"`
+	ISBN13      string    `json:",omitempty"`
+	OCLC        string    `json:",omitempty"`
+	Publishers  oneOrMany `json:",omitempty"`
+	Publication string    `json:",omitempty"` // date or year of publication
 
 	// for comics
-	Artists  oneOrMany `json:",omitempty"`
-	Colorist string    `json:",omitempty"`
-	UPC      string    `json:",omitempty"`
+	Artists      oneOrMany `json:",omitempty"`
+	Colorist     string    `json:",omitempty"`
+	Illustrators oneOrMany `json:",omitempty"`
+	Imprint      string    `json:",omitempty"`
+	UPC          string    `json:",omitempty"`
 
 	// for movies
 	Genres         []string      `json:",omitempty"`
