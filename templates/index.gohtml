@@ -267,7 +267,7 @@ if (typeof hasRun === 'undefined') {
                     attr = `style="--background-image: url('https://media.alsosee.info/${dir}/${hit.Image.ThumbPath}'); ${thumbStylePx(hit.Image, 100, "--")}; ${thumbStylePx(hit.Image, 24, "--small-")}" class="${linkClass}"`;
                 }
                 return {
-                    name: hit.Name || hit.Extra.title,
+                    name: hit.Name || hit.Title,
                     href: path,
                     attr: attr,
                 };
