@@ -378,6 +378,14 @@ if (typeof hasRun === 'undefined') {
 
                     {{/* download(binary, image.getMIME()); */}}
 
+                    /* put base64-encoded image into style attribute */
+                    const reader = new FileReader();
+                    reader.onloadend = function() {
+                        const base64data = reader.result;
+                        drop.setAttribute('style', `background-image: url(${base64data})`);
+                    }
+                    reader.readAsDataURL(new Blob([buffer]));
+
                     fetch('/upload', {
                       method: 'PUT',
                       headers: {
@@ -405,11 +413,12 @@ if (typeof hasRun === 'undefined') {
         event.dataTransfer.dropEffect = 'copy';
     });
 
+    var drop;
     document.addEventListener('drop', function (event) {
         event.preventDefault();
 
-        var target = event.target;
-        target = target.nextElementSibling;
+        drop = event.target;
+        target = drop.nextElementSibling;
 
         // if target element has no "name" class, then it's not a dropzone
         if (target === null) {
