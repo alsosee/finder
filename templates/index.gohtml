@@ -360,50 +360,33 @@ if (typeof hasRun === 'undefined') {
     function uploader_upload() {
         c.result({
             type: 'blob',
-            size: 'viewport'
+            size: 'viewport',
+            format: 'jpeg'
         }).then(function(blob) {
-            Jimp.read(c.data.url).then(function(image) {
-                const points = c.get()["points"].map(function(p) {
-                    return parseInt(p);
-                });
-                image
-                    .crop(
-                        points[0],
-                        points[1],
-                        points[2] - points[0],
-                        points[3] - points[1]
-                    )
-                    .quality(85)
-                    .getBuffer(Jimp.MIME_JPEG, function(err, buffer) {
+            // read converted JPEG image
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                /* put base64-encoded image into style attribute */
+                drop.setAttribute('style', `background-image: url(${reader.result})`);
+            };
+            reader.readAsDataURL(blob);
 
-                    {{/* download(binary, image.getMIME()); */}}
-
-                    /* put base64-encoded image into style attribute */
-                    const reader = new FileReader();
-                    reader.onloadend = function() {
-                        const base64data = reader.result;
-                        drop.setAttribute('style', `background-image: url(${base64data})`);
-                    }
-                    reader.readAsDataURL(new Blob([buffer]));
-
-                    fetch('/upload', {
-                      method: 'PUT',
-                      headers: {
-                        'x-file-name': encodeURIComponent("{{ $.CurrentPath }}/Characters/" + uploader.dataset.target + extension(image.getMIME())),
-                      },
-                      body: buffer
-                    }).then(function(response) {
-                        if (response.ok) {
-                            return response.json();
-                        }
-                        throw new Error('Network response was not ok.');
-                    }).then(function(data) {
-                        console.log(data);
-                        uploader_cancel();
-                    }).catch(function(error) {
-                        console.log('There has been a problem with your fetch operation: ', error.message);
-                    });
-                });
+            fetch('/upload', {
+                method: 'PUT',
+                headers: {
+                  'x-file-name': encodeURIComponent("{{ $.CurrentPath }}/Characters/" + uploader.dataset.target + ".jpg"),
+                },
+                body: blob
+            }).then(function(response) {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Network response was not ok.');
+            }).then(function(data) {
+                console.log(data);
+                uploader_cancel();
+            }).catch(function(error) {
+                console.log('There has been a problem with your fetch operation: ', error.message);
             });
         });
     }
@@ -445,9 +428,7 @@ if (typeof hasRun === 'undefined') {
 
         var reader = new FileReader();
         reader.onload = function(e) {
-            c.bind({
-                url: e.target.result
-            });
+            c.bind({url: e.target.result});
         }
 
         if (event.dataTransfer.files.length > 0) {
@@ -476,6 +457,5 @@ if (typeof hasRun === 'undefined') {
 }
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jimp@0.6.4/browser/lib/jimp.min.js"></script>
 </body>
 </html>
