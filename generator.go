@@ -1116,6 +1116,7 @@ func (g *Generator) addAwards() {
 				category.Winner.Fallback = category.Winner.Series
 			case category.Winner.Person != "":
 				category.Winner.Reference = filepath.Join("People", category.Winner.Person)
+				category.Winner.Fallback = category.Winner.Person
 			}
 			content.Categories[i] = category
 
