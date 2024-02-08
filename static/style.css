@@ -544,6 +544,7 @@ fieldset.radio label:last-of-type {
   font-size: 34pt;
   border-radius: var(--border-radius-avatar);
   box-shadow: var(--shadow-avatar);
+  background-size: 100%; /* in case background-image is overridden */
 }
 
 .content .characters .actor {
@@ -1024,10 +1025,11 @@ fieldset.radio label:last-of-type {
     box-shadow: 0 0 2000px 2000px rgba(0, 0, 0, 0.8);
   }
   #uploader .buttons button {
+    background: var(--color-background-secondary);
     text-shadow: var(--shadow-text-dark);
   }
-  #uploader .buttons button.primary {
-    border-top: 1px solid var(--color-border);
+  #uploader .buttons button:active {
+    filter: brightness(0.9);
     border-left: 1px solid var(--color-border);
   }
 }
