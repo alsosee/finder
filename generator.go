@@ -50,6 +50,10 @@ type Generator struct {
 
 	awardPages   []string
 	muAwardPages sync.Mutex
+
+	// chainPages used to keep track of next/prev pages in a series.
+	chainPages   map[string]map[bool]string // from -> true(next)/false(prev) -> reference
+	muChainPages sync.Mutex
 }
 
 // NewGenerator creates a new Generator.
@@ -65,6 +69,7 @@ func NewGenerator() (*Generator, error) {
 		dirContents:      map[string][]structs.File{},
 		connections:      structs.Connections{},
 		mediaDirContents: map[string][]structs.Media{},
+		chainPages:       map[string]map[bool]string{},
 	}, nil
 }
 
@@ -111,6 +116,30 @@ func (g *Generator) fm() template.FuncMap {
 				return m
 			}
 			return nil
+		},
+		"prev": func(id string) string {
+			g.muChainPages.Lock()
+			defer g.muChainPages.Unlock()
+
+			if m, ok := g.chainPages[id]; ok {
+				if prev, ok := m[false]; ok {
+					return prev
+				}
+			}
+			return ""
+		},
+		"next": func(id string) string {
+			g.muChainPages.Lock()
+			defer g.muChainPages.Unlock()
+
+			log.Printf("lookup next for: %s", id)
+
+			if m, ok := g.chainPages[id]; ok {
+				if next, ok := m[true]; ok {
+					return next
+				}
+			}
+			return ""
 		},
 		// "crc32" calculates CRC32 checksum for a file.
 		// It's used to add a get parameter to a static file URL,
@@ -850,6 +879,10 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		g.addConnection(from, "Companies/"+content.Developers, "Developers")
 	}
 
+	if content.Previous != "" {
+		g.addPrevious(from, content.Previous)
+	}
+
 	// Prepare for adding Awards
 	if len(content.Categories) > 0 {
 		g.addAwardPage(from)
@@ -870,6 +903,22 @@ func (g *Generator) addConnection(from, to string, info ...string) {
 	}
 
 	g.connections[to][from] = append(g.connections[to][from], info...)
+}
+
+func (g *Generator) addPrevious(from, to string) {
+	g.muChainPages.Lock()
+	defer g.muChainPages.Unlock()
+
+	if _, ok := g.chainPages[from]; !ok {
+		g.chainPages[from] = map[bool]string{}
+	}
+
+	if _, ok := g.chainPages[to]; !ok {
+		g.chainPages[to] = map[bool]string{}
+	}
+
+	g.chainPages[from][false] = to
+	g.chainPages[to][true] = from
 }
 
 func (g *Generator) addAwardPage(id string) {
