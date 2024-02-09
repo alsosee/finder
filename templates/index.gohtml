@@ -105,6 +105,35 @@ if (typeof hasRun === 'undefined') {
     var uploader_target = document.querySelector('#uploader_target');
     var uploader_preview = document.querySelector('#uploader_preview');
 
+    var uploadedImages = localStorage.getItem("uploadedImages");
+    if (uploadedImages == null) {
+        uploadedImages = [];
+    } else {
+        uploadedImages = JSON.parse(uploadedImages);
+    }
+
+    function path() {
+        return decodeURI(window.location.pathname).substr(1);
+    }
+
+    function loadCharactersImages() {
+        // scan for characters without images
+        var drops = document.querySelectorAll('.characters .drop');
+        drops.forEach(function(someDrop) {
+            var name = someDrop.getAttribute('data-name');
+            var key = path() + "/Characters/" + name;
+            if (!uploadedImages.includes(key)) {
+                return;
+            }
+            if (someDrop.classList.contains('image')) {
+                localStorage.removeItem(key);
+            } else {
+                var image = localStorage.getItem(key);
+                someDrop.setAttribute("style", `background-image: url(${image})`);
+            }
+        });
+    }
+
     var view = localStorage.getItem('view') || 'icons';
     if (view != 'icons' && view != 'list' && view != 'columns') {
         view = 'icons';
@@ -132,6 +161,10 @@ if (typeof hasRun === 'undefined') {
 
     htmx.on('htmx:afterSwap', function(evt) {
         document.getElementById("_").scrollIntoView();
+    });
+
+    htmx.on('htmx:pushedIntoHistory', function(evt) {
+        loadCharactersImages();
     });
 
     /* search */
@@ -289,11 +322,6 @@ if (typeof hasRun === 'undefined') {
         console.log("Popstate", event.state, "URL", window.location.href);
         var query = "";
         if (event.state !== null && event.state.query !== undefined) {
-            // if (event.state.htmx === true && previousQuery.length > 0) {
-                // this is a weird case when the user navigates back to the empty
-                // search
-                // return;
-            // }
             query = event.state.query;
             document.title = "Search: " + query;
             search({target: {value: query}}, false);
@@ -318,6 +346,7 @@ if (typeof hasRun === 'undefined') {
     });
     // on page load, restore the search query if there is one
     window.addEventListener('load', function(event) {
+        loadCharactersImages();
         const url = new URL(window.location.href);
         const query = url.searchParams.get("q");
         if (query) {
@@ -366,27 +395,32 @@ if (typeof hasRun === 'undefined') {
             // read converted JPEG image
             const reader = new FileReader();
             reader.onloadend = function() {
-                /* put base64-encoded image into style attribute */
+                // put base64-encoded image into style attribute
                 drop.setAttribute('style', `background-image: url(${reader.result})`);
+
+                // store the image in local storage to persist it across page reloads till it approved
+                localStorage.setItem(path() + "/Characters/" + uploader.dataset.target, reader.result);
+                uploadedImages.push(path() + "/Characters/" + uploader.dataset.target);
+                localStorage.setItem("uploadedImages", JSON.stringify(uploadedImages));
             };
             reader.readAsDataURL(blob);
 
             fetch('/upload', {
                 method: 'PUT',
                 headers: {
-                  'x-file-name': encodeURIComponent("{{ $.CurrentPath }}/Characters/" + uploader.dataset.target + ".jpg"),
+                  'x-file-name': encodeURIComponent(path + "/Characters/" + uploader.dataset.target + ".jpg"),
                 },
                 body: blob
             }).then(function(response) {
                 if (response.ok) {
                     return response.json();
                 }
-                throw new Error('Network response was not ok.');
+                throw new Error('Response was not ok: ' + response.statusText);
             }).then(function(data) {
                 console.log(data);
                 uploader_cancel();
             }).catch(function(error) {
-                console.log('There has been a problem with your fetch operation: ', error.message);
+                console.log('Failed to upload image', error);
             });
         });
     }

@@ -179,7 +179,7 @@
                 {{ if .Image }}
                 <span class="image drop" style="background-image: url('https://media.alsosee.info/{{ escape $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStylePct .Image }}"></span>
                 {{ else }}
-                <span class="initials drop">{{ initials .Actor }}</span>
+                <span class="no-image drop" data-name="{{ .Name }}"></span>
                 {{ end }}
                 <span class="name">{{ .Name }}</span>
                 {{ if .Actor }}

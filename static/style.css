@@ -532,7 +532,7 @@ fieldset.radio label:last-of-type {
   box-shadow: var(--shadow-avatar);
 }
 
-.content .characters .initials {
+.content .characters .no-image {
   display: flex;
   width: 100px;
   height: 100px;
