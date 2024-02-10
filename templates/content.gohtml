@@ -178,9 +178,9 @@
         {{ range . }}
             <li>
                 {{ if .Image }}
-                <span class="image drop" style="background-image: url('https://media.alsosee.info/{{ escape $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStylePct .Image }}"></span>
+                <span class="image drop" data-name="{{ htmlEscape .Name }}" style="background-image: url('https://media.alsosee.info/{{ escape $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStylePct .Image }}"></span>
                 {{ else }}
-                <span class="no-image drop" data-name="{{ .Name }}"></span>
+                <span class="no-image drop" data-name="{{ htmlEscape .Name }}"></span>
                 {{ end }}
                 <span class="name">{{ .Name }}</span>
                 {{ if .Actor }}

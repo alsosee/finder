@@ -435,18 +435,17 @@ if (typeof hasRun === 'undefined') {
         event.preventDefault();
 
         drop = event.target;
-        target = drop.nextElementSibling;
-
-        // if target element has no "name" class, then it's not a dropzone
-        if (target === null) {
+        if (!drop.classList.contains('drop')) {
             return;
         }
-        if (!target.classList.contains("name")) {
+        name = drop.dataset.name;
+
+        if (name === null || name === undefined || name === "") {
             return;
         }
 
-        uploader_target.innerText = target.innerText;
-        uploader.dataset.target = target.innerText;
+        uploader_target.innerText = name;
+        uploader.dataset.target = name;
 
         backdrop.style.display = 'block';
         uploader.style.display = 'flex';
