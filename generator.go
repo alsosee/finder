@@ -408,6 +408,7 @@ func (g *Generator) fm() template.FuncMap {
 		"escape": func(s string) string {
 			return strings.ReplaceAll(s, `'`, `\'`)
 		},
+		"htmlEscape": html.EscapeString,
 		"missing": func() []structs.Missing {
 			missing := map[string]map[string][]string{}
 
