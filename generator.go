@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"hash/crc32"
+	"html"
 	"io"
 	"log"
 	"os"
