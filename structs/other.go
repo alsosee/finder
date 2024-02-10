@@ -6,6 +6,16 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type PageData struct {
+	CurrentPath string
+	Dir         string
+	Breadcrumbs []Dir
+	Panels      Panels
+	Content     *Content
+	Timestamp   int64
+	Connections Connections
+}
+
 // Contents represents a list of contents, where key is a file path.
 // It is used to properly render references.
 type Contents map[string]Content

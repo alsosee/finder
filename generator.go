@@ -996,50 +996,20 @@ func (g *Generator) getFilesForPath(path string) []structs.File {
 
 func (g *Generator) generateContentTemplates() error {
 	for id, content := range g.contents {
-		path := id + ".html" // replace extension with .html
-
-		// create directory
-		if err := os.MkdirAll(filepath.Join(cfg.OutputDirectory, filepath.Dir(path)), 0o755); err != nil {
-			return fmt.Errorf("creating directory: %w", err)
-		}
-
-		f, err := os.Create(filepath.Join(cfg.OutputDirectory, path))
-		if err != nil {
-			return fmt.Errorf("creating file: %w", err)
-		}
-
+		path := filepath.Join(cfg.OutputDirectory, id+".html")
 		panels, breadcrumbs := g.buildPanels(id, true)
-
 		cnt := content
 
-		if err := g.templates.ExecuteTemplate(
-			f,
-			"index.gohtml",
-			struct {
-				CurrentPath string
-				Dir         string
-				Breadcrumbs structs.Breadcrumbs
-				Panels      structs.Panels
-				Content     *structs.Content
-				Timestamp   int64
-			}{
-				CurrentPath: id,
-				Dir:         filepath.Dir(id),
-				Breadcrumbs: breadcrumbs,
-				Panels:      panels,
-				Content:     &cnt,
-				Timestamp:   time.Now().Unix(),
-			},
-		); err != nil {
-			err2 := f.Close()
-			if err2 != nil {
-				err = errors.Join(err, err2)
-			}
+		err := g.executeTemplate(path, structs.PageData{
+			CurrentPath: id,
+			Dir:         filepath.Dir(id),
+			Breadcrumbs: breadcrumbs,
+			Panels:      panels,
+			Content:     &cnt,
+			Timestamp:   time.Now().Unix(),
+		})
+		if err != nil {
 			return fmt.Errorf("executing template for %q: %w", id, err)
-		}
-
-		if err := f.Close(); err != nil {
-			return fmt.Errorf("closing file: %w", err)
 		}
 	}
 
@@ -1099,14 +1069,23 @@ func (g *Generator) generateIndexes() error {
 		sort.Sort(structs.ByNameFolderOnTop(files))
 
 		path := filepath.Join(cfg.OutputDirectory, dir, "index.html")
+		panels, breadcrumbs := g.buildPanels(dir, false)
 
-		// create directory
-		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-			return fmt.Errorf("creating directory: %w", err)
-		}
-
-		f, err := os.Create(path)
+		err := g.executeTemplate(path, structs.PageData{
+			CurrentPath: dir,
+			Breadcrumbs: breadcrumbs,
+			Panels:      panels,
+			Content:     nil,
+			Timestamp:   time.Now().Unix(),
+			Connections: nil,
+		})
 		if err != nil {
+			return fmt.Errorf("executing template for %q: %w", dir, err)
+		}
+	}
+
+	return nil
+}
 			return fmt.Errorf("creating file: %w", err)
 		}
 
@@ -1138,9 +1117,26 @@ func (g *Generator) generateIndexes() error {
 			return fmt.Errorf("executing template: %w", err)
 		}
 
-		if err := f.Close(); err != nil {
-			return fmt.Errorf("closing file: %w", err)
+func (g *Generator) executeTemplate(path string, pageData structs.PageData) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return fmt.Errorf("creating directory: %w", err)
+	}
+
+	f, err := os.Create(path)
+	if err != nil {
+		return fmt.Errorf("creating file: %w", err)
+	}
+
+	if err := g.templates.ExecuteTemplate(f, "index.gohtml", pageData); err != nil {
+		err2 := f.Close()
+		if err2 != nil {
+			err = errors.Join(err, err2)
 		}
+		return fmt.Errorf("executing template: %w", err)
+	}
+
+	if err := f.Close(); err != nil {
+		return fmt.Errorf("closing file: %w", err)
 	}
 
 	return nil
