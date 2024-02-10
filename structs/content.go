@@ -64,46 +64,47 @@ type Content struct {
 	Released string `json:",omitempty"` // for games, ...
 
 	// general external links
-	Website         string   `json:",omitempty"`
-	Websites        []string `json:",omitempty"`
-	Wikipedia       string   `json:",omitempty"`
-	GoodReads       string   `json:",omitempty"`
-	Bookshop        string   `json:",omitempty"`
-	Twitch          string   `json:",omitempty"`
-	YouTube         string   `json:",omitempty"`
-	IMDB            string   `json:",omitempty"`
-	TMDB            string   `json:",omitempty"`
-	Steam           string   `json:",omitempty"`
-	Netflix         string   `json:",omitempty"`
-	Spotify         string   `json:",omitempty"`
-	Soundcloud      string   `json:",omitempty"`
-	Hulu            string   `json:",omitempty"`
-	AdultSwim       string   `json:",omitempty"`
-	AppStore        string   `yaml:"app_store" json:",omitempty"`
-	Fandom          string   `json:",omitempty"`
-	RottenTomatoes  string   `yaml:"rotten_tomatoes" json:",omitempty"`
-	Twitter         string   `json:",omitempty"`
-	Reddit          string   `json:",omitempty"`
-	Facebook        string   `json:",omitempty"`
-	Instagram       string   `json:",omitempty"`
-	TikTok          string   `json:",omitempty"`
-	TelegramChannel string   `yaml:"telegram_channel" json:",omitempty"`
-	PlayStation     string   `yaml:"playstation" json:",omitempty"`
-	XBox            string   `yaml:"xbox" json:",omitempty"`
-	GOG             string   `yaml:"gog" json:",omitempty"`
-	X               string   `json:",omitempty"`
-	Discord         string   `json:",omitempty"`
-	Epic            string   `json:",omitempty"`
-	IGN             string   `yaml:"ign" json:",omitempty"`
-	Amazon          string   `json:",omitempty"`
-	PrimeVideo      string   `yaml:"prime_video" json:",omitempty"`
-	AppleTV         string   `yaml:"apple_tv" json:",omitempty"`
-	Peacock         string   `json:",omitempty"`
-	GooglePlay      string   `yaml:"google_play" json:",omitempty"`
-	MicrosoftStore  string   `yaml:"microsoft_store" json:",omitempty"`
-	Row8            string   `json:",omitempty"`
-	Redbox          string   `json:",omitempty"`
-	Vudu            string   `json:",omitempty"`
+	Website          string   `json:",omitempty"`
+	Websites         []string `json:",omitempty"`
+	Wikipedia        string   `json:",omitempty"`
+	GoodReads        string   `json:",omitempty"`
+	Bookshop         string   `json:",omitempty"`
+	AnimeNewsNetwork string   `yaml:"anime_news_network" json:",omitempty"`
+	Twitch           string   `json:",omitempty"`
+	YouTube          string   `json:",omitempty"`
+	IMDB             string   `json:",omitempty"`
+	TMDB             string   `json:",omitempty"`
+	Steam            string   `json:",omitempty"`
+	Netflix          string   `json:",omitempty"`
+	Spotify          string   `json:",omitempty"`
+	Soundcloud       string   `json:",omitempty"`
+	Hulu             string   `json:",omitempty"`
+	AdultSwim        string   `json:",omitempty"`
+	AppStore         string   `yaml:"app_store" json:",omitempty"`
+	Fandom           string   `json:",omitempty"`
+	RottenTomatoes   string   `yaml:"rotten_tomatoes" json:",omitempty"`
+	Twitter          string   `json:",omitempty"`
+	Reddit           string   `json:",omitempty"`
+	Facebook         string   `json:",omitempty"`
+	Instagram        string   `json:",omitempty"`
+	TikTok           string   `json:",omitempty"`
+	TelegramChannel  string   `yaml:"telegram_channel" json:",omitempty"`
+	PlayStation      string   `yaml:"playstation" json:",omitempty"`
+	XBox             string   `yaml:"xbox" json:",omitempty"`
+	GOG              string   `yaml:"gog" json:",omitempty"`
+	X                string   `json:",omitempty"`
+	Discord          string   `json:",omitempty"`
+	Epic             string   `json:",omitempty"`
+	IGN              string   `yaml:"ign" json:",omitempty"`
+	Amazon           string   `json:",omitempty"`
+	PrimeVideo       string   `yaml:"prime_video" json:",omitempty"`
+	AppleTV          string   `yaml:"apple_tv" json:",omitempty"`
+	Peacock          string   `json:",omitempty"`
+	GooglePlay       string   `yaml:"google_play" json:",omitempty"`
+	MicrosoftStore   string   `yaml:"microsoft_store" json:",omitempty"`
+	Row8             string   `json:",omitempty"`
+	Redbox           string   `json:",omitempty"`
+	Vudu             string   `json:",omitempty"`
 
 	// for books
 	ISBN        string    `json:",omitempty"`
