@@ -127,11 +127,15 @@ if (typeof hasRun === 'undefined') {
             }
             if (someDrop.classList.contains('image')) {
                 localStorage.removeItem(key);
+                uploadedImages = uploadedImages.filter(function(item) {
+                    return item !== key;
+                });
             } else {
                 var image = localStorage.getItem(key);
                 someDrop.setAttribute("style", `background-image: url(${image})`);
             }
         });
+        localStorage.setItem("uploadedImages", JSON.stringify(uploadedImages));
     }
 
     var view = localStorage.getItem('view') || 'icons';
