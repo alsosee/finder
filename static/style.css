@@ -547,6 +547,22 @@ fieldset.radio label:last-of-type {
   background-size: 100%; /* in case background-image is overridden */
 }
 
+/* show yellow dot next to character name without image, if image was uploaded */
+.content .characters .no-image[style^="background-image"] + .name::after {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 100%;
+  background: #c4a000;
+}
+
+.content .characters .name {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
 .content .characters .actor {
   font-style: italic;
 }
