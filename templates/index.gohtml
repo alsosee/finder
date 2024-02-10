@@ -408,7 +408,7 @@ if (typeof hasRun === 'undefined') {
             fetch('/upload', {
                 method: 'PUT',
                 headers: {
-                  'x-file-name': encodeURIComponent(path + "/Characters/" + uploader.dataset.target + ".jpg"),
+                  'x-file-name': encodeURIComponent(path() + "/Characters/" + uploader.dataset.target + ".jpg"),
                 },
                 body: blob
             }).then(function(response) {
