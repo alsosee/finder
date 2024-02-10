@@ -891,6 +891,11 @@ fieldset.radio label:last-of-type {
   height: 400px;
 }
 
+#uploader .croppie-container .cr-slider {
+  padding: 0;
+  height: 18px;
+}
+
 #uploader .croppie-container .cr-slider-wrap {
   display: flex;
 }
@@ -901,6 +906,11 @@ fieldset.radio label:last-of-type {
 }
 
 #uploader .cr-slider::-webkit-slider-thumb {
+  background: var(--background-radial);
+  box-shadow: var(--shadow-avatar);
+}
+
+#uploader .cr-slider::-moz-range-thumb {
   background: var(--background-radial);
   box-shadow: var(--shadow-avatar);
 }
