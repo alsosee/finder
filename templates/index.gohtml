@@ -514,6 +514,26 @@ if (typeof hasRun === 'undefined') {
         }
     });
 
+    // keyboard
+    function click(link) {
+        // create a new link element and click it
+        var e = document.createElement('a');
+        e.href = link;
+        e.click();
+    }
+    document.addEventListener('keydown', function(e) {
+        if (event.isComposing || event.keyCode === 229) {
+            return;
+        }
+        e.stopImmediatePropagation();
+        if (e.keyCode === 190) { // .
+            console.log("pressed .", e);
+            if (document.querySelector('head link[rel="edit"]')) {
+                click(document.querySelector('head link[rel="edit"]').href);
+            }
+        }
+    });
+
     const hasRun = true;
 }
 </script>
