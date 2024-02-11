@@ -108,12 +108,12 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return nil
 		},
-		// "connections" returns a list of connections for a given file path (without extension)
-		"connections": func(path string) map[string][]string {
+		// "connections" returns a list of connections for a given file id
+		"connections": func(id string) map[string][]string {
 			g.muConnections.Lock()
 			defer g.muConnections.Unlock()
 
-			if m, ok := g.connections[path]; ok {
+			if m, ok := g.connections[id]; ok {
 				return m
 			}
 			return nil
@@ -132,8 +132,6 @@ func (g *Generator) fm() template.FuncMap {
 		"next": func(id string) string {
 			g.muChainPages.Lock()
 			defer g.muChainPages.Unlock()
-
-			log.Printf("lookup next for: %s", id)
 
 			if m, ok := g.chainPages[id]; ok {
 				if next, ok := m[true]; ok {
@@ -352,6 +350,8 @@ func (g *Generator) fm() template.FuncMap {
 			return nil
 		},
 		"characterByActor": func(content *structs.Content, characterName string) *structs.Character {
+			// this function return a single character by actor or voice name
+			// todo: support multiple characters with the same actor/voice
 			if content == nil {
 				return nil
 			}
