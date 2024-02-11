@@ -94,6 +94,7 @@ func (g *Generator) fm() template.FuncMap {
 		"config":    cfg.GetString,
 		"join":      filepath.Join,
 		"dir":       filepath.Dir,
+		"base":      filepath.Base,
 		"hasPrefix": strings.HasPrefix,
 		"strjoin":   strings.Join,
 		"in":        in,
@@ -410,32 +411,7 @@ func (g *Generator) fm() template.FuncMap {
 			return strings.ReplaceAll(s, `'`, `\'`)
 		},
 		"htmlEscape": html.EscapeString,
-		"missing": func() []structs.Missing {
-			missing := map[string]map[string][]string{}
-
-			g.muConnections.Lock()
-			g.muContents.Lock()
-			for to, from := range g.connections {
-				if _, ok := g.contents[to]; !ok && len(from) > 1 {
-					missing[to] = from
-				}
-			}
-			g.muContents.Unlock()
-			g.muConnections.Unlock()
-
-			result := []structs.Missing{}
-			for to, from := range missing {
-				result = append(result, structs.Missing{To: to, From: from})
-			}
-
-			// sort by number of references (descending)
-			// so that the most referenced files are on top
-			sort.Slice(result, func(i, j int) bool {
-				return len(result[i].From) > len(result[j].From)
-			})
-
-			return result
-		},
+		"missing":    g.missing,
 		"title": func(b structs.Breadcrumbs) string {
 			b = b[1:] // skip the first element (it's always "Home")
 			if len(b) == 0 {
@@ -508,6 +484,11 @@ FILE_PROCESSING:
 	// Generate index for each directory
 	if err := g.generateIndexes(); err != nil {
 		return fmt.Errorf("generating indexes: %w", err)
+	}
+
+	// Generate missing files
+	if err := g.generateMissing(); err != nil {
+		return fmt.Errorf("generating missing: %w", err)
 	}
 
 	return nil
@@ -1086,36 +1067,64 @@ func (g *Generator) generateIndexes() error {
 
 	return nil
 }
-			return fmt.Errorf("creating file: %w", err)
+
+func (g *Generator) generateMissing() error {
+	missing := g.missing()
+	for _, m := range missing {
+		if len(m.From) < 2 {
+			continue
 		}
 
-		panels, breadcrumbs := g.buildPanels(dir, false)
-
-		if err := g.templates.ExecuteTemplate(
-			f,
-			"index.gohtml",
-			struct {
-				CurrentPath string
-				Breadcrumbs []structs.Dir
-				Panels      structs.Panels
-				Content     *structs.Content
-				Timestamp   int64
-				Connections structs.Connections
-			}{
-				CurrentPath: dir,
-				Breadcrumbs: breadcrumbs,
-				Panels:      panels,
-				Content:     nil,
-				Timestamp:   time.Now().Unix(),
-				Connections: nil,
-			},
-		); err != nil {
-			err2 := f.Close()
-			if err2 != nil {
-				err = errors.Join(err, err2)
-			}
-			return fmt.Errorf("executing template: %w", err)
+		id := m.To
+		path := filepath.Join(cfg.OutputDirectory, id+".html")
+		panels, breadcrumbs := g.buildPanels(id, true)
+		cnt := structs.Content{
+			Name: filepath.Base(id),
 		}
+
+		err := g.executeTemplate(path, structs.PageData{
+			CurrentPath: id,
+			Dir:         filepath.Dir(id),
+			Breadcrumbs: breadcrumbs,
+			Panels:      panels,
+			Content:     &cnt,
+			Timestamp:   time.Now().Unix(),
+		})
+		if err != nil {
+			return fmt.Errorf("executing template for %q: %w", id, err)
+		}
+	}
+
+	return nil
+}
+
+func (g *Generator) missing() []structs.Missing {
+	missing := map[string]map[string][]string{}
+
+	g.muConnections.Lock()
+	g.muContents.Lock()
+
+	for to, from := range g.connections {
+		if _, ok := g.contents[to]; !ok && len(from) > 1 {
+			missing[to] = from
+		}
+	}
+	g.muContents.Unlock()
+	g.muConnections.Unlock()
+
+	result := []structs.Missing{}
+	for to, from := range missing {
+		result = append(result, structs.Missing{To: to, From: from})
+	}
+
+	// sort by number of references (descending)
+	// so that the most referenced files are on top
+	sort.Slice(result, func(i, j int) bool {
+		return len(result[i].From) > len(result[j].From)
+	})
+
+	return result
+}
 
 func (g *Generator) executeTemplate(path string, pageData structs.PageData) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {

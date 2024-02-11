@@ -477,6 +477,10 @@ fieldset.radio label:last-of-type {
   content: ",";
 }
 
+.content a.missing {
+  text-decoration-style: dashed;
+}
+
 .content .labels,
 .content .links {
   display: flex;
