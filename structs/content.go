@@ -83,6 +83,7 @@ type Content struct {
 	AppStore         string   `yaml:"app_store" json:",omitempty"`
 	Fandom           string   `json:",omitempty"`
 	RottenTomatoes   string   `yaml:"rotten_tomatoes" json:",omitempty"`
+	Metacritic       string   `json:",omitempty"`
 	Twitter          string   `json:",omitempty"`
 	Reddit           string   `json:",omitempty"`
 	Facebook         string   `json:",omitempty"`
