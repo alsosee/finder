@@ -5,10 +5,10 @@ A project to bring the Finder experience to the web.
 It is part of a larger project to store information in a structured way:
 
 * [info](https://github.com/alsosee/info)
-* [images](https://github.com/alsosee/images)
+* [media](https://github.com/alsosee/media)
 
 On a high level, `finder` takes a `info` directory and generates a static website that served via Cloudflare Pages.
-It also procceses the `images` directory and generates thumbnails sprites for all directories and images, and uploads them to Cloudflare R2 Storage.
+It also procceses the `media` directory and generates thumbnails sprites for all directories and images, and uploads them to Cloudflare R2 Storage.
 
 On a lower level, `finder` walks the `info` directory, using go routines to process each YAML file concurrently.
 While doing so, it keeps track of all "connections" between files, to use later in go templates.
@@ -31,3 +31,5 @@ Use Cloudflare Wrangler to preview the site locally:
 ```bash
 wrangler pages dev --local-protocol=https output/
 ```
+
+Then press <kbd>b</kbd> that will open URL like this https://127.0.0.1:8788/ in your browser.
