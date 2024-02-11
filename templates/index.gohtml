@@ -537,6 +537,21 @@ if (typeof hasRun === 'undefined') {
             e.preventDefault();
             return;
         }
+        if (e.altKey && e.keyCode === 49) { // alt + 1: icons view
+            viewSwitcher.querySelector('input[value="icons"]').checked = true;
+            setView('icons');
+            return;
+        }
+        if (e.altKey && e.keyCode === 50) { // alt + 2: list view
+            viewSwitcher.querySelector('input[value="list"]').checked = true;
+            setView('list');
+            return;
+        }
+        if (e.altKey && e.keyCode === 51) { // alt + 3: column view
+            viewSwitcher.querySelector('input[value="columns"]').checked = true;
+            setView('columns');
+            return;
+        }
     });
 
     const hasRun = true;
