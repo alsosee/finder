@@ -1076,11 +1076,26 @@ func (g *Generator) generateMissing() error {
 		}
 
 		id := m.To
+		image := g.getImageForPath(id)
 		path := filepath.Join(cfg.OutputDirectory, id+".html")
 		panels, breadcrumbs := g.buildPanels(id, true)
 		cnt := structs.Content{
-			Name: filepath.Base(id),
+			Name:  filepath.Base(id),
+			Image: image,
 		}
+
+		// add current file to last panel
+		// sort changes g.dirContents so we need to copy it
+		var lastPanel []structs.File
+		lastPanel = append(lastPanel, g.dirContents[filepath.Dir(id)]...)
+		lastPanel = append(lastPanel, structs.File{
+			Name:      cnt.Name,
+			Title:     cnt.Name,
+			Image:     image,
+			IsMissing: true,
+		})
+		sort.Sort(structs.ByNameFolderOnTop(lastPanel))
+		panels[len(panels)-1].Files = lastPanel
 
 		err := g.executeTemplate(path, structs.PageData{
 			CurrentPath: id,

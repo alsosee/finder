@@ -17,6 +17,7 @@
   --color-background-toolbar: var(--color-background);
   --color-background-selection: #2962d9;
   --color-background-selection-inactive: #dddcdc;
+  --color-background-selection-lighter: #4682fb;
   --color-link: #2962d9;
   --color-text: #222222;
   --color-text-selection: #ffffff;
@@ -375,7 +376,17 @@ fieldset.radio label:last-of-type {
 
 .panel .active {
   color: var(--color-text-selection);
-  background: var(--color-background-selection) !important;
+  background: var(--color-background-selection);
+}
+
+.panel .active.missing {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--color-background-selection),
+    var(--color-background-selection) 10px,
+    var(--color-background-selection-lighter) 10px,
+    var(--color-background-selection-lighter) 20px
+  );
 }
 
 .content {
@@ -502,6 +513,12 @@ fieldset.radio label:last-of-type {
   background: none;
   border-radius: 0;
   text-transform: none;
+}
+
+.content .missing {
+  font-style: italic;
+  margin-top: -10px; /* hack to remove extra space */
+  margin-bottom: -10px;
 }
 
 .content .characters {
@@ -982,6 +999,7 @@ fieldset.radio label:last-of-type {
     --color-background-higher: #696969;
     --color-background-selection: #0059d1;
     --color-background-selection-inactive: #474747;
+    --color-background-selection-lighter: #2c79f4;
     --color-background-toolbar: #343b3e;
     --color-text: #dedddd;
     --color-text-selection: var(--color-text);

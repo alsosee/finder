@@ -71,7 +71,7 @@
                 <a
                     role="menuitem"
                     {{- if .Image }}style="--background-image: url('https://media.alsosee.info/{{ $panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStylePx .Image 100 "--" }}; {{ thumbStylePx .Image 24 "--small-" }}"{{ end }}
-                    class="{{ if .IsFolder }}folder{{ if hasPrefix $.CurrentPath $path }} in-path{{ end }}{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .Image }} has-image{{ if isJPG .Image.Path }} jpg{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}{{ end }}"
+                    class="{{ if .IsFolder }}folder{{ if hasPrefix $.CurrentPath $path }} in-path{{ end }}{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .IsMissing}} missing{{ end }}{{ if .Image }} has-image{{ if isJPG .Image.Path }} jpg{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}{{ end }}"
                     href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
                 >
                     <span>{{ .Title }}</span>
