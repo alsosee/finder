@@ -515,7 +515,7 @@ fieldset.radio label:last-of-type {
   text-transform: none;
 }
 
-.content .missing {
+.content div.missing {
   font-style: italic;
   margin-top: -10px; /* hack to remove extra space */
   margin-bottom: -10px;
