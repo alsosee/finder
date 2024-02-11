@@ -39,6 +39,14 @@
         <p><a href="{{ . }}">{{ . }}</a></p>
     {{ end }}{{ end }}
 
+    {{ with .BasedOn }}
+    <p>Based on
+    {{ range . }}
+        <span class="list">{{ template "reference" dict "Path" . "HideType" true}}</span>
+    {{ end }}
+    </p>
+    {{ end }}
+
     {{ with .Developers }}<p>Developers: {{ template "company" . }}</p>{{ end }}
     {{ with .Author }}<p>Author: {{ template "person" . }}</p>{{ end }}
     {{ with .Authors }}<p>Authors:
@@ -47,14 +55,6 @@
     {{ end }}
     {{ end }}
     {{ with .Designer }}<p>Designer: {{ template "person" . }}</p>{{ end }}
-
-    {{ with .BasedOn }}
-    <p>Based on
-    {{ range . }}
-        <span class="list">{{ template "reference" dict "Path" . "HideType" true}}</span>
-    {{ end }}
-    </p>
-    {{ end }}
 
     {{ with .Directors }}<p>{{ template "awards" $.Content.DirectorsAwards }}Directors:
     {{ range . }}
