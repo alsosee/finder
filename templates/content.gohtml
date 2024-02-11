@@ -1,6 +1,6 @@
 {{ define "content" }}
 {{ with .Content }}
-<div class="content">
+<div class="content" data-name="{{ .Name }}" data-dir="{{ $.Dir }}"{{ if .Source }} data-source="{{ .Source }}"{{ end }}>
     {{ with .HTML }}{{ . }}{{ end }}
     {{ with .Image }}
         {{- $div := 3 }}

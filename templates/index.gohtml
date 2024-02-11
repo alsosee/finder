@@ -14,6 +14,11 @@
     <link rel="icon" type="image/png" sizes="512x512" href="/favicon_512r.png">
     <link rel="manifest" href="/manifest.webmanifest">
     <script src="/meilisearch.umd.js"></script>
+    {{- if .Content }}
+    <link rel="edit" href="https://github.com/alsosee/info/edit/main/{{ .Content.Source }}">
+    {{- else }}
+    <link rel="edit" href="https://github.com/alsosee/info/tree/main/{{ .CurrentPath }}">
+    {{- end }}
 </head>
 <body data-view="columns">
 <div id="toolbar" hx-preserve="true">
@@ -169,6 +174,25 @@ if (typeof hasRun === 'undefined') {
 
     htmx.on('htmx:pushedIntoHistory', function(evt) {
         loadCharactersImages();
+
+        // update link rel="edit"
+        var editLink = document.querySelector('link[rel="edit"]');
+        if (!editLink) {
+            editLink = document.createElement('link');
+            editLink.rel = "edit";
+            document.head.appendChild(editLink);
+        }
+
+        var content = document.querySelector('.content');
+        if (content) {
+            if (content.dataset.source) {
+                editLink.href = "https://github.com/alsosee/info/edit/main/" + content.dataset.source;
+            } else {
+                editLink.href = "https://github.com/alsosee/info/new/main/" + content.dataset.dir + "/?filename=" + encodeURI(content.dataset.name) + ".yml";
+            }
+        } else {
+            editLink.href = "https://github.com/alsosee/info/tree/main/" + path();
+        }
     });
 
     /* search */
