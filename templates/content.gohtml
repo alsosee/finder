@@ -34,6 +34,11 @@
     {{ with .Publication }}<p>Publication: {{ . }}</p>{{ end }}
     {{ with .Released }}<p>Released: {{ . }}</p>{{ end }}
 
+    {{ with .Website}}<p><a href="{{ . }}">{{ . }}</a></p>{{ end }}
+    {{ with .Websites }}{{ range . }}
+        <p><a href="{{ . }}">{{ . }}</a></p>
+    {{ end }}{{ end }}
+
     {{ with .Developers }}<p>Developers: {{ template "company" . }}</p>{{ end }}
     {{ with .Author }}<p>Author: {{ template "person" . }}</p>{{ end }}
     {{ with .Authors }}<p>Authors:
@@ -41,10 +46,6 @@
         <span class="list">{{ template "person" . }}</span>
     {{ end }}
     {{ end }}
-    {{ with .Website}}<p><a href="{{ . }}">{{ . }}</a></p>{{ end }}
-    {{ with .Websites }}{{ range . }}
-        <p><a href="{{ . }}">{{ . }}</a></p>
-    {{ end }}{{ end }}
     {{ with .Designer }}<p>Designer: {{ template "person" . }}</p>{{ end }}
 
     {{ with .BasedOn }}
@@ -123,6 +124,13 @@
     {{ end }}
     </p>
     {{ end }}
+    {{ with .Composers }}
+    <p>Composers:
+    {{ range . }}
+        <span class="list">{{ template "person" . }}</span>
+    {{ end }}
+    </p>
+    {{ end }}
     {{ with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
     {{ with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}
     {{ with .ISBN13 }}<p>ISBN13: {{ . }}</p>{{ end }}
@@ -168,6 +176,7 @@
         {{ with .AppleTV }}<a href="{{ . }}">AppleTV</a>{{ end }}
         {{ with .GooglePlay }}<a href="{{ . }}">GooglePlay</a>{{ end }}
         {{ with .MicrosoftStore }}<a href="{{ . }}">Microsoft Store</a>{{ end }}
+        {{ with .Nintendo }}<a href="{{ . }}">Nintendo</a>{{ end }}
         {{ with .Row8 }}<a href="{{ . }}">Row8</a>{{ end }}
         {{ with .Redbox }}<a href="{{ . }}">Redbox</a>{{ end }}
         {{ with .Vudu }}<a href="{{ . }}">Vudu</a>{{ end }}

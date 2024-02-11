@@ -103,6 +103,7 @@ type Content struct {
 	Peacock          string   `json:",omitempty"`
 	GooglePlay       string   `yaml:"google_play" json:",omitempty"`
 	MicrosoftStore   string   `yaml:"microsoft_store" json:",omitempty"`
+	Nintendo         string   `json:",omitempty"`
 	Row8             string   `json:",omitempty"`
 	Redbox           string   `json:",omitempty"`
 	Vudu             string   `json:",omitempty"`
@@ -122,7 +123,7 @@ type Content struct {
 	Imprint      string    `json:",omitempty"`
 	UPC          string    `json:",omitempty"`
 
-	// for movies
+	// for movies, games, series, ...
 	Genres         []string      `json:",omitempty"`
 	Trailer        string        `json:",omitempty"`
 	Rating         string        `json:",omitempty"`
@@ -137,7 +138,9 @@ type Content struct {
 	Production     oneOrMany     `json:",omitempty"`
 	Distributor    string        `json:",omitempty"`
 	Network        string        `json:",omitempty"`
-	Characters     []*Character  `json:",omitempty"`
+	Composers      oneOrMany     `json:",omitempty"`
+
+	Characters []*Character `json:",omitempty"`
 
 	// for awards
 	Categories []Category `json:",omitempty"`

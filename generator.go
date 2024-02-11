@@ -850,6 +850,10 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		g.addConnection(from, "Companies/"+publisher, "Publisher")
 	}
 
+	for _, composer := range content.Composers {
+		g.addConnection(from, "People/"+composer, "Composer")
+	}
+
 	for _, production := range content.Production {
 		g.addConnection(from, "Companies/"+production, "Production")
 	}
