@@ -34,7 +34,7 @@
     </fieldset>
 </div>
 <nav>
-    <ul id="breadcrumbs" class="menubar-navigation" role="menubar" aria-label="breadcrumbs">
+    <ul id="breadcrumbs" class="menubar-navigation" role="menubar" aria-label="breadcrumbs" hx-boost="true">
         {{- range .Breadcrumbs }}
         {{- $slash := "/" }}
         {{- if eq .Path "" }}
