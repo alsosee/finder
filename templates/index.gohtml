@@ -527,10 +527,15 @@ if (typeof hasRun === 'undefined') {
         }
         e.stopImmediatePropagation();
         if (e.keyCode === 190) { // .
-            console.log("pressed .", e);
             if (document.querySelector('head link[rel="edit"]')) {
                 click(document.querySelector('head link[rel="edit"]').href);
             }
+            return;
+        }
+        if (e.keyCode === 191) { // /
+            searchInput.focus();
+            e.preventDefault();
+            return;
         }
     });
 
