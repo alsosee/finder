@@ -22,10 +22,7 @@
 </head>
 <body data-view="columns">
 <div id="toolbar" hx-preserve="true">
-    <div id="logo"><a href="/"></a></div>
-    <label id="searchWrapper">
-        <input id="search" type="search" role="searchbox" placeholder="Search" oninput="search(event)" autocomplete="off">
-    </label>
+    <div id="logo"><a href="/" tabindex="0"></a></div>
     <fieldset
         class="radio menubar-navigation"
         title="Show items as icons, in a list or in columns"
@@ -37,6 +34,9 @@
         <label tabindex="0" role="menuitem"><input type="radio" name="view" value="list"> <span>List</span></label>
         <label tabindex="0" role="menuitem"><input type="radio" name="view" value="columns" checked> <span>Columns</span></label>
     </fieldset>
+    <label id="searchWrapper">
+        <input id="search" type="search" role="searchbox" placeholder="Search" oninput="search(event)" autocomplete="off">
+    </label>
 </div>
 <nav>
     <ul id="breadcrumbs" class="menubar-navigation" role="menubar" aria-label="breadcrumbs" hx-boost="true">
@@ -71,7 +71,7 @@
                 <a
                     role="menuitem"
                     {{- if .Image }}style="--background-image: url('https://media.alsosee.info/{{ $panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStylePx .Image 100 "--" }}; {{ thumbStylePx .Image 24 "--small-" }}"{{ end }}
-                    class="{{ if .IsFolder }}folder{{ if hasPrefix $.CurrentPath $path }} in-path{{ end }}{{ end }}{{ if eq $.CurrentPath $path }} active{{ end }}{{ if .IsMissing}} missing{{ end }}{{ if .Image }} has-image{{ if isJPG .Image.Path }} jpg{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}{{ end }}"
+                    class="{{ if .IsFolder }}folder{{ if hasPrefix $.CurrentPath $path }} in-path{{ end }}{{ end }}{{ if eq $.CurrentPath $path }} active in-path{{ end }}{{ if .IsMissing}} missing{{ end }}{{ if .Image }} has-image{{ if isJPG .Image.Path }} jpg{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}{{ end }}"
                     href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
                 >
                     <span>{{ .Title }}</span>
@@ -86,8 +86,8 @@
     {{ end }}
     </nav>
 </div>
-<div id="backdrop" style="display: none"></div>
-<div id="uploader" style="display: none">
+<div id="backdrop" style="display: none" hx-preserve="true"></div>
+<div id="uploader" style="display: none" hx-preserve="true">
     <h1 id="uploader_target"></h1>
     <div id="uploader_preview"></div>
     <div class="buttons">
@@ -95,7 +95,7 @@
       <button class="primary" onclick="uploader_upload()">Upload</button>
     </div>
 </div>
-<script type="text/javascript">
+<script type="text/javascript" hx-preserve="true">
 if (typeof hasRun === 'undefined') {
     document.getElementById("_").scrollIntoView();
 
@@ -151,6 +151,7 @@ if (typeof hasRun === 'undefined') {
     viewSwitcher.querySelector(`input[value=${view}]`).checked = true;
 
     var setView = function(value) {
+        view = value;
         localStorage.setItem('view', value);
         document.body.setAttribute('data-view', value);
         document.getElementById("_").scrollIntoView();
@@ -168,7 +169,36 @@ if (typeof hasRun === 'undefined') {
         setView(event.target.value);
     });
 
+    // save focus
+    var focusedLink = localStorage.getItem('focusedLink');
+    function saveFocus() {
+        focusedLink = document.activeElement.getAttribute("href");
+        localStorage.setItem('focusedLink', focusedLink);
+    }
+    function restoreFocus() {
+        if (focusedLink) {
+            var link = document.querySelector(`.panel a[href="${focusedLink}"]`);
+            if (link) {
+                link.focus();
+                console.log("focused link", focusedLink)
+            } else {
+                console.log("link not found", focusedLink);
+            }
+        } else {
+            console.log("no focused link");
+        }
+    }
+
+    htmx.on('htmx:beforeSwap', function(evt) {
+        saveFocus();
+    });
+
     htmx.on('htmx:afterSwap', function(evt) {
+        // if #content is present, focus on it
+        var content = document.querySelector('.content');
+        if (!content || view === "columns") {
+            restoreFocus();
+        }
         document.getElementById("_").scrollIntoView();
     });
 
@@ -383,6 +413,8 @@ if (typeof hasRun === 'undefined') {
             document.title = "Search: " + query;
             searchInput.value = query;
         }
+
+        restoreFocus();
     });
 
     /* handle drag and drop */
@@ -552,11 +584,116 @@ if (typeof hasRun === 'undefined') {
             setView('columns');
             return;
         }
+
+        // down
+        // todo: make this work with list and icons view
+        if (e.keyCode === 40 && view === "columns") {
+            // if focused element is a link in .panel, move to the next link
+            if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
+                var links = Array.from(document.activeElement.closest('.panel').querySelectorAll('a'));
+                var index = links.indexOf(document.activeElement);
+                if (index < links.length - 1) {
+                    links[index + 1].focus();
+                    saveFocus();
+
+                    if (view === "columns") {
+                        links[index + 1].click();
+                    }
+                }
+                return;
+            }
+        }
+        // up
+        // todo: make this work with list and icons view
+        if (e.keyCode === 38 && view === "columns") {
+            // if focused element is a link in .panel, move to the previous link
+            if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
+                var links = Array.from(document.activeElement.closest('.panel').querySelectorAll('a'));
+                var index = links.indexOf(document.activeElement);
+                if (index > 0) {
+                    links[index - 1].focus();
+                    saveFocus();
+
+                    if (view === "columns") {
+                        links[index - 1].click();
+                    }
+                }
+                return;
+            }
+        }
+        // left
+        if (e.keyCode === 37 && view === "columns") {
+            // if focused element is a link in .panel, link in the previous panel that has "in-path" class
+            if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
+                var panel = document.activeElement.closest('.panel');
+                var panels = Array.from(document.querySelectorAll('.panel'));
+                var index = panels.indexOf(panel);
+                if (index > 0) {
+                    var links = Array.from(panels[index - 1].querySelectorAll('a'));
+                    var inPath = links.find(function(link) {
+                        return link.classList.contains('in-path');
+                    });
+                    if (inPath) {
+                        console.log(inPath);
+                        inPath.focus();
+                        inPath.scrollIntoView();
+                        saveFocus();
+                    }
+                }
+                return;
+            }
+            // if focused element is .content, move to the previous panel "in-path" link
+            if (document.activeElement.classList.contains('content')) {
+                var panel = document.activeElement.previousElementSibling;
+                var links = Array.from(panel.querySelectorAll('a'));
+                var inPath = links.find(function(link) {
+                    return link.classList.contains('in-path');
+                });
+                if (inPath) {
+                    console.log(inPath);
+                    inPath.focus();
+                    inPath.scrollIntoView();
+                    saveFocus();
+                }
+                return;
+            }
+        }
+        // right
+        if (e.keyCode === 39 && view === "columns") {
+            // if focused element is a link in .panel, link in the next panel that has "in-path" class
+            if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
+                var panel = document.activeElement.closest('.panel');
+                var panels = Array.from(document.querySelectorAll('.panel'));
+                var index = panels.indexOf(panel);
+                if (index < panels.length - 1) {
+                    var links = Array.from(panels[index + 1].querySelectorAll('a'));
+                    var inPath = links.find(function(link) {
+                        return link.classList.contains('in-path');
+                    });
+                    if (inPath) {
+                        console.log(inPath);
+                        inPath.focus();
+                        saveFocus();
+                        // inPath.click();
+                    } else {
+                        // select first link
+                        links[0].focus();
+                        saveFocus();
+                        links[0].click();
+                    }
+                } else {
+                    // focus on .content
+                    document.querySelector('.content').focus();
+                    document.querySelector('.content').scrollIntoView();
+                }
+                return;
+            }
+        }
     });
 
-    const hasRun = true;
+    hasRun = true;
 }
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js" hx-preserve="true"></script>
 </body>
 </html>
