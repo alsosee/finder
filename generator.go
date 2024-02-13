@@ -518,7 +518,15 @@ func (g *Generator) copyStaticFiles() {
 			}
 
 			relPath := strings.TrimPrefix(path, cfg.StaticDirectory+string(filepath.Separator))
-			return copyFile(path, filepath.Join(cfg.OutputDirectory, relPath))
+			outPath := filepath.Join(cfg.OutputDirectory, relPath)
+
+			if strings.HasSuffix(path, ".gojs") {
+				outPath = strings.TrimSuffix(outPath, ".gojs") + ".js"
+				log.Printf("Processing GoJS file %q to %q", path, outPath)
+				return g.processGoJSFile(path, outPath)
+			}
+
+			return copyFile(path, outPath)
 		},
 	)
 	if err != nil {
@@ -739,6 +747,31 @@ func (g *Generator) processGoMarkdownFile(file string) error {
 
 	// conversion to HTML is done in generateGoTemplates()
 	// after all the files are processed
+
+	return nil
+}
+
+func (g *Generator) processGoJSFile(src, out string) error {
+	// treat file as a Go template
+	b, err := os.ReadFile(src)
+	if err != nil {
+		return fmt.Errorf("reading file: %w", err)
+	}
+
+	t, err := template.New("").Funcs(g.fm()).Parse(string(b))
+	if err != nil {
+		return fmt.Errorf("parsing template: %w", err)
+	}
+
+	outFile, err := os.Create(out)
+	if err != nil {
+		return fmt.Errorf("creating file: %w", err)
+	}
+	defer outFile.Close()
+
+	if err = t.Execute(outFile, nil); err != nil {
+		return fmt.Errorf("executing template: %w", err)
+	}
 
 	return nil
 }
