@@ -524,7 +524,10 @@ if (typeof hasRun === 'undefined') {
         }
 
         if (e.altKey && e.keyCode === 38) { // alt + up
-            console.log('alt + up');
+            if (document.querySelector('.content') && document.activeElement === document.querySelector('.content')) {
+                return;
+            }
+
             var panels = Array.from(document.querySelectorAll('.panel'))
             var index;
             // if focused element is a link in .panel, move to the previous panel
@@ -573,6 +576,12 @@ if (typeof hasRun === 'undefined') {
                 }
                 return;
             } else {
+                if (document.querySelector('.content')) {
+                    if (document.activeElement !== document.querySelector('.content')) {
+                        document.querySelector('.content').focus();
+                    }
+                    return;
+                }
                 // focus on first link in the last panel
                 var panels = Array.from(document.querySelectorAll('.panel'));
                 var links = Array.from(panels[panels.length - 1].querySelectorAll('a'));
