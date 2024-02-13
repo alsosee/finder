@@ -101,7 +101,7 @@ if (typeof hasRun === 'undefined') {
 
     var viewSwitcher = document.querySelector('#toolbar fieldset');
     var container = document.querySelector('#container');
-    var breakcrumbs = document.querySelector('#breakcrumbs');
+    var breadcrumbs = document.querySelector('#breadcrumbs');
     var panels = document.querySelector('#panels');
     var searchInput = document.querySelector('#search');
 
@@ -171,33 +171,61 @@ if (typeof hasRun === 'undefined') {
 
     // save focus
     var focusedLink = localStorage.getItem('focusedLink');
-    function saveFocus() {
-        focusedLink = document.activeElement.getAttribute("href");
+    function saveFocus(link) {
+        if (link === undefined) {
+            focusedLink = document.activeElement.getAttribute("href");
+        } else {
+            focusedLink = link;
+        }
         localStorage.setItem('focusedLink', focusedLink);
     }
-    function restoreFocus() {
+    function restoreFocus(when) {
         if (focusedLink) {
-            var link = document.querySelector(`.panel a[href="${focusedLink}"]`);
+            var suffix = "";
+            if (view !== "columns") {
+                suffix = ":last-child";
+            }
+
+            var link = document.querySelector(`.panel${suffix} a[href="${focusedLink}"]`);
             if (link) {
                 link.focus();
-                console.log("focused link", focusedLink)
             } else {
-                console.log("link not found", focusedLink);
+                // focus on first link in last panel
+                var lastPanel = document.querySelector('.panel:last-of-type');
+                if (lastPanel) {
+                    var link = lastPanel.querySelector('a');
+                    if (link) {
+                        link.focus();
+                    } else {
+                        console.log("no link in last panel");
+                    }
+                }
             }
-        } else {
-            console.log("no focused link");
+            return;
+        }
+
+        // focus on first link in last panel
+        var lastPanel = document.querySelector('.panel:last-of-type');
+        if (lastPanel) {
+            var link = lastPanel.querySelector('a');
+            if (link) {
+                link.focus();
+            } else {
+                console.log("no link in last panel");
+            }
         }
     }
 
-    htmx.on('htmx:beforeSwap', function(evt) {
-        saveFocus();
-    });
+    // htmx.on('htmx:beforeSwap', function(evt) {
+    //     saveFocus();
+    // });
 
     htmx.on('htmx:afterSwap', function(evt) {
+        breadcrumbs = document.querySelector('#breadcrumbs');
         // if #content is present, focus on it
         var content = document.querySelector('.content');
         if (!content || view === "columns") {
-            restoreFocus();
+            restoreFocus("afterSwap");
         }
         document.getElementById("_").scrollIntoView();
     });
@@ -414,7 +442,7 @@ if (typeof hasRun === 'undefined') {
             searchInput.value = query;
         }
 
-        restoreFocus();
+        restoreFocus("load");
     });
 
     /* handle drag and drop */
@@ -585,9 +613,50 @@ if (typeof hasRun === 'undefined') {
             return;
         }
 
-        // down
-        // todo: make this work with list and icons view
-        if (e.keyCode === 40 && view === "columns") {
+        if (e.altKey && e.keyCode === 40) { // alt + down
+            // same as clicking focused link
+            if (document.activeElement.tagName === "A") {
+                document.activeElement.click();
+            }
+            return;
+        }
+
+        if (e.altKey && e.keyCode === 38) { // alt + up
+            console.log('alt + up');
+            var panels = Array.from(document.querySelectorAll('.panel'))
+            var index;
+            // if focused element is a link in .panel, move to the previous panel
+            // focus on element with "in-path" class or first link
+            if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
+                var panel = document.activeElement.closest('.panel');
+                index = panels.indexOf(panel);
+            }
+
+            // if page has .content, move to the previous panel
+            if (document.querySelector('.content')) {
+                index = panels.length;
+            }
+
+            if (index > 0) {
+                var links = Array.from(panels[index - 1].querySelectorAll('a'));
+                var link = links.find(function(link) {
+                    return link.classList.contains('in-path');
+                });
+                if (link) {
+                    saveFocus(link.getAttribute('href'));
+                    console.log('focus on in-path link', link.getAttribute('href'), link);
+                }
+                // click on breadcrumbs last link
+                var pathLinks = breadcrumbs.querySelectorAll("a");
+                if (pathLinks.length > 0) {
+                    pathLinks[pathLinks.length - 1].click();
+                }
+            }
+            return;
+        }
+
+        if (e.keyCode === 40 && view !== "icons") { // down
+            // todo: make this work with list and icons view
             // if focused element is a link in .panel, move to the next link
             if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
                 var links = Array.from(document.activeElement.closest('.panel').querySelectorAll('a'));
@@ -601,11 +670,19 @@ if (typeof hasRun === 'undefined') {
                     }
                 }
                 return;
+            } else {
+                // focus on first link in the last panel
+                var panels = Array.from(document.querySelectorAll('.panel'));
+                var links = Array.from(panels[panels.length - 1].querySelectorAll('a'));
+                if (links.length > 0) {
+                    links[0].focus();
+                    saveFocus();
+                }
             }
         }
-        // up
-        // todo: make this work with list and icons view
-        if (e.keyCode === 38 && view === "columns") {
+
+        if (e.keyCode === 38 && view !== "icons") { // up
+            // todo: make this work with list and icons view
             // if focused element is a link in .panel, move to the previous link
             if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
                 var links = Array.from(document.activeElement.closest('.panel').querySelectorAll('a'));
@@ -621,8 +698,8 @@ if (typeof hasRun === 'undefined') {
                 return;
             }
         }
-        // left
-        if (e.keyCode === 37 && view === "columns") {
+
+        if (e.keyCode === 37 && view === "columns") { // left
             // if focused element is a link in .panel, link in the previous panel that has "in-path" class
             if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
                 var panel = document.activeElement.closest('.panel');
@@ -634,7 +711,6 @@ if (typeof hasRun === 'undefined') {
                         return link.classList.contains('in-path');
                     });
                     if (inPath) {
-                        console.log(inPath);
                         inPath.focus();
                         inPath.scrollIntoView();
                         saveFocus();
@@ -650,7 +726,6 @@ if (typeof hasRun === 'undefined') {
                     return link.classList.contains('in-path');
                 });
                 if (inPath) {
-                    console.log(inPath);
                     inPath.focus();
                     inPath.scrollIntoView();
                     saveFocus();
@@ -658,8 +733,8 @@ if (typeof hasRun === 'undefined') {
                 return;
             }
         }
-        // right
-        if (e.keyCode === 39 && view === "columns") {
+
+        if (e.keyCode === 39 && view === "columns") { // right
             // if focused element is a link in .panel, link in the next panel that has "in-path" class
             if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
                 var panel = document.activeElement.closest('.panel');
@@ -671,17 +746,15 @@ if (typeof hasRun === 'undefined') {
                         return link.classList.contains('in-path');
                     });
                     if (inPath) {
-                        console.log(inPath);
                         inPath.focus();
                         saveFocus();
-                        // inPath.click();
                     } else {
                         // select first link
                         links[0].focus();
                         saveFocus();
                         links[0].click();
                     }
-                } else {
+                } else if (document.querySelector('.content')) {
                     // focus on .content
                     document.querySelector('.content').focus();
                     document.querySelector('.content').scrollIntoView();

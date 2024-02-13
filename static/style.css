@@ -716,6 +716,12 @@ fieldset.radio label:last-of-type {
   font-variant-numeric: tabular-nums;
 }
 
+[data-view="list"] .panel a:focus {
+  background: var(--color-background-selection);
+  color: var(--color-text-selection);
+  outline: none;
+}
+
 [data-view="list"] .panel a::before {
   content: "";
   display: inline-block;
