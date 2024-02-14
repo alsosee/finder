@@ -34,9 +34,9 @@
     {{ with .Publication }}<p>Publication: {{ . }}</p>{{ end }}
     {{ with .Released }}<p>Released: {{ . }}</p>{{ end }}
 
-    {{ with .Website}}<p><a href="{{ . }}">{{ . }}</a></p>{{ end }}
+    {{ with .Website}}<p><a class="website" href="{{ . }}">{{ . }}</a></p>{{ end }}
     {{ with .Websites }}{{ range . }}
-        <p><a href="{{ . }}">{{ . }}</a></p>
+        <p><a class="website" href="{{ . }}">{{ . }}</a></p>
     {{ end }}{{ end }}
 
     {{ with .BasedOn }}
