@@ -6,6 +6,7 @@ if (typeof hasRun === 'undefined') {
     var breadcrumbs = document.querySelector('#breadcrumbs');
     var panels = document.querySelector('#panels');
     var searchInput = document.querySelector('#search');
+    var content = null;
 
     var backdrop = document.querySelector('#backdrop');
     var uploader = document.querySelector('#uploader');
@@ -125,7 +126,7 @@ if (typeof hasRun === 'undefined') {
     htmx.on('htmx:afterSwap', function(evt) {
         breadcrumbs = document.querySelector('#breadcrumbs');
         // if #content is present, focus on it
-        var content = document.querySelector('.content');
+        content = document.querySelector('.content');
         if (!content || view === "columns") {
             restoreFocus("afterSwap");
         }
@@ -143,7 +144,6 @@ if (typeof hasRun === 'undefined') {
             document.head.appendChild(editLink);
         }
 
-        var content = document.querySelector('.content');
         if (content) {
             if (content.dataset.source) {
                 editLink.href = "https://github.com/alsosee/info/edit/main/" + content.dataset.source;
@@ -344,6 +344,8 @@ if (typeof hasRun === 'undefined') {
             searchInput.value = query;
         }
 
+        content = document.querySelector('.content');
+
         restoreFocus("load");
     });
 
@@ -524,8 +526,11 @@ if (typeof hasRun === 'undefined') {
         }
 
         if (e.altKey && e.keyCode === 38) { // alt + up
-            if (document.querySelector('.content') && document.activeElement === document.querySelector('.content')) {
-                return;
+            if (content && document.activeElement === content) {
+                // if scroll postion is not at the top, do nothing (let the browser scroll)
+                if (content.scrollTop > 0) {
+                    return;
+                }
             }
 
             var panels = Array.from(document.querySelectorAll('.panel'))
@@ -538,7 +543,7 @@ if (typeof hasRun === 'undefined') {
             }
 
             // if page has .content, move to the previous panel
-            if (document.querySelector('.content')) {
+            if (content) {
                 index = panels.length;
             }
 
@@ -576,9 +581,9 @@ if (typeof hasRun === 'undefined') {
                 }
                 return;
             } else {
-                if (document.querySelector('.content')) {
-                    if (document.activeElement !== document.querySelector('.content')) {
-                        document.querySelector('.content').focus();
+                if (content) {
+                    if (document.activeElement !== content) {
+                        content.focus();
                     }
                     return;
                 }
@@ -665,10 +670,10 @@ if (typeof hasRun === 'undefined') {
                         saveFocus();
                         links[0].click();
                     }
-                } else if (document.querySelector('.content')) {
+                } else if (content) {
                     // focus on .content
-                    document.querySelector('.content').focus();
-                    document.querySelector('.content').scrollIntoView();
+                    content.focus();
+                    content.scrollIntoView();
                 }
                 return;
             }
