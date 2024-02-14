@@ -92,17 +92,6 @@ if (typeof hasRun === 'undefined') {
             var link = document.querySelector(`.panel${suffix} a[href="${focusedLink}"]`);
             if (link) {
                 link.focus();
-            } else {
-                // focus on first link in last panel
-                var lastPanel = document.querySelector('.panel:last-of-type');
-                if (lastPanel) {
-                    var link = lastPanel.querySelector('a');
-                    if (link) {
-                        link.focus();
-                    } else {
-                        console.log("no link in last panel");
-                    }
-                }
             }
             return;
         }
