@@ -92,28 +92,24 @@ if (typeof hasRun === 'undefined') {
             var link = document.querySelector(`.panel${suffix} a[href="${focusedLink}"]`);
             if (link) {
                 link.focus();
+            } else {
+                console.log(`no link found for ${focusedLink} ${when}`);
+                focusedLink = null;
             }
             return;
         }
-
-        // focus on first link in last panel
-        var lastPanel = document.querySelector('.panel:last-of-type');
-        if (lastPanel) {
-            var link = lastPanel.querySelector('a');
-            if (link) {
-                link.focus();
-            } else {
-                console.log("no link in last panel");
-            }
-        }
     }
 
-    // htmx.on('htmx:beforeSwap', function(evt) {
-    //     saveFocus();
-    // });
+    htmx.on('htmx:beforeSwap', function(evt) {
+        if (view === "columns") {
+            saveFocus();
+        }
+    });
 
     htmx.on('htmx:afterSwap', function(evt) {
         breadcrumbs = document.querySelector('#breadcrumbs');
+        panels = document.querySelector('#panels');
+
         // if #content is present, focus on it
         content = document.querySelector('.content');
         if (!content || view === "columns") {
@@ -522,22 +518,24 @@ if (typeof hasRun === 'undefined') {
                 }
             }
 
-            var panels = Array.from(document.querySelectorAll('.panel'))
-            var index;
+            e.preventDefault();
+
+            var panelsList = Array.from(document.querySelectorAll('.panel'))
+            var index = panelsList.length - 1;
             // if focused element is a link in .panel, move to the previous panel
             // focus on element with "in-path" class or first link
             if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
                 var panel = document.activeElement.closest('.panel');
-                index = panels.indexOf(panel);
+                index = panelsList.indexOf(panel);
             }
 
             // if page has .content, move to the previous panel
             if (content) {
-                index = panels.length;
+                index = panelsList.length;
             }
 
             if (index > 0) {
-                var links = Array.from(panels[index - 1].querySelectorAll('a'));
+                var links = Array.from(panelsList[index - 1].querySelectorAll('a'));
                 var link = links.find(function(link) {
                     return link.classList.contains('in-path');
                 });
@@ -554,10 +552,10 @@ if (typeof hasRun === 'undefined') {
             return;
         }
 
-        if (e.keyCode === 40 && view !== "icons") { // down
-            // todo: make this work with list and icons view
-            // if focused element is a link in .panel, move to the next link
-            if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
+        if (e.keyCode === 40) { // down
+            if (view !== "icons" && document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
+                // if focused element is a link in .panel, move to the next link
+                e.preventDefault(); /* avoid scroll */
                 var links = Array.from(document.activeElement.closest('.panel').querySelectorAll('a'));
                 var index = links.indexOf(document.activeElement);
                 if (index < links.length - 1) {
@@ -569,49 +567,109 @@ if (typeof hasRun === 'undefined') {
                     }
                 }
                 return;
-            } else {
-                if (content) {
-                    if (document.activeElement !== content) {
-                        content.focus();
+            }
+
+            if (view === "icons" && document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
+                // if focused element is a link in .panel, move to the next row in the same grid column
+                // reminder: .panel > li > a
+                e.preventDefault(); /* avoid scroll */
+                var current = document.activeElement;
+                var panel = document.activeElement.closest('.panel');
+                var gridStyle = window.getComputedStyle(panel);
+                var columns = gridStyle.getPropertyValue("grid-template-columns").split(" ").length;
+
+                var index = Array.prototype.indexOf.call(panel.children, current.parentNode);
+                var row = Math.floor(index / columns);
+                var nextRow = row + 1;
+                if (nextRow < panel.children.length / columns) {
+                    var next = panel.children[nextRow * columns + index % columns];
+                    if (next) {
+                        next.querySelector("a").focus();
                     }
-                    return;
                 }
-                // focus on first link in the last panel
-                var panels = Array.from(document.querySelectorAll('.panel'));
-                var links = Array.from(panels[panels.length - 1].querySelectorAll('a'));
-                if (links.length > 0) {
-                    links[0].focus();
-                    saveFocus();
+                return
+            }
+
+            content = document.querySelector('.content');
+            if (content) {
+                if (document.activeElement !== content) {
+                    e.preventDefault(); /* avoid scroll */
+                    content.focus();
                 }
+                return;
+            }
+            // focus on first link in the last panel
+            var panelsList = Array.from(document.querySelectorAll('.panel'));
+            var links = Array.from(panelsList[panelsList.length - 1].querySelectorAll('a'));
+            if (links.length > 0) {
+                e.preventDefault(); /* avoid scroll */
+                links[0].focus();
+                saveFocus();
             }
         }
 
-        if (e.keyCode === 38 && view !== "icons") { // up
-            // todo: make this work with list and icons view
-            // if focused element is a link in .panel, move to the previous link
-            if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
-                var links = Array.from(document.activeElement.closest('.panel').querySelectorAll('a'));
-                var index = links.indexOf(document.activeElement);
-                if (index > 0) {
-                    links[index - 1].focus();
-                    saveFocus();
+        if (e.keyCode === 38) { // up
+            if (view !== "icons") {
+                // if focused element is a link in .panel, move to the previous link
+                if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
+                    e.preventDefault(); /* avoid scroll */
+                    var links = Array.from(document.activeElement.closest('.panel').querySelectorAll('a'));
+                    var index = links.indexOf(document.activeElement);
+                    if (index > 0) {
+                        links[index - 1].focus();
+                        saveFocus();
 
-                    if (view === "columns") {
-                        links[index - 1].click();
+                        if (view === "columns" && !searchMode) {
+                            links[index - 1].click();
+                        }
                     }
+                    return;
+                }
+                return;
+            }
+            if (view === "icons") {
+                // if focused element is a link in .panel, move to the previous row in the same grid column
+                // reminder: .panel > li > a
+                var current = document.activeElement;
+                var panel = document.activeElement.closest('.panel');
+                var gridStyle = window.getComputedStyle(panel);
+                var columns = gridStyle.getPropertyValue("grid-template-columns").split(" ").length;
+
+                var index = Array.prototype.indexOf.call(panel.children, current.parentNode);
+                var row = Math.floor(index / columns);
+                var prevRow = row - 1;
+                if (prevRow >= 0) {
+                    var prev = panel.children[prevRow * columns + index % columns];
+                    prev.querySelector("a").focus();
                 }
                 return;
             }
         }
 
-        if (e.keyCode === 37 && view === "columns") { // left
-            // if focused element is a link in .panel, link in the previous panel that has "in-path" class
-            if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
-                var panel = document.activeElement.closest('.panel');
-                var panels = Array.from(document.querySelectorAll('.panel'));
-                var index = panels.indexOf(panel);
-                if (index > 0) {
-                    var links = Array.from(panels[index - 1].querySelectorAll('a'));
+        if (e.keyCode === 37) { // left
+            if (view === "columns") {
+                // if focused element is a link in .panel, link in the previous panel that has "in-path" class
+                if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
+                    var panel = document.activeElement.closest('.panel');
+                    var panelsList = Array.from(document.querySelectorAll('.panel'));
+                    var index = panelsList.indexOf(panel);
+                    if (index > 0) {
+                        var links = Array.from(panelsList[index - 1].querySelectorAll('a'));
+                        var inPath = links.find(function(link) {
+                            return link.classList.contains('in-path');
+                        });
+                        if (inPath) {
+                            inPath.focus();
+                            inPath.scrollIntoView();
+                            saveFocus();
+                        }
+                    }
+                    return;
+                }
+                // if focused element is .content, move to the previous panel "in-path" link
+                if (document.activeElement.classList.contains('content')) {
+                    var panel = document.activeElement.previousElementSibling;
+                    var links = Array.from(panel.querySelectorAll('a'));
                     var inPath = links.find(function(link) {
                         return link.classList.contains('in-path');
                     });
@@ -620,33 +678,28 @@ if (typeof hasRun === 'undefined') {
                         inPath.scrollIntoView();
                         saveFocus();
                     }
+                    return;
                 }
                 return;
             }
-            // if focused element is .content, move to the previous panel "in-path" link
-            if (document.activeElement.classList.contains('content')) {
-                var panel = document.activeElement.previousElementSibling;
-                var links = Array.from(panel.querySelectorAll('a'));
-                var inPath = links.find(function(link) {
-                    return link.classList.contains('in-path');
-                });
-                if (inPath) {
-                    inPath.focus();
-                    inPath.scrollIntoView();
-                    saveFocus();
+            if (view === "icons" && document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
+                e.preventDefault();
+                var prev = document.activeElement.parentNode.previousElementSibling;
+                if (prev) {
+                    prev.querySelector("a").focus();
                 }
                 return;
             }
         }
 
-        if (e.keyCode === 39 && view === "columns") { // right
-            // if focused element is a link in .panel, link in the next panel that has "in-path" class
-            if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
+        if (e.keyCode === 39) { // right
+            if (view === "columns" && document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
+                // if focused element is a link in .panel, link in the next panel that has "in-path" class
                 var panel = document.activeElement.closest('.panel');
-                var panels = Array.from(document.querySelectorAll('.panel'));
-                var index = panels.indexOf(panel);
-                if (index < panels.length - 1) {
-                    var links = Array.from(panels[index + 1].querySelectorAll('a'));
+                var panelsList = Array.from(document.querySelectorAll('.panel'));
+                var index = panelsList.indexOf(panel);
+                if (index < panelsList.length - 1) {
+                    var links = Array.from(panelsList[index + 1].querySelectorAll('a'));
                     var inPath = links.find(function(link) {
                         return link.classList.contains('in-path');
                     });
@@ -665,6 +718,26 @@ if (typeof hasRun === 'undefined') {
                     content.scrollIntoView();
                 }
                 return;
+            }
+            if (view === "icons" && document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
+                e.preventDefault();
+                var next = document.activeElement.parentNode.nextElementSibling;
+                if (next) {
+                    next.querySelector("a").focus();
+                    saveFocus();
+                    return;
+                }
+                return;
+            }
+
+            // focus on first link in the last panel
+            if (view !== "list") {
+                var panelsList = Array.from(document.querySelectorAll('.panel'));
+                var links = Array.from(panelsList[panelsList.length - 1].querySelectorAll('a'));
+                if (links.length > 0) {
+                    links[0].focus();
+                    saveFocus();
+                }
             }
         }
     });
