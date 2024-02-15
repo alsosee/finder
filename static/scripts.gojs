@@ -6,6 +6,7 @@ if (typeof hasRun === 'undefined') {
     var breadcrumbs = document.querySelector('#breadcrumbs');
     var panels = document.querySelector('#panels');
     var searchInput = document.querySelector('#search');
+    var searchMode = false;
     var content = null;
 
     var backdrop = document.querySelector('#backdrop');
@@ -216,9 +217,11 @@ if (typeof hasRun === 'undefined') {
             }
             previousQuery = "";
             console.log("Restoring original state", urlBackup, titleBackup);
+            searchMode = false;
             if (urlBackup.length == 0) {
                 // a corner case when page is loaded with a query, and then the query is cleared
                 console.log("Navigating to home");
+                sessionStorage.setItem("restoreSearchInputFocus", "true");
                 logo.querySelector("a").click();
                 return;
             }
@@ -237,6 +240,7 @@ if (typeof hasRun === 'undefined') {
             titleBackup = document.title;
             console.log("Saving original state", window.location.href);
         }
+        searchMode = true;
 
         // push history update and change URL
         if (pushState) {
@@ -332,6 +336,11 @@ if (typeof hasRun === 'undefined') {
         content = document.querySelector('.content');
 
         restoreFocus("load");
+
+        if (sessionStorage.getItem('restoreSearchInputFocus')) {
+            searchInput.focus();
+            sessionStorage.removeItem('restoreSearchInputFocus');
+        }
     });
 
     /* handle drag and drop */
@@ -503,6 +512,10 @@ if (typeof hasRun === 'undefined') {
         }
 
         if (e.altKey && e.keyCode === 40) { // alt + down
+            if (searchMode) {
+                return;
+            }
+
             // same as clicking focused link
             if (document.activeElement.tagName === "A") {
                 document.activeElement.click();
@@ -510,7 +523,24 @@ if (typeof hasRun === 'undefined') {
             return;
         }
 
+        if (document.activeElement === searchInput) {
+            if (e.keyCode === 40) { // down
+                // focus on first link in the last panel
+                var panelsList = Array.from(document.querySelectorAll('.panel'));
+                var links = Array.from(panelsList[panelsList.length - 1].querySelectorAll('a'));
+                if (links.length > 0) {
+                    e.preventDefault();
+                    links[0].focus();
+                    saveFocus();
+                }
+            }
+            return;
+        }
+
         if (e.altKey && e.keyCode === 38) { // alt + up
+            if (searchMode) {
+                return;
+            }
             if (content && document.activeElement === content) {
                 // if scroll postion is not at the top, do nothing (let the browser scroll)
                 if (content.scrollTop > 0) {
@@ -562,7 +592,7 @@ if (typeof hasRun === 'undefined') {
                     links[index + 1].focus();
                     saveFocus();
 
-                    if (view === "columns") {
+                    if (view === "columns" && !searchMode) {
                         links[index + 1].click();
                     }
                 }
