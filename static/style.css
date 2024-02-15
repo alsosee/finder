@@ -633,9 +633,11 @@ fieldset.radio label:last-of-type {
 [data-view="icons"] .panel {
   display: grid;
   gap: 0;
-  grid-template-columns: repeat(auto-fill, 150px);
+  grid-template-columns: repeat(auto-fill, 130px);
   align-content: start;
   align-items: start;
+  padding: 10px 20px;
+  gap: 10px 20px;
 }
 
 [data-view="icons"] .panel:not(:last-child) {
@@ -648,14 +650,14 @@ fieldset.radio label:last-of-type {
   justify-content: center;
   text-align: center;
   align-items: end;
-  width: 150px;
+  width: 130px;
   padding: 10px;
 }
 
 [data-view="icons"] .panel li a {
   flex-direction: column;
   border-radius: 10px;
-  overflow: hidden;
+  padding: 4px 0; /* 4px is the outline width */
 }
 
 [data-view="icons"] .panel li a:focus {
@@ -669,7 +671,7 @@ fieldset.radio label:last-of-type {
   -webkit-box-orient: vertical;
   white-space: inherit;
   border-radius: 6px;
-  overflow: visible;
+  overflow: hidden;
 }
 
 [data-view="icons"] .panel li a:focus span {
