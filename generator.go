@@ -293,10 +293,7 @@ func (g *Generator) fm() template.FuncMap {
 		"isJPG": func(path string) bool {
 			return strings.HasSuffix(path, ".jpg") || strings.HasSuffix(path, ".jpeg")
 		},
-		"length": func(a time.Duration) string {
-			// format duration as "1h 2m 3s"
-			return fmt.Sprintf("%dh %dm", int(a.Hours()), int(a.Minutes())%60)
-		},
+		"length": length,
 		// "either" returns true if any of the arguments is true-ish
 		// (bool true, string not empty, int not 0, time.Duration not 0, []string not empty, []Reference not empty)
 		// it's useful for checking if "either" of the fields is set in the template
@@ -427,7 +424,9 @@ func (g *Generator) fm() template.FuncMap {
 
 			return strings.Join(dirs, " \\ ")
 		},
-		"prefix": prefix,
+		"prefix":        prefix,
+		"chooseColumns": chooseColumns,
+		"column":        column,
 	}
 }
 
@@ -1002,6 +1001,20 @@ func (g *Generator) getFilesForPath(path string) []structs.File {
 		for i, file := range files {
 			if content := g.contents[filepath.Join(path, file.Name)]; content.Name != "" {
 				files[i].Title = content.Name
+
+				// extra fields to use in list view
+				files[i].Columns.Add("Length", length(content.Length))
+				files[i].Columns.Add("Directors", strings.Join(content.Directors, ", "))
+				files[i].Columns.Add("Writers", strings.Join(content.Writers, ", "))
+				files[i].Columns.Add("Distributor", content.Distributor)
+				files[i].Columns.Add("Rating", content.Rating)
+				files[i].Columns.Add("Released", content.Released)
+				files[i].Columns.Add("Network", content.Network)
+				files[i].Columns.Add("Creators", strings.Join(content.Creators, ", "))
+				files[i].Columns.Add("Authors", strings.Join(content.Authors, ", "))
+				files[i].Columns.Add("Publishers", strings.Join(content.Publishers, ", "))
+				files[i].Columns.Add("Born", content.DOB)
+				files[i].Columns.Add("Died", content.DOD)
 			} else {
 				files[i].Title = file.Name
 			}
@@ -1383,6 +1396,15 @@ func in(needle string, slice ...string) bool {
 	return false
 }
 
+func length(a time.Duration) string {
+	if a == 0 {
+		return ""
+	}
+
+	// format duration as "1h 2m"
+	return fmt.Sprintf("%dh %dm", int(a.Hours()), int(a.Minutes())%60)
+}
+
 // prefix returns a path prefix to a content referenced by the given content.
 // For example, "Movies/Awards/Oscar/2023.yml" will return "Movies/2022"
 func prefix(c structs.Content) string {
@@ -1407,4 +1429,29 @@ func prefix(c structs.Content) string {
 	}
 
 	return contentType + "/" + yearSt
+}
+
+func chooseColumns(files []structs.File) []string {
+	columns := map[string]int{}
+	for _, file := range files {
+		for key := range file.Columns {
+			columns[key]++
+		}
+	}
+
+	// choose columns that are present in > half of all files
+	chosenColumns := []string{}
+	for key, count := range columns {
+		if count > len(files)/2 || key == "Died" {
+			chosenColumns = append(chosenColumns, key)
+		}
+	}
+
+	sort.Strings(chosenColumns)
+
+	return chosenColumns
+}
+
+func column(file structs.File, column string) string {
+	return file.Columns.Get(column)
 }

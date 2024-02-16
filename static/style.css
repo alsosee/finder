@@ -31,6 +31,11 @@
     #f9f9f9 0%,
     #eeeeee 100%
   );
+  --background-gradient: linear-gradient(
+    180deg,
+    var(--color-background),
+    var(--color-background-secondary)
+  );
 
   --border-radius-avatar: 100%;
   --border-radius-medium: 2px;
@@ -654,6 +659,10 @@ fieldset.radio label:last-of-type {
   padding: 10px;
 }
 
+[data-view="icons"] .panel li.header {
+  display: none;
+}
+
 [data-view="icons"] .panel li a {
   flex-direction: column;
   border-radius: 10px;
@@ -672,6 +681,10 @@ fieldset.radio label:last-of-type {
   white-space: inherit;
   border-radius: 6px;
   overflow: hidden;
+}
+
+[data-view="icons"] .panel li a span.column {
+  display: none;
 }
 
 [data-view="icons"] .panel li a:focus span {
@@ -725,13 +738,73 @@ fieldset.radio label:last-of-type {
 
 /* LIST */
 
+[data-view="list"] .panel {
+  display: table;
+  margin-bottom: auto;
+  position: relative;
+}
+
+[data-view="list"] .panel li {
+  display: table-row-group;
+}
+
+[data-view="list"] .panel li:nth-child(odd) {
+  background: var(--color-background-tertiary);
+}
+
+[data-view="list"] .panel li.header {
+  display: table-header-group;
+  position: sticky;
+  top: 0;
+  background: var(--background-gradient);
+}
+
+[data-view="list"] .panel li.header span {
+  font-size: 75%;
+  font-weight: 600;
+  border-bottom: 1px solid var(--color-border);
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+[data-view="list"] .panel li.header span.icon {
+  width: 44px;
+}
+
+[data-view="list"] .panel li.header span {
+  display: table-cell;
+}
+
+[data-view="list"] .panel a {
+  display: table-row;
+}
+
+[data-view="list"] .panel a span {
+  display: table-cell;
+  padding: 5px 0;
+}
+
+[data-view="list"] .panel a span:first-child {
+  padding-right: 10px;
+}
+
+[data-view="list"] .panel a::before {
+  margin: -5px 10px -6px; /* align with the text */
+}
+
+[data-view="list"] .panel li .column {
+  display: table-cell;
+  white-space: nowrap;
+  padding: 0 10px;
+}
+
+[data-view="list"] .panel li .column.expand {
+  width: 100%;
+}
+
 [data-view="list"] .panel:not(:last-child) {
   /* hide app panels except the last one (current) */
   display: none;
-}
-
-[data-view="list"] .panel li:nth-child(even) {
-  background: var(--color-background-tertiary);
 }
 
 [data-view="list"] .panel a {
@@ -763,8 +836,10 @@ fieldset.radio label:last-of-type {
   background-position: var(--small-background-position);
   width: var(--small-width);
   height: var(--small-height);
-  margin-left: var(--small-comp-margin-left);
-  margin-right: calc(var(--small-comp-margin-right) + 5px);
+  margin-left: calc(var(--small-comp-margin-left) + 10px);
+  margin-right: calc(var(--small-comp-margin-right) + 10px);
+  margin-top: calc(var(--small-comp-margin-top, 0px) - 5px);
+  margin-bottom: calc(var(--small-comp-margin-bottom, 0px) - 6px);
 }
 
 [data-view="list"] .panel a.has-image.jpg::before {
@@ -863,6 +938,14 @@ fieldset.radio label:last-of-type {
 [data-view="columns"] .panel li a {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+[data-view="columns"] .panel li.header {
+  display: none;
+}
+
+[data-view="columns"] .panel li a span.column {
+  display: none;
 }
 
 .award {
@@ -1047,6 +1130,11 @@ fieldset.radio label:last-of-type {
       82.57% 82.57% at 50% 17.43%,
       #696969 0%,
       #484545 100%
+    );
+    --background-gradient: linear-gradient(
+      0deg,
+      var(--color-background),
+      var(--color-background-secondary)
     );
     --shadow-button: inset 0 -3px 10px rgba(0, 0, 0, 0.2),
       inset 0 -2px 2px rgba(0, 0, 0, 0.2), 0 2px 10px rgba(0, 0, 0, 0.1);

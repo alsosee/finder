@@ -39,6 +39,32 @@ type Contents map[string]Content
 //	}
 type Connections map[string]map[string][]string
 
+type Columns map[string]string
+
+func (c *Columns) Add(key, value string) {
+	if *c == nil {
+		*c = make(map[string]string)
+	}
+
+	if value == "" {
+		return
+	}
+
+	(*c)[key] = value
+}
+
+func (c *Columns) Get(key string) string {
+	if *c == nil {
+		return ""
+	}
+
+	if value, ok := (*c)[key]; ok {
+		return value
+	}
+
+	return ""
+}
+
 // File represents a file or directory in the file system.
 type File struct {
 	Name      string
@@ -46,6 +72,8 @@ type File struct {
 	IsFolder  bool   // used to render folder icon and to sort files
 	IsMissing bool   // for pages that have no source file; used to show striped background
 	Image     *Media
+
+	Columns Columns // extra fields to use in list view
 }
 
 // ByNameFolderOnTop sorts files by name, with folders on top.

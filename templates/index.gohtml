@@ -64,8 +64,18 @@
     <nav id="panels">
     {{- range $index, $panel := .Panels }}
         <ul class="panel menubar-navigation" role="menu" data-level="{{ $index }}"
+        {{ $columns := chooseColumns $panel.Files }}
             {{- if and (not $.Content) (isLast $index (len $.Panels)) }} id="_"{{ end }}>
+            <li role="none" class="header">
+                <span class="icon"></span>
+                <span>Name</span>
+                {{- range $columns }}
+                <span class="column" data-label="{{ . }}">{{ . }}</span>
+                {{- end }}
+                <span class="column expand"></span>
+            </li>
             {{- range $panel.Files }}
+            {{- $file := . }}
             {{- $path := join $panel.Dir .Name }}
             <li role="none">
                 <a
@@ -75,6 +85,10 @@
                     href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
                 >
                     <span>{{ .Title }}</span>
+                    {{- range $columns }}
+                    <span class="column" data-label="{{ . }}">{{ column $file . }}</span>
+                    {{ end }}
+                    <span class="column expand"></span>
                 </a>
             </li>
             {{- end }}

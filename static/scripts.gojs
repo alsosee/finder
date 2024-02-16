@@ -287,6 +287,7 @@ if (typeof hasRun === 'undefined') {
                 return `<li role="none">
                     <a role="menuitem" ${result.attr} href="/${result.href}">
                         <span>${result.name}</span>
+                        <span class="column expand"></span>
                     </a>
                 </li>`;
             }).join("");
@@ -294,6 +295,7 @@ if (typeof hasRun === 'undefined') {
             panels.innerHTML = `<ul class="panel menubar-navigation" role="menu" data-level="0" id="_">${resultsHTML}</ul>`;
         });
     }
+
     // restore the search query if the user navigates back
     window.addEventListener('popstate', function(event) {
         console.log("Popstate", event.state, "URL", window.location.href);
@@ -321,6 +323,7 @@ if (typeof hasRun === 'undefined') {
             searchInput.value = "";
         }
     });
+
     // on page load, restore the search query if there is one
     window.addEventListener('load', function(event) {
         loadCharactersImages();
