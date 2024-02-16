@@ -557,6 +557,7 @@ if (typeof hasRun === 'undefined') {
             if (searchMode) {
                 return;
             }
+            content = document.querySelector('.content');
             if (content && document.activeElement === content) {
                 // if scroll postion is not at the top, do nothing (let the browser scroll)
                 if (content.scrollTop > 0) {
@@ -758,7 +759,11 @@ if (typeof hasRun === 'undefined') {
                         saveFocus();
                         links[0].click();
                     }
-                } else if (content) {
+                    return;
+                }
+
+                content = document.querySelector('.content');
+                if (content) {
                     // focus on .content
                     content.focus();
                     content.scrollIntoView();
