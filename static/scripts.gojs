@@ -199,6 +199,77 @@ if (typeof hasRun === 'undefined') {
     var previousQuery = "";
     var urlBackup = "";
 
+    var columnsFields = [
+        "Length",
+        "Directors",
+        "Writers",
+        "Distributor",
+        "Rating",
+        "Released",
+        "Network",
+        "Creators",
+        "Authors",
+        "Publishers",
+        "DOB",
+        "DOD",
+    ];
+    function collectColumns(hit) {
+        var columns = {};
+        for (var key in hit) {
+            if (columnsFields.includes(key)) {
+                if (Array.isArray(hit[key])) {
+                    // if hit[key] is an array, join it with ", "
+                    columns[key] = hit[key].join(", ");
+                } else if (key === "Length") {
+                    // if key is "Length", convert it to "2h 3m" format
+                    var minutes = Math.floor(hit[key] / 60000000000);
+                    var hours = Math.floor(minutes / 60);
+                    minutes = minutes % 60;
+                    if (hours == 0) {
+                        columns[key] = minutes + "m";
+                    } else {
+                        columns[key] = hours + "h " + minutes + "m";
+                    }
+                } else {
+                    columns[key] = hit[key];
+                }
+            }
+        }
+        return columns;
+    }
+    function chooseColumns(columnCounts, length) {
+        var columns = [];
+        for (var key in columnCounts) {
+            if (columnCounts[key] > length * 0.33) {
+                columns.push(key);
+            }
+        }
+        // sort columns alphabetically
+        columns.sort();
+        return columns;
+    }
+    function kind(href) {
+        // if href contains "/Awards/", it's an award
+        if (href.includes("/Awards/")) {
+            return "Award";
+        }
+
+        // get first part before /
+        var root = href.split("/")[0];
+        switch (root) {
+            case "Books":
+                return "Book";
+            case "Movies":
+                return "Movie";
+            case "Games":
+                return "Game";
+            case "People":
+                return "Person";
+            default:
+                return root;
+        }
+    }
+
     function search(event, pushState = true) {
         var query = event.target.value || "";
         if (query.length == 0) {
@@ -263,6 +334,8 @@ if (typeof hasRun === 'undefined') {
                 return;
             }
 
+            var columnsCounts = {};
+
             const results = response.hits.map(function(hit) {
                 const path = hit.Source.substring(0, hit.Source.lastIndexOf('.'))
                 const dir = path.substring(0, path.lastIndexOf('/'));
@@ -276,23 +349,58 @@ if (typeof hasRun === 'undefined') {
 
                     attr = `style="--background-image: url('https://media.alsosee.info/${dir}/${hit.Image.ThumbPath}'); ${thumbStylePx(hit.Image, 100, "--")}; ${thumbStylePx(hit.Image, 24, "--small-")}" class="${linkClass}"`;
                 }
+                var columns = collectColumns(hit);
+                for (var key in columns) {
+                    columnsCounts[key] = columnsCounts[key] || 0;
+                    columnsCounts[key]++;
+                }
+
                 return {
                     name: hit.Name || hit.Title,
                     href: path,
                     attr: attr,
+                    columns: columns
                 };
             });
 
+            chosenColumns = chooseColumns(columnsCounts, results.length);
+
+            // for each result item, add "columns" dictionary with fields thay may be shown in list view
+            var resultsHeader = `<li role="none" class="header">
+                    <span class="icon"></span>
+                    <span>Name</span>
+                    <span class="column">Kind</span>`;
+            for (var ci in chosenColumns) {
+                var column = chosenColumns[ci];
+                switch (column) {
+                    case "DOB":
+                        column = "Born";
+                        break;
+                    case "DOD":
+                        column = "Died";
+                        break;
+                }
+                resultsHeader += `<span class="column" data-label="${column}">${column}</span>`;
+            }
+            resultsHeader += `<span class="column expand"></span></li>`;
+
             const resultsHTML = results.map(function(result) {
+                var columns = `<span class="column" data-label="Kind">${kind(result.href)}</span>`;
+                for (var ci in chosenColumns) {
+                    var column = chosenColumns[ci];
+                    columns += `<span class="column" data-label="${column}">${result.columns[column] || ""}</span>`;
+                }
+
                 return `<li role="none">
                     <a role="menuitem" ${result.attr} href="/${result.href}">
                         <span>${result.name}</span>
+                        ${columns}
                         <span class="column expand"></span>
                     </a>
                 </li>`;
             }).join("");
 
-            panels.innerHTML = `<ul class="panel menubar-navigation" role="menu" data-level="0" id="_">${resultsHTML}</ul>`;
+            panels.innerHTML = `<ul class="panel menubar-navigation" role="menu" data-level="0" id="_">${resultsHeader}${resultsHTML}</ul>`;
         });
     }
 
