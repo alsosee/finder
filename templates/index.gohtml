@@ -63,8 +63,8 @@
 <div id="container" hx-boost="true">
     <nav id="panels">
     {{- range $index, $panel := .Panels }}
-        <ul class="panel menubar-navigation" role="menu" data-level="{{ $index }}"
         {{ $columns := chooseColumns $panel.Files }}
+        <ul class="panel menubar-navigation" role="menu" data-level="{{ $index }}" onclick="panelClick(event)"
             {{- if and (not $.Content) (isLast $index (len $.Panels)) }} id="_"{{ end }}>
             <li role="none" class="header">
                 <span class="icon"></span>

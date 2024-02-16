@@ -346,6 +346,19 @@ if (typeof hasRun === 'undefined') {
         }
     });
 
+    function panelClick(event) {
+        if (event.target.tagName != "UL") {
+            return;
+        }
+
+        // find link with .in-path class and focus on it
+        const inPath = event.target.querySelector("a.in-path");
+        if (inPath) {
+            inPath.focus();
+            return;
+        }
+    }
+
     /* handle drag and drop */
     var c = null; /* croppie instance */
 
