@@ -814,10 +814,6 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		}
 	}
 
-	if content.Author != "" {
-		g.addConnection(from, "People/"+content.Author, "Author")
-	}
-
 	for _, author := range content.Authors {
 		g.addConnection(from, "People/"+author, "Author")
 	}

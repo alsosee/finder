@@ -48,7 +48,6 @@
     {{ end }}
 
     {{ with .Developers }}<p>Developers: {{ template "company" . }}</p>{{ end }}
-    {{ with .Author }}<p>Author: {{ template "person" . }}</p>{{ end }}
     {{ with .Authors }}<p>Authors:
     {{ range . }}
         <span class="list">{{ template "person" . }}</span>

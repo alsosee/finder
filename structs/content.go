@@ -44,7 +44,6 @@ type Content struct {
 	Title       string    `json:",omitempty"` // override for the name, used as page title, fallback to Name
 	Subtitle    string    `json:",omitempty"`
 	Year        int       `json:",omitempty"`
-	Author      string    `json:",omitempty"`
 	Authors     oneOrMany `json:",omitempty"`
 	Developers  string    `json:",omitempty"`
 	Description string    `json:",omitempty"`
