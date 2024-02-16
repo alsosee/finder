@@ -36,6 +36,13 @@
     var(--color-background),
     var(--color-background-secondary)
   );
+  --background-missing: repeating-linear-gradient(
+    -45deg,
+    var(--color-background-selection),
+    var(--color-background-selection) 10px,
+    var(--color-background-selection-lighter) 10px,
+    var(--color-background-selection-lighter) 20px
+  );
 
   --border-radius-avatar: 100%;
   --border-radius-medium: 2px;
@@ -389,13 +396,8 @@ fieldset.radio label:last-of-type {
 }
 
 .panel .active.missing {
-  background: repeating-linear-gradient(
-    -45deg,
-    var(--color-background-selection),
-    var(--color-background-selection) 10px,
-    var(--color-background-selection-lighter) 10px,
-    var(--color-background-selection-lighter) 20px
-  );
+  background: var(--background-missing);
+  color: var(--color-text-selection);
 }
 
 .content {
@@ -876,6 +878,10 @@ fieldset.radio label:last-of-type {
   background: var(--color-background-selection);
   color: var(--color-text-selection);
   outline: none;
+}
+
+[data-view="columns"] .panel a.missing:focus {
+  background: var(--background-missing);
 }
 
 [data-view="columns"] .panel a::before {
