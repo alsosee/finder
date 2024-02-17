@@ -1028,8 +1028,8 @@ fieldset.radio label:last-of-type {
   bottom: 0;
   z-index: 101;
   margin: auto;
-  width: 400px;
-  height: 553px; /* emperically determined */
+  width: 420px;
+  height: 573px; /* emperically determined */
   display: flex;
   flex-direction: column;
   border-radius: 20px;
@@ -1049,8 +1049,8 @@ fieldset.radio label:last-of-type {
 }
 
 #uploader .croppie-container .cr-boundary {
-  width: 400px;
-  height: 400px;
+  width: 420px;
+  height: 420px;
 }
 
 #uploader .croppie-container .cr-slider {
@@ -1064,7 +1064,7 @@ fieldset.radio label:last-of-type {
 
 #uploader .croppie-container .cr-viewport {
   border: none;
-  box-shadow: 0 0 2000px 2000px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 2000px 2000px rgba(245, 247, 246, 0.8);
 }
 
 #uploader .cr-slider::-webkit-slider-thumb {
@@ -1201,7 +1201,7 @@ fieldset.radio label:last-of-type {
   }
 
   #uploader .croppie-container .cr-viewport {
-    box-shadow: 0 0 2000px 2000px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 0 2000px 2000px rgba(72, 69, 69, 0.8);
   }
   #uploader .buttons button {
     background: var(--color-background-secondary);

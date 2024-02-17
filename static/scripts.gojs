@@ -503,7 +503,8 @@ if (typeof hasRun === 'undefined') {
         c.result({
             type: 'blob',
             size: 'viewport',
-            format: 'jpeg'
+            format: 'jpeg',
+            circle: false
         }).then(function(blob) {
             // read converted JPEG image
             const reader = new FileReader();
@@ -568,6 +569,10 @@ if (typeof hasRun === 'undefined') {
                 type: "circle",
                 width: 400,
                 height: 400
+            },
+            boundary: {
+                width: 420,
+                height: 420
             }
         }
         c = new Croppie(uploader_preview, opts);
@@ -617,6 +622,19 @@ if (typeof hasRun === 'undefined') {
             }
             return;
         }
+
+        if (e.keyCode === 27 && uploader.checkVisibility()) { // esc
+            e.preventDefault();
+            uploader_cancel();
+            return;
+        }
+
+        if (e.keyCode === 13 && uploader.checkVisibility()) { // enter
+            e.preventDefault();
+            uploader_upload();
+            return;
+        }
+
         if (e.keyCode === 191) { // /
             searchInput.focus();
             e.preventDefault();
