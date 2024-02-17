@@ -103,7 +103,13 @@
     </p>
     {{ end }}
 
-    {{ with .Distributor }}<p>Distributor: {{ template "company" . }}</p>{{ end }}
+    {{ with .Distributors }}
+    <p>Distributors:
+    {{ range . }}
+        <span class="list">{{ template "company" . }}</span>
+    {{ end }}
+    </p>
+    {{ end }}
 
     {{ with .Network }}<p>Network: {{ template "company" . }}</p>{{ end }}
 

@@ -135,7 +135,7 @@ type Content struct {
 	Producers      oneOrMany     `json:",omitempty"`
 	Music          string        `json:",omitempty"`
 	Production     oneOrMany     `json:",omitempty"`
-	Distributor    string        `json:",omitempty"`
+	Distributors   oneOrMany     `json:",omitempty"`
 	Network        string        `json:",omitempty"`
 	Composers      oneOrMany     `json:",omitempty"`
 

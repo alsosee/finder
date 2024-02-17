@@ -203,7 +203,7 @@ if (typeof hasRun === 'undefined') {
         "Length",
         "Directors",
         "Writers",
-        "Distributor",
+        "Distributors",
         "Rating",
         "Released",
         "Network",
