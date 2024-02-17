@@ -35,7 +35,7 @@ a {
   margin: 0;
 }
 
-#breadcrumbs li + li::before {
+#breadcrumbs li:not(:first-child) + li::before {
   display: inline-block;
   content: "⟩";
 }
@@ -44,7 +44,10 @@ a {
   display: inline-block;
 }
 
-#breadcrumbs li:first-child a,
+#breadcrumbs li:first-child {
+  display: none; /* Hide the "Home" link */
+}
+
 #breadcrumbs a {
   background: none;
   clip-path: none;
