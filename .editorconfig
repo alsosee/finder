@@ -1,4 +1,4 @@
-[*.yml,*.yaml,*js,*.ts, *.css]
+[*.yml,*.yaml,*.ts,*.css]
 tab_width = 2
 indent_size = 2
 indent_style = space
