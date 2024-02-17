@@ -70,6 +70,30 @@
     </p>
     {{ end }}
 
+    {{ with .Screenplay }}
+    <p>Screenplay:
+    {{ range . }}
+        <span class="list">{{ template "person" . }}</span>
+    {{ end }}
+    </p>
+    {{ end }}
+
+    {{ with .StoryBy }}
+    <p>Story by:
+    {{ range . }}
+        <span class="list">{{ template "person" . }}</span>
+    {{ end }}
+    </p>
+    {{ end }}
+
+    {{ with .DialoguesBy }}
+    <p>Dialogues by:
+    {{ range . }}
+        <span class="list">{{ template "person" . }}</span>
+    {{ end }}
+    </p>
+    {{ end }}
+
     {{ with .Producers }}
     <p>Producers:
     {{ range . }}

@@ -866,6 +866,18 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		g.addConnection(from, "People/"+content.Colorist, "Colorist")
 	}
 
+	for _, screenplay := range content.Screenplay {
+		g.addConnection(from, "People/"+screenplay, "Screenplay")
+	}
+
+	for _, storyBy := range content.StoryBy {
+		g.addConnection(from, "People/"+storyBy, "Story")
+	}
+
+	for _, dialoguesBy := range content.DialoguesBy {
+		g.addConnection(from, "People/"+dialoguesBy, "Dialogues")
+	}
+
 	if content.Series != "" {
 		g.addConnection(from, series(content), "Series")
 	}
@@ -1009,6 +1021,9 @@ func (g *Generator) getFilesForPath(path string) []structs.File {
 				files[i].Columns.Add("Creators", strings.Join(content.Creators, ", "))
 				files[i].Columns.Add("Authors", strings.Join(content.Authors, ", "))
 				files[i].Columns.Add("Publishers", strings.Join(content.Publishers, ", "))
+				files[i].Columns.Add("Screenplay", strings.Join(content.Screenplay, ", "))
+				files[i].Columns.Add("StoryBy", strings.Join(content.StoryBy, ", "))
+				files[i].Columns.Add("DialoguesBy", strings.Join(content.DialoguesBy, ", "))
 				files[i].Columns.Add("Born", content.DOB)
 				files[i].Columns.Add("Died", content.DOD)
 			} else {

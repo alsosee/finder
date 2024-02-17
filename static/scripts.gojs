@@ -210,6 +210,9 @@ if (typeof hasRun === 'undefined') {
         "Creators",
         "Authors",
         "Publishers",
+        "Screenplay",
+        "StoryBy",
+        "DialoguesBy",
         "DOB",
         "DOD",
     ];
