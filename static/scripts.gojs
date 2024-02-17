@@ -654,6 +654,14 @@ if (typeof hasRun === 'undefined') {
                 var links = Array.from(panelsList[panelsList.length - 1].querySelectorAll('a'));
                 if (links.length > 0) {
                     e.preventDefault();
+                    // search for link with "in-path" class, if not found, focus on first link
+                    for (var i = 0; i < links.length; i++) {
+                        if (links[i].classList.contains('in-path')) {
+                            links[i].focus();
+                            saveFocus();
+                            return;
+                        }
+                    }
                     links[0].focus();
                     saveFocus();
                 }
