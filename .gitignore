@@ -1,4 +1,7 @@
-output
-.env
-coverage.txt
-.wrangler
+/output
+/.env
+/coverage.txt
+/.wrangler
+/package.json
+/package-lock.json
+/node_modules
