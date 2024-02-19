@@ -933,7 +933,7 @@ fieldset.radio label:last-of-type {
   color: #989d9f;
 }
 
-[data-view="columns"] .panel .active.folder::after {
+[data-view="columns"] .panel .folder:focus::after {
   color: var(--color-text-selection);
 }
 
