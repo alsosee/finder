@@ -47,6 +47,8 @@
     </p>
     {{ end }}
 
+    {{ with .RemakeOf }}<p>Remake of: {{ template "reference" dict "Path" . "HideType" true }}</p>{{ end }}
+
     {{ with .Developers }}<p>Developers: {{ template "company" . }}</p>{{ end }}
     {{ with .Authors }}<p>Authors:
     {{ range . }}

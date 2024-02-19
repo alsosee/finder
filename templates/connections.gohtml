@@ -13,6 +13,8 @@
     <li>{{ template "reference" dict "Path" $path "HideType" true }}</li>
     {{- else if eq (index $extra 0) "Based on"}}
     <li>{{ template "reference" dict "Path" $path "HideType" false }}</li>
+    {{- else if eq (index $extra 0) "Remake" }}
+    <li>Remake: {{ template "reference" dict "Path" $path "HideType" true }}</li>
     {{- else }}
     <li>{{ index $extra 0 }} of {{ template "reference" dict "Path" $path "HideType" true }}</li>
     {{- end }}

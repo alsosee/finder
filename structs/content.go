@@ -141,6 +141,7 @@ type Content struct {
 	Distributors   oneOrMany     `json:",omitempty"`
 	Network        string        `json:",omitempty"`
 	Composers      oneOrMany     `json:",omitempty"`
+	RemakeOf       string        `yaml:"remake_of" json:",omitempty"`
 
 	Characters []*Character `json:",omitempty"`
 

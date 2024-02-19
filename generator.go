@@ -910,6 +910,10 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		g.addPrevious(from, content.Previous)
 	}
 
+	if content.RemakeOf != "" {
+		g.addConnection(from, content.RemakeOf, "Remake")
+	}
+
 	// Prepare for adding Awards
 	if len(content.Categories) > 0 {
 		g.addAwardPage(from)
