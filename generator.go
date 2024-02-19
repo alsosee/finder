@@ -8,6 +8,7 @@ import (
 	"html"
 	"io"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"slices"
@@ -177,18 +178,18 @@ func (g *Generator) fm() template.FuncMap {
 		// "thumbStylePx" returns CSS styles for a thumbnail image,
 		// where background-size is in pixels.
 		// It's used for non-responsive images, and more reliable than "thumbStylePct".
-		"thumbStylePx": func(media structs.Media, max int, opt ...string) string {
+		"thumbStylePx": func(media structs.Media, max float64, opt ...string) string {
 			if media.ThumbPath == "" {
 				return ""
 			}
 
 			var (
-				backgroundWidth  = media.ThumbTotalWidth * max / media.ThumbWidth
-				backgroundHeight = media.ThumbTotalHeight * max / media.ThumbWidth
-				positionX        = media.ThumbXOffset * max / media.ThumbWidth
-				positionY        = media.ThumbYOffset * max / media.ThumbWidth
-				width            = max
-				height           = media.ThumbHeight * max / media.ThumbWidth
+				backgroundWidth  = math.Round(float64(media.ThumbTotalWidth) * max / float64(media.ThumbWidth))
+				backgroundHeight = math.Round(float64(media.ThumbTotalHeight) * max / float64(media.ThumbWidth))
+				positionX        = math.Round(float64(media.ThumbXOffset) * max / float64(media.ThumbWidth))
+				positionY        = math.Round(float64(media.ThumbYOffset) * max / float64(media.ThumbWidth))
+				width            = float64(max)
+				height           = math.Round(float64(media.ThumbHeight) * float64(max) / float64(media.ThumbWidth))
 			)
 
 			p := ""
@@ -197,12 +198,12 @@ func (g *Generator) fm() template.FuncMap {
 			}
 
 			if media.Height > media.Width {
-				backgroundWidth = media.ThumbTotalWidth * max / media.ThumbHeight
-				backgroundHeight = media.ThumbTotalHeight * max / media.ThumbHeight
-				positionX = media.ThumbXOffset * max / media.ThumbHeight
-				positionY = media.ThumbYOffset * max / media.ThumbHeight
-				width = media.ThumbWidth * max / media.ThumbHeight
-				height = max
+				backgroundWidth = math.Round(float64(media.ThumbTotalWidth) * max / float64(media.ThumbHeight))
+				backgroundHeight = math.Round(float64(media.ThumbTotalHeight) * max / float64(media.ThumbHeight))
+				positionX = math.Round(float64(media.ThumbXOffset) * max / float64(media.ThumbHeight))
+				positionY = math.Round(float64(media.ThumbYOffset) * max / float64(media.ThumbHeight))
+				width = math.Round(float64(media.ThumbWidth) * float64(max) / float64(media.ThumbHeight))
+				height = float64(max)
 			}
 
 			marginLeft := (max - width) / 2
@@ -211,22 +212,22 @@ func (g *Generator) fm() template.FuncMap {
 			marginBottom := max - height - marginTop
 
 			style := fmt.Sprintf(
-				"%sbackground-size: %dpx %dpx; %swidth: %dpx; %sheight: %dpx",
+				"%sbackground-size: %.0fpx %.0fpx; %swidth: %.0fpx; %sheight: %.0fpx",
 				p, backgroundWidth, backgroundHeight,
 				p, width,
 				p, height,
 			)
 
 			if marginLeft != 0 || marginRight != 0 {
-				style += fmt.Sprintf("; %scomp-margin-left: %dpx; %scomp-margin-right: %dpx", p, marginLeft, p, marginRight)
+				style += fmt.Sprintf("; %scomp-margin-left: %.2fpx; %scomp-margin-right: %.2fpx", p, marginLeft, p, marginRight)
 			}
 
 			if marginTop != 0 || marginBottom != 0 {
-				style += fmt.Sprintf("; %scomp-margin-top: %dpx; %scomp-margin-bottom: %dpx", p, marginTop, p, marginBottom)
+				style += fmt.Sprintf("; %scomp-margin-top: %.2fpx; %scomp-margin-bottom: %.2fpx", p, marginTop, p, marginBottom)
 			}
 
 			if positionX != 0 || positionY != 0 {
-				style += fmt.Sprintf("; %sbackground-position: -%dpx -%dpx", p, positionX, positionY)
+				style += fmt.Sprintf("; %sbackground-position: -%.1fpx -%.1fpx", p, positionX, positionY)
 			}
 
 			return style
@@ -249,8 +250,8 @@ func (g *Generator) fm() template.FuncMap {
 
 			// assume than image width is 100%
 			// how much bigger the whole sprite is?
-			width := media.ThumbTotalWidth * 100 / media.ThumbWidth
-			height := media.ThumbTotalHeight * 100 / media.ThumbHeight
+			width := math.Round(float64(media.ThumbTotalWidth) * 100 / float64(media.ThumbWidth))
+			height := math.Round(float64(media.ThumbTotalHeight) * 100 / float64(media.ThumbHeight))
 
 			positionX := 0.0
 			positionY := 0.0
@@ -272,14 +273,14 @@ func (g *Generator) fm() template.FuncMap {
 
 			if positionX == 0 && positionY == 0 {
 				return fmt.Sprintf(
-					"%sbackground-size: %d%% %d%%; %saspect-ratio: %d/%d;",
+					"%sbackground-size: %.0f%% %.0f%%; %saspect-ratio: %d/%d;",
 					p, width, height,
 					p, arX, arY,
 				)
 			}
 
 			return fmt.Sprintf(
-				"%sbackground-size: %d%% %d%%; %sbackground-position: %.2f%% %.2f%%; %saspect-ratio: %d/%d;",
+				"%sbackground-size: %.0f%% %.0f%%; %sbackground-position: %.1f%% %.1f%%; %saspect-ratio: %d/%d;",
 				p, width, height,
 				p, positionX, positionY,
 				p, arX, arY,
