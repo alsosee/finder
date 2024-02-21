@@ -209,6 +209,7 @@ if (typeof hasRun === 'undefined') {
         "Network",
         "Creators",
         "Authors",
+        "Hosts",
         "Publishers",
         "Screenplay",
         "StoryBy",

@@ -162,6 +162,23 @@
     {{ end }}
     </p>
     {{ end }}
+
+    {{ with .Hosts }}
+    <p>Hosts:
+    {{ range . }}
+        <span class="list">{{ template "person" . }}</span>
+    {{ end }}
+    </p>
+    {{ end }}
+
+    {{ with .Guests }}
+    <p>Guests:
+    {{ range . }}
+        <span class="list">{{ template "person" . }}</span>
+    {{ end }}
+    </p>
+    {{ end }}
+
     {{ with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
     {{ with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}
     {{ with .ISBN13 }}<p>ISBN13: {{ . }}</p>{{ end }}
@@ -205,6 +222,7 @@
         {{ with .Amazon }}<a href="{{ . }}">Amazon</a>{{ end }}
         {{ with .PrimeVideo }}<a href="{{ . }}">Prime Video</a>{{ end }}
         {{ with .AppleTV }}<a href="{{ . }}">AppleTV</a>{{ end }}
+        {{ with .ApplePodcasts }}<a href="{{ . }}">Apple Podcasts</a>{{ end }}
         {{ with .GooglePlay }}<a href="{{ . }}">GooglePlay</a>{{ end }}
         {{ with .MicrosoftStore }}<a href="{{ . }}">Microsoft Store</a>{{ end }}
         {{ with .Nintendo }}<a href="{{ . }}">Nintendo</a>{{ end }}

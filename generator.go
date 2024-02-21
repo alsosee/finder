@@ -896,6 +896,14 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		g.addConnection(from, "People/"+composer, "Composer")
 	}
 
+	for _, host := range content.Hosts {
+		g.addConnection(from, "People/"+host, "Host")
+	}
+
+	for _, guest := range content.Guests {
+		g.addConnection(from, "People/"+guest, "Guest")
+	}
+
 	for _, production := range content.Production {
 		g.addConnection(from, "Companies/"+production, "Production")
 	}
@@ -1026,6 +1034,7 @@ func (g *Generator) getFilesForPath(path string) []structs.File {
 				files[i].Columns.Add("Network", content.Network)
 				files[i].Columns.Add("Creators", strings.Join(content.Creators, ", "))
 				files[i].Columns.Add("Authors", strings.Join(content.Authors, ", "))
+				files[i].Columns.Add("Hosts", strings.Join(content.Hosts, ", "))
 				files[i].Columns.Add("Publishers", strings.Join(content.Publishers, ", "))
 				files[i].Columns.Add("Screenplay", strings.Join(content.Screenplay, ", "))
 				files[i].Columns.Add("StoryBy", strings.Join(content.StoryBy, ", "))

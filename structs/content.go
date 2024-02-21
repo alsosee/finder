@@ -99,6 +99,7 @@ type Content struct {
 	Amazon           string   `json:",omitempty"`
 	PrimeVideo       string   `yaml:"prime_video" json:",omitempty"`
 	AppleTV          string   `yaml:"apple_tv" json:",omitempty"`
+	ApplePodcasts    string   `yaml:"apple_podcasts" json:",omitempty"`
 	Peacock          string   `json:",omitempty"`
 	GooglePlay       string   `yaml:"google_play" json:",omitempty"`
 	MicrosoftStore   string   `yaml:"microsoft_store" json:",omitempty"`
@@ -141,7 +142,12 @@ type Content struct {
 	Distributors   oneOrMany     `json:",omitempty"`
 	Network        string        `json:",omitempty"`
 	Composers      oneOrMany     `json:",omitempty"`
-	RemakeOf       string        `yaml:"remake_of" json:",omitempty"`
+
+	// for podcasts
+	Hosts  oneOrMany `json:",omitempty"`
+	Guests oneOrMany `json:",omitempty"`
+
+	RemakeOf string `yaml:"remake_of" json:",omitempty"`
 
 	Characters []*Character `json:",omitempty"`
 
