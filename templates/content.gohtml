@@ -258,7 +258,7 @@
 
     {{ with .Categories }}
     <h2>Categories</h2>
-    {{ $prefix := prefix $.Content }}
+    {{ $prefix := prefix $.Content (awardYear $.Content) }}
     {{ range . }}
         <h3>{{ .Name }}</h3>
         {{ if .Winner.Actor }}

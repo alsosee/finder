@@ -425,6 +425,7 @@ func (g *Generator) fm() template.FuncMap {
 
 			return strings.Join(dirs, " \\ ")
 		},
+		"awardYear":     awardYear,
 		"prefix":        prefix,
 		"chooseColumns": chooseColumns,
 		"column":        column,
@@ -1236,7 +1237,8 @@ func (g *Generator) addAwards() {
 	for _, awardPage := range g.awardPages {
 		content := g.contents[awardPage]
 
-		p := prefix(content)
+		year := awardYear(content)
+		p := prefix(content, year)
 
 		for i, category := range content.Categories {
 			switch {
@@ -1249,7 +1251,7 @@ func (g *Generator) addAwards() {
 				category.Winner.Reference = p + "/" + category.Winner.Game
 				category.Winner.Fallback = category.Winner.Game
 			case category.Winner.Series != "":
-				category.Winner.Reference = p + "/" + category.Winner.Series
+				category.Winner.Reference = "Series/" + year + "/" + category.Winner.Series
 				category.Winner.Fallback = category.Winner.Series
 			case category.Winner.Person != "":
 				category.Winner.Reference = filepath.Join("People", category.Winner.Person)
@@ -1421,10 +1423,7 @@ func length(a time.Duration) string {
 	return fmt.Sprintf("%dh %dm", int(a.Hours()), int(a.Minutes())%60)
 }
 
-// prefix returns a path prefix to a content referenced by the given content.
-// For example, "Movies/Awards/Oscar/2023.yml" will return "Movies/2022"
-func prefix(c structs.Content) string {
-	contentType := pathType(c.Source)
+func awardYear(c structs.Content) string {
 	yearSt := removeFileExtention(filepath.Base(c.Source))
 
 	if strings.Contains(c.Source, "/Oscar/") {
@@ -1440,11 +1439,19 @@ func prefix(c structs.Content) string {
 		yearSt = strconv.Itoa(year - 1)
 	}
 
+	return yearSt
+}
+
+// prefix returns a path prefix to a content referenced by the given content.
+// For example, "Movies/Awards/Oscar/2023.yml" will return "Movies/2022"
+func prefix(c structs.Content, year string) string {
+	contentType := pathType(c.Source)
+
 	if contentType == "Games" {
 		contentType = "Games/Video"
 	}
 
-	return contentType + "/" + yearSt
+	return contentType + "/" + year
 }
 
 func chooseColumns(files []structs.File) []string {
