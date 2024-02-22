@@ -110,7 +110,13 @@
     {{ end }}
     </p>
     {{ end }}
-    {{ with .Editor }}<p>{{ template "awards" $.Content.EditorAwards }}Editor: {{ template "person" . }}</p>{{ end }}
+    {{ with .Editors }}
+    <p>{{ template "awards" $.Content.EditorsAwards }}Editors:
+    {{ range . }}
+        <span class="list">{{ template "person" . }}</span>
+    {{ end }}
+    </p>
+    {{ end }}
     {{ with .Cinematography }}<p>Cinematography: {{ template "person" . }}</p>{{ end }}
     {{ with .Music }}<p>Music: {{ template "person" . }}</p>{{ end }}
     {{ with .Artists }}<p>Artists:

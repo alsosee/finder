@@ -848,8 +848,8 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		g.addConnection(from, "People/"+content.Cinematography, "Cinematography")
 	}
 
-	if content.Editor != "" {
-		g.addConnection(from, "People/"+content.Editor, "Editor")
+	for _, editor := range content.Editors {
+		g.addConnection(from, "People/"+editor, "Editor")
 	}
 
 	if content.Music != "" {
@@ -1302,8 +1302,8 @@ func (g *Generator) addAwards() {
 				if !found {
 					log.Printf("No character found for %q", category.Winner.Actor)
 				}
-			case category.Winner.Editor != "":
-				awadredContent.EditorAwards = append(awadredContent.EditorAwards, award)
+			case len(category.Winner.Editors) > 0:
+				awadredContent.EditorsAwards = append(awadredContent.EditorsAwards, award)
 			case len(category.Winner.Writers) > 0:
 				awadredContent.WritersAwards = append(awadredContent.WritersAwards, award)
 			case len(category.Winner.Directors) > 0:

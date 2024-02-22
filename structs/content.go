@@ -130,7 +130,7 @@ type Content struct {
 	Length         time.Duration `json:",omitempty"`
 	Creators       oneOrMany     `json:",omitempty"`
 	Writers        oneOrMany     `json:",omitempty"`
-	Editor         string        `json:",omitempty"`
+	Editors        oneOrMany     `json:",omitempty"`
 	Directors      oneOrMany     `json:",omitempty"`
 	Cinematography string        `json:",omitempty"`
 	Producers      oneOrMany     `json:",omitempty"`
@@ -162,7 +162,7 @@ type Content struct {
 	// fields populated by the generator
 	Image           *Media  `yaml:"-" json:",omitempty"`
 	Awards          []Award `yaml:"-" json:",omitempty"`
-	EditorAwards    []Award `yaml:"-" json:",omitempty"`
+	EditorsAwards   []Award `yaml:"-" json:",omitempty"`
 	WritersAwards   []Award `yaml:"-" json:",omitempty"`
 	DirectorsAwards []Award `yaml:"-" json:",omitempty"`
 }
@@ -196,7 +196,7 @@ type Winner struct {
 	Series    string    `json:",omitempty"`
 	Person    string    `json:",omitempty"`
 	Actor     string    `json:",omitempty"`
-	Editor    string    `json:",omitempty"`
+	Editors   oneOrMany `json:",omitempty"`
 	Track     string    `json:",omitempty"`
 	Directors oneOrMany `json:",omitempty"`
 	Writers   oneOrMany `json:",omitempty"`
