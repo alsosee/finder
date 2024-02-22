@@ -294,8 +294,10 @@
             {{ template "character" dict "Path" .Winner.Reference "Character" $character.Name }}
             {{ end }}
 
+            {{ if either .Winner.Reference .Winner.Fallback }}
             in
             {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
+            {{ end }}
         {{ else if .Winner.Directors }}
             <span>
             {{ range .Winner.Directors }}

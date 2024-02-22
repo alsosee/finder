@@ -1435,7 +1435,7 @@ func length(a time.Duration) string {
 func awardYear(c structs.Content) string {
 	yearSt := removeFileExtention(filepath.Base(c.Source))
 
-	if strings.Contains(c.Source, "/Oscar/") {
+	if strings.Contains(c.Source, "/Oscar/") || strings.Contains(c.Source, "/BAFTA/") {
 		// decrease year by 1 for Oscar awards
 		// since they are awarded for the previous year
 		// (e.g. 2023 Oscar awards are for movies released in 2022)

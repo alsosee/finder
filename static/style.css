@@ -9,6 +9,9 @@
   --sprite-url: url("sprite.png?crc=38f07e9b");
   --sprite-size: 216px 24px;
   --sprite-size-small: 162px 18px; /* 75% */
+  --sprite-url: url("sprite.png?crc=14aca395");
+  --sprite-size: 240px 24px;
+  --sprite-size-small: 180px 18px; /* 75% */
 
   --color-background: #ffffff;
   --color-background-higher: #f9f9f9;
@@ -1001,6 +1004,11 @@ fieldset.radio label:last-of-type {
   background-position: -144px 0;
 }
 
+.award[href*="/BAFTA/"],
+.award.with-text[href*="/BAFTA/"]::before {
+  background-position: -162px 0;
+}
+
 #backdrop {
   position: fixed;
   left: 0;
@@ -1183,6 +1191,10 @@ fieldset.radio label:last-of-type {
   }
   .award.with-text::before {
     filter: invert(0.8);
+  }
+  .award[href*="/BAFTA/"],
+  .award[href*="/BAFTA/"]::before {
+    filter: none; /* BAFTA logo is yellow */
   }
 
   #breadcrumbs a {
