@@ -808,120 +808,43 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 	// or use Go struct field tags, but for now it's fine)
 
 	for _, character := range content.Characters {
-		if character.Actor != "" {
-			g.addConnection(from, "People/"+character.Actor, "Actor", character.Name)
-		}
-		if character.Voice != "" {
-			g.addConnection(from, "People/"+character.Voice, "Voice", character.Name)
-		}
+		g.addConnectionSingle(from, "People", character.Actor, "Actor", character.Name)
+		g.addConnectionSingle(from, "People", character.Voice, "Voice", character.Name)
 	}
 
-	for _, author := range content.Authors {
-		g.addConnection(from, "People/"+author, "Author")
-	}
+	g.addConnectionList(from, "People", content.Authors, "Author")
+	g.addConnectionList(from, "People", content.Writers, "Writer")
+	g.addConnectionList(from, "People", content.Directors, "Director")
+	g.addConnectionList(from, "People", content.Creators, "Creator")
+	g.addConnectionList(from, "People", content.Producers, "Producer")
+	g.addConnectionList(from, "People", content.Editors, "Editor")
+	g.addConnectionList(from, "People", content.Artists, "Artist")
+	g.addConnectionList(from, "People", content.Screenplay, "Screenplay")
+	g.addConnectionList(from, "People", content.StoryBy, "Story")
+	g.addConnectionList(from, "People", content.DialoguesBy, "Dialogues")
+	g.addConnectionList(from, "People", content.Composers, "Composer")
+	g.addConnectionList(from, "People", content.Hosts, "Host")
+	g.addConnectionList(from, "People", content.Guests, "Guest")
+	g.addConnectionList(from, "Companies", content.Distributors, "Distributor")
+	g.addConnectionList(from, "Companies", content.Publishers, "Publisher")
+	g.addConnectionList(from, "Companies", content.Production, "Production")
+	g.addConnectionList(from, "", content.BasedOn, "Based on")
 
-	if content.Designer != "" {
-		g.addConnection(from, "People/"+content.Designer, "Designer")
-	}
-
-	for _, writer := range content.Writers {
-		g.addConnection(from, "People/"+writer, "Writer")
-	}
-
-	for _, director := range content.Directors {
-		g.addConnection(from, "People/"+director, "Director")
-	}
-
-	for _, creator := range content.Creators {
-		g.addConnection(from, "People/"+creator, "Creator")
-	}
-
-	for _, producer := range content.Producers {
-		g.addConnection(from, "People/"+producer, "Producer")
-	}
-
-	for _, ref := range content.BasedOn {
-		g.addConnection(from, ref, "Based on")
-	}
-
-	if content.Cinematography != "" {
-		g.addConnection(from, "People/"+content.Cinematography, "Cinematography")
-	}
-
-	for _, editor := range content.Editors {
-		g.addConnection(from, "People/"+editor, "Editor")
-	}
-
-	if content.Music != "" {
-		g.addConnection(from, "People/"+content.Music, "Music")
-	}
-
-	for _, artist := range content.Artists {
-		g.addConnection(from, "People/"+artist, "Artist")
-	}
-
-	if content.CoverArtist != "" {
-		g.addConnection(from, "People/"+content.CoverArtist, "Cover Artist")
-	}
-
-	if content.Colorist != "" {
-		g.addConnection(from, "People/"+content.Colorist, "Colorist")
-	}
-
-	for _, screenplay := range content.Screenplay {
-		g.addConnection(from, "People/"+screenplay, "Screenplay")
-	}
-
-	for _, storyBy := range content.StoryBy {
-		g.addConnection(from, "People/"+storyBy, "Story")
-	}
-
-	for _, dialoguesBy := range content.DialoguesBy {
-		g.addConnection(from, "People/"+dialoguesBy, "Dialogues")
-	}
+	g.addConnectionSingle(from, "People", content.Designer, "Designer")
+	g.addConnectionSingle(from, "People", content.Cinematography, "Cinematography")
+	g.addConnectionSingle(from, "People", content.Music, "Music")
+	g.addConnectionSingle(from, "People", content.CoverArtist, "Cover artist")
+	g.addConnectionSingle(from, "People", content.Colorist, "Colorist")
+	g.addConnectionSingle(from, "Companies", content.Network, "Network")
+	g.addConnectionSingle(from, "Companies", content.Developers, "Developers")
+	g.addConnectionSingle(from, "", content.RemakeOf, "Remake")
 
 	if content.Series != "" {
-		g.addConnection(from, series(content), "Series")
-	}
-
-	for _, distributor := range content.Distributors {
-		g.addConnection(from, "Companies/"+distributor, "Distributor")
-	}
-
-	for _, publisher := range content.Publishers {
-		g.addConnection(from, "Companies/"+publisher, "Publisher")
-	}
-
-	for _, composer := range content.Composers {
-		g.addConnection(from, "People/"+composer, "Composer")
-	}
-
-	for _, host := range content.Hosts {
-		g.addConnection(from, "People/"+host, "Host")
-	}
-
-	for _, guest := range content.Guests {
-		g.addConnection(from, "People/"+guest, "Guest")
-	}
-
-	for _, production := range content.Production {
-		g.addConnection(from, "Companies/"+production, "Production")
-	}
-
-	if content.Network != "" {
-		g.addConnection(from, "Companies/"+content.Network, "Network")
-	}
-
-	if content.Developers != "" {
-		g.addConnection(from, "Companies/"+content.Developers, "Developers")
+		g.addConnectionSingle(from, "Series", series(content), "Series")
 	}
 
 	if content.Previous != "" {
 		g.addPrevious(from, content.Previous)
-	}
-
-	if content.RemakeOf != "" {
-		g.addConnection(from, content.RemakeOf, "Remake")
 	}
 
 	// Prepare for adding Awards
@@ -944,6 +867,29 @@ func (g *Generator) addConnection(from, to string, info ...string) {
 	}
 
 	g.connections[to][from] = append(g.connections[to][from], info...)
+}
+
+func (g *Generator) addConnectionSingle(from, prefix string, item string, info ...string) {
+	if item == "" {
+		return
+	}
+
+	ref := item
+	if prefix != "" {
+		ref = prefix + "/" + item
+	}
+
+	g.addConnection(from, ref, info...)
+}
+
+func (g *Generator) addConnectionList(from, prefix string, list []string, info ...string) {
+	for _, item := range list {
+		ref := item
+		if prefix != "" {
+			ref = prefix + "/" + item
+		}
+		g.addConnection(from, ref, info...)
+	}
 }
 
 func (g *Generator) addPrevious(from, to string) {

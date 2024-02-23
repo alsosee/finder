@@ -10,7 +10,7 @@ import (
 // oneOrMany represents a list of strings that can be passed as a single string in YAML.
 type oneOrMany []string
 
-// UnmarshalYAML makes BasedOn support both a string and a list of strings.
+// UnmarshalYAML makes oneOrMany support both a string and a list of strings.
 func (b *oneOrMany) UnmarshalYAML(value *yaml.Node) error {
 	if value.Kind == yaml.ScalarNode {
 		*b = []string{value.Value}
