@@ -106,6 +106,7 @@ if (typeof hasRun === 'undefined') {
         viewSwitcher.addEventListener('change', (event) => {
             setView(event.target.value);
         });
+        viewSwitcher.querySelector(`input[value=${view}]`).checked = true;
     });
 
     var xhr = null;
