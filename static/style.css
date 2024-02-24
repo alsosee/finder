@@ -39,13 +39,22 @@
     var(--color-background),
     var(--color-background-secondary)
   );
-  --background-missing: repeating-linear-gradient(
+  --background-stripes-light: repeating-linear-gradient(
     -45deg,
-    var(--color-background-selection),
-    var(--color-background-selection) 10px,
-    var(--color-background-selection-lighter) 10px,
-    var(--color-background-selection-lighter) 20px
+    transparent,
+    transparent 10px,
+    rgba(255, 255, 255, 0.1) 10px,
+    rgba(255, 255, 255, 0.1) 20px
   );
+  --background-stripes-dark: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 10px,
+    rgba(0, 0, 0, 0.1) 10px,
+    rgba(0, 0, 0, 0.1) 20px
+  );
+  --background-stripes-size: 28.28px 28.28px;
+  --background-stripes-animation: htmx-request 1s linear infinite;
 
   --border-radius-avatar: 100%;
   --border-radius-medium: 2px;
@@ -104,7 +113,7 @@ body {
   font-family: var(--font-default);
   font-size: 16px;
   line-height: 23px;
-  background: var(--color-background);
+  background-color: var(--color-background);
   color: var(--color-text);
   border: 1px solid var(--color-border);
 }
@@ -118,13 +127,13 @@ a {
 
 code {
   padding: 0 0.2em;
-  background: var(--color-background-secondary);
+  background-color: var(--color-background-secondary);
   border-radius: 0.3em;
 }
 
 pre {
   padding: 0.2em 0.4em;
-  background: var(--color-background-secondary);
+  background-color: var(--color-background-secondary);
   border-radius: 0.3em;
   margin-bottom: 10px;
   font-size: 14px;
@@ -137,13 +146,28 @@ pre code {
   border: none;
 }
 
+.htmx-request {
+  background-image: var(--background-stripes-dark);
+  background-size: var(--background-stripes-size);
+  animation: var(--background-stripes-animation);
+}
+
+@keyframes htmx-request {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -28.28px 0;
+  }
+}
+
 #toolbar {
   display: flex;
   flex-direction: row;
   justify-content: center;
   padding: 10px;
   gap: 10px;
-  background: var(--color-background);
+  background-color: var(--color-background);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -219,7 +243,7 @@ fieldset.radio label + label {
 }
 
 fieldset.radio label:has(input:checked) {
-  background: var(--color-background-secondary);
+  background-color: var(--color-background-secondary);
   box-shadow: var(--shadow-depth);
 }
 
@@ -278,6 +302,14 @@ fieldset.radio label:last-of-type {
 }
 
 #breadcrumbs {
+  --background-stripes-dark: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 10px,
+    rgba(0, 0, 0, 0.05) 10px,
+    rgba(0, 0, 0, 0.05) 20px
+  );
+
   display: flex;
   font-size: 10pt;
   border-bottom: 1px solid var(--color-border);
@@ -293,7 +325,7 @@ fieldset.radio label:last-of-type {
 #breadcrumbs a {
   display: inline-block;
   padding: 0 16px;
-  background: var(--color-background);
+  background-color: var(--color-background);
   color: var(--color-text);
   text-decoration: none;
   clip-path: polygon(
@@ -334,7 +366,7 @@ fieldset.radio label:last-of-type {
 }
 
 #breadcrumbs a:active {
-  background: var(--color-background-secondary);
+  background-color: var(--color-background-secondary);
 }
 
 #breadcrumbs a:focus {
@@ -381,11 +413,15 @@ fieldset.radio label:last-of-type {
 }
 
 .panel li a:focus {
-  background: var(--color-background-secondary);
+  background-color: var(--color-background-secondary);
+}
+
+.panel li a.htmx-request:focus {
+  background-image: var(--background-stripes-light);
 }
 
 .panel li a:active {
-  background: var(--color-background-secondary);
+  background-color: var(--color-background-secondary);
 }
 
 .panel li a span {
@@ -395,7 +431,7 @@ fieldset.radio label:last-of-type {
 }
 
 .panel .in-path {
-  background: var(--color-background-selection-inactive);
+  background-color: var(--color-background-selection-inactive);
 }
 
 .panel .active.missing::before {
@@ -525,7 +561,7 @@ fieldset.radio label:last-of-type {
 
 .content .labels span {
   padding: 0px 7px;
-  background: var(--color-background-secondary);
+  background-color: var(--color-background-secondary);
   border-radius: 7px;
   text-transform: capitalize;
 }
@@ -688,8 +724,14 @@ fieldset.radio label:last-of-type {
 [data-view="icons"] .panel li a:focus span {
   padding: 1px 6px;
   margin: -1px -6px;
-  background: var(--color-background-selection);
+  background-color: var(--color-background-selection);
   color: var(--color-text-selection);
+}
+
+[data-view="icons"] .panel li a.htmx-request:focus span {
+  background-image: var(--background-stripes-light);
+  background-size: var(--background-stripes-size);
+  animation: var(--background-stripes-animation);
 }
 
 [data-view="icons"] .panel li a::before {
@@ -747,14 +789,14 @@ fieldset.radio label:last-of-type {
 }
 
 [data-view="list"] .panel li:nth-child(odd) {
-  background: var(--color-background-tertiary);
+  background-color: var(--color-background-tertiary);
 }
 
 [data-view="list"] .panel li.header {
   display: table-header-group;
   position: sticky;
   top: 0;
-  background: var(--background-gradient);
+  background-color: var(--background-gradient);
 }
 
 [data-view="list"] .panel li.header span {
@@ -810,7 +852,7 @@ fieldset.radio label:last-of-type {
 }
 
 [data-view="list"] .panel a:focus {
-  background: var(--color-background-selection);
+  background-color: var(--color-background-selection);
   color: var(--color-text-selection);
   outline: none;
 }
@@ -871,7 +913,7 @@ fieldset.radio label:last-of-type {
 [data-view="columns"] .panel a:focus {
   z-index: 1;
   filter: none;
-  background: var(--color-background-selection);
+  background-color: var(--color-background-selection);
   color: var(--color-text-selection);
   outline: none;
 }
@@ -955,6 +997,7 @@ fieldset.radio label:last-of-type {
   background-repeat: no-repeat;
   background-size: var(--sprite-size-small);
   background-position: -108px 0;
+  animation: none;
 }
 
 .award.with-text {
@@ -1013,7 +1056,7 @@ fieldset.radio label:last-of-type {
   margin: auto;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.25);
+  background-color: rgba(0, 0, 0, 0.25);
   z-index: 100;
 }
 
@@ -1030,7 +1073,7 @@ fieldset.radio label:last-of-type {
   display: flex;
   flex-direction: column;
   border-radius: 20px;
-  background: var(--color-background-secondary);
+  background-color: var(--color-background-secondary);
   box-shadow: var(--shadow-big);
   overflow: hidden; /* crop .buttons background */
 }
@@ -1091,25 +1134,25 @@ fieldset.radio label:last-of-type {
   color: var(--color-text);
   border-radius: 8px;
   border: 0.5px solid var(--color-border);
-  background: var(--color-background-higher);
+  background-color: var(--color-background-higher);
   box-shadow: var(--shadow-button);
   text-shadow: var(--shadow-text-light);
   user-select: none;
 }
 
 #uploader .buttons button.primary {
-  background: var(--color-background-selection);
+  background-color: var(--color-background-selection);
   color: var(--color-text-selection);
   text-shadow: var(--shadow-text-dark);
 }
 
 #uploader .buttons button:active {
-  background: var(--color-background-secondary);
+  background-color: var(--color-background-secondary);
   box-shadow: var(--shadow-depth);
 }
 
 #uploader .buttons button.primary:active {
-  background: var(--color-background-selection);
+  background-color: var(--color-background-selection);
 }
 
 /* dark mode */
@@ -1139,6 +1182,20 @@ fieldset.radio label:last-of-type {
       var(--color-background),
       var(--color-background-secondary)
     );
+    --background-stripes-light: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 10px,
+      rgba(0, 0, 0, 0.1) 10px,
+      rgba(0, 0, 0, 0.1) 20px
+    );
+    --background-stripes-dark: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 10px,
+      rgba(255, 255, 255, 0.1) 10px,
+      rgba(255, 255, 255, 0.1) 20px
+    );
     --shadow-button: inset 0 -3px 10px rgba(0, 0, 0, 0.2),
       inset 0 -2px 2px rgba(0, 0, 0, 0.2), 0 2px 10px rgba(0, 0, 0, 0.1);
   }
@@ -1153,13 +1210,13 @@ fieldset.radio label:last-of-type {
     --color-border: #222222;
   }
   fieldset.radio {
-    background: #3b3838;
+    background-color: #3b3838;
   }
   fieldset.radio span {
     filter: invert(0.8); /* invert sprite black to white */
   }
   fieldset.radio label:has(input:checked) {
-    background: var(--color-background-tertiary);
+    background-color: var(--color-background-tertiary);
   }
   fieldset.radio label:focus {
     filter: none;
@@ -1192,20 +1249,30 @@ fieldset.radio label:last-of-type {
     filter: none; /* BAFTA logo is yellow */
   }
 
+  #breadcrumbs {
+    --background-stripes-dark: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 10px,
+      rgba(255, 255, 255, 0.1) 10px,
+      rgba(255, 255, 255, 0.1) 20px
+    );
+  }
+
   #breadcrumbs a {
-    background: var(--color-background-tertiary);
+    background-color: var(--color-background-tertiary);
     box-shadow: inset 0 -5px 5px rgba(0, 0, 0, 0.2);
   }
 
   #backdrop {
-    background: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.5);
   }
 
   #uploader .croppie-container .cr-viewport {
     box-shadow: 0 0 2000px 2000px rgba(72, 69, 69, 0.8);
   }
   #uploader .buttons button {
-    background: var(--color-background-secondary);
+    background-color: var(--color-background-secondary);
     text-shadow: var(--shadow-text-dark);
   }
   #uploader .buttons button:active {
