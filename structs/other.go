@@ -24,17 +24,17 @@ type Contents map[string]Content
 // Key is a file path, where reference is pointing to.
 // Value is a map, where key is a file path, where reference is located,
 // and value is a type of reference.
-// For example, three files "A", "B" and "C" are referencing to file "D",
-// but in different contexts. File "A" just has a reference to file "D",
-// file "B" has a reference "D" as an "Author",
-// and file "C" has a reference "D" as a "Voice" for "Bob" (presumably, a character).
+// For example, three files "Alice", "Book" and "Cinema" are referencing to file "Dave",
+// but in different contexts. File "Alice" just has a reference to file "Dave",
+// file "Book" has a reference "Dave" as an "Author",
+// and file "Cinema" has a reference "Dave" as a "Voice" for "Bob" (presumably, a character).
 // Then the Connections map will look like this:
 //
 //	{
-//		"D": {
-//			"A": []
-//			"B": ["Auhor"]
-//			"C": ["Voice", "Bob"],
+//		"Dave": {
+//			"Alice": []
+//			"Book": ["Author"]
+//			"Cinema": ["Voice", "Bob"],
 //		}
 //	}
 type Connections map[string]map[string][]string
