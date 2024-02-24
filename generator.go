@@ -8,7 +8,6 @@ import (
 	"html"
 	"io"
 	"log"
-	"math"
 	"os"
 	"path/filepath"
 	"slices"
@@ -184,12 +183,12 @@ func (g *Generator) fm() template.FuncMap {
 			}
 
 			var (
-				backgroundWidth  = math.Round(float64(media.ThumbTotalWidth) * max / float64(media.ThumbWidth))
-				backgroundHeight = math.Round(float64(media.ThumbTotalHeight) * max / float64(media.ThumbWidth))
-				positionX        = math.Round(float64(media.ThumbXOffset) * max / float64(media.ThumbWidth))
-				positionY        = math.Round(float64(media.ThumbYOffset) * max / float64(media.ThumbWidth))
-				width            = float64(max)
-				height           = math.Round(float64(media.ThumbHeight) * float64(max) / float64(media.ThumbWidth))
+				backgroundWidth  = float64(media.ThumbTotalWidth) * max / float64(media.ThumbWidth)
+				backgroundHeight = float64(media.ThumbTotalHeight) * max / float64(media.ThumbWidth)
+				positionX        = float64(media.ThumbXOffset) * max / float64(media.ThumbWidth)
+				positionY        = float64(media.ThumbYOffset) * max / float64(media.ThumbWidth)
+				width            = max
+				height           = float64(media.ThumbHeight) * max / float64(media.ThumbWidth)
 			)
 
 			p := ""
@@ -198,12 +197,12 @@ func (g *Generator) fm() template.FuncMap {
 			}
 
 			if media.Height > media.Width {
-				backgroundWidth = math.Round(float64(media.ThumbTotalWidth) * max / float64(media.ThumbHeight))
-				backgroundHeight = math.Round(float64(media.ThumbTotalHeight) * max / float64(media.ThumbHeight))
-				positionX = math.Round(float64(media.ThumbXOffset) * max / float64(media.ThumbHeight))
-				positionY = math.Round(float64(media.ThumbYOffset) * max / float64(media.ThumbHeight))
-				width = math.Round(float64(media.ThumbWidth) * float64(max) / float64(media.ThumbHeight))
-				height = float64(max)
+				backgroundWidth = float64(media.ThumbTotalWidth) * max / float64(media.ThumbHeight)
+				backgroundHeight = float64(media.ThumbTotalHeight) * max / float64(media.ThumbHeight)
+				positionX = float64(media.ThumbXOffset) * max / float64(media.ThumbHeight)
+				positionY = float64(media.ThumbYOffset) * max / float64(media.ThumbHeight)
+				width = float64(media.ThumbWidth) * max / float64(media.ThumbHeight)
+				height = max
 			}
 
 			marginLeft := (max - width) / 2
@@ -212,7 +211,7 @@ func (g *Generator) fm() template.FuncMap {
 			marginBottom := max - height - marginTop
 
 			style := fmt.Sprintf(
-				"%sbackground-size: %.0fpx %.0fpx; %swidth: %.0fpx; %sheight: %.0fpx",
+				"%sbackground-size: %.2fpx %.2fpx; %swidth: %.2fpx; %sheight: %.2fpx",
 				p, backgroundWidth, backgroundHeight,
 				p, width,
 				p, height,
@@ -227,7 +226,7 @@ func (g *Generator) fm() template.FuncMap {
 			}
 
 			if positionX != 0 || positionY != 0 {
-				style += fmt.Sprintf("; %sbackground-position: -%.1fpx -%.1fpx", p, positionX, positionY)
+				style += fmt.Sprintf("; %sbackground-position: -%.2fpx -%.2fpx", p, positionX, positionY)
 			}
 
 			return style
@@ -250,8 +249,8 @@ func (g *Generator) fm() template.FuncMap {
 
 			// assume than image width is 100%
 			// how much bigger the whole sprite is?
-			width := math.Round(float64(media.ThumbTotalWidth) * 100 / float64(media.ThumbWidth))
-			height := math.Round(float64(media.ThumbTotalHeight) * 100 / float64(media.ThumbHeight))
+			width := float64(media.ThumbTotalWidth) * 100 / float64(media.ThumbWidth)
+			height := float64(media.ThumbTotalHeight) * 100 / float64(media.ThumbHeight)
 
 			positionX := 0.0
 			positionY := 0.0
@@ -273,14 +272,14 @@ func (g *Generator) fm() template.FuncMap {
 
 			if positionX == 0 && positionY == 0 {
 				return fmt.Sprintf(
-					"%sbackground-size: %.0f%% %.0f%%; %saspect-ratio: %d/%d;",
+					"%sbackground-size: %.2f%% %.2f%%; %saspect-ratio: %d/%d;",
 					p, width, height,
 					p, arX, arY,
 				)
 			}
 
 			return fmt.Sprintf(
-				"%sbackground-size: %.0f%% %.0f%%; %sbackground-position: %.1f%% %.1f%%; %saspect-ratio: %d/%d;",
+				"%sbackground-size: %.2f%% %.2f%%; %sbackground-position: %.2f%% %.2f%%; %saspect-ratio: %d/%d;",
 				p, width, height,
 				p, positionX, positionY,
 				p, arX, arY,
