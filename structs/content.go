@@ -107,6 +107,7 @@ type Content struct {
 	Row8             string   `json:",omitempty"`
 	Redbox           string   `json:",omitempty"`
 	Vudu             string   `json:",omitempty"`
+	DarkHorse        string   `json:",omitempty"`
 
 	// for books
 	ISBN        string    `json:",omitempty"`
