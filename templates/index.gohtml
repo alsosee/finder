@@ -28,8 +28,7 @@
         class="radio menubar-navigation"
         title="Show items as icons, in a list or in columns"
         role="menubar"
-        aria-label="View"
-    >
+        aria-label="View">
         <legend>View</legend>
         <label tabindex="0" role="menuitem"><input type="radio" name="view" value="icons"> <span>Icons</span></label>
         <label tabindex="0" role="menuitem"><input type="radio" name="view" value="list"> <span>List</span></label>
@@ -64,7 +63,7 @@
 <div id="container" hx-boost="true">
     <nav id="panels">
     {{- range $index, $panel := .Panels }}
-        {{ $columns := chooseColumns $panel.Files }}
+        {{- $columns := chooseColumns $panel.Files }}
         <ul class="panel menubar-navigation" role="menu" data-level="{{ $index }}" onclick="panelClick(event)"
             {{- if and (not $.Content) (isLast $index (len $.Panels)) }} id="_"{{ end }}>
             <li role="none" class="header">
@@ -79,26 +78,33 @@
             {{- $file := . }}
             {{- $path := join $panel.Dir .Name }}
             <li role="none">
-                <a
-                    role="menuitem"
-                    {{- if .Image }}style="--background-image: url('https://media.alsosee.info/{{ $panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStylePx .Image 100 "--" }}; {{ thumbStylePx .Image 24 "--small-" }}"{{ end }}
-                    class="{{ if .IsFolder }}folder{{ if hasPrefix $.CurrentPath $path }} in-path{{ end }}{{ end }}{{ if eq $.CurrentPath $path }} active in-path{{ end }}{{ if .IsMissing}} missing{{ end }}{{ if .Image }} has-image{{ if isJPG .Image.Path }} jpg{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}{{ end }}"
-                    href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
-                >
+                <a role="menuitem" class="{{ if .IsFolder -}}
+                            folder
+                            {{- if hasPrefix $.CurrentPath $path }} in-path{{ end }}
+                        {{- end }}
+                        {{- if eq $.CurrentPath $path }} active in-path{{ end }}
+                        {{- if .IsMissing}} missing{{ end }}
+                        {{- if .Image }} has-image
+                            {{- if isJPG .Image.Path }} jpg{{end}}
+                            {{- if hasPrefix $.CurrentPath "People" }} people{{ end }}
+                        {{- end -}}
+                    " href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
+                    {{- if .Image }} style="--background-image: url('https://media.alsosee.info/{{ $panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStylePx .Image 100 "--" }}; {{ thumbStylePx .Image 24 "--small-" }}"{{ end -}}
+                    >
                     <span>{{ .Title }}</span>
                     {{- range $columns }}
                     <span class="column" data-label="{{ . }}">{{ column $file . }}</span>
-                    {{ end }}
+                    {{- end }}
                     <span class="column expand"></span>
                 </a>
             </li>
             {{- end }}
         </ul>
     {{- end }}
-    {{ if .Content }}
-        {{ template "content" . }}
+    {{- if .Content }}
+        {{- template "content" . }}
         <div id="_"></div>
-    {{ end }}
+    {{- end }}
     </nav>
 </div>
 <div id="backdrop" style="display: none" hx-preserve="true"></div>

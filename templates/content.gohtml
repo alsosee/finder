@@ -1,167 +1,193 @@
 {{ define "content" }}
-{{ with .Content }}
+{{- with .Content }}
 <div class="content" data-name="{{ .Name }}" data-dir="{{ $.Dir }}"{{ if .Source }} data-source="{{ .Source }}"{{ end }} tabindex="0">
-    {{ with .HTML }}{{ . }}{{ end }}
-    {{ with .Image }}
+    {{- with .HTML }}{{ . }}{{ end }}
+    {{- with .Image }}
         {{- $div := 3 }}
         {{- if hasPrefix $.CurrentPath "Movies" }}
             {{- $div = 2 }}
         {{- end }}
-        <div class="thumb{{ if isJPG .Path }} jpg{{end}}{{- if hasPrefix $.CurrentPath "People" }} people{{ end }}"
-            style="background-image: url('https://media.alsosee.info/{{ $.Dir }}/{{ .ThumbPath }}');
-                {{- thumbStylePct . -}}
-            ">
-        </div>
-    {{ end }}
+    <div class="thumb
+        {{- if isJPG .Path }} jpg{{ end }}
+        {{- if hasPrefix $.CurrentPath "People" }} people{{ end -}}
+        " style="background-image: url('https://media.alsosee.info/{{ $.Dir }}/{{ .ThumbPath }}');
+        {{- thumbStylePct . -}}"></div>
+    {{- end }}
     {{ if either .Name .Title }}<h1{{ if .Subtitle }} class="with-subtitle"{{ end }}>{{ if .Title }}{{ .Title }}{{ else }}{{ .Name }}{{ end }}</h1>{{ end }}
-    {{ with .Subtitle }}<p class="subtitle">{{ . }}</p>{{ end }}
-    {{ if .Series }}<p class="series">Series: {{ template "reference" dict "Path" (series .) "HideType" true "Fallback" .Series }}</p>{{ end }}
-    {{ with next $.CurrentPath }}<p>Next: {{ template "reference" dict "Path" . "HideType" true }}</p>{{ end }}
-    {{ with prev $.CurrentPath }}<p>Previous: {{ template "reference" dict "Path" . "HideType" true }}</p>{{ end }}
+    {{- with .Subtitle }}<p class="subtitle">{{ . }}</p>{{ end }}
+    {{- if .Series }}<p class="series">Series: {{ template "reference" dict "Path" (series .) "HideType" true "Fallback" .Series }}</p>{{ end }}
+    {{- with next $.CurrentPath }}<p>Next: {{ template "reference" dict "Path" . "HideType" true }}</p>{{ end }}
+    {{- with prev $.CurrentPath }}<p>Previous: {{ template "reference" dict "Path" . "HideType" true }}</p>{{ end }}
     {{- if either .Genres .Rating .Length .Awards }}
     <p class="labels">
-    {{- with .Genres }}{{ range . }}<span class="genre">{{ . }}</span>{{ end }}{{ end }}
+    {{- with .Genres }}
+    {{- range . }}
+        <span class="genre">{{ . }}</span>
+    {{- end }}
+    {{- end }}
     {{- if .Rating }}<span class="rating">{{ .Rating }}</span>{{ end }}
     {{- if .Length }}<span class="length">{{ length .Length }}</span>{{ end }}
-    {{ template "awards_with_text" .Awards }}
+    {{- template "awards_with_text" .Awards }}
     </p>
     {{- end }}
-    {{ with .Description }}<p>{{ . }}</p>{{ end }}
+    {{- with .Description }}
+    <p>{{ . }}</p>
+    {{- end }}
 
-    {{ with .DOB }}<p>Born: {{ . }}</p>{{ end }}
-    {{ with .DOD }}<p>Died: {{ . }}</p>{{ end }}
-    {{ with .Founded }}<p>Founded: {{ . }}</p>{{ end }}
-    {{ with .Publication }}<p>Publication: {{ . }}</p>{{ end }}
-    {{ with .Released }}<p>Released: {{ . }}</p>{{ end }}
+    {{- with .DOB }}
+    <p>Born: {{ . }}</p>
+    {{- end }}
+    {{- with .DOD }}
+    <p>Died: {{ . }}</p>
+    {{- end }}
+    {{- with .Founded }}
+    <p>Founded: {{ . }}</p>
+    {{- end }}
+    {{- with .Publication }}
+    <p>Publication: {{ . }}</p>
+    {{- end }}
+    {{- with .Released }}
+    <p>Released: {{ . }}</p>
+    {{- end }}
 
-    {{ with .Website}}<p><a class="website" href="{{ . }}">{{ . }}</a></p>{{ end }}
-    {{ with .Websites }}{{ range . }}
+    {{- with .Website}}
+    <p><a class="website" href="{{ . }}">{{ . }}</a></p>
+    {{- end }}
+    {{- with .Websites }}{{ range . }}
         <p><a class="website" href="{{ . }}">{{ . }}</a></p>
-    {{ end }}{{ end }}
+    {{- end }}{{ end }}
 
-    {{ with .BasedOn }}
+    {{- with .BasedOn }}
     <p>Based on
-    {{ range . }}
+    {{- range . }}
         <span class="list">{{ template "reference" dict "Path" . "HideType" true}}</span>
-    {{ end }}
+    {{- end }}
     </p>
-    {{ end }}
+    {{- end }}
 
-    {{ with .RemakeOf }}<p>Remake of: {{ template "reference" dict "Path" . "HideType" true }}</p>{{ end }}
+    {{- with .RemakeOf }}
+    <p>Remake of: {{ template "reference" dict "Path" . "HideType" true }}</p>
+    {{- end }}
 
-    {{ with .Developers }}<p>Developers: {{ template "company" . }}</p>{{ end }}
-    {{ with .Authors }}<p>Authors:
-    {{ range . }}
+    {{- with .Developers }}
+    <p>Developers: {{ template "company" . }}</p>
+    {{- end }}
+    {{- with .Authors }}
+    <p>Authors:
+    {{- range . }}
         <span class="list">{{ template "person" . }}</span>
-    {{ end }}
-    {{ end }}
-    {{ with .Designer }}<p>Designer: {{ template "person" . }}</p>{{ end }}
+    {{- end }}
+    {{- end }}
+    {{- with .Designer }}
+    <p>Designer: {{ template "person" . }}</p>
+    {{- end }}
 
-    {{ with .Directors }}<p>{{ template "awards" $.Content.DirectorsAwards }}Directors:
-    {{ range . }}
+    {{- with .Directors }}
+    <p>{{ template "awards" $.Content.DirectorsAwards }}Directors:
+    {{- range . }}
         <span class="list">{{ template "person" . }}</span>
-    {{ end }}
+    {{- end }}
     </p>
-    {{ end }}
+    {{- end }}
 
-    {{ with .Creators }}
+    {{- with .Creators }}
     <p>Creators:
-    {{ range . }}
+    {{- range . }}
         <span class="list">{{ template "person" . }}</span>
-    {{ end }}
+    {{- end }}
     </p>
-    {{ end }}
+    {{- end }}
 
-    {{ with .Screenplay }}
+    {{- with .Screenplay }}
     <p>Screenplay:
-    {{ range . }}
+    {{- range . }}
         <span class="list">{{ template "person" . }}</span>
-    {{ end }}
+    {{- end }}
     </p>
-    {{ end }}
+    {{- end }}
 
-    {{ with .StoryBy }}
+    {{- with .StoryBy }}
     <p>Story by:
-    {{ range . }}
+    {{- range . }}
         <span class="list">{{ template "person" . }}</span>
-    {{ end }}
+    {{- end }}
     </p>
-    {{ end }}
+    {{- end }}
 
-    {{ with .DialoguesBy }}
+    {{- with .DialoguesBy }}
     <p>Dialogues by:
-    {{ range . }}
+    {{- range . }}
         <span class="list">{{ template "person" . }}</span>
-    {{ end }}
+    {{- end }}
     </p>
-    {{ end }}
+    {{- end }}
 
-    {{ with .Producers }}
+    {{- with .Producers }}
     <p>Producers:
-    {{ range . }}
+    {{- range . }}
         <span class="list">{{ template "person" . }}</span>
-    {{ end }}
+    {{- end }}
     </p>
-    {{ end }}
-    {{ with .Writers }}
+    {{- end }}
+    {{- with .Writers }}
     <p>{{ template "awards" $.Content.WritersAwards }}Writers:
-    {{ range . }}
+    {{- range . }}
         <span class="list">{{ template "person" . }}</span>
-    {{ end }}
+    {{- end }}
     </p>
-    {{ end }}
-    {{ with .Editors }}
+    {{- end }}
+    {{- with .Editors }}
     <p>{{ template "awards" $.Content.EditorsAwards }}Editors:
     {{ range . }}
         <span class="list">{{ template "person" . }}</span>
     {{ end }}
     </p>
     {{ end }}
-    {{ with .Cinematography }}<p>Cinematography: {{ template "person" . }}</p>{{ end }}
-    {{ with .Music }}<p>Music: {{ template "person" . }}</p>{{ end }}
-    {{ with .Artists }}<p>Artists:
-    {{ range . }}
+    {{- with .Cinematography }}<p>Cinematography: {{ template "person" . }}</p>{{ end }}
+    {{- with .Music }}<p>Music: {{ template "person" . }}</p>{{ end }}
+    {{- with .Artists }}<p>Artists:
+    {{- range . }}
         <span class="list">{{ template "person" . }}</span>
-    {{ end }}
+    {{- end }}
     </p>
-    {{ end }}
-    {{ with .Colorist }}<p>Colorist: {{ template "person" . }}</p>{{ end }}
+    {{- end }}
+    {{- with .Colorist }}<p>Colorist: {{ template "person" . }}</p>{{ end }}
 
-    {{ with .Production }}
+    {{- with .Production }}
     <p>Production:
-    {{ range . }}
+    {{- range . }}
         <span class="list">{{ template "company" . }}</span>
-    {{ end }}
+    {{- end }}
     </p>
-    {{ end }}
+    {{- end }}
 
-    {{ with .Distributors }}
+    {{- with .Distributors }}
     <p>Distributors:
-    {{ range . }}
+    {{- range . }}
         <span class="list">{{ template "company" . }}</span>
-    {{ end }}
+    {{- end }}
     </p>
-    {{ end }}
+    {{- end }}
 
-    {{ with .Network }}<p>Network: {{ template "company" . }}</p>{{ end }}
+    {{- with .Network }}<p>Network: {{ template "company" . }}</p>{{ end }}
 
-    {{ with .Publishers }}
+    {{- with .Publishers }}
     <p>Publisher:
-    {{ range . }}
+    {{- range . }}
         <span class="list">{{ template "company" . }}</span>
-    {{ end }}
+    {{- end }}
     </p>
-    {{ end }}
-    {{ with .Imprint }}<p>Imprint: {{ template "company" . }}</p>{{ end }}
-    {{ with .CoverArtist }}<p>Cover Artist: {{ template "person" . }}</p>{{ end }}
-    {{ with .Illustrators }}
+    {{- end }}
+    {{- with .Imprint }}<p>Imprint: {{ template "company" . }}</p>{{ end }}
+    {{- with .CoverArtist }}<p>Cover Artist: {{ template "person" . }}</p>{{ end }}
+    {{- with .Illustrators }}
     <p>Illustrators:
-    {{ range . }}
+    {{- range . }}
         <span class="list">{{ template "person" . }}</span>
-    {{ end }}
+    {{- end }}
     </p>
     {{ end }}
-    {{ with .Composers }}
+    {{- with .Composers }}
     <p>Composers:
     {{ range . }}
         <span class="list">{{ template "person" . }}</span>
@@ -169,7 +195,7 @@
     </p>
     {{ end }}
 
-    {{ with .Hosts }}
+    {{- with .Hosts }}
     <p>Hosts:
     {{ range . }}
         <span class="list">{{ template "person" . }}</span>
@@ -177,175 +203,219 @@
     </p>
     {{ end }}
 
-    {{ with .Guests }}
+    {{- with .Guests }}
     <p>Guests:
     {{ range . }}
         <span class="list">{{ template "person" . }}</span>
     {{ end }}
     </p>
-    {{ end }}
+    {{- end }}
 
-    {{ with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
-    {{ with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}
-    {{ with .ISBN13 }}<p>ISBN13: {{ . }}</p>{{ end }}
-    {{ with .UPC }}<p>UPC: {{ . }}</p>{{ end }}
+    {{- with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
+    {{- with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}
+    {{- with .ISBN13 }}<p>ISBN13: {{ . }}</p>{{ end }}
+    {{- with .UPC }}<p>UPC: {{ . }}</p>{{ end }}
 
     <p class="links">
-        {{ with .Contact }}<a href="{{ . }}">Contact</a>{{ end }}
-        {{ with .Trailer }}<a href="{{ . }}">Trailer</a>{{ end }}
-        {{ with .Wikipedia }}<a href="{{ . }}">Wikipedia</a>{{ end }}
-        {{ with .IMDB }}<a href="{{ . }}">IMDB</a>{{ end }}
-        {{ with .TMDB }}<a href="{{ . }}">TMDB</a>{{ end }}
-        {{ with .GoodReads }}<a href="{{ . }}">GoodReads</a>{{ end }}
-        {{ with .Bookshop }}<a href="{{ . }}">Bookshop</a>{{ end }}
-        {{ with .AnimeNewsNetwork }}<a href="{{ . }}">Anime News Network</a>{{ end }}
-        {{ with .RottenTomatoes }}<a href="{{ . }}">Rotten Tomatoes</a>{{ end }}
-        {{ with .Metacritic }}<a href="{{ . }}">Metacritic</a>{{ end }}
-        {{ with .AppStore }}<a href="{{ . }}">App Store</a>{{ end }}
-        {{ with .Twitch }}<a href="{{ . }}">Twitch</a>{{ end }}
-        {{ with .YouTube }}<a href="{{ . }}">YouTube</a>{{ end }}
-        {{ with .Reddit }}<a href="{{ . }}">Reddit</a>{{ end }}
-        {{ with .X }}<a href="{{ . }}">X</a>{{ end }}
-        {{ with .Twitter }}<a href="{{ . }}">X</a>{{ end }}
-        {{ with .Facebook }}<a href="{{ . }}">Facebook</a>{{ end }}
-        {{ with .Instagram }}<a href="{{ . }}">Instagram</a>{{ end }}
-        {{ with .Threads }}<a href="{{ . }}">Threads</a>{{ end }}
-        {{ with .TikTok }}<a href="{{ . }}">TikTok</a>{{ end }}
-        {{ with .Netflix }}<a href="{{ . }}">Netflix</a>{{ end }}
-        {{ with .Spotify }}<a href="{{ . }}">Spotify</a>{{ end }}
-        {{ with .Soundcloud }}<a href="{{ . }}">Soundcloud</a>{{ end }}
-        {{ with .Hulu }}<a href="{{ . }}">Hulu</a>{{ end }}
-        {{ with .AdultSwim }}<a href="{{ . }}">AdultSwim</a>{{ end }}
-        {{ with .Peacock }}<a href="{{ . }}">Peacock</a>{{ end }}
-        {{ with .Fandom }}<a href="{{ . }}">Fandom</a>{{ end }}
-        {{ with .TelegramChannel }}<a href="{{ . }}">Telegram channel</a>{{ end }}
-        {{ with .Steam }}<a href="{{ . }}">Steam</a>{{ end }}
-        {{ with .PlayStation }}<a href="{{ . }}">PlayStation</a>{{ end }}
-        {{ with .XBox }}<a href="{{ . }}">XBox</a>{{ end }}
-        {{ with .GOG }}<a href="{{ . }}">GOG</a>{{ end }}
-        {{ with .Epic }}<a href="{{ . }}">Epic</a>{{ end }}
-        {{ with .Discord }}<a href="{{ . }}">Discord</a>{{ end }}
-        {{ with .IGN }}<a href="{{ . }}">IGN</a>{{ end }}
-        {{ with .Amazon }}<a href="{{ . }}">Amazon</a>{{ end }}
-        {{ with .PrimeVideo }}<a href="{{ . }}">Prime Video</a>{{ end }}
-        {{ with .AppleTV }}<a href="{{ . }}">AppleTV</a>{{ end }}
-        {{ with .ApplePodcasts }}<a href="{{ . }}">Apple Podcasts</a>{{ end }}
-        {{ with .GooglePlay }}<a href="{{ . }}">GooglePlay</a>{{ end }}
-        {{ with .MicrosoftStore }}<a href="{{ . }}">Microsoft Store</a>{{ end }}
-        {{ with .Nintendo }}<a href="{{ . }}">Nintendo</a>{{ end }}
-        {{ with .Row8 }}<a href="{{ . }}">Row8</a>{{ end }}
-        {{ with .Redbox }}<a href="{{ . }}">Redbox</a>{{ end }}
-        {{ with .Vudu }}<a href="{{ . }}">Vudu</a>{{ end }}
-        {{ with .DarkHorse }}<a href="{{ . }}">Dark Horse</a>{{ end }}
+        {{- with .Contact }}<a href="{{ . }}">Contact</a>
+        {{ end }}
+        {{- with .Trailer }}<a href="{{ . }}">Trailer</a>
+        {{ end }}
+        {{- with .Wikipedia }}<a href="{{ . }}">Wikipedia</a>
+        {{ end }}
+        {{- with .IMDB }}<a href="{{ . }}">IMDB</a>
+        {{ end }}
+        {{- with .TMDB }}<a href="{{ . }}">TMDB</a>
+        {{ end }}
+        {{- with .GoodReads }}<a href="{{ . }}">GoodReads</a>
+        {{ end }}
+        {{- with .Bookshop }}<a href="{{ . }}">Bookshop</a>
+        {{ end }}
+        {{- with .AnimeNewsNetwork }}<a href="{{ . }}">Anime News Network</a>
+        {{ end }}
+        {{- with .RottenTomatoes }}<a href="{{ . }}">Rotten Tomatoes</a>
+        {{ end }}
+        {{- with .Metacritic }}<a href="{{ . }}">Metacritic</a>
+        {{ end }}
+        {{- with .AppStore }}<a href="{{ . }}">App Store</a>
+        {{ end }}
+        {{- with .Twitch }}<a href="{{ . }}">Twitch</a>
+        {{ end }}
+        {{- with .YouTube }}<a href="{{ . }}">YouTube</a>
+        {{ end }}
+        {{- with .Reddit }}<a href="{{ . }}">Reddit</a>
+        {{ end }}
+        {{- with .X }}<a href="{{ . }}">X</a>
+        {{ end }}
+        {{- with .Twitter }}<a href="{{ . }}">X</a>
+        {{ end }}
+        {{- with .Facebook }}<a href="{{ . }}">Facebook</a>
+        {{ end }}
+        {{- with .Instagram }}<a href="{{ . }}">Instagram</a>
+        {{ end }}
+        {{- with .Threads }}<a href="{{ . }}">Threads</a>
+        {{ end }}
+        {{- with .TikTok }}<a href="{{ . }}">TikTok</a>
+        {{ end }}
+        {{- with .Netflix }}<a href="{{ . }}">Netflix</a>
+        {{ end }}
+        {{- with .Spotify }}<a href="{{ . }}">Spotify</a>
+        {{ end }}
+        {{- with .Soundcloud }}<a href="{{ . }}">Soundcloud</a>
+        {{ end }}
+        {{- with .Hulu }}<a href="{{ . }}">Hulu</a>
+        {{ end }}
+        {{- with .AdultSwim }}<a href="{{ . }}">AdultSwim</a>
+        {{ end }}
+        {{- with .Peacock }}<a href="{{ . }}">Peacock</a>
+        {{ end }}
+        {{- with .Fandom }}<a href="{{ . }}">Fandom</a>
+        {{ end }}
+        {{- with .TelegramChannel }}<a href="{{ . }}">Telegram channel</a>
+        {{ end }}
+        {{- with .Steam }}<a href="{{ . }}">Steam</a>
+        {{ end }}
+        {{- with .PlayStation }}<a href="{{ . }}">PlayStation</a>
+        {{ end }}
+        {{- with .XBox }}<a href="{{ . }}">XBox</a>
+        {{ end }}
+        {{- with .GOG }}<a href="{{ . }}">GOG</a>
+        {{ end }}
+        {{- with .Epic }}<a href="{{ . }}">Epic</a>
+        {{ end }}
+        {{- with .Discord }}<a href="{{ . }}">Discord</a>
+        {{ end }}
+        {{- with .IGN }}<a href="{{ . }}">IGN</a>
+        {{ end }}
+        {{- with .Amazon }}<a href="{{ . }}">Amazon</a>
+        {{ end }}
+        {{- with .PrimeVideo }}<a href="{{ . }}">Prime Video</a>
+        {{ end }}
+        {{- with .AppleTV }}<a href="{{ . }}">AppleTV</a>
+        {{ end }}
+        {{- with .ApplePodcasts }}<a href="{{ . }}">Apple Podcasts</a>
+        {{ end }}
+        {{- with .GooglePlay }}<a href="{{ . }}">GooglePlay</a>
+        {{ end }}
+        {{- with .MicrosoftStore }}<a href="{{ . }}">Microsoft Store</a>
+        {{ end }}
+        {{- with .Nintendo }}<a href="{{ . }}">Nintendo</a>
+        {{ end }}
+        {{- with .Row8 }}<a href="{{ . }}">Row8</a>
+        {{ end }}
+        {{- with .Redbox }}<a href="{{ . }}">Redbox</a>
+        {{ end }}
+        {{- with .Vudu }}<a href="{{ . }}">Vudu</a>
+        {{ end }}
+        {{- with .DarkHorse }}<a href="{{ . }}">Dark Horse</a>
+        {{ end }}
     </p>
 
-    {{ if not .Source }}
+    {{- if not .Source }}
     <div class="missing">
         <p>This page is a stub. You can help by <a href="https://github.com/alsosee/info/new/main/{{ $.Dir }}/?filename={{ htmlEscape .Name }}.yml">contributing</a>.</p>
     </div>
-    {{ end }}
+    {{- end }}
 
-    {{ with .Characters }}
+    {{- with .Characters }}
     <h2>Characters</h2>
     <ul class="characters">
-        {{ range . }}
-            <li>
-                {{ if .Image }}
-                <span class="image drop" data-name="{{ htmlEscape .Name }}" style="background-image: url('https://media.alsosee.info/{{ escape $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStylePct .Image }}"></span>
-                {{ else }}
-                <span class="no-image drop" data-name="{{ htmlEscape .Name }}"></span>
-                {{ end }}
-                <span class="name">{{ .Name }}</span>
-                {{ if .Actor }}
-                    {{- $actorID := join "People/" .Actor }}
-                    {{- $person := content $actorID }}
-                    {{- if $person }}
-                    <span><a class="actor" href="/People/{{ .Actor }}">{{ .Actor }}</a>{{ template "awards" .Awards }}</span>
-                    {{- else if gt (len (connections $actorID)) 1 }}
-                    <span><a class="actor missing" href="/People/{{ .Actor }}">{{ .Actor }}</a>{{ template "awards" .Awards }}</span>
-                    {{- else }}
-                    <span class="actor missing">{{ .Actor }}{{ template "awards" .Awards }}</span>
-                    {{- end }}
-                {{- else if .Voice }}
-                    {{- $actorID := join "People/" .Voice }}
-                    {{- $person := content $actorID }}
-                    {{- if $person }}
-                    <span><a class="actor" href="/People/{{ .Voice }}">{{ .Voice }}</a>{{ template "awards" .Awards }}</span>
-                    {{- else if gt (len (connections $actorID)) 1 }}
-                    <span><a class="actor missing" href="/People/{{ .Voice }}">{{ .Voice }}</a>{{ template "awards" .Awards }}</span>
-                    {{- else }}
-                    <span class="actor">{{ .Voice }}{{ template "awards" .Awards }}</span>
-                    {{- end }}
-                {{- end }}
-            </li>
-        {{ end }}
+        {{- range . }}
+        <li>
+        {{- if .Image }}
+            <span class="image drop" data-name="{{ htmlEscape .Name }}" style="background-image: url('https://media.alsosee.info/{{ escape $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStylePct .Image }}"></span>
+        {{- else }}
+            <span class="no-image drop" data-name="{{ htmlEscape .Name }}"></span>
+        {{- end }}
+            <span class="name">{{ .Name }}</span>
+        {{- if .Actor }}
+            {{- $actorID := join "People/" .Actor }}
+            {{- $person := content $actorID }}
+            {{- if $person }}
+            <span><a class="actor" href="/People/{{ .Actor }}">{{ .Actor }}</a>{{ template "awards" .Awards }}</span>
+            {{- else if gt (len (connections $actorID)) 1 }}
+            <span><a class="actor missing" href="/People/{{ .Actor }}">{{ .Actor }}</a>{{ template "awards" .Awards }}</span>
+            {{- else }}
+            <span class="actor missing">{{ .Actor }}{{ template "awards" .Awards }}</span>
+            {{- end }}
+        {{- else if .Voice }}
+            {{- $actorID := join "People/" .Voice }}
+            {{- $person := content $actorID }}
+            {{- if $person }}
+            <span><a class="actor" href="/People/{{ .Voice }}">{{ .Voice }}</a>{{ template "awards" .Awards }}</span>
+            {{- else if gt (len (connections $actorID)) 1 }}
+            <span><a class="actor missing" href="/People/{{ .Voice }}">{{ .Voice }}</a>{{ template "awards" .Awards }}</span>
+            {{- else }}
+            <span class="actor">{{ .Voice }}{{ template "awards" .Awards }}</span>
+            {{- end }}
+        {{- end }}
+        </li>
+        {{- end }}
     </ul>
-    {{ end }}
+    {{- end }}
 
-    {{ with .Categories }}
+    {{- with .Categories }}
     <h2>Categories</h2>
-    {{ $prefix := prefix $.Content (awardYear $.Content) }}
-    {{ range . }}
-        <h3>{{ .Name }}</h3>
-        {{ if .Winner.Actor }}
-            {{ $character := characterByActor (content .Winner.Reference) .Winner.Actor }}
-            {{ template "reference" dict "Path" .Winner.Actor "Prefix" "People" "HideType" true }}
+    {{- $prefix := prefix $.Content (awardYear $.Content) -}}
+    {{- range . }}
+    <h3>{{ .Name }}</h3>
+    {{- if .Winner.Actor }}
+        {{- $character := characterByActor (content .Winner.Reference) .Winner.Actor }}
+        {{ template "reference" dict "Path" .Winner.Actor "Prefix" "People" "HideType" true }}
 
-            {{ if $character }}
-            as
-            {{ template "character" dict "Path" .Winner.Reference "Character" $character }}
-            {{ end }}
+        {{- if $character }}
+        as {{ template "character" dict "Path" .Winner.Reference "Character" $character }}
+        {{- end }}
 
-            {{ if either .Winner.Reference .Winner.Fallback }}
-            in
-            {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
-            {{ end }}
-        {{ else if .Winner.Directors }}
-            <span>
-            {{ range .Winner.Directors }}
-                <span class="list">{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
-            {{ end }}
-            </span> in
-            {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
-        {{ else if .Winner.Writers }}
-            <span>
-            {{ range .Winner.Writers }}
-                <span class="list">{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
-            {{ end }}
-            </span> in
-            {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
-        {{ else if .Winner.Track }}
-            “{{ .Winner.Track }}” in
-            {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
-        {{ else }}
-            {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
-        {{ end }}
-    {{ end }}
-    {{ end }}
+        {{- if either .Winner.Reference .Winner.Fallback }}
+        in {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
+        {{- end }}
+    {{- else if .Winner.Directors }}
+        <span>
+        {{- range .Winner.Directors }}
+            <span class="list">{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
+        {{- end }}
+        </span> in
+        {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
+    {{- else if .Winner.Writers }}
+        <span>
+        {{- range .Winner.Writers }}
+            <span class="list">{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
+        {{- end }}
+        </span> in
+        {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
+    {{- else if .Winner.Track }}
+        “{{ .Winner.Track }}” in
+        {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
+    {{- else }}
+        {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
 
-    {{ with connections $.CurrentPath }}
+    {{- with connections $.CurrentPath }}
     <h2>Connections</h2>
     <ul class="connections flat">
-        {{ template "connections" . }}
+        {{- template "connections" . }}
     </ul>
-    {{ end }}
+    {{- end }}
 
-    {{ with .References }}
+    {{- with .References }}
     <h2>Also, see</h2>
     <ul class="connections flat">
         {{- range . }}
         <li>{{ template "reference" dict "Path" .Path }}</li>
         {{- end }}
     </ul>
-    {{ end }}
+    {{- end }}
 
-    {{ with .Extra }}
+    {{- with .Extra }}
     <pre>
         {{- range $key, $value := . }}
         {{- $key }}: {{ $value }}<br>
         {{- end -}}
     </pre>
-    {{ end }}
+    {{- end }}
 </div>
-{{ end }}
-{{ end }}
+{{- end }}
+{{- end }}
