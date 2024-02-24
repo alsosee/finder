@@ -642,7 +642,6 @@ fieldset.radio label:last-of-type {
 .content .characters .actor::last-child {
   padding-right: 0;
 }
-}
 
 .reference.has-image::before {
   content: "";
