@@ -107,6 +107,16 @@ if (typeof hasRun === 'undefined') {
             setView(event.target.value);
         });
     });
+
+    var xhr = null;
+    htmx.on('htmx:beforeRequest', function(evt) {
+        if (xhr !== null) {
+            // cancel any in-flight requests
+            xhr.abort();
+        }
+        xhr = evt.detail.xhr;
+    });
+
     htmx.on('htmx:beforeSwap', function(evt) {
         if (view === "columns") {
             saveFocus();
