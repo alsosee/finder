@@ -143,15 +143,21 @@
     {{ end }}
     </p>
     {{ end }}
-    {{- with .Cinematography }}<p>Cinematography: {{ template "person" . }}</p>{{ end }}
-    {{- with .Music }}<p>Music: {{ template "person" . }}</p>{{ end }}
+    {{- with .Cinematography }}
+    <p>Cinematography: {{ template "person" . }}</p>
+    {{- end }}
+    {{- with .Music }}
+    <p>Music: {{ template "person" . }}</p>
+    {{- end }}
     {{- with .Artists }}<p>Artists:
     {{- range . }}
         <span class="list">{{ template "person" . }}</span>
     {{- end }}
     </p>
     {{- end }}
-    {{- with .Colorist }}<p>Colorist: {{ template "person" . }}</p>{{ end }}
+    {{- with .Colorist }}
+    <p>Colorist: {{ template "person" . }}</p>
+    {{- end }}
 
     {{- with .Production }}
     <p>Production:
@@ -169,7 +175,9 @@
     </p>
     {{- end }}
 
-    {{- with .Network }}<p>Network: {{ template "company" . }}</p>{{ end }}
+    {{- with .Network }}
+    <p>Network: {{ template "company" . }}</p>
+    {{- end }}
 
     {{- with .Publishers }}
     <p>Publisher:
@@ -178,8 +186,12 @@
     {{- end }}
     </p>
     {{- end }}
-    {{- with .Imprint }}<p>Imprint: {{ template "company" . }}</p>{{ end }}
-    {{- with .CoverArtist }}<p>Cover Artist: {{ template "person" . }}</p>{{ end }}
+    {{- with .Imprint }}
+    <p>Imprint: {{ template "company" . }}</p>
+    {{- end }}
+    {{- with .CoverArtist }}
+    <p>Cover Artist: {{ template "person" . }}</p>
+    {{- end }}
     {{- with .Illustrators }}
     <p>Illustrators:
     {{- range . }}
@@ -336,7 +348,7 @@
             {{- else if gt (len (connections $actorID)) 1 }}
             <span><a class="actor missing" href="/People/{{ .Actor }}">{{ .Actor }}</a>{{ template "awards" .Awards }}</span>
             {{- else }}
-            <span class="actor missing">{{ .Actor }}{{ template "awards" .Awards }}</span>
+            <span><span class="actor missing">{{ .Actor }}</span>{{ template "awards" .Awards }}</span>
             {{- end }}
         {{- else if .Voice }}
             {{- $actorID := join "People/" .Voice }}
@@ -346,7 +358,7 @@
             {{- else if gt (len (connections $actorID)) 1 }}
             <span><a class="actor missing" href="/People/{{ .Voice }}">{{ .Voice }}</a>{{ template "awards" .Awards }}</span>
             {{- else }}
-            <span class="actor">{{ .Voice }}{{ template "awards" .Awards }}</span>
+            <span><span class="actor">{{ .Voice }}</span>{{ template "awards" .Awards }}</span>
             {{- end }}
         {{- end }}
         </li>

@@ -636,6 +636,12 @@ fieldset.radio label:last-of-type {
 
 .content .characters .actor {
   font-style: italic;
+  padding-right: 3px; /* to separate from award */
+}
+
+.content .characters .actor::last-child {
+  padding-right: 0;
+}
 }
 
 .reference.has-image::before {
@@ -1029,9 +1035,6 @@ fieldset.radio label:last-of-type {
 .award.with-text[href*="/Oscar/"]::before {
   background-position: -126px 0;
 }
-.award[href*="/Oscar/"] {
-  margin: -8px -3px -3px;
-}
 
 .labels .award.with-text[href*="/Oscar/"] {
   margin: 0 5px 0 -5px;
@@ -1045,6 +1048,8 @@ fieldset.radio label:last-of-type {
 .award[href*="/BAFTA/"],
 .award.with-text[href*="/BAFTA/"]::before {
   background-position: -162px 0;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 #backdrop {
