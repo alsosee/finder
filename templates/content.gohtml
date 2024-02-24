@@ -260,9 +260,9 @@
                     {{- $actorID := join "People/" .Actor }}
                     {{- $person := content $actorID }}
                     {{- if $person }}
-                    <a class="actor" href="/People/{{ .Actor }}">{{ .Actor }}{{ template "awards" .Awards }}</a>
+                    <span><a class="actor" href="/People/{{ .Actor }}">{{ .Actor }}</a>{{ template "awards" .Awards }}</span>
                     {{- else if gt (len (connections $actorID)) 1 }}
-                    <a class="actor missing" href="/People/{{ .Actor }}">{{ .Actor }}{{ template "awards" .Awards }}</a>
+                    <span><a class="actor missing" href="/People/{{ .Actor }}">{{ .Actor }}</a>{{ template "awards" .Awards }}</span>
                     {{- else }}
                     <span class="actor missing">{{ .Actor }}{{ template "awards" .Awards }}</span>
                     {{- end }}
@@ -270,9 +270,9 @@
                     {{- $actorID := join "People/" .Voice }}
                     {{- $person := content $actorID }}
                     {{- if $person }}
-                    <a class="actor" href="/People/{{ .Voice }}">{{ .Voice }}{{ template "awards" .Awards }}</a>
+                    <span><a class="actor" href="/People/{{ .Voice }}">{{ .Voice }}</a>{{ template "awards" .Awards }}</span>
                     {{- else if gt (len (connections $actorID)) 1 }}
-                    <a class="actor missing" href="/People/{{ .Voice }}">{{ .Voice }}{{ template "awards" .Awards }}</a>
+                    <span><a class="actor missing" href="/People/{{ .Voice }}">{{ .Voice }}</a>{{ template "awards" .Awards }}</span>
                     {{- else }}
                     <span class="actor">{{ .Voice }}{{ template "awards" .Awards }}</span>
                     {{- end }}
