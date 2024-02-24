@@ -1225,7 +1225,7 @@ func (g *Generator) addAwards() {
 				ok             bool
 			)
 			if awadredContent, ok = g.contents[id]; !ok {
-				log.Printf("No content found for %q", id)
+				log.Printf("No content found for %q (referenced by %q)", id, awardPage)
 				continue
 			}
 
