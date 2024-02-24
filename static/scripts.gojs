@@ -101,6 +101,12 @@ if (typeof hasRun === 'undefined') {
         }
     }
 
+    htmx.on('htmx:historyRestore', function(evt) {
+        viewSwitcher = document.querySelector('#toolbar fieldset');
+        viewSwitcher.addEventListener('change', (event) => {
+            setView(event.target.value);
+        });
+    });
     htmx.on('htmx:beforeSwap', function(evt) {
         if (view === "columns") {
             saveFocus();
