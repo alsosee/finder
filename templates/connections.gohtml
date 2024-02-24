@@ -4,11 +4,11 @@
 {{- if gt (len $extra) 1 }}
     {{- if eq (index $extra 0) "Actor" -}}
     {{ $character := character $content (index $extra 1) }}
-    <li>{{ template "awards" $character.Awards }}Played {{ template "character" dict "Character" $character "Content" $content "Path" $path "CharacterName" (index $extra 1) }}
+    <li>{{ template "awards" $character.Awards }}Played {{ template "character" dict "Character" $character "Path" $path "CharacterName" (index $extra 1) }}
     in {{ template "reference" dict "Content" $content "Path" $path "HideType" true }}</li>
     {{- else if eq (index $extra 0) "Voice" -}}
     {{ $character := character $content (index $extra 1) }}
-    <li>{{ template "awards" $character.Awards }}Voiced {{ template "character" dict "Character" $character "Content" $content "Path" $path "CharacterName" (index $extra 1) }}
+    <li>{{ template "awards" $character.Awards }}Voiced {{ template "character" dict "Character" $character "Path" $path "CharacterName" (index $extra 1) }}
     in {{ template "reference" dict "Content" $content "Path" $path "HideType" true }}</li>
     {{ else }}
     <li>{{ strjoin $extra ", " }} of {{ template "reference" dict "Content" $content "Path" $path "HideType" true }}</li>
