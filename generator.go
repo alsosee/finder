@@ -840,7 +840,7 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 	g.addConnectionSingle(from, "", content.RemakeOf, "Remake")
 
 	if content.Series != "" {
-		g.addConnectionSingle(from, "Series", series(content), "Series")
+		g.addConnectionSingle(from, "", series(content), "Series")
 	}
 
 	if content.Previous != "" {
