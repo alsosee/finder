@@ -87,6 +87,7 @@ type Content struct {
 	Reddit           string   `json:",omitempty"`
 	Facebook         string   `json:",omitempty"`
 	Instagram        string   `json:",omitempty"`
+	Threads          string   `json:",omitempty"`
 	TikTok           string   `json:",omitempty"`
 	TelegramChannel  string   `yaml:"telegram_channel" json:",omitempty"`
 	PlayStation      string   `yaml:"playstation" json:",omitempty"`
