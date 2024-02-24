@@ -3,7 +3,8 @@
 {{- if .Prefix }}
     {{- $id = (join .Prefix .Path) }}
 {{- end }}
-{{- $content := content $id }}
+{{- $content := .Content }}
+{{ if not $content }}{{ $content = content $id }}{{ end }}
 {{ if $content }}
 <a href="/{{ $id }}"
 {{- if $content.Image }}style="--background-image: url('https://media.alsosee.info/{{ dir $id }}/{{ $content.Image.ThumbPath }}'); {{ thumbStylePx $content.Image 24 "--" }}"{{ end }}

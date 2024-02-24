@@ -1,7 +1,9 @@
 {{ define "character" }}
-{{- $content := content .Path }}
+{{ $content := .Content }}
+{{ if not $content }}{{ $content = content .Path }}{{ end }}
 {{ if $content }}
-{{- $character := character $content .Character }}
+{{ $character := .Character }}
+{{ if not $character }}{{- $character = character $content .CharacterName }}{{ end }}
 {{ if $character }}
 <span class="reference character{{ if $character.Image }} has-image{{ if isJPG $content.Image.Path }} jpg{{end}}{{ end }}"
 {{- if $character.Image }} style="--background-image: url('https://media.alsosee.info/{{ escape .Path }}/Characters/{{ $character.Image.ThumbPath }}'); {{ thumbStylePx $character.Image 24 "--" }}"{{ end }}>

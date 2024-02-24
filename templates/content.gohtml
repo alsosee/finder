@@ -293,7 +293,7 @@
 
             {{ if $character }}
             as
-            {{ template "character" dict "Path" .Winner.Reference "Character" $character.Name }}
+            {{ template "character" dict "Path" .Winner.Reference "CharacterName" $character.Name }}
             {{ end }}
 
             {{ if either .Winner.Reference .Winner.Fallback }}
