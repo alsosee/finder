@@ -6,9 +6,9 @@
   --font-monospace: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
     Liberation Mono, monospace;
 
-  --sprite-url: url("sprite.png?crc=38f07e9b");
-  --sprite-size: 216px 24px;
-  --sprite-size-small: 162px 18px; /* 75% */
+  --files-url: url("files.png?crc=9f90e22b");
+  --files-size: 200px 100px;
+
   --sprite-url: url("sprite.png?crc=14aca395");
   --sprite-size: 240px 24px;
   --sprite-size-small: 180px 18px; /* 75% */
@@ -746,9 +746,9 @@ fieldset.radio label:last-of-type {
   margin: 0 auto 10px;
   width: 100px;
   height: 100px;
-  background-image: url("files.png");
+  background-image: var(--files-url);
+  background-size: var(--files-size);
   background-repeat: no-repeat;
-  background-size: 200px 100px;
   background-position: 0 0;
 }
 
