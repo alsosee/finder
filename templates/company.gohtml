@@ -1,3 +1,8 @@
 {{ define "company" }}
+{{- /*
+company template used to display company reference
+it's a syntax sugar for reference template
+Input: string (name of the company, e.g. "Google")
+*/ -}}
 {{- template "reference" dict "Path" . "Prefix" "Companies/" "HideType" true }}
 {{- end }}

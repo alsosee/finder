@@ -2,9 +2,9 @@
 {{- /*
 character template used to display movie/game character image and name
 Inputs:
-- .Path: path to content that has the character
-- .Character: character to display
-- .CharacterName: fallback character name if .Character is not provided
+- .Path (string): path to content that has the character
+- .Character (Character): character to display
+- .CharacterName (string): fallback character name if .Character is not provided
 */ -}}
 {{- if .Character -}}
 <span class="reference character{{ if .Character.Image }} has-image{{ if isJPG .Character.Image.Path }} jpg{{ end }}{{ end }}"

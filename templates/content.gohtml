@@ -1,4 +1,11 @@
 {{ define "content" }}
+{{- /*
+content template used to display everything from a YAML or Markdown file
+Inputs (same as for "index" template):
+- .Content: content to display
+- .CurrentPath: current path, for example "Movies/2001/A Space Odyssey"
+- .Dir: content directory, used to build image URLs
+*/ -}}
 {{- with .Content }}
 <div class="content" data-name="{{ .Name }}" data-dir="{{ $.Dir }}"{{ if .Source }} data-source="{{ .Source }}"{{ end }} tabindex="0">
     {{- with .HTML }}{{ . }}{{ end }}
@@ -20,14 +27,14 @@
     {{- with prev $.CurrentPath }}<p>Previous: {{ template "reference" dict "Path" . "HideType" true }}</p>{{ end }}
     {{- if either .Genres .Rating .Length .Awards }}
     <p class="labels">
-    {{- with .Genres }}
-    {{- range . }}
+        {{- with .Genres }}
+        {{- range . }}
         <span class="genre">{{ . }}</span>
-    {{- end }}
-    {{- end }}
-    {{- if .Rating }}<span class="rating">{{ .Rating }}</span>{{ end }}
-    {{- if .Length }}<span class="length">{{ length .Length }}</span>{{ end }}
-    {{- template "awards_with_text" .Awards }}
+        {{- end }}
+        {{- end }}
+        {{- if .Rating }}<span class="rating">{{ .Rating }}</span>{{ end -}}
+        {{- if .Length }}<span class="length">{{ length .Length }}</span>{{ end -}}
+        {{ template "awards_with_text" .Awards }}
     </p>
     {{- end }}
     {{- with .Description }}

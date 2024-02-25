@@ -1,4 +1,8 @@
 {{ define "awards" }}
+{{- /*
+awards template used to display award icon by the content field
+Input: []Award
+*/ -}}
 {{- range . -}}
 <a class="award" title="{{ .Category }}" href="/{{ .Reference }}"></a>
 {{- end }}

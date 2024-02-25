@@ -1,5 +1,9 @@
 {{ define "awards_with_text" }}
+{{- /*
+awards_with_text template used to display award information at the top of the content
+Input: []Award
+*/ -}}
 {{- range . }}
-<a class="award with-text" href="/{{ .Reference }}">{{ .Category }}</a>
+        <a class="award with-text" href="/{{ .Reference }}">{{ .Category }}</a>
 {{- end }}
 {{- end }}

@@ -1,8 +1,15 @@
 {{ define "reference" }}
+{{- /*
+reference template used to display reference to other "file" with image (if available) and name
+Inputs:
+- .Path (string): path to the referenced file
+- .Content (Content, optional): content of the referenced file
+- .Fallback (string, optional): text to display if the reference is missing
+- .HideType (bool, optional): hide the type of the reference
+- .Prefix (string, optional): prefix to add to the path
+*/ -}}
 {{- $id := .Path -}}
-{{- if .Prefix }}
-    {{- $id = (join .Prefix .Path) }}
-{{- end }}
+{{- if .Prefix }}{{ $id = (join .Prefix .Path) }}{{ end }}
 {{- $content := .Content -}}
 {{- if not $content }}{{ $content = content $id }}{{ end }}
 {{- if $content -}}

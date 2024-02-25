@@ -1,3 +1,8 @@
 {{ define "person" }}
+{{- /*
+person template used to display person reference
+it's a syntax sugar for reference template
+Input: string (person name, e.g. "John Doe")
+*/ -}}
 {{- template "reference" dict "Path" . "Prefix" "People/" "HideType" true }}
 {{- end }}
