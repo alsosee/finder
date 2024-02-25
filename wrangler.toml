@@ -1,3 +1,0 @@
-r2_buckets  = [
-  { binding = "MEDIA", bucket_name = "media-purgatory", preview_bucket_name = "media-purgatory" }
-]
