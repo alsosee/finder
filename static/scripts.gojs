@@ -611,13 +611,7 @@ if (typeof hasRun === 'undefined') {
             }
 
             if (link) {
-                request = new XMLHttpRequest();
-                request.open('GET', "/get?url="+encodeURIComponent(link));
-                request.responseType = 'blob';
-                request.onload = function() {
-                    reader.readAsDataURL(request.response);
-                };
-                request.send();
+                console.log("link", link);
             }
         }
     });
