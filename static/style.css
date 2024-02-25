@@ -1058,27 +1058,26 @@ fieldset.radio label:last-of-type {
   top: 0;
   bottom: 0;
   margin: auto;
+  padding: 20px 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.25);
   z-index: 100;
+  overflow-y: scroll;
+  align-items: center;
+  justify-content: center;
 }
 
 #uploader {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 101;
-  margin: auto;
-  width: 420px;
-  height: 573px; /* emperically determined */
   display: flex;
   flex-direction: column;
+  width: 420px;
+  height: 573px; /* emperically determined */
+  margin: auto;
   border-radius: 20px;
   background-color: var(--color-background-secondary);
   box-shadow: var(--shadow-big);
+  z-index: 101;
   overflow: hidden; /* crop .buttons background */
 }
 

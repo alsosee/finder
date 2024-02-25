@@ -107,13 +107,14 @@
     {{- end }}
     </nav>
 </div>
-<div id="backdrop" style="display: none" hx-preserve="true"></div>
-<div id="uploader" style="display: none" hx-preserve="true">
-    <h1 id="uploader_target"></h1>
-    <div id="uploader_preview"></div>
-    <div class="buttons">
-      <button class="dismiss" onclick="uploader_cancel()">Cancel</button>
-      <button class="primary" onclick="uploader_upload()">Upload</button>
+<div id="backdrop" style="display: none" hx-preserve="true">
+    <div id="uploader" style="display: none">
+        <h1 id="uploader_target"></h1>
+        <div id="uploader_preview"></div>
+        <div class="buttons">
+            <button class="dismiss" onclick="uploader_cancel()">Cancel</button>
+            <button id="btn_uploader_upload" class="primary" onclick="uploader_upload()">Upload</button>
+        </div>
     </div>
 </div>
 <script src="/scripts.js?crc={{ crc32 "scripts.js" }}" hx-preserve="true"></script>
