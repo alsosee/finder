@@ -141,26 +141,7 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return ""
 		},
-		// "crc32" calculates CRC32 checksum for a file.
-		// It's used to add a get parameter to a static file URL,
-		// so that when the file is updated, the browser will download the new version.
-		"crc32": func(path string) string {
-			// calculate CRC32 checksum for a file
-			file, err := os.Open(filepath.Join(cfg.OutputDirectory, path))
-			if err != nil {
-				log.Printf("Error opening file %q: %v", path, err)
-				return ""
-			}
-			defer file.Close()
-
-			hash := crc32.NewIEEE()
-			if _, err := io.Copy(hash, file); err != nil {
-				log.Printf("Error calculating CRC32 checksum for file %q: %v", path, err)
-				return ""
-			}
-
-			return fmt.Sprintf("%x", hash.Sum32())
-		},
+		"crc32": crc32sum,
 		"div": func(a, b int) int {
 			return a / b
 		},
@@ -1299,6 +1280,35 @@ func (g *Generator) buildPanels(path string, isFile bool) (structs.Panels, struc
 	}
 
 	return panels, breadcrumbs
+}
+
+var crc32cache = map[string]string{}
+
+// crc32 calculates CRC32 checksum for a file.
+// It's used to add a get parameter to a static file URL,
+// so that when the file is updated, the browser will download the new version.
+func crc32sum(path string) string {
+	if crc, ok := crc32cache[path]; ok {
+		return crc
+	}
+
+	// calculate CRC32 checksum for a file
+	file, err := os.Open(filepath.Join(cfg.OutputDirectory, path))
+	if err != nil {
+		log.Printf("Error opening file %q: %v", path, err)
+		return ""
+	}
+	defer file.Close()
+
+	hash := crc32.NewIEEE()
+	if _, err := io.Copy(hash, file); err != nil {
+		log.Printf("Error calculating CRC32 checksum for file %q: %v", path, err)
+		return ""
+	}
+
+	crc32cache[path] = fmt.Sprintf("%x", hash.Sum32())
+
+	return crc32cache[path]
 }
 
 func measureTime() func() {
