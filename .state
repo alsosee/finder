@@ -1,6 +1,8 @@
+Books/1992/Poor Things.yml	73a480f1
 Books/1997/Harry Potter and the Philosopher's Stone.yml	a5b53597
 Books/2005/American Prometheus.yml	4b55b137
 Books/2011/Steve Jobs.yml	1f8eff1c
+Books/2014/The Zone of Interest.yml	aa461f66
 Books/2022/They Shouldn't Have Killed His Dog.yml	71641496
 Comics/2009/One Punch Man.yml	d9d98c10
 Comics/2013/The Last of Us American Dreams.yml	ce7c7bb2
@@ -17,8 +19,9 @@ Games/Video/2020/Cyberpunk 2077.yml	e3cb4a46
 Games/Video/2020/One-Punch Man A Hero Nobody Knows.yml	edaa0184
 Games/Video/2020/The Last of Us Part II.yml	393fcce9
 Games/Video/2022/The Last of Us Part I.yml	c119db53
-Games/Video/2023/Baldur's Gate 3.yml	dd4b3721
+Games/Video/2023/Baldur's Gate 3.yml	5f7ba761
 Games/Video/2023/Cyberpunk 2077 Phantom Liberty.yml	d81449b1
+Games/Video/Series/Baldur's Gate.yml	958def3a
 Movies/2001/Harry Potter and the Philosopher's Stone.yml	d816fade
 Movies/2014/John Wick.yml	c151ac26
 Movies/2017/John Wick Chapter 2.yml	1901ed2c
@@ -28,17 +31,25 @@ Movies/2022/RRR.yml	c3b5f3c2
 Movies/2023/Dungeons & Dragons Honor among thieves.yml	75c0d604
 Movies/2023/John Wick Chapter 4.yml	c62f2ec0
 Movies/2023/Oppenheimer.yml	50dce2f6
-Movies/Awards/BAFTA/2024.yml	b939037b
+Movies/2023/Poor Things.yml	c9767afd
+Movies/2023/The Zone of Interest.yml	ab8ae035
+Movies/Awards/BAFTA/2024.yml	aaf612e
 Movies/Awards/Oscar/2023.yml	6fa01c37
 Movies/Series/Harry Potter.yml	449e60c7
 Movies/Series/John Wick.yml	61cc298f
+People/Ashley Johnson.yml	384177e8
 People/Chad Stahelski.yml	ee09b13e
 People/Chris Pine.yml	9a186683
+People/Christopher Nolan.yml	2ad692f
 People/Derek Kolstad.yml	272cb095
+People/Gustavo Santaolalla.yml	11480c01
 People/Ian McShane.yml	3cb46ac0
 People/Keanu Reeves.yml	a5d1a260
 People/Lance Reddick.yml	aab8a4e8
+People/Neil Druckmann.yml	a12ded77
+People/Robert Downey Jr..yml	66b699ff
 People/Steve Jobs.yml	741cb6bd
+People/Troy Baker.yml	1725dae3
 Podcasts/2020/The Last of Us Podcast.yml	241d4b30
 Podcasts/2023/HBO's The Last of Us Podcast.yml	a1e2f59e
 Series/2015/One Punch Man.yml	e0c50144
