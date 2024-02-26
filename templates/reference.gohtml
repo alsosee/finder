@@ -16,7 +16,7 @@ Inputs:
 <a href="/{{ $id }}" class="reference{{- if hasPrefix $content.Source "People" }} people{{ end }}{{ if $content.Image }} has-image{{ if isJPG $content.Image.Path }} jpg{{end}}{{ end }}"
 {{- if $content.Image }} style="--background-image: url('https://media.alsosee.info/{{ dir $id }}/{{ $content.Image.ThumbPath }}'); {{ thumbStylePx $content.Image 24 "--" }}"{{ end }}>
 {{- $content.Name }}</a>{{ if not .HideType }} ({{ type $content }}){{ end }}
-{{- else if gt (len (connections $id)) 1 -}}
+{{- else if gt (sum (missingAwardsLen $id) (len (connections $id))) 1 -}}
 <a href="/{{ $id }}" class="missing">{{ if .Fallback }}{{ .Fallback }}{{ else }}{{ .Path }}{{ end }}</a>
 {{- else -}}
 <span class="missing">{{ if .Fallback }}{{ .Fallback }}{{ else }}{{ .Path }}{{ end }}</span>

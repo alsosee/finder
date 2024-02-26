@@ -164,6 +164,7 @@ func (r *Reference) UnmarshalYAML(value *yaml.Node) error {
 // Missing represents a missing reference.
 // Used in "missing" template function to render Missing.gomd file.
 type Missing struct {
-	To   string
-	From map[string][]string
+	To     string
+	From   map[string][]string
+	Awards []Award
 }

@@ -52,6 +52,11 @@ type Generator struct {
 	awardPages   []string
 	muAwardPages sync.Mutex
 
+	// awardsMissingContent used to temporary hold awards
+	// that are for content that is not yet added.
+	awardsMissingContent   map[string][]structs.Award
+	muAwardsMissingContent sync.Mutex
+
 	// chainPages used to keep track of next/prev pages in a series.
 	chainPages   map[string]map[bool]string // from -> true(next)/false(prev) -> reference
 	muChainPages sync.Mutex
@@ -65,12 +70,13 @@ func NewGenerator() (*Generator, error) {
 	}
 
 	return &Generator{
-		ignore:           ignore,
-		contents:         structs.Contents{},
-		dirContents:      map[string][]structs.File{},
-		connections:      structs.Connections{},
-		mediaDirContents: map[string][]structs.Media{},
-		chainPages:       map[string]map[bool]string{},
+		ignore:               ignore,
+		contents:             structs.Contents{},
+		dirContents:          map[string][]structs.File{},
+		connections:          structs.Connections{},
+		mediaDirContents:     map[string][]structs.Media{},
+		chainPages:           map[string]map[bool]string{},
+		awardsMissingContent: map[string][]structs.Award{},
 	}, nil
 }
 
@@ -97,7 +103,14 @@ func (g *Generator) fm() template.FuncMap {
 		"base":      filepath.Base,
 		"hasPrefix": strings.HasPrefix,
 		"strjoin":   strings.Join,
-		"in":        in,
+		"sum": func(ints ...int) int {
+			var sum int
+			for _, i := range ints {
+				sum += i
+			}
+			return sum
+		},
+		"in": in,
 		// "content" returns a Content struct for a given file path (without extension)
 		// It is used to render references.
 		"content": func(id string) *structs.Content {
@@ -390,6 +403,11 @@ func (g *Generator) fm() template.FuncMap {
 		},
 		"htmlEscape": html.EscapeString,
 		"missing":    g.missing,
+		"missingAwardsLen": func(id string) int {
+			g.muAwardsMissingContent.Lock()
+			defer g.muAwardsMissingContent.Unlock()
+			return len(g.awardsMissingContent[id])
+		},
 		"title": func(b structs.Breadcrumbs) string {
 			b = b[1:] // skip the first element (it's always "Home")
 			if len(b) == 0 {
@@ -1073,7 +1091,7 @@ func (g *Generator) generateIndexes() error {
 func (g *Generator) generateMissing() error {
 	missing := g.missing()
 	for _, m := range missing {
-		if len(m.From) < 2 {
+		if len(m.From)+len(m.Awards) < 2 {
 			continue
 		}
 
@@ -1082,8 +1100,9 @@ func (g *Generator) generateMissing() error {
 		path := filepath.Join(cfg.OutputDirectory, id+".html")
 		panels, breadcrumbs := g.buildPanels(id, true)
 		cnt := structs.Content{
-			Name:  filepath.Base(id),
-			Image: image,
+			Name:   filepath.Base(id),
+			Image:  image,
+			Awards: m.Awards,
 		}
 
 		// add current file to last panel
@@ -1118,6 +1137,8 @@ func (g *Generator) generateMissing() error {
 func (g *Generator) missing() []structs.Missing {
 	missing := map[string]map[string][]string{}
 
+	// add missing content referenced by other files
+
 	g.muConnections.Lock()
 	g.muContents.Lock()
 
@@ -1131,13 +1152,43 @@ func (g *Generator) missing() []structs.Missing {
 
 	result := []structs.Missing{}
 	for to, from := range missing {
-		result = append(result, structs.Missing{To: to, From: from})
+		result = append(
+			result,
+			structs.Missing{
+				To:     to,
+				From:   from,
+				Awards: g.awardsMissingContent[to],
+			},
+		)
 	}
 
-	// sort by number of references (descending)
-	// so that the most referenced files are on top
+	// add missing content that got awards
+
+	g.muAwardPages.Lock()
+	for to, awards := range g.awardsMissingContent {
+		if _, ok := g.contents[to]; !ok && len(awards) > 1 {
+			result = append(
+				result,
+				structs.Missing{
+					To:     to,
+					From:   nil,
+					Awards: awards,
+				},
+			)
+		}
+	}
+	g.muAwardPages.Unlock()
+
+	// Sort by number of references (descending),
+	// so that the most referenced files are on top.
+	// If the number of references is the same, sort by name.
 	sort.Slice(result, func(i, j int) bool {
-		return len(result[i].From) > len(result[j].From)
+		ilen := len(result[i].From) + len(result[i].Awards)
+		jlen := len(result[j].From) + len(result[j].Awards)
+		if ilen == jlen {
+			return result[i].To < result[j].To
+		}
+		return ilen > jlen
 	})
 
 	return result
@@ -1200,18 +1251,20 @@ func (g *Generator) addAwards() {
 				continue
 			}
 
+			award := structs.Award{
+				Category:  category.Name,
+				Reference: awardPage,
+			}
+
 			var (
 				awadredContent structs.Content
 				ok             bool
 			)
 			if awadredContent, ok = g.contents[id]; !ok {
-				log.Printf("No content found for %q (referenced by %q)", id, awardPage)
+				g.muAwardsMissingContent.Lock()
+				g.awardsMissingContent[id] = append(g.awardsMissingContent[id], award)
+				g.muAwardsMissingContent.Unlock()
 				continue
-			}
-
-			award := structs.Award{
-				Category:  category.Name,
-				Reference: awardPage,
 			}
 
 			switch true {
