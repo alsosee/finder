@@ -4,6 +4,6 @@ awards_with_text template used to display award information at the top of the co
 Input: []Award
 */ -}}
 {{- range . }}
-        <a class="award with-text" href="/{{ .Reference }}">{{ .Category }}</a>
+        <li><a class="award with-text" href="/{{ .Reference }}">{{ .Category }}</a></li>
 {{- end }}
 {{- end }}

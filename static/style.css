@@ -555,11 +555,18 @@ fieldset.radio label:last-of-type {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 4px 10px;
   align-items: center;
 }
 
-.content .labels span {
+.content .labels {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  margin-bottom: 10px;
+}
+
+.content .labels .genre {
   padding: 0px 7px;
   background-color: var(--color-background-secondary);
   border-radius: 7px;
@@ -995,7 +1002,7 @@ fieldset.radio label:last-of-type {
 
 .award {
   display: inline-block;
-  margin: -8px -2px -3px; /* align with the text */
+  margin: -8px 0 -3px; /* align with the text */
   width: 18px;
   height: 18px;
   background-image: var(--sprite-url);
@@ -1017,7 +1024,9 @@ fieldset.radio label:last-of-type {
   flex-shrink: 0;
   content: "";
   display: inline-block;
-  margin: 2px 3px 0;
+  margin-top: 2px;
+  margin-right: 3px;
+  margin-bottom: 0;
   width: 18px;
   height: 18px;
   background-image: var(--sprite-url);
@@ -1026,17 +1035,9 @@ fieldset.radio label:last-of-type {
   background-position: -108px 0;
 }
 
-.labels .award {
-  margin: 0 3px 0 -3px;
-}
-
 .award[href*="/Oscar/"],
 .award.with-text[href*="/Oscar/"]::before {
   background-position: -126px 0;
-}
-
-.labels .award.with-text[href*="/Oscar/"] {
-  margin: 0 5px 0 -5px;
 }
 
 .award[href*="/The Game Awards/"],
@@ -1047,8 +1048,10 @@ fieldset.radio label:last-of-type {
 .award[href*="/BAFTA/"],
 .award.with-text[href*="/BAFTA/"]::before {
   background-position: -162px 0;
-  margin-left: 0;
-  margin-right: 0;
+}
+
+p .award {
+  margin-right: 3px;
 }
 
 #backdrop {
