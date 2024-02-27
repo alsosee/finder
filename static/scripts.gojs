@@ -588,7 +588,7 @@ if (typeof hasRun === 'undefined') {
         uploader_target.innerText = name;
         uploader.dataset.target = name;
 
-        backdrop.style.display = 'block';
+        backdrop.style.display = 'flex';
         uploader.style.display = 'flex';
 
         opts = {
