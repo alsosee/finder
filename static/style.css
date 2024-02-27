@@ -1165,6 +1165,23 @@ p .award + .award {
   background-color: var(--color-background-selection);
 }
 
+#uploader .buttons button:disabled {
+  color: var(--color-text-muted);
+  box-shadow: none;
+  text-shadow: none;
+  opacity: 0.8;
+}
+
+#uploader .buttons button.primary:disabled {
+  background-color: var(--color-background-selection-lighter);
+  color: var(--color-text-selection);
+  text-shadow: none;
+}
+
+#uploader .buttons button.htmx-request:disabled {
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
 /* dark mode */
 @media (prefers-color-scheme: dark) {
   :root {

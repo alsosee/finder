@@ -13,6 +13,7 @@ if (typeof hasRun === 'undefined') {
     var uploader = document.querySelector('#uploader');
     var uploader_target = document.querySelector('#uploader_target');
     var uploader_preview = document.querySelector('#uploader_preview');
+    var btn_uploader_upload = document.querySelector('#btn_uploader_upload');
 
     var uploadedImages = localStorage.getItem("uploadedImages");
     if (uploadedImages == null) {
@@ -518,6 +519,10 @@ if (typeof hasRun === 'undefined') {
     }
 
     function uploader_upload() {
+        // add animated stripes background to the button
+        btn_uploader_upload.classList.add('htmx-request');
+        btn_uploader_upload.disabled = true;
+
         c.result({
             type: 'blob',
             size: 'viewport',
@@ -553,6 +558,10 @@ if (typeof hasRun === 'undefined') {
                 uploader_cancel();
             }).catch(function(error) {
                 console.log('Failed to upload image', error);
+            }).finally(function() {
+                // remove animated stripes background from the button
+                btn_uploader_upload.classList.remove('htmx-request');
+                btn_uploader_upload.disabled = false;
             });
         });
     }
