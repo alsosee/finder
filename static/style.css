@@ -434,7 +434,7 @@ fieldset.radio label:last-of-type {
   background-color: var(--color-background-selection-inactive);
 }
 
-.panel .active.missing::before {
+.panel .missing::before {
   opacity: 0.5;
 }
 

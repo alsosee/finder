@@ -470,6 +470,11 @@ FILE_PROCESSING:
 
 	g.addAwards()
 
+	// Generate missing files
+	if err := g.generateMissing(); err != nil {
+		return fmt.Errorf("generating missing: %w", err)
+	}
+
 	// Render Go templates
 	if err := g.generateGoTemplates(); err != nil {
 		return fmt.Errorf("generating go templates: %w", err)
@@ -483,11 +488,6 @@ FILE_PROCESSING:
 	// Generate index for each directory
 	if err := g.generateIndexes(); err != nil {
 		return fmt.Errorf("generating indexes: %w", err)
-	}
-
-	// Generate missing files
-	if err := g.generateMissing(); err != nil {
-		return fmt.Errorf("generating missing: %w", err)
 	}
 
 	return nil
@@ -1090,6 +1090,28 @@ func (g *Generator) generateIndexes() error {
 
 func (g *Generator) generateMissing() error {
 	missing := g.missing()
+
+	// first, add files to all panels
+	for _, m := range missing {
+		if len(m.From)+len(m.Awards) < 2 {
+			continue
+		}
+
+		id := m.To
+
+		file := structs.File{
+			Name:      filepath.Base(id),
+			Title:     filepath.Base(id),
+			Image:     g.getImageForPath(id),
+			IsMissing: true,
+		}
+
+		g.muDir.Lock()
+		g.dirContents[filepath.Dir(id)] = append(g.dirContents[filepath.Dir(id)], file)
+		g.muDir.Unlock()
+	}
+
+	// render all missing files
 	for _, m := range missing {
 		if len(m.From)+len(m.Awards) < 2 {
 			continue
@@ -1097,26 +1119,15 @@ func (g *Generator) generateMissing() error {
 
 		id := m.To
 		image := g.getImageForPath(id)
-		path := filepath.Join(cfg.OutputDirectory, id+".html")
-		panels, breadcrumbs := g.buildPanels(id, true)
+
 		cnt := structs.Content{
 			Name:   filepath.Base(id),
 			Image:  image,
 			Awards: m.Awards,
 		}
 
-		// add current file to last panel
-		// sort changes g.dirContents so we need to copy it
-		var lastPanel []structs.File
-		lastPanel = append(lastPanel, g.dirContents[filepath.Dir(id)]...)
-		lastPanel = append(lastPanel, structs.File{
-			Name:      cnt.Name,
-			Title:     cnt.Name,
-			Image:     image,
-			IsMissing: true,
-		})
-		sort.Sort(structs.ByNameFolderOnTop(lastPanel))
-		panels[len(panels)-1].Files = lastPanel
+		path := filepath.Join(cfg.OutputDirectory, id+".html")
+		panels, breadcrumbs := g.buildPanels(id, true)
 
 		err := g.executeTemplate(path, structs.PageData{
 			CurrentPath: id,
