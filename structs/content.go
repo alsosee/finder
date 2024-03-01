@@ -162,11 +162,13 @@ type Content struct {
 	References []Reference `yaml:"refs" json:",omitempty"`
 
 	// fields populated by the generator
-	Image           *Media  `yaml:"-" json:",omitempty"`
-	Awards          []Award `yaml:"-" json:",omitempty"`
-	EditorsAwards   []Award `yaml:"-" json:",omitempty"`
-	WritersAwards   []Award `yaml:"-" json:",omitempty"`
-	DirectorsAwards []Award `yaml:"-" json:",omitempty"`
+	Image                *Media  `yaml:"-" json:",omitempty"`
+	Awards               []Award `yaml:"-" json:",omitempty"`
+	EditorsAwards        []Award `yaml:"-" json:",omitempty"`
+	WritersAwards        []Award `yaml:"-" json:",omitempty"`
+	DirectorsAwards      []Award `yaml:"-" json:",omitempty"`
+	CinematographyAwards []Award `yaml:"-" json:",omitempty"`
+	MusicAwards          []Award `yaml:"-" json:",omitempty"`
 }
 
 // Character represents a character in a movie, tv show, etc.
@@ -192,16 +194,18 @@ type Category struct {
 }
 
 type Winner struct {
-	Reference string    `yaml:"ref" json:",omitempty"` // full path to referenced content
-	Movie     string    `json:",omitempty"`
-	Game      string    `json:",omitempty"`
-	Series    string    `json:",omitempty"`
-	Person    string    `json:",omitempty"`
-	Actor     string    `json:",omitempty"`
-	Editors   oneOrMany `json:",omitempty"`
-	Track     string    `json:",omitempty"`
-	Directors oneOrMany `json:",omitempty"`
-	Writers   oneOrMany `json:",omitempty"`
+	Reference      string    `yaml:"ref" json:",omitempty"` // full path to referenced content
+	Movie          string    `json:",omitempty"`
+	Game           string    `json:",omitempty"`
+	Series         string    `json:",omitempty"`
+	Person         string    `json:",omitempty"`
+	Actor          string    `json:",omitempty"`
+	Editors        oneOrMany `json:",omitempty"`
+	Track          string    `json:",omitempty"`
+	Directors      oneOrMany `json:",omitempty"`
+	Writers        oneOrMany `json:",omitempty"`
+	Cinematography string    `json:",omitempty"`
+	Music          string    `json:",omitempty"`
 
 	Fallback string `yaml:"-" json:"-,omitempty"` // used to store the fallback value for template
 }

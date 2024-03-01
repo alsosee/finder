@@ -1292,6 +1292,10 @@ func (g *Generator) addAwards() {
 				if !found {
 					log.Printf("No character found for %q", category.Winner.Actor)
 				}
+			case category.Winner.Cinematography != "":
+				awadredContent.CinematographyAwards = append(awadredContent.CinematographyAwards, award)
+			case category.Winner.Music != "":
+				awadredContent.MusicAwards = append(awadredContent.MusicAwards, award)
 			case len(category.Winner.Editors) > 0:
 				awadredContent.EditorsAwards = append(awadredContent.EditorsAwards, award)
 			case len(category.Winner.Writers) > 0:

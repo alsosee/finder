@@ -151,10 +151,10 @@ Inputs (same as for "index" template):
     </p>
     {{ end }}
     {{- with .Cinematography }}
-    <p>Cinematography: {{ template "person" . }}</p>
+    <p>{{ template "awards" $.Content.CinematographyAwards }}Cinematography: {{ template "person" . }}</p>
     {{- end }}
     {{- with .Music }}
-    <p>Music: {{ template "person" . }}</p>
+    <p>{{ template "awards" $.Content.MusicAwards }}Music: {{ template "person" . }}</p>
     {{- end }}
     {{- with .Artists }}<p>Artists:
     {{- range . }}
@@ -386,6 +386,16 @@ Inputs (same as for "index" template):
         as {{ template "character" dict "Path" .Winner.Reference "Character" $character }}
         {{- end }}
 
+        {{- if either .Winner.Reference .Winner.Fallback }}
+        in {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
+        {{- end }}
+    {{- else if .Winner.Cinematography }}
+        {{ template "reference" dict "Path" .Winner.Cinematography "Prefix" "People" "HideType" true }}
+        {{- if either .Winner.Reference .Winner.Fallback }}
+        in {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
+        {{- end }}
+    {{- else if .Winner.Music }}
+        {{ template "reference" dict "Path" .Winner.Music "Prefix" "People" "HideType" true }}
         {{- if either .Winner.Reference .Winner.Fallback }}
         in {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
         {{- end }}
