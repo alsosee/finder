@@ -458,11 +458,11 @@ fieldset.radio label:last-of-type {
   width: 200px;
   max-width: 50%;
   margin: 0 0 10px 10px;
-  border-radius: var(--border-radius-medium);
 }
 
 .content .thumb.jpg {
   box-shadow: var(--shadow-thumb);
+  border-radius: var(--border-radius-medium);
 }
 
 .content .thumb.people {
@@ -771,13 +771,13 @@ fieldset.radio label:last-of-type {
   background-position: var(--background-position);
   width: var(--width);
   height: var(--height);
-  border-radius: var(--border-radius-medium);
   margin-top: var(--comp-margin-top);
   margin-bottom: calc(var(--comp-margin-bottom) + 10px);
 }
 
 [data-view="icons"] .panel li a.has-image.jpg::before {
   box-shadow: var(--shadow-avatar);
+  border-radius: var(--border-radius-medium);
 }
 
 [data-view="icons"] .panel li a.has-image.people::before,
