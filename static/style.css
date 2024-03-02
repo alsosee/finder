@@ -809,7 +809,8 @@ fieldset.radio label:last-of-type {
   display: table-header-group;
   position: sticky;
   top: 0;
-  background-color: var(--background-gradient);
+  background-image: var(--background-gradient);
+  z-index: 1;
 }
 
 [data-view="list"] .panel li.header span {
