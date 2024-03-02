@@ -169,6 +169,7 @@ type Content struct {
 	DirectorsAwards      []Award `yaml:"-" json:",omitempty"`
 	CinematographyAwards []Award `yaml:"-" json:",omitempty"`
 	MusicAwards          []Award `yaml:"-" json:",omitempty"`
+	ScreenplayAwards     []Award `yaml:"-" json:",omitempty"`
 }
 
 // Character represents a character in a movie, tv show, etc.
@@ -206,6 +207,7 @@ type Winner struct {
 	Writers        oneOrMany `json:",omitempty"`
 	Cinematography string    `json:",omitempty"`
 	Music          string    `json:",omitempty"`
+	Screenplay     oneOrMany `json:",omitempty"`
 
 	Fallback string `yaml:"-" json:"-,omitempty"` // used to store the fallback value for template
 }

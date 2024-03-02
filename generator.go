@@ -1302,6 +1302,8 @@ func (g *Generator) addAwards() {
 				awadredContent.WritersAwards = append(awadredContent.WritersAwards, award)
 			case len(category.Winner.Directors) > 0:
 				awadredContent.DirectorsAwards = append(awadredContent.DirectorsAwards, award)
+			case len(category.Winner.Screenplay) > 0:
+				awadredContent.ScreenplayAwards = append(awadredContent.ScreenplayAwards, award)
 			default:
 				awadredContent.Awards = append(awadredContent.Awards, award)
 			}

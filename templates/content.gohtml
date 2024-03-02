@@ -106,7 +106,7 @@ Inputs (same as for "index" template):
     {{- end }}
 
     {{- with .Screenplay }}
-    <p>Screenplay:
+    <p>{{ template "awards" $.Content.ScreenplayAwards }}Screenplay:
     {{- range . }}
         <span class="list">{{ template "person" . }}</span>
     {{- end }}
