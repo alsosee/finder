@@ -1489,8 +1489,13 @@ func prefix(c structs.Content, year string) string {
 }
 
 func chooseColumns(files []structs.File) []string {
+	var total int
 	columns := map[string]int{}
 	for _, file := range files {
+		if file.IsMissing {
+			continue
+		}
+		total++
 		for key := range file.Columns {
 			columns[key]++
 		}
@@ -1499,7 +1504,7 @@ func chooseColumns(files []structs.File) []string {
 	// choose columns that are present in > half of all files
 	chosenColumns := []string{}
 	for key, count := range columns {
-		if count > len(files)/2 || key == "Died" {
+		if count > total/2 || key == "Died" {
 			chosenColumns = append(chosenColumns, key)
 		}
 	}
