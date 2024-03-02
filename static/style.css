@@ -285,6 +285,7 @@ fieldset.radio label:last-of-type {
   width: 200px;
   height: 44px;
   padding: 0 15px 0 40px;
+  font-family: var(--font-default);
   font-size: 16px;
   line-height: 23px;
   border-radius: 100px;
