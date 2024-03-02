@@ -20,6 +20,16 @@
     {{- else }}
     <link rel="edit" href="https://github.com/alsosee/info/tree/main/{{ .CurrentPath }}">
     {{- end }}
+    {{- if eq (len .Breadcrumbs) 1 }}
+    <meta property="og:image" content="https://media.alsosee.info/opengraph.png">
+    <meta property="og:image:width" content="1920">
+    <meta property="og:image:height" content="1080">
+    <meta property="og:title" content="Also, see">
+    <meta property="og:description" content="A collection of things, people and more">
+    <meta property="og:url" content="https://alsosee.info">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    {{- end }}
 </head>
 <body data-view="columns">
 <div id="toolbar" hx-preserve="true">
