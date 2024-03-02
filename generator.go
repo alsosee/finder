@@ -823,6 +823,8 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 	g.addConnectionList(from, "People", content.Composers, "Composer")
 	g.addConnectionList(from, "People", content.Hosts, "Host")
 	g.addConnectionList(from, "People", content.Guests, "Guest")
+	g.addConnectionList(from, "People", content.Programmers, "Programmer")
+	g.addConnectionList(from, "People", content.Designers, "Designer")
 	g.addConnectionList(from, "Companies", content.Distributors, "Distributor")
 	g.addConnectionList(from, "Companies", content.Publishers, "Publisher")
 	g.addConnectionList(from, "Companies", content.Production, "Production")

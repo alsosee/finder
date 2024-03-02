@@ -127,6 +127,7 @@ type Content struct {
 
 	// for movies, games, series, ...
 	Genres         []string      `json:",omitempty"`
+	Engine         string        `json:",omitempty"`
 	Trailer        string        `json:",omitempty"`
 	Rating         string        `json:",omitempty"`
 	Length         time.Duration `json:",omitempty"`
@@ -144,6 +145,8 @@ type Content struct {
 	Distributors   oneOrMany     `json:",omitempty"`
 	Network        string        `json:",omitempty"`
 	Composers      oneOrMany     `json:",omitempty"`
+	Programmers    oneOrMany     `json:",omitempty"`
+	Designers      oneOrMany     `json:",omitempty"`
 
 	// for podcasts
 	Hosts  oneOrMany `json:",omitempty"`

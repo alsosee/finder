@@ -76,6 +76,7 @@ Inputs (same as for "index" template):
     <p>Remake of: {{ template "reference" dict "Path" . "HideType" true }}</p>
     {{- end }}
 
+    {{- with .Engine }}<p>Engine: {{ . }}</p>{{ end }}
     {{- with .Developers }}
     <p>Developers: {{ template "company" . }}</p>
     {{- end }}
@@ -165,7 +166,18 @@ Inputs (same as for "index" template):
     {{- with .Colorist }}
     <p>Colorist: {{ template "person" . }}</p>
     {{- end }}
-
+    {{- with .Programmers }}<p>Programmers:
+    {{- range . }}
+        <span class="list">{{ template "person" . }}</span>
+    {{- end }}
+    </p>
+    {{- end }}
+    {{- with .Designers }}<p>Designers:
+    {{- range . }}
+        <span class="list">{{ template "person" . }}</span>
+    {{- end }}
+    </p>
+    {{- end }}
     {{- with .Production }}
     <p>Production:
     {{- range . }}
