@@ -19,6 +19,12 @@ alsosee.local {
   encode gzip
 }
 
+media.alsosee.local {
+  root * media
+  encode gzip
+  file_server
+}
+
 search.alsosee.local {
   tls internal
   reverse_proxy 127.0.0.1:7700

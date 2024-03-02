@@ -14,7 +14,7 @@ Inputs:
 {{- if not $content }}{{ $content = content $id }}{{ end }}
 {{- if $content -}}
 <a href="/{{ $id }}" class="reference{{- if hasPrefix $content.Source "People" }} people{{ end }}{{ if $content.Image }} has-image{{ if isJPG $content.Image.Path }} jpg{{end}}{{ end }}"
-{{- if $content.Image }} style="--background-image: url('https://media.alsosee.info/{{ dir $id }}/{{ $content.Image.ThumbPath }}'); {{ thumbStylePx $content.Image 24 "--" }}"{{ end }}>
+{{- if $content.Image }} style="--background-image: url('{{ config "MediaHost" }}/{{ dir $id }}/{{ $content.Image.ThumbPath }}'); {{ thumbStylePx $content.Image 24 "--" }}"{{ end }}>
 {{- if $content.Title }}{{ $content.Title }}{{ else }}{{ $content.Name }}{{ end }}</a>
 {{- if not .HideType }} ({{ type $content }}){{ end }}
 {{- else if gt (sum (missingAwardsLen $id) (len (connections $id))) 1 -}}

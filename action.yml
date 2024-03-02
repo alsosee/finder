@@ -17,6 +17,9 @@ inputs:
   output:
     description: Directory to output static site
     required: true
+  media_host:
+    description: Host of media files
+    required: false
   search_host:
     description: Host of MeiliSearch
     required: false

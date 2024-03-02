@@ -17,7 +17,7 @@ Inputs (same as for "index" template):
     <div class="thumb
         {{- if isJPG .Path }} jpg{{ end }}
         {{- if hasPrefix $.CurrentPath "People" }} people{{ end -}}
-        " style="background-image: url('https://media.alsosee.info/{{ $.Dir }}/{{ .ThumbPath }}');
+        " style="background-image: url('{{ config "MediaHost" }}/{{ $.Dir }}/{{ .ThumbPath }}');
         {{- thumbStylePct . -}}"></div>
     {{- end }}
     {{ if either .Name .Title }}<h1{{ if .Subtitle }} class="with-subtitle"{{ end }}>{{ if .Title }}{{ .Title }}{{ else }}{{ .Name }}{{ end }}</h1>{{ end }}
@@ -342,7 +342,7 @@ Inputs (same as for "index" template):
         {{- range . }}
         <li>
         {{- if .Image }}
-            <span class="image drop" data-name="{{ htmlEscape .Name }}" style="background-image: url('https://media.alsosee.info/{{ escape $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStylePct .Image }}"></span>
+            <span class="image drop" data-name="{{ htmlEscape .Name }}" style="background-image: url('{{ config "MediaHost" }}/{{ escape $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStylePct .Image }}"></span>
         {{- else }}
             <span class="no-image drop" data-name="{{ htmlEscape .Name }}"></span>
         {{- end }}

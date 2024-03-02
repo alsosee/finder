@@ -369,7 +369,7 @@ if (typeof hasRun === 'undefined') {
                         linkClass += " jpg";
                     }
 
-                    attr = `style="--background-image: url('https://media.alsosee.info/${dir}/${hit.Image.ThumbPath}'); ${thumbStylePx(hit.Image, 100, "--")}; ${thumbStylePx(hit.Image, 24, "--small-")}" class="${linkClass}"`;
+                    attr = `style="--background-image: url('{{ config "MediaHost" }}/${dir}/${hit.Image.ThumbPath}'); ${thumbStylePx(hit.Image, 100, "--")}; ${thumbStylePx(hit.Image, 24, "--small-")}" class="${linkClass}"`;
                 }
                 var columns = collectColumns(hit);
                 for (var key in columns) {

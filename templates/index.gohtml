@@ -89,7 +89,7 @@
                             {{- if hasPrefix $.CurrentPath "People" }} people{{ end }}
                         {{- end -}}
                     " href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
-                    {{- if .Image }} style="--background-image: url('https://media.alsosee.info/{{ $panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStylePx .Image 100 "--" }}; {{ thumbStylePx .Image 24 "--small-" }}"{{ end -}}
+                    {{- if .Image }} style="--background-image: url('{{ config "MediaHost" }}/{{ $panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStylePx .Image 100 "--" }}; {{ thumbStylePx .Image 24 "--small-" }}"{{ end -}}
                     >
                     <span>{{ .Title }}</span>
                     {{- range $columns }}

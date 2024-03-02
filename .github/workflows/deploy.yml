@@ -36,6 +36,7 @@ jobs:
           info: ./info
           media: ./media
           output: ./output
+          media_host: https://media.alsosee.info
           search_host: https://search.alsosee.info
           search_api_key: ${{ secrets.MEILISEARCH_KEY }}
 
