@@ -1108,8 +1108,32 @@ func (g *Generator) generateMissing() error {
 			IsMissing: true,
 		}
 
+		dir := filepath.Dir(id)
+
 		g.muDir.Lock()
-		g.dirContents[filepath.Dir(id)] = append(g.dirContents[filepath.Dir(id)], file)
+		g.dirContents[dir] = append(g.dirContents[dir], file)
+
+		// check if parent directory exists, usually a year
+		parentDir := filepath.Dir(dir)
+		if parentDirContents, ok := g.dirContents[parentDir]; ok {
+			found := false
+			for _, f := range parentDirContents {
+				if f.Name == filepath.Base(dir) {
+					found = true
+				}
+			}
+			if !found {
+				g.dirContents[parentDir] = append(
+					g.dirContents[parentDir],
+					structs.File{
+						Name:      filepath.Base(dir),
+						IsFolder:  true,
+						IsMissing: true,
+					},
+				)
+			}
+		}
+
 		g.muDir.Unlock()
 	}
 
