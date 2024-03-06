@@ -40,129 +40,129 @@ type Content struct {
 	HTML   string `yaml:"-" json:",omitempty"` // for Markdown files
 
 	// for everything
-	Name        string    `json:",omitempty"` // name of the file, used in the breadcrumbs
-	Title       string    `json:",omitempty"` // override for the name, used as page title, fallback to Name
-	Subtitle    string    `json:",omitempty"`
-	Year        int       `json:",omitempty"`
-	Authors     oneOrMany `json:",omitempty"`
-	Developers  string    `json:",omitempty"`
-	Description string    `json:",omitempty"`
-	CoverArtist string    `yaml:"cover_artist" json:",omitempty"`
-	Designer    string    `json:",omitempty"`
+	Name        string    `yaml:",omitempty" json:",omitempty"` // name of the file, used in the breadcrumbs
+	Title       string    `yaml:",omitempty" json:",omitempty"` // override for the name, used as page title, fallback to Name
+	Subtitle    string    `yaml:",omitempty" json:",omitempty"`
+	Year        int       `yaml:",omitempty" json:",omitempty"`
+	Authors     oneOrMany `yaml:",omitempty" json:",omitempty"`
+	Developers  string    `yaml:",omitempty" json:",omitempty"`
+	Description string    `yaml:",omitempty" json:",omitempty"`
+	CoverArtist string    `yaml:"cover_artist,omitempty" json:",omitempty"`
+	Designer    string    `yaml:",omitempty" json:",omitempty"`
 
 	BasedOn  oneOrMany `yaml:"based_on,omitempty" json:",omitempty"`
-	Series   string    `json:",omitempty"`
-	Previous string    `json:",omitempty"` // reference to previous in the series
+	Series   string    `yaml:",omitempty" json:",omitempty"`
+	Previous string    `yaml:",omitempty" json:",omitempty"` // reference to previous in the series
 
 	// for people
-	DOB     string `json:",omitempty"` // date of birth
-	DOD     string `json:",omitempty"` // date of death
-	Contact string `yaml:"contact" json:",omitempty"`
+	DOB     string `yaml:",omitempty" json:",omitempty"` // date of birth
+	DOD     string `yaml:",omitempty" json:",omitempty"` // date of death
+	Contact string `yaml:"contact,omitempty" json:",omitempty"`
 
-	Founded  string `json:",omitempty"` // for companies
-	Released string `json:",omitempty"` // for games, ...
+	Founded  string `yaml:",omitempty" json:",omitempty"` // for companies
+	Released string `yaml:",omitempty" json:",omitempty"` // for games, ...
 
 	// general external links
-	Website          string   `json:",omitempty"`
-	Websites         []string `json:",omitempty"`
-	Wikipedia        string   `json:",omitempty"`
-	GoodReads        string   `json:",omitempty"`
-	Bookshop         string   `json:",omitempty"`
-	AnimeNewsNetwork string   `yaml:"anime_news_network" json:",omitempty"`
-	Twitch           string   `json:",omitempty"`
-	YouTube          string   `json:",omitempty"`
-	IMDB             string   `json:",omitempty"`
-	TMDB             string   `json:",omitempty"`
-	Steam            string   `json:",omitempty"`
-	Netflix          string   `json:",omitempty"`
-	Spotify          string   `json:",omitempty"`
-	Soundcloud       string   `json:",omitempty"`
-	Hulu             string   `json:",omitempty"`
-	AdultSwim        string   `json:",omitempty"`
-	AppStore         string   `yaml:"app_store" json:",omitempty"`
-	Fandom           string   `json:",omitempty"`
-	RottenTomatoes   string   `yaml:"rotten_tomatoes" json:",omitempty"`
-	Metacritic       string   `json:",omitempty"`
-	Twitter          string   `json:",omitempty"`
-	Reddit           string   `json:",omitempty"`
-	Facebook         string   `json:",omitempty"`
-	Instagram        string   `json:",omitempty"`
-	Threads          string   `json:",omitempty"`
-	TikTok           string   `json:",omitempty"`
-	TelegramChannel  string   `yaml:"telegram_channel" json:",omitempty"`
-	PlayStation      string   `yaml:"playstation" json:",omitempty"`
-	XBox             string   `yaml:"xbox" json:",omitempty"`
-	GOG              string   `yaml:"gog" json:",omitempty"`
-	X                string   `json:",omitempty"`
-	Discord          string   `json:",omitempty"`
-	Epic             string   `json:",omitempty"`
-	IGN              string   `yaml:"ign" json:",omitempty"`
-	Amazon           string   `json:",omitempty"`
-	PrimeVideo       string   `yaml:"prime_video" json:",omitempty"`
-	AppleTV          string   `yaml:"apple_tv" json:",omitempty"`
-	ApplePodcasts    string   `yaml:"apple_podcasts" json:",omitempty"`
-	Peacock          string   `json:",omitempty"`
-	GooglePlay       string   `yaml:"google_play" json:",omitempty"`
-	MicrosoftStore   string   `yaml:"microsoft_store" json:",omitempty"`
-	Nintendo         string   `json:",omitempty"`
-	Row8             string   `json:",omitempty"`
-	Redbox           string   `json:",omitempty"`
-	Vudu             string   `json:",omitempty"`
-	DarkHorse        string   `json:",omitempty"`
+	Website          string   `yaml:",omitempty" json:",omitempty"`
+	Websites         []string `yaml:",omitempty" json:",omitempty"`
+	Wikipedia        string   `yaml:",omitempty" json:",omitempty"`
+	GoodReads        string   `yaml:",omitempty" json:",omitempty"`
+	Bookshop         string   `yaml:",omitempty" json:",omitempty"`
+	AnimeNewsNetwork string   `yaml:"anime_news_network,omitempty" json:",omitempty"`
+	Twitch           string   `yaml:",omitempty" json:",omitempty"`
+	YouTube          string   `yaml:",omitempty" json:",omitempty"`
+	IMDB             string   `yaml:",omitempty" json:",omitempty"`
+	TMDB             string   `yaml:",omitempty" json:",omitempty"`
+	Steam            string   `yaml:",omitempty" json:",omitempty"`
+	Netflix          string   `yaml:",omitempty" json:",omitempty"`
+	Spotify          string   `yaml:",omitempty" json:",omitempty"`
+	Soundcloud       string   `yaml:",omitempty" json:",omitempty"`
+	Hulu             string   `yaml:",omitempty" json:",omitempty"`
+	AdultSwim        string   `yaml:",omitempty" json:",omitempty"`
+	AppStore         string   `yaml:"app_store,omitempty" json:",omitempty"`
+	Fandom           string   `yaml:",omitempty" json:",omitempty"`
+	RottenTomatoes   string   `yaml:"rotten_tomatoes,omitempty" json:",omitempty"`
+	Metacritic       string   `yaml:",omitempty" json:",omitempty"`
+	Twitter          string   `yaml:",omitempty" json:",omitempty"`
+	Reddit           string   `yaml:",omitempty" json:",omitempty"`
+	Facebook         string   `yaml:",omitempty" json:",omitempty"`
+	Instagram        string   `yaml:",omitempty" json:",omitempty"`
+	Threads          string   `yaml:",omitempty" json:",omitempty"`
+	TikTok           string   `yaml:",omitempty" json:",omitempty"`
+	TelegramChannel  string   `yaml:"telegram_channel,omitempty" json:",omitempty"`
+	PlayStation      string   `yaml:"playstation,omitempty" json:",omitempty"`
+	XBox             string   `yaml:"xbox,omitempty" json:",omitempty"`
+	GOG              string   `yaml:"gog,omitempty" json:",omitempty"`
+	X                string   `yaml:",omitempty" json:",omitempty"`
+	Discord          string   `yaml:",omitempty" json:",omitempty"`
+	Epic             string   `yaml:",omitempty" json:",omitempty"`
+	IGN              string   `yaml:"ign,omitempty" json:",omitempty"`
+	Amazon           string   `yaml:",omitempty" json:",omitempty"`
+	PrimeVideo       string   `yaml:"prime_video,omitempty" json:",omitempty"`
+	AppleTV          string   `yaml:"apple_tv,omitempty" json:",omitempty"`
+	ApplePodcasts    string   `yaml:"apple_podcasts,omitempty" json:",omitempty"`
+	Peacock          string   `yaml:",omitempty" json:",omitempty"`
+	GooglePlay       string   `yaml:"google_play,omitempty" json:",omitempty"`
+	MicrosoftStore   string   `yaml:"microsoft_store,omitempty" json:",omitempty"`
+	Nintendo         string   `yaml:",omitempty" json:",omitempty"`
+	Row8             string   `yaml:",omitempty" json:",omitempty"`
+	Redbox           string   `yaml:",omitempty" json:",omitempty"`
+	Vudu             string   `yaml:",omitempty" json:",omitempty"`
+	DarkHorse        string   `yaml:",omitempty" json:",omitempty"`
 
 	// for books
-	ISBN        string    `json:",omitempty"`
-	ISBN10      string    `json:",omitempty"`
-	ISBN13      string    `json:",omitempty"`
-	OCLC        string    `json:",omitempty"`
-	Publishers  oneOrMany `json:",omitempty"`
-	Publication string    `json:",omitempty"` // date or year of publication
+	ISBN        string    `yaml:",omitempty" json:",omitempty"`
+	ISBN10      string    `yaml:",omitempty" json:",omitempty"`
+	ISBN13      string    `yaml:",omitempty" json:",omitempty"`
+	OCLC        string    `yaml:",omitempty" json:",omitempty"`
+	Publishers  oneOrMany `yaml:",omitempty" json:",omitempty"`
+	Publication string    `yaml:",omitempty" json:",omitempty"` // date or year of publication
 
 	// for comics
-	Artists      oneOrMany `json:",omitempty"`
-	Colorist     string    `json:",omitempty"`
-	Illustrators oneOrMany `json:",omitempty"`
-	Imprint      string    `json:",omitempty"`
-	UPC          string    `json:",omitempty"`
+	Artists      oneOrMany `yaml:",omitempty" json:",omitempty"`
+	Colorist     string    `yaml:",omitempty" json:",omitempty"`
+	Illustrators oneOrMany `yaml:",omitempty" json:",omitempty"`
+	Imprint      string    `yaml:",omitempty" json:",omitempty"`
+	UPC          string    `yaml:",omitempty" json:",omitempty"`
 
 	// for movies, games, series, ...
-	Genres         []string      `json:",omitempty"`
-	Engine         string        `json:",omitempty"`
-	Trailer        string        `json:",omitempty"`
-	Rating         string        `json:",omitempty"`
-	Length         time.Duration `json:",omitempty"`
-	Creators       oneOrMany     `json:",omitempty"`
-	Writers        oneOrMany     `json:",omitempty"`
-	Editors        oneOrMany     `json:",omitempty"`
-	Directors      oneOrMany     `json:",omitempty"`
-	Cinematography string        `json:",omitempty"`
-	Producers      oneOrMany     `json:",omitempty"`
-	Screenplay     oneOrMany     `json:",omitempty"`
-	StoryBy        oneOrMany     `yaml:"story_by" json:",omitempty"`
-	DialoguesBy    oneOrMany     `yaml:"dialogues_by" json:",omitempty"`
-	Music          string        `json:",omitempty"`
-	Production     oneOrMany     `json:",omitempty"`
-	Distributors   oneOrMany     `json:",omitempty"`
-	Network        string        `json:",omitempty"`
-	Composers      oneOrMany     `json:",omitempty"`
-	Programmers    oneOrMany     `json:",omitempty"`
-	Designers      oneOrMany     `json:",omitempty"`
+	Genres         []string      `yaml:",omitempty" json:",omitempty"`
+	Engine         string        `yaml:",omitempty" json:",omitempty"`
+	Trailer        string        `yaml:",omitempty" json:",omitempty"`
+	Rating         string        `yaml:",omitempty" json:",omitempty"`
+	Length         time.Duration `yaml:",omitempty" json:",omitempty"`
+	Creators       oneOrMany     `yaml:",omitempty" json:",omitempty"`
+	Writers        oneOrMany     `yaml:",omitempty" json:",omitempty"`
+	Editors        oneOrMany     `yaml:",omitempty" json:",omitempty"`
+	Directors      oneOrMany     `yaml:",omitempty" json:",omitempty"`
+	Cinematography oneOrMany     `yaml:",omitempty" json:",omitempty"`
+	Producers      oneOrMany     `yaml:",omitempty" json:",omitempty"`
+	Screenplay     oneOrMany     `yaml:",omitempty" json:",omitempty"`
+	StoryBy        oneOrMany     `yaml:"story_by,omitempty" json:",omitempty"`
+	DialoguesBy    oneOrMany     `yaml:"dialogues_by,omitempty" json:",omitempty"`
+	Music          oneOrMany     `yaml:",omitempty" json:",omitempty"`
+	Production     oneOrMany     `yaml:",omitempty" json:",omitempty"`
+	Distributors   oneOrMany     `yaml:",omitempty" json:",omitempty"`
+	Network        string        `yaml:",omitempty" json:",omitempty"`
+	Composers      oneOrMany     `yaml:",omitempty" json:",omitempty"`
+	Programmers    oneOrMany     `yaml:",omitempty" json:",omitempty"`
+	Designers      oneOrMany     `yaml:",omitempty" json:",omitempty"`
 
 	// for podcasts
-	Hosts  oneOrMany `json:",omitempty"`
-	Guests oneOrMany `json:",omitempty"`
+	Hosts  oneOrMany `yaml:",omitempty" json:",omitempty"`
+	Guests oneOrMany `yaml:",omitempty" json:",omitempty"`
 
-	RemakeOf string `yaml:"remake_of" json:",omitempty"`
+	RemakeOf string `yaml:"remake_of,omitempty" json:",omitempty"`
 
-	Characters []*Character `json:",omitempty"`
+	Characters []*Character `yaml:",omitempty" json:",omitempty"`
 
 	// for awards
-	Categories []Category `json:",omitempty"`
+	Categories []Category `yaml:",omitempty" json:",omitempty"`
 
 	// unknown fields are stored in the Extra map
 	Extra map[string]interface{} `yaml:",inline" json:",omitempty"`
 
-	References []Reference `yaml:"refs" json:",omitempty"`
+	References []Reference `yaml:"refs,omitempty" json:",omitempty"`
 
 	// fields populated by the generator
 	Image                *Media  `yaml:"-" json:",omitempty"`
@@ -198,19 +198,23 @@ type Category struct {
 }
 
 type Winner struct {
-	Reference      string    `yaml:"ref" json:",omitempty"` // full path to referenced content
-	Movie          string    `json:",omitempty"`
-	Game           string    `json:",omitempty"`
-	Series         string    `json:",omitempty"`
-	Person         string    `json:",omitempty"`
-	Actor          string    `json:",omitempty"`
-	Editors        oneOrMany `json:",omitempty"`
-	Track          string    `json:",omitempty"`
-	Directors      oneOrMany `json:",omitempty"`
-	Writers        oneOrMany `json:",omitempty"`
-	Cinematography string    `json:",omitempty"`
-	Music          string    `json:",omitempty"`
-	Screenplay     oneOrMany `json:",omitempty"`
+	Reference      string    `yaml:"ref,omitempty" json:",omitempty"` // full path to referenced content
+	Movie          string    `yaml:",omitempty" json:",omitempty"`
+	Game           string    `yaml:",omitempty" json:",omitempty"`
+	Series         string    `yaml:",omitempty" json:",omitempty"`
+	Person         string    `yaml:",omitempty" json:",omitempty"`
+	Actor          string    `yaml:",omitempty" json:",omitempty"`
+	Editors        oneOrMany `yaml:",omitempty" json:",omitempty"`
+	Track          string    `yaml:",omitempty" json:",omitempty"`
+	Directors      oneOrMany `yaml:",omitempty" json:",omitempty"`
+	Writers        oneOrMany `yaml:",omitempty" json:",omitempty"`
+	Cinematography oneOrMany `yaml:",omitempty" json:",omitempty"`
+	Music          oneOrMany `yaml:",omitempty" json:",omitempty"`
+	Screenplay     oneOrMany `yaml:",omitempty" json:",omitempty"`
+	Producers      oneOrMany `yaml:",omitempty" json:",omitempty"`
+	Casting        oneOrMany `yaml:",omitempty" json:",omitempty"`
+	ConstumeDesign oneOrMany `yaml:",omitempty" json:",omitempty"`
+	MakeUpAndHair  oneOrMany `yaml:",omitempty" json:",omitempty"`
 
 	Fallback string `yaml:"-" json:"-,omitempty"` // used to store the fallback value for template
 }

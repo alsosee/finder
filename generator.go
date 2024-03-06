@@ -825,14 +825,14 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 	g.addConnectionList(from, "People", content.Guests, "Guest")
 	g.addConnectionList(from, "People", content.Programmers, "Programmer")
 	g.addConnectionList(from, "People", content.Designers, "Designer")
+	g.addConnectionList(from, "People", content.Cinematography, "Cinematography")
+	g.addConnectionList(from, "People", content.Music, "Music")
 	g.addConnectionList(from, "Companies", content.Distributors, "Distributor")
 	g.addConnectionList(from, "Companies", content.Publishers, "Publisher")
 	g.addConnectionList(from, "Companies", content.Production, "Production")
 	g.addConnectionList(from, "", content.BasedOn, "Based on")
 
 	g.addConnectionSingle(from, "People", content.Designer, "Designer")
-	g.addConnectionSingle(from, "People", content.Cinematography, "Cinematography")
-	g.addConnectionSingle(from, "People", content.Music, "Music")
 	g.addConnectionSingle(from, "People", content.CoverArtist, "Cover artist")
 	g.addConnectionSingle(from, "People", content.Colorist, "Colorist")
 	g.addConnectionSingle(from, "Companies", content.Network, "Network")
@@ -1294,9 +1294,9 @@ func (g *Generator) addAwards() {
 				if !found {
 					log.Printf("No character found for %q", category.Winner.Actor)
 				}
-			case category.Winner.Cinematography != "":
+			case len(category.Winner.Cinematography) > 0:
 				awadredContent.CinematographyAwards = append(awadredContent.CinematographyAwards, award)
-			case category.Winner.Music != "":
+			case len(category.Winner.Music) > 0:
 				awadredContent.MusicAwards = append(awadredContent.MusicAwards, award)
 			case len(category.Winner.Editors) > 0:
 				awadredContent.EditorsAwards = append(awadredContent.EditorsAwards, award)
