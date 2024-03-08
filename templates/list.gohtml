@@ -1,0 +1,21 @@
+{{ define "list" }}
+{{- /*
+list template used to display list represeting one of the Content oneOrMany field
+Input:
+- .Label (string): the label to display
+- .Field (oneOrMany): the field to display
+- .Type (string): the type of element in the list, e.g. "person", "company"
+- .Awards ([]Award): a list of awards
+*/ -}}
+{{- with .Field }}
+    <p>{{ with $.Awards }}{{ template "awards" . }}{{ end }}{{ $.Label }}:
+    {{- range . }}
+        {{- if eq $.Type "person" }}
+        <span class="list">{{ template "person" . }}</span>
+        {{- else if eq $.Type "company" }}
+        <span class="list">{{ template "company" . }}</span>
+        {{- end }}
+    {{- end }}
+    </p>
+{{- end }}
+{{- end }}

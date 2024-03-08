@@ -1,0 +1,19 @@
+{{ define "single" }}
+{{- /*
+single template used to display a field represeting one of the Content string field
+Input:
+- .Label (string): the label to display
+- .Field (string): the field to display
+- .Type (string): the type of element in the list, e.g. "person", "company"
+- .Awards ([]Award): a list of awards
+*/ -}}
+{{- with .Field }}
+    <p>{{ with $.Awards }}{{ template "awards" . }}{{ end }}{{ $.Label }}:
+        {{- if eq $.Type "person" }}
+        {{- template "person" . }}
+        {{- else if eq $.Type "company" }}
+        {{- template "company" . }}
+        {{- end -}}
+    </p>
+{{- end }}
+{{- end }}

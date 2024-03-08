@@ -77,277 +77,85 @@ Inputs (same as for "index" template):
     {{- end }}
 
     {{- with .Engine }}<p>Engine: {{ . }}</p>{{ end }}
-    {{- with .Developers }}
-    <p>Developers: {{ template "company" . }}</p>
-    {{- end }}
-    {{- with .Authors }}
-    <p>Authors:
-    {{- range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{- end }}
-    {{- end }}
-    {{- with .Designer }}
-    <p>Designer: {{ template "person" . }}</p>
-    {{- end }}
-
-    {{- with .Directors }}
-    <p>{{ template "awards" $.Content.DirectorsAwards }}Directors:
-    {{- range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{- end }}
-    </p>
-    {{- end }}
-
-    {{- with .Creators }}
-    <p>Creators:
-    {{- range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{- end }}
-    </p>
-    {{- end }}
-
-    {{- with .Screenplay }}
-    <p>{{ template "awards" $.Content.ScreenplayAwards }}Screenplay:
-    {{- range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{- end }}
-    </p>
-    {{- end }}
-
-    {{- with .StoryBy }}
-    <p>Story by:
-    {{- range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{- end }}
-    </p>
-    {{- end }}
-
-    {{- with .DialoguesBy }}
-    <p>Dialogues by:
-    {{- range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{- end }}
-    </p>
-    {{- end }}
-
-    {{- with .Producers }}
-    <p>Producers:
-    {{- range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{- end }}
-    </p>
-    {{- end }}
-    {{- with .Writers }}
-    <p>{{ template "awards" $.Content.WritersAwards }}Writers:
-    {{- range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{- end }}
-    </p>
-    {{- end }}
-    {{- with .Editors }}
-    <p>{{ template "awards" $.Content.EditorsAwards }}Editors:
-    {{ range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{ end }}
-    </p>
-    {{ end }}
-    {{- with .Cinematography }}
-    <p>{{ template "awards" $.Content.CinematographyAwards }}Cinematography:
-    {{- range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{- end }}
-    </p>
-    {{- end }}
-    {{- with .Music }}
-    <p>{{ template "awards" $.Content.MusicAwards }}Music:
-    {{- range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{- end }}
-    </p>
-    {{- end }}
-    {{- with .Artists }}<p>Artists:
-    {{- range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{- end }}
-    </p>
-    {{- end }}
-    {{- with .Colorist }}
-    <p>Colorist: {{ template "person" . }}</p>
-    {{- end }}
-    {{- with .Programmers }}<p>Programmers:
-    {{- range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{- end }}
-    </p>
-    {{- end }}
-    {{- with .Designers }}<p>Designers:
-    {{- range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{- end }}
-    </p>
-    {{- end }}
-    {{- with .Production }}
-    <p>Production:
-    {{- range . }}
-        <span class="list">{{ template "company" . }}</span>
-    {{- end }}
-    </p>
-    {{- end }}
-
-    {{- with .Distributors }}
-    <p>Distributors:
-    {{- range . }}
-        <span class="list">{{ template "company" . }}</span>
-    {{- end }}
-    </p>
-    {{- end }}
-
-    {{- with .Network }}
-    <p>Network: {{ template "company" . }}</p>
-    {{- end }}
-
-    {{- with .Publishers }}
-    <p>Publisher:
-    {{- range . }}
-        <span class="list">{{ template "company" . }}</span>
-    {{- end }}
-    </p>
-    {{- end }}
-    {{- with .Imprint }}
-    <p>Imprint: {{ template "company" . }}</p>
-    {{- end }}
-    {{- with .CoverArtist }}
-    <p>Cover Artist: {{ template "person" . }}</p>
-    {{- end }}
-    {{- with .Illustrators }}
-    <p>Illustrators:
-    {{- range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{- end }}
-    </p>
-    {{ end }}
-    {{- with .Composers }}
-    <p>Composers:
-    {{ range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{ end }}
-    </p>
-    {{ end }}
-
-    {{- with .Hosts }}
-    <p>Hosts:
-    {{ range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{ end }}
-    </p>
-    {{ end }}
-
-    {{- with .Guests }}
-    <p>Guests:
-    {{ range . }}
-        <span class="list">{{ template "person" . }}</span>
-    {{ end }}
-    </p>
-    {{- end }}
-
+    {{- template "single" dict "Type" "company" "Label" "Developers"     "Field" .Developers }}
+    {{- template "list"   dict "Type" "person"  "Label" "Authors"        "Field" .Authors }}
+    {{- template "single" dict "Type" "person"  "Label" "Designer"       "Field" .Designer }}
+    {{- template "list"   dict "Type" "person"  "Label" "Directors"      "Field" .Directors "Awards" $.Content.DirectorsAwards }}
+    {{- template "list"   dict "Type" "person"  "Label" "Creators"       "Field" .Creators }}
+    {{- template "list"   dict "Type" "person"  "Label" "Screenplay"     "Field" .Screenplay "Awards" $.Content.ScreenplayAwards }}
+    {{- template "list"   dict "Type" "person"  "Label" "Story by"       "Field" .StoryBy }}
+    {{- template "list"   dict "Type" "person"  "Label" "Dialogues by"   "Field" .DialoguesBy }}
+    {{- template "list"   dict "Type" "person"  "Label" "Producers"      "Field" .Producers }}
+    {{- template "list"   dict "Type" "person"  "Label" "Writers"        "Field" .Writers "Awards" $.Content.WritersAwards }}
+    {{- template "list"   dict "Type" "person"  "Label" "Editors"        "Field" .Editors "Awards" $.Content.EditorsAwards }}
+    {{- template "list"   dict "Type" "person"  "Label" "Cinematography" "Field" .Cinematography "Awards" $.Content.CinematographyAwards }}
+    {{- template "list"   dict "Type" "person"  "Label" "Music"          "Field" .Music "Awards" $.Content.MusicAwards }}
+    {{- template "list"   dict "Type" "person"  "Label" "Artists"        "Field" .Artists }}
+    {{- template "single" dict "Type" "person"  "Label" "Colorist"       "Field" .Colorist }}
+    {{- template "list"   dict "Type" "person"  "Label" "Programmers"    "Field" .Programmers }}
+    {{- template "list"   dict "Type" "person"  "Label" "Designers"      "Field" .Designers }}
+    {{- template "list"   dict "Type" "company" "Label" "Production"     "Field" .Production }}
+    {{- template "list"   dict "Type" "company" "Label" "Distributors"   "Field" .Distributors }}
+    {{- template "single" dict "Type" "company" "Label" "Network"        "Field" .Network }}
+    {{- template "list"   dict "Type" "company" "Label" "Publishers"     "Field" .Publishers }}
+    {{- template "single" dict "Type" "company" "Label" "Imprint"        "Field" .Imprint }}
+    {{- template "single" dict "Type" "person"  "Label" "CoverArtist"    "Field" .CoverArtist }}
+    {{- template "list"   dict "Type" "person"  "Label" "Illustrators"   "Field" .Illustrators }}
+    {{- template "list"   dict "Type" "person"  "Label" "Composers"      "Field" .Composers }}
+    {{- template "list"   dict "Type" "person"  "Label" "Hosts"          "Field" .Hosts }}
+    {{- template "list"   dict "Type" "person"  "Label" "Guests"         "Field" .Guests }}
     {{- with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
     {{- with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}
     {{- with .ISBN13 }}<p>ISBN13: {{ . }}</p>{{ end }}
     {{- with .UPC }}<p>UPC: {{ . }}</p>{{ end }}
 
     <p class="links">
-        {{- with .Contact }}<a href="{{ . }}">Contact</a>
-        {{ end }}
-        {{- with .Trailer }}<a href="{{ . }}">Trailer</a>
-        {{ end }}
-        {{- with .Wikipedia }}<a href="{{ . }}">Wikipedia</a>
-        {{ end }}
-        {{- with .IMDB }}<a href="{{ . }}">IMDB</a>
-        {{ end }}
-        {{- with .TMDB }}<a href="{{ . }}">TMDB</a>
-        {{ end }}
-        {{- with .GoodReads }}<a href="{{ . }}">GoodReads</a>
-        {{ end }}
-        {{- with .Bookshop }}<a href="{{ . }}">Bookshop</a>
-        {{ end }}
-        {{- with .AnimeNewsNetwork }}<a href="{{ . }}">Anime News Network</a>
-        {{ end }}
-        {{- with .RottenTomatoes }}<a href="{{ . }}">Rotten Tomatoes</a>
-        {{ end }}
-        {{- with .Metacritic }}<a href="{{ . }}">Metacritic</a>
-        {{ end }}
-        {{- with .AppStore }}<a href="{{ . }}">App Store</a>
-        {{ end }}
-        {{- with .Twitch }}<a href="{{ . }}">Twitch</a>
-        {{ end }}
-        {{- with .YouTube }}<a href="{{ . }}">YouTube</a>
-        {{ end }}
-        {{- with .Reddit }}<a href="{{ . }}">Reddit</a>
-        {{ end }}
-        {{- with .X }}<a href="{{ . }}">X</a>
-        {{ end }}
-        {{- with .Twitter }}<a href="{{ . }}">X</a>
-        {{ end }}
-        {{- with .Facebook }}<a href="{{ . }}">Facebook</a>
-        {{ end }}
-        {{- with .Instagram }}<a href="{{ . }}">Instagram</a>
-        {{ end }}
-        {{- with .Threads }}<a href="{{ . }}">Threads</a>
-        {{ end }}
-        {{- with .TikTok }}<a href="{{ . }}">TikTok</a>
-        {{ end }}
-        {{- with .Netflix }}<a href="{{ . }}">Netflix</a>
-        {{ end }}
-        {{- with .Spotify }}<a href="{{ . }}">Spotify</a>
-        {{ end }}
-        {{- with .Soundcloud }}<a href="{{ . }}">Soundcloud</a>
-        {{ end }}
-        {{- with .Hulu }}<a href="{{ . }}">Hulu</a>
-        {{ end }}
-        {{- with .AdultSwim }}<a href="{{ . }}">AdultSwim</a>
-        {{ end }}
-        {{- with .Peacock }}<a href="{{ . }}">Peacock</a>
-        {{ end }}
-        {{- with .Fandom }}<a href="{{ . }}">Fandom</a>
-        {{ end }}
-        {{- with .TelegramChannel }}<a href="{{ . }}">Telegram channel</a>
-        {{ end }}
-        {{- with .Steam }}<a href="{{ . }}">Steam</a>
-        {{ end }}
-        {{- with .PlayStation }}<a href="{{ . }}">PlayStation</a>
-        {{ end }}
-        {{- with .XBox }}<a href="{{ . }}">XBox</a>
-        {{ end }}
-        {{- with .GOG }}<a href="{{ . }}">GOG</a>
-        {{ end }}
-        {{- with .Epic }}<a href="{{ . }}">Epic</a>
-        {{ end }}
-        {{- with .Discord }}<a href="{{ . }}">Discord</a>
-        {{ end }}
-        {{- with .IGN }}<a href="{{ . }}">IGN</a>
-        {{ end }}
-        {{- with .Amazon }}<a href="{{ . }}">Amazon</a>
-        {{ end }}
-        {{- with .PrimeVideo }}<a href="{{ . }}">Prime Video</a>
-        {{ end }}
-        {{- with .AppleTV }}<a href="{{ . }}">AppleTV</a>
-        {{ end }}
-        {{- with .ApplePodcasts }}<a href="{{ . }}">Apple Podcasts</a>
-        {{ end }}
-        {{- with .GooglePlay }}<a href="{{ . }}">GooglePlay</a>
-        {{ end }}
-        {{- with .MicrosoftStore }}<a href="{{ . }}">Microsoft Store</a>
-        {{ end }}
-        {{- with .Nintendo }}<a href="{{ . }}">Nintendo</a>
-        {{ end }}
-        {{- with .Row8 }}<a href="{{ . }}">Row8</a>
-        {{ end }}
-        {{- with .Redbox }}<a href="{{ . }}">Redbox</a>
-        {{ end }}
-        {{- with .Vudu }}<a href="{{ . }}">Vudu</a>
-        {{ end }}
-        {{- with .DarkHorse }}<a href="{{ . }}">Dark Horse</a>
-        {{ end }}
+        {{- template "link" dict "Label" "Contact" "URL" .Contact }}
+        {{- template "link" dict "Label" "Trailer" "URL" .Trailer }}
+        {{- template "link" dict "Label" "Wikipedia" "URL" .Wikipedia }}
+        {{- template "link" dict "Label" "IMDB" "URL" .IMDB }}
+        {{- template "link" dict "Label" "TMDB" "URL" .TMDB }}
+        {{- template "link" dict "Label" "GoodReads" "URL" .GoodReads }}
+        {{- template "link" dict "Label" "Bookshop" "URL" .Bookshop }}
+        {{- template "link" dict "Label" "Anime News Network" "URL" .AnimeNewsNetwork }}
+        {{- template "link" dict "Label" "Rotten Tomatoes" "URL" .RottenTomatoes }}
+        {{- template "link" dict "Label" "Metacritic" "URL" .Metacritic }}
+        {{- template "link" dict "Label" "App Store" "URL" .AppStore }}
+        {{- template "link" dict "Label" "Twitch" "URL" .Twitch }}
+        {{- template "link" dict "Label" "YouTube" "URL" .YouTube }}
+        {{- template "link" dict "Label" "Reddit" "URL" .Reddit }}
+        {{- template "link" dict "Label" "X" "URL" .X }}
+        {{- template "link" dict "Label" "X" "URL" .Twitter }}
+        {{- template "link" dict "Label" "Facebook" "URL" .Facebook }}
+        {{- template "link" dict "Label" "Instagram" "URL" .Instagram }}
+        {{- template "link" dict "Label" "Threads" "URL" .Threads }}
+        {{- template "link" dict "Label" "TikTok" "URL" .TikTok }}
+        {{- template "link" dict "Label" "Netflix" "URL" .Netflix }}
+        {{- template "link" dict "Label" "Spotify" "URL" .Spotify }}
+        {{- template "link" dict "Label" "Soundcloud" "URL" .Soundcloud }}
+        {{- template "link" dict "Label" "Hulu" "URL" .Hulu }}
+        {{- template "link" dict "Label" "AdultSwim" "URL" .AdultSwim }}
+        {{- template "link" dict "Label" "Peacock" "URL" .Peacock }}
+        {{- template "link" dict "Label" "Fandom" "URL" .Fandom }}
+        {{- template "link" dict "Label" "Telegram channel" "URL" .TelegramChannel }}
+        {{- template "link" dict "Label" "Steam" "URL" .Steam }}
+        {{- template "link" dict "Label" "PlayStation" "URL" .PlayStation }}
+        {{- template "link" dict "Label" "XBox" "URL" .XBox }}
+        {{- template "link" dict "Label" "GOG" "URL" .GOG }}
+        {{- template "link" dict "Label" "Epic" "URL" .Epic }}
+        {{- template "link" dict "Label" "Discord" "URL" .Discord }}
+        {{- template "link" dict "Label" "IGN" "URL" .IGN }}
+        {{- template "link" dict "Label" "Amazon" "URL" .Amazon }}
+        {{- template "link" dict "Label" "Prime Video" "URL" .PrimeVideo }}
+        {{- template "link" dict "Label" "AppleTV" "URL" .AppleTV }}
+        {{- template "link" dict "Label" "Apple Podcasts" "URL" .ApplePodcasts }}
+        {{- template "link" dict "Label" "GooglePlay" "URL" .GooglePlay }}
+        {{- template "link" dict "Label" "Microsoft Store" "URL" .MicrosoftStore }}
+        {{- template "link" dict "Label" "Nintendo" "URL" .Nintendo }}
+        {{- template "link" dict "Label" "Row8" "URL" .Row8 }}
+        {{- template "link" dict "Label" "Redbox" "URL" .Redbox }}
+        {{- template "link" dict "Label" "Vudu" "URL" .Vudu }}
+        {{- template "link" dict "Label" "Dark Horse" "URL" .DarkHorse }}
     </p>
 
     {{- if not .Source }}

@@ -1,0 +1,11 @@
+{{ define "link" }}
+{{- /*
+link template used to display a simple link
+Input:
+- .Label (string): the label to display
+- .URL (string): address
+*/ -}}
+{{- if ne .URL "" }}
+        <a href="{{ .URL }}">{{ .Label }}</a>
+{{- end }}
+{{- end }}
