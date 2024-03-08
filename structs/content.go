@@ -105,6 +105,7 @@ type Content struct {
 	GooglePlay       string   `yaml:"google_play,omitempty" json:",omitempty"`
 	MicrosoftStore   string   `yaml:"microsoft_store,omitempty" json:",omitempty"`
 	Nintendo         string   `yaml:",omitempty" json:",omitempty"`
+	HumbleBundle     string   `yaml:"humble_bundle,omitempty" json:",omitempty"`
 	Row8             string   `yaml:",omitempty" json:",omitempty"`
 	Redbox           string   `yaml:",omitempty" json:",omitempty"`
 	Vudu             string   `yaml:",omitempty" json:",omitempty"`
