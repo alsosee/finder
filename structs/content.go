@@ -73,6 +73,7 @@ type Content struct {
 	YouTube          string   `yaml:",omitempty" json:",omitempty"`
 	IMDB             string   `yaml:",omitempty" json:",omitempty"`
 	TMDB             string   `yaml:",omitempty" json:",omitempty"`
+	TPDB             string   `yaml:",omitempty" json:",omitempty"`
 	Steam            string   `yaml:",omitempty" json:",omitempty"`
 	Netflix          string   `yaml:",omitempty" json:",omitempty"`
 	Spotify          string   `yaml:",omitempty" json:",omitempty"`
