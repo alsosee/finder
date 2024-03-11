@@ -561,13 +561,19 @@ fieldset.radio label:last-of-type {
 }
 
 .content .labels {
+  gap: 4px;
   list-style: none;
   padding: 0;
   margin: 0;
   margin-bottom: 10px;
 }
 
+.content .labels li {
+  margin: 0 5px;
+}
+
 .content .labels .genre {
+  margin: 0;
   padding: 0px 7px;
   background-color: var(--color-background-secondary);
   border-radius: 7px;
