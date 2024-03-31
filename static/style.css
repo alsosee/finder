@@ -1092,6 +1092,7 @@ p .award + .award {
 }
 
 #backdrop {
+  display: flex;
   position: fixed;
   left: 0;
   right: 0;
@@ -1106,6 +1107,14 @@ p .award + .award {
   overflow-y: scroll;
   align-items: center;
   justify-content: center;
+  opacity: 0;
+  transition: 0.5s;
+  pointer-events: none;
+}
+
+#backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 #uploader {
@@ -1119,6 +1128,17 @@ p .award + .award {
   box-shadow: var(--shadow-big);
   z-index: 101;
   overflow: hidden; /* crop .buttons background */
+  transform: translateY(80%);
+  transition-timing-function: cubic-bezier(0.3, 0, 0, 1.3);
+  transition-delay: 0.4s;
+  opacity: 0.25;
+  transition: 0.5s;
+}
+
+#uploader.open {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
 }
 
 #uploader h1 {

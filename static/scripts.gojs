@@ -513,8 +513,8 @@ if (typeof hasRun === 'undefined') {
     }
 
     function uploader_cancel() {
-        backdrop.style.display = 'none';
-        uploader.style.display = 'none';
+        backdrop.classList.remove('open');
+        uploader.classList.remove('open');
         c.destroy();
     }
 
@@ -588,8 +588,8 @@ if (typeof hasRun === 'undefined') {
         uploader_target.innerText = name;
         uploader.dataset.target = name;
 
-        backdrop.style.display = 'flex';
-        uploader.style.display = 'flex';
+        backdrop.classList.add('open');
+        uploader.classList.add('open');
 
         opts = {
             viewport: {
@@ -644,13 +644,13 @@ if (typeof hasRun === 'undefined') {
             return;
         }
 
-        if (e.keyCode === 27 && uploader.checkVisibility()) { // esc
+        if (e.keyCode === 27 && uploader.classList.contains('open')) { // esc
             e.preventDefault();
             uploader_cancel();
             return;
         }
 
-        if (e.keyCode === 13 && uploader.checkVisibility()) { // enter
+        if (e.keyCode === 13 && uploader.classList.contains('open')) { // enter
             e.preventDefault();
             uploader_upload();
             return;
