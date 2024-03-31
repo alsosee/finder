@@ -842,6 +842,7 @@ if (typeof hasRun === 'undefined') {
             if (view === "icons") {
                 // if focused element is a link in .panel, move to the previous row in the same grid column
                 // reminder: .panel > li > a
+                e.preventDefault(); /* avoid scroll */
                 var current = document.activeElement;
                 var panel = document.activeElement.closest('.panel');
                 var gridStyle = window.getComputedStyle(panel);
