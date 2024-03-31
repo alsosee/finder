@@ -6,10 +6,10 @@
   --font-monospace: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
     Liberation Mono, monospace;
 
-  --files-url: url("files.png?crc=9f90e22b");
-  --files-size: 200px 100px;
+  --files-url: url("files.png?crc=afffce21");
+  --files-size: 400px 200px;
 
-  --sprite-url: url("sprite.png?crc=14aca395");
+  --sprite-url: url("sprite.png?crc=c4c8a227");
   --sprite-size: 240px 24px;
   --sprite-size-small: 180px 18px; /* 75% */
 
@@ -717,9 +717,13 @@ fieldset.radio label:last-of-type {
 }
 
 [data-view="icons"] .panel li a {
+  position: relative; /* for ::after element when focused */
   flex-direction: column;
   border-radius: 10px;
   padding: 4px 0; /* 4px is the outline width */
+  background-image: var(--files-url);
+  background-size: var(--files-size);
+  background-position: -40px -46px;
 }
 
 [data-view="icons"] .panel li a:focus {
@@ -759,16 +763,27 @@ fieldset.radio label:last-of-type {
   margin: 0 auto 10px;
   width: 100px;
   height: 100px;
-  background-image: var(--files-url);
-  background-size: var(--files-size);
-  background-repeat: no-repeat;
-  background-position: 0 0;
 }
 
 [data-view="icons"] .panel li a:focus::before {
   outline: 4px solid var(--color-background-icon);
   background-color: var(--color-background-icon);
   border-radius: 4px;
+}
+
+[data-view="icons"] .panel li a:focus::after {
+  position: absolute;
+  content: "";
+  display: block;
+  width: 108px; /* 4px outline */
+  height: 108px;
+  background-image: var(--files-url);
+  background-size: var(--files-size);
+  background-position: -41px -50px;
+}
+
+[data-view="icons"] .panel li a.has-image {
+  background-image: none;
 }
 
 [data-view="icons"] .panel li a.has-image::before {
@@ -781,6 +796,10 @@ fieldset.radio label:last-of-type {
   margin-bottom: calc(var(--comp-margin-bottom) + 10px);
 }
 
+[data-view="icons"] .panel li a.has-image:focus::after {
+  display: none;
+}
+
 [data-view="icons"] .panel li a.has-image.jpg::before {
   box-shadow: var(--shadow-avatar);
   border-radius: var(--border-radius-medium);
@@ -791,8 +810,14 @@ fieldset.radio label:last-of-type {
   border-radius: var(--border-radius-avatar);
 }
 
-[data-view="icons"] .panel .folder::before {
-  background-position: -100px 0;
+[data-view="icons"] .panel .folder {
+  background-position-x: -245px;
+}
+[data-view="icons"] .panel li .folder::before {
+  width: 106px;
+}
+[data-view="icons"] .panel .folder:focus::after {
+  background-position-x: -246px;
 }
 
 /* LIST */
