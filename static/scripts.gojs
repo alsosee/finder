@@ -691,6 +691,13 @@ if (typeof hasRun === 'undefined') {
 
         if (document.activeElement === searchInput) {
             if (e.keyCode === 40) { // down
+                content = document.querySelector('.content');
+                if (content) {
+                    content.focus();
+                    e.preventDefault();
+                    return;
+                }
+
                 // focus on first link in the last panel
                 var panelsList = Array.from(document.querySelectorAll('.panel'));
                 var links = Array.from(panelsList[panelsList.length - 1].querySelectorAll('a'));
