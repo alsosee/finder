@@ -25,7 +25,13 @@ clean:
 build: lint
 	@go run .
 
+.PHONY: hash
+## hash: update static files hashes in index.html
+hash:
+	sed -i '' -E "s/files\.png\?crc=[0-9a-z]+/files.png?crc=$$(crc32 ./static/files.png)/" static/style.css
+	sed -i '' -E "s/sprite\.png\?crc=[0-9a-z]+/sprite.png?crc=$$(crc32 ./static/sprite.png)/" static/style.css
+
 .PHONY: serve
 ## serve: serve the static site
-serve: build
+serve: hash build
 	@wrangler pages dev --local-protocol=https output/ --compatibility-date=2024-02-25 --binding GHP_TOKEN=${GHP_TOKEN}
