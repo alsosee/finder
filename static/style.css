@@ -1167,7 +1167,12 @@ p .award + .award {
 
 #uploader .croppie-container .cr-viewport {
   border: none;
-  box-shadow: 0 0 2000px 2000px rgba(245, 247, 246, 0.8);
+  box-shadow: 0 0 2000px 2000px rgba(245, 247, 246, 1);
+  transition: box-shadow 0.2s;
+}
+
+#uploader .croppie-container .cr-boundary:hover .cr-viewport {
+  box-shadow: 0 0 2000px 2000px rgba(245, 247, 246, 0.5);
 }
 
 #uploader .cr-slider::-webkit-slider-thumb {
