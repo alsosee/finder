@@ -23,7 +23,8 @@ clean:
 .PHONY: build
 ## build: build the static site
 build: lint
-	@go run .
+	@go build -o generator .
+	./generator
 
 .PHONY: hash
 ## hash: update static files hashes in index.html
