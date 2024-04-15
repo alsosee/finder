@@ -21,10 +21,16 @@ Inputs (same as for "index" template):
         {{- thumbStylePct . -}}"></div>
     {{- end }}
     {{ if either .Name .Title }}<h1{{ if .Subtitle }} class="with-subtitle"{{ end }}>{{ if .Title }}{{ .Title }}{{ else }}{{ .Name }}{{ end }}</h1>{{ end }}
-    {{- with .Subtitle }}<p class="subtitle">{{ . }}</p>{{ end }}
+    {{- with .Subtitle }}
+    <p class="subtitle">{{ . }}</p>
+    {{- end }}
     {{- if .Series }}<p class="series">Series: {{ template "reference" dict "Path" (series .) "HideType" true "Fallback" .Series }}</p>{{ end }}
-    {{- with next $.CurrentPath }}<p>Next: {{ template "reference" dict "Path" . "HideType" true }}</p>{{ end }}
-    {{- with prev $.CurrentPath }}<p>Previous: {{ template "reference" dict "Path" . "HideType" true }}</p>{{ end }}
+    {{- with next $.CurrentPath }}
+    <p>Next: {{ template "reference" dict "Path" . "HideType" true }}</p>
+    {{- end }}
+    {{- with prev $.CurrentPath }}
+    <p>Previous: {{ template "reference" dict "Path" . "HideType" true }}</p>
+    {{- end }}
     {{- if either .Genres .Rating .Length .Awards }}
     <ul class="labels">
         {{- with .Genres }}
