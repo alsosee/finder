@@ -62,7 +62,7 @@ type Generator struct {
 	muChainPages sync.Mutex
 
 	renderedPanelsCache map[string]string
-	muRenderedPanels     sync.Mutex
+	muRenderedPanels    sync.Mutex
 }
 
 // NewGenerator creates a new Generator.
@@ -1027,13 +1027,13 @@ func (g *Generator) renderPanel(panel structs.Panel, index int, isLast bool, pat
 func (g *Generator) renderPanelImpl(panel structs.Panel, index int, path string) (string, error) {
 	var b bytes.Buffer
 	err := g.templates.Lookup("panel.gohtml").Execute(&b, struct {
-		Panel  structs.Panel
-		Index  int
-		Path   string
-	} {
-		Panel:  panel,
-		Index:  index,
-		Path:   path,
+		Panel structs.Panel
+		Index int
+		Path  string
+	}{
+		Panel: panel,
+		Index: index,
+		Path:  path,
 	})
 
 	if err != nil {
@@ -1059,8 +1059,8 @@ func markInPathLinks(s string, panel structs.Panel, path string, isLast bool) st
 			// add "in-path" class to folder link
 			return strings.Replace(
 				s,
-				`" href="/` + filePath + `/"`,
-				` in-path" href="/` + filePath + `/"`,
+				`" href="/`+filePath+`/"`,
+				` in-path" href="/`+filePath+`/"`,
 				1,
 			)
 		}
@@ -1069,8 +1069,8 @@ func markInPathLinks(s string, panel structs.Panel, path string, isLast bool) st
 			// add "in-path" and "active" classes to file link
 			return strings.Replace(
 				s,
-				`" href="/` + filePath + `"`,
-				` active in-path" href="/` + filePath + `"`,
+				`" href="/`+filePath+`"`,
+				` active in-path" href="/`+filePath+`"`,
 				1,
 			)
 		}
