@@ -60,6 +60,9 @@ type Generator struct {
 	// chainPages used to keep track of next/prev pages in a series.
 	chainPages   map[string]map[bool]string // from -> true(next)/false(prev) -> reference
 	muChainPages sync.Mutex
+
+	renderedPanelsCache map[string]string
+	muRenderedPanels     sync.Mutex
 }
 
 // NewGenerator creates a new Generator.
@@ -77,6 +80,7 @@ func NewGenerator() (*Generator, error) {
 		mediaDirContents:     map[string][]structs.Media{},
 		chainPages:           map[string]map[bool]string{},
 		awardsMissingContent: map[string][]structs.Award{},
+		renderedPanelsCache:  map[string]string{},
 	}, nil
 }
 
@@ -427,6 +431,7 @@ func (g *Generator) fm() template.FuncMap {
 		"prefix":        prefix,
 		"chooseColumns": chooseColumns,
 		"column":        column,
+		"renderPanel":   g.renderPanel,
 	}
 }
 
@@ -995,6 +1000,85 @@ func (g *Generator) getFilesForPath(path string) []structs.File {
 	}
 
 	return nil
+}
+
+// renderPanel renders a panel and caches the result
+// it is an optimisation to not render the same panel multiple times.
+// drawback is that some content still has to be changed dynamically,
+// that is why markInPathLinks function is used
+func (g *Generator) renderPanel(panel structs.Panel, index int, isLast bool, path string) string {
+	g.muRenderedPanels.Lock()
+	defer g.muRenderedPanels.Unlock()
+
+	if rendered, ok := g.renderedPanelsCache[panel.Dir]; ok {
+		return markInPathLinks(rendered, panel, path, isLast)
+	}
+
+	rendered, err := g.renderPanelImpl(panel, index, path)
+	if err != nil {
+		log.Fatalf("rendering panel %q: %v", path, err)
+	}
+
+	g.renderedPanelsCache[panel.Dir] = rendered
+
+	return markInPathLinks(rendered, panel, path, isLast)
+}
+
+func (g *Generator) renderPanelImpl(panel structs.Panel, index int, path string) (string, error) {
+	var b bytes.Buffer
+	err := g.templates.Lookup("panel.gohtml").Execute(&b, struct {
+		Panel  structs.Panel
+		Index  int
+		Path   string
+	} {
+		Panel:  panel,
+		Index:  index,
+		Path:   path,
+	})
+
+	if err != nil {
+		return "", fmt.Errorf("executing panel template: %w", err)
+	}
+
+	return b.String(), nil
+}
+
+func markInPathLinks(s string, panel structs.Panel, path string, isLast bool) string {
+	if isLast {
+		s = strings.Replace(
+			s,
+			`onclick="panelClick(event)"`,
+			`onclick="panelClick(event)" id="_"`,
+			1,
+		)
+	}
+
+	for _, file := range panel.Files {
+		filePath := filepath.Join(panel.Dir, file.Name)
+		if file.IsFolder && strings.HasPrefix(path, filePath) {
+			// add "in-path" class to folder link
+			return strings.Replace(
+				s,
+				`" href="/` + filePath + `/"`,
+				` in-path" href="/` + filePath + `/"`,
+				1,
+			)
+		}
+
+		if !file.IsFolder && path == filePath {
+			// add "in-path" and "active" classes to file link
+			return strings.Replace(
+				s,
+				`" href="/` + filePath + `"`,
+				` active in-path" href="/` + filePath + `"`,
+				1,
+			)
+		}
+	}
+
+	log.Printf("active link not found in %q for panel %q", path, panel.Dir)
+
+	return s
 }
 
 func (g *Generator) generateContentTemplates() error {

@@ -1,0 +1,32 @@
+        {{- $columns := chooseColumns .Panel.Files }}
+        <ul class="panel menubar-navigation" role="menu" data-level="{{ .Index }}" onclick="panelClick(event)">
+            <li role="none" class="header">
+                <span class="icon"></span>
+                <span>Name</span>
+                {{- range $columns }}
+                <span class="column" data-label="{{ . }}">{{ . }}</span>
+                {{- end }}
+                <span class="column expand"></span>
+            </li>
+            {{- range .Panel.Files }}
+            {{- $file := . }}
+            {{- $path := join $.Panel.Dir .Name }}
+            <li role="none">
+                <a role="menuitem" class="{{ if .IsFolder }}folder{{ end }}
+                        {{- if .IsMissing}} missing{{ end }}
+                        {{- if .Image }} has-image
+                            {{- if isJPG .Image.Path }} jpg{{end}}
+                            {{- if hasPrefix $.Path "People" }} people{{ end }}
+                        {{- end -}}
+                    " href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
+                    {{- if .Image }} style="--background-image: url('{{ config "MediaHost" }}/{{ $.Panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStylePx .Image 100 "--" }}; {{ thumbStylePx .Image 24 "--small-" }}"{{ end -}}
+                    >
+                    <span>{{ .Title }}</span>
+                    {{- range $columns }}
+                    <span class="column" data-label="{{ . }}">{{ column $file . }}</span>
+                    {{- end }}
+                    <span class="column expand"></span>
+                </a>
+            </li>
+            {{- end }}
+        </ul>
