@@ -476,13 +476,18 @@ FILE_PROCESSING:
 	g.addAwards()
 
 	// Generate missing files
-	if err := g.generateMissing(); err != nil {
-		return fmt.Errorf("generating missing: %w", err)
-	}
+	m := g.missing()
+	g.addMissingFilesToPanels(m)
 
 	// Render Go templates
 	if err := g.generateGoTemplates(); err != nil {
 		return fmt.Errorf("generating go templates: %w", err)
+	}
+
+	g.processPanels()
+
+	if err := g.generateMissing(m); err != nil {
+		return fmt.Errorf("rendering missing: %w", err)
 	}
 
 	// Generate file templates
@@ -967,39 +972,17 @@ func (g *Generator) addDir(path string) {
 }
 
 func (g *Generator) getFilesForPath(path string) []structs.File {
-	if files, ok := g.dirContents[path]; ok {
-		sort.Sort(structs.ByYearDesk(files))
-
-		// update Title if content has it
-		for i, file := range files {
-			if content := g.contents[filepath.Join(path, file.Name)]; content.Name != "" {
-				files[i].Title = content.Name
-
-				// extra fields to use in list view
-				files[i].Columns.Add("Length", length(content.Length))
-				files[i].Columns.Add("Directors", strings.Join(content.Directors, ", "))
-				files[i].Columns.Add("Writers", strings.Join(content.Writers, ", "))
-				files[i].Columns.Add("Distributors", strings.Join(content.Distributors, ", "))
-				files[i].Columns.Add("Rating", content.Rating)
-				files[i].Columns.Add("Released", content.Released)
-				files[i].Columns.Add("Network", content.Network)
-				files[i].Columns.Add("Creators", strings.Join(content.Creators, ", "))
-				files[i].Columns.Add("Authors", strings.Join(content.Authors, ", "))
-				files[i].Columns.Add("Hosts", strings.Join(content.Hosts, ", "))
-				files[i].Columns.Add("Publishers", strings.Join(content.Publishers, ", "))
-				files[i].Columns.Add("Screenplay", strings.Join(content.Screenplay, ", "))
-				files[i].Columns.Add("StoryBy", strings.Join(content.StoryBy, ", "))
-				files[i].Columns.Add("DialoguesBy", strings.Join(content.DialoguesBy, ", "))
-				files[i].Columns.Add("Born", content.DOB)
-				files[i].Columns.Add("Died", content.DOD)
-			} else {
-				files[i].Title = file.Name
-			}
-		}
-		return files
+	files, ok := g.dirContents[path]
+	if !ok {
+		return nil
 	}
 
-	return nil
+	log.Printf("files for path %q", path)
+	for _, file := range files {
+		log.Printf("  %q", file.Title)
+	}
+
+	return files
 }
 
 // renderPanel renders a panel and caches the result
@@ -1152,9 +1135,7 @@ func (g *Generator) getImageForPath(path string) *structs.Media {
 }
 
 func (g *Generator) generateIndexes() error {
-	for dir, files := range g.dirContents {
-		sort.Sort(structs.ByNameFolderOnTop(files))
-
+	for dir := range g.dirContents {
 		path := filepath.Join(cfg.OutputDirectory, dir, "index.html")
 		panels, breadcrumbs := g.buildPanels(dir, false)
 
@@ -1174,10 +1155,8 @@ func (g *Generator) generateIndexes() error {
 	return nil
 }
 
-func (g *Generator) generateMissing() error {
-	missing := g.missing()
-
-	// first, add files to all panels
+func (g *Generator) addMissingFilesToPanels(missing []structs.Missing) {
+	// add files to all panels
 	for _, m := range missing {
 		if len(m.From)+len(m.Awards) < 2 {
 			continue
@@ -1220,6 +1199,28 @@ func (g *Generator) generateMissing() error {
 
 		g.muDir.Unlock()
 	}
+}
+
+func (g *Generator) generateMissing(missing []structs.Missing) error {
+	// create channel with PageData to render
+	pagesDataChan := make(chan structs.PageData)
+	errChan := make(chan error, len(missing))
+
+	// start 10 workers to render missing files
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for pd := range pagesDataChan {
+				err := g.executeTemplate(pd.OutputPath, pd)
+				if err != nil {
+					errChan <- fmt.Errorf("executing template for %q: %w", pd.CurrentPath, err)
+					return
+				}
+			}
+		}()
+	}
 
 	// render all missing files
 	for _, m := range missing {
@@ -1228,31 +1229,71 @@ func (g *Generator) generateMissing() error {
 		}
 
 		id := m.To
-		image := g.getImageForPath(id)
-
-		cnt := structs.Content{
-			Name:   filepath.Base(id),
-			Image:  image,
-			Awards: m.Awards,
-		}
-
-		path := filepath.Join(cfg.OutputDirectory, id+".html")
 		panels, breadcrumbs := g.buildPanels(id, true)
 
-		err := g.executeTemplate(path, structs.PageData{
+		pagesDataChan <- structs.PageData{
+			OutputPath:  filepath.Join(cfg.OutputDirectory, id+".html"),
 			CurrentPath: id,
 			Dir:         filepath.Dir(id),
 			Breadcrumbs: breadcrumbs,
 			Panels:      panels,
-			Content:     &cnt,
-			Timestamp:   time.Now().Unix(),
-		})
-		if err != nil {
-			return fmt.Errorf("executing template for %q: %w", id, err)
+			Content: &structs.Content{
+				Name:   filepath.Base(id),
+				Image:  g.getImageForPath(id),
+				Awards: m.Awards,
+			},
+			Timestamp: time.Now().Unix(),
 		}
 	}
 
-	return nil
+	close(pagesDataChan)
+	wg.Wait()
+
+	// check errChan for errors
+	select {
+	case err := <-errChan:
+		return err
+	default:
+		return nil
+	}
+}
+
+func (g *Generator) processPanels() {
+	g.muDir.Lock()
+	defer g.muDir.Unlock()
+
+	for path, files := range g.dirContents {
+		sort.Sort(structs.ByYearDesk(files))
+
+		// update Title if content has it
+		for i, file := range files {
+			if content := g.contents[filepath.Join(path, file.Name)]; content.Name != "" {
+				files[i].Title = content.Name
+
+				// extra fields to use in list view
+				files[i].Columns.Add("Length", length(content.Length))
+				files[i].Columns.Add("Directors", strings.Join(content.Directors, ", "))
+				files[i].Columns.Add("Writers", strings.Join(content.Writers, ", "))
+				files[i].Columns.Add("Distributors", strings.Join(content.Distributors, ", "))
+				files[i].Columns.Add("Rating", content.Rating)
+				files[i].Columns.Add("Released", content.Released)
+				files[i].Columns.Add("Network", content.Network)
+				files[i].Columns.Add("Creators", strings.Join(content.Creators, ", "))
+				files[i].Columns.Add("Authors", strings.Join(content.Authors, ", "))
+				files[i].Columns.Add("Hosts", strings.Join(content.Hosts, ", "))
+				files[i].Columns.Add("Publishers", strings.Join(content.Publishers, ", "))
+				files[i].Columns.Add("Screenplay", strings.Join(content.Screenplay, ", "))
+				files[i].Columns.Add("StoryBy", strings.Join(content.StoryBy, ", "))
+				files[i].Columns.Add("DialoguesBy", strings.Join(content.DialoguesBy, ", "))
+				files[i].Columns.Add("Born", content.DOB)
+				files[i].Columns.Add("Died", content.DOD)
+			} else {
+				files[i].Title = file.Name
+			}
+		}
+
+		g.dirContents[path] = files
+	}
 }
 
 func (g *Generator) missing() []structs.Missing {

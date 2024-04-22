@@ -7,6 +7,7 @@ import (
 )
 
 type PageData struct {
+	OutputPath  string
 	CurrentPath string
 	Dir         string
 	Breadcrumbs []Dir

@@ -64,6 +64,8 @@ func TestGetFilesForPathSimple(t *testing.T) {
 
 		tc.operations(g)
 
+		g.processPanels()
+
 		got := g.getFilesForPath(tc.path)
 		if len(got) != len(tc.expected) {
 			t.Fatalf("got %#v, expected %#v", got, tc.expected)

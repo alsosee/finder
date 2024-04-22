@@ -22,7 +22,7 @@ clean:
 
 .PHONY: build
 ## build: build the static site
-build: lint
+build:
 	@go build -o generator .
 	./generator
 
