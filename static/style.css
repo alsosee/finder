@@ -156,6 +156,7 @@ pre code {
   0% {
     background-position: 0 0;
   }
+
   100% {
     background-position: -28.28px 0;
   }
@@ -265,6 +266,7 @@ fieldset.radio label:last-of-type {
   right: 10px;
   z-index: 100;
 }
+
 #searchWrapper::before {
   content: "";
   display: block;
@@ -297,6 +299,7 @@ fieldset.radio label:last-of-type {
     inset 0 2px 3px rgba(0, 0, 0, 0.1),
     inset 0 -1px 1px rgba(0, 0, 0, 0.1);
 }
+
 #search:focus {
   outline: thin solid var(--color-outline);
   z-index: 1;
@@ -752,6 +755,7 @@ fieldset.radio label:last-of-type {
 [data-view="icons"] .panel li a.htmx-request {
   background-image: none;
 }
+
 [data-view="icons"] .panel li a.htmx-request span {
   background-image: var(--background-stripes-light);
   background-size: var(--background-stripes-size);
@@ -815,6 +819,7 @@ fieldset.radio label:last-of-type {
 [data-view="icons"] .panel li .folder::before {
   width: 106px;
 }
+
 [data-view="icons"] .panel .folder::after {
   background-position-x: -246px;
 }
@@ -1283,6 +1288,7 @@ p .award + .award {
     --shadow-button: inset 0 -3px 10px rgba(0, 0, 0, 0.2),
       inset 0 -2px 2px rgba(0, 0, 0, 0.2), 0 2px 10px rgba(0, 0, 0, 0.1);
   }
+
   #toolbar {
     --color-background: #2e2b2b;
   }
@@ -1290,30 +1296,38 @@ p .award + .award {
     background: url("/logo-dark.png") no-repeat;
     background-size: cover;
   }
+
   fieldset {
     --color-border: #222222;
   }
+
   fieldset.radio {
     background-color: #3b3838;
   }
+
   fieldset.radio span {
     filter: invert(0.8); /* invert sprite black to white */
   }
+
   fieldset.radio label:has(input:checked) {
     background-color: var(--color-background-tertiary);
   }
+
   fieldset.radio label:focus {
     filter: none;
   }
+
   fieldset.radio label:focus span {
     filter: invert(1); /* make icon brighter */
   }
+
   #search {
     box-shadow:
       inset 0 12px 23px rgba(0, 0, 0, 0.3),
       inset 0 1px 2px rgba(0, 0, 0, 0.4),
       inset 0 -1px 1px rgba(255, 255, 255, 0.1);
   }
+
   #searchWrapper::before {
     filter: invert(0.6);
   }
@@ -1325,9 +1339,11 @@ p .award + .award {
   .award.with-text {
     filter: none;
   }
+
   .award.with-text::before {
     filter: invert(0.8);
   }
+
   .award[href*="/BAFTA/"],
   .award[href*="/BAFTA/"]::before {
     filter: none; /* BAFTA logo is yellow */
@@ -1355,10 +1371,12 @@ p .award + .award {
   #uploader .croppie-container .cr-viewport {
     box-shadow: 0 0 2000px 2000px rgba(72, 69, 69, 0.8);
   }
+
   #uploader .buttons button {
     background-color: var(--color-background-secondary);
     text-shadow: var(--shadow-text-dark);
   }
+
   #uploader .buttons button:active {
     filter: brightness(0.9);
   }
@@ -1370,33 +1388,41 @@ p .award + .award {
     width: 100%;
     border-right: none;
   }
+
   .content .characters {
     justify-content: space-around;
   }
 }
+
 /* disable columns view, set max width for container */
 @media (max-width: 600px) {
   #breadcrumbs {
     overflow-x: scroll;
     white-space: nowrap;
   }
+
   #breadcrumbs::-webkit-scrollbar {
     display: none;
   }
+
   [data-view="list"] .panel:not(:last-child) {
     display: none;
   }
+
   [data-view="icons"] .panel {
     justify-content: space-around;
   }
+
   fieldset.radio {
     opacity: 1;
     transition: opacity 0.2s ease-in-out;
   }
+
   #searchWrapper {
     width: 44px;
     transition: width 0.2s ease-in-out;
   }
+
   #search {
     width: 100%;
     padding: 0 15px;
@@ -1405,15 +1431,18 @@ p .award + .award {
     padding-right: 0px;
     transition: padding-right 0.2s ease-in-out;
   }
+
   #search::placeholder {
     color: transparent;
   }
+
   #search:focus {
     width: 100%;
     padding: 0 15px 0 40px;
     color: inherit;
     text-indent: 0;
   }
+
   #searchWrapper:has(#search:focus) {
     width: calc(
       100% - 20px /* body padding */ - 44px /* logo width */ - 10px
@@ -1421,6 +1450,7 @@ p .award + .award {
     );
     /* transition: width 0.2s ease-in-out 0.2s; */
   }
+
   /* hide fieldset.radio if #searchWrapper after it has focused #search input */
   #searchWrapper:has(#search:focus) + fieldset.radio {
     opacity: 0;
