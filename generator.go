@@ -977,11 +977,6 @@ func (g *Generator) getFilesForPath(path string) []structs.File {
 		return nil
 	}
 
-	log.Printf("files for path %q", path)
-	for _, file := range files {
-		log.Printf("  %q", file.Title)
-	}
-
 	return files
 }
 
@@ -1058,8 +1053,6 @@ func markInPathLinks(s string, panel structs.Panel, path string, isLast bool) st
 			)
 		}
 	}
-
-	log.Printf("active link not found in %q for panel %q", path, panel.Dir)
 
 	return s
 }
