@@ -625,6 +625,19 @@ if (typeof hasRun === 'undefined') {
         }
     });
 
+    // menu
+    function toggleMenu() {
+        menu.classList.toggle('open');
+        menu.focus();
+    }
+
+    // if menu is open, and click is outside of the menu, close it
+    document.addEventListener('click', function(event) {
+        if (menu.classList.contains('open') && !menu.contains(event.target) && !menu_popup.contains(event.target)) {
+            menu.classList.remove('open');
+        }
+    });
+
     // keyboard
     function click(link) {
         // create a new link element and click it

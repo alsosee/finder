@@ -172,22 +172,115 @@ pre code {
   border-bottom: 1px solid var(--color-border);
 }
 
-#logo {
+#menu {
   position: absolute;
   left: 10px;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  box-shadow: var(--shadow-button);
 }
 
-#logo a {
-  float: left;
-  border-radius: 8px;
+#menu .toggle {
+  display: block;
+  width: 10px;
+  height: 10px;
+  background: transparent;
+  margin-right: 12px;
+  margin-left: 5px;
+  border: 11px solid #666;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 0 solid transparent;
+}
+
+#logo {
+  display: block;
   width: 44px;
   height: 44px;
-  background: url("/logo.png?a=1") no-repeat;
-  background-size: cover;
+  margin-left: 5px;
+  background: url("/logo.png") no-repeat;
+  background-size: 88px 88px;
+  background-position: -44px 0;
 }
 
-#logo a:focus {
+#logo:focus {
   outline: thin solid var(--color-outline);
+}
+
+#menu_popup {
+  display: none;
+  position: absolute;
+  top: 55px;
+  left: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background-color: var(--color-background);
+  border-radius: 8px;
+  border-top-left-radius: 0;
+  box-shadow: var(--shadow-big);
+  z-index: 100;
+  overflow: hidden;
+}
+
+#menu_popup li * {
+  display: flex;
+  align-items: center;
+  padding-right: 1rem;
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+#menu_popup li *::before {
+  display: block;
+  content: "";
+  width: 44px;
+  height: 44px;
+  margin: 0 5px;
+  background-image: url("/logo.png");
+  background-size: 88px 88px;
+  background-repeat: no-repeat;
+}
+
+#menu_popup .current {
+  opacity: 0.5;
+  cursor: default;
+}
+
+#menu_popup a:hover {
+  background-color: var(--color-background-selection);
+  color: var(--color-text-selection);
+}
+
+#menu_popup span::before {
+  background-position: -44px 0;
+}
+
+#menu_popup a[href="https://ru.alsosee.info"]::before
+{
+  background-position: -44px -44px;
+}
+
+#menu_popup a[href="https://ru.alsosee.info"]:hover::before
+{
+  background-position: 0 -44px;
+}
+
+#menu.open {
+  background-color: var(--color-background-secondary);
+  box-shadow: var(--shadow-depth);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+#menu.open .toggle {
+  border-top: 0 solid transparent;
+  border-bottom: 11px solid #666;
+}
+
+#menu.open + #menu_popup {
+  display: block;
 }
 
 #container {
@@ -1291,10 +1384,29 @@ p .award + .award {
 
   #toolbar {
     --color-background: #2e2b2b;
+    /* todo: refactor use of --color-background-toolbar for dark mode */
   }
-  #logo a {
-    background: url("/logo-dark.png") no-repeat;
-    background-size: cover;
+
+  #logo {
+    background-position: 0 0;
+  }
+
+  #menu {
+    background-color: #3b3838;
+  }
+
+  #menu.open {
+    background-color: var(--color-background-tertiary);
+    /* todo: refactor --color-background for dark mode */
+  }
+
+  #menu_popup span::before {
+    background-position: 0 0;
+  }
+
+  #menu_popup a[href="https://ru.alsosee.info"]::before
+  {
+    background-position: 0 -44px;
   }
 
   fieldset {
