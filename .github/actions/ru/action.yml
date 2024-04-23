@@ -1,0 +1,36 @@
+name: Build static site
+description: ""
+
+author: Konstantin Chukhlomin <mail@chuhlomin.com>
+
+branding:
+  icon: file-text
+  color: purple
+
+inputs:
+  info:
+    description: Directory that contains info files
+    required: true
+  media:
+    description: Directory that contains media files
+    required: true
+  output:
+    description: Directory to output static site
+    required: true
+  media_host:
+    description: Host of media files
+    required: false
+  search_host:
+    description: Host of MeiliSearch
+    required: false
+  search_api_key:
+    description: Public API key of MeiliSearch
+    required: false
+  num_workers:
+    description: Number of workers to use
+    required: false
+    default: "4"
+
+runs:
+  using: docker
+  image: docker://ghcr.io/alsosee/finder-ru:latest
