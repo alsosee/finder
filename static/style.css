@@ -201,7 +201,7 @@ pre code {
   margin-left: 5px;
   background: url("/logo.png") no-repeat;
   background-size: 88px 88px;
-  background-position: -44px 0;
+  background-position: -44px -44px;
 }
 
 #logo:focus {
@@ -254,7 +254,7 @@ pre code {
 }
 
 #menu_popup span::before {
-  background-position: -44px 0;
+  background-position: -44px -44px;
 }
 
 #menu_popup a[href="https://ru.alsosee.info"]::before
@@ -905,7 +905,7 @@ fieldset.radio label:last-of-type {
 }
 
 [data-view="icons"] .panel li a.has-image.people::before,
-[data-view="icons"] .panel li a.has-image[href^="/People/"]::before {
+[data-view="icons"] .panel li a.has-image[href^="/Люди/"]::before {
   border-radius: var(--border-radius-avatar);
 }
 
@@ -1031,7 +1031,7 @@ fieldset.radio label:last-of-type {
 }
 
 [data-view="list"] .panel li a.has-image.people::before,
-[data-view="list"] .panel li a.has-image[href^="/People/"]::before {
+[data-view="list"] .panel li a.has-image[href^="/Люди/"]::before {
   border-radius: var(--border-radius-avatar);
 }
 
@@ -1090,7 +1090,7 @@ fieldset.radio label:last-of-type {
 }
 
 [data-view="columns"] .panel a.has-image.people::before,
-[data-view="columns"] .panel a.has-image[href^="/People/"]::before {
+[data-view="columns"] .panel a.has-image[href^="/Люди/"]::before {
   border-radius: var(--border-radius-avatar);
 }
 
@@ -1388,7 +1388,7 @@ p .award + .award {
   }
 
   #logo {
-    background-position: 0 0;
+    background-position: 0 -44px;
   }
 
   #menu {
@@ -1401,12 +1401,12 @@ p .award + .award {
   }
 
   #menu_popup span::before {
-    background-position: 0 0;
+    background-position: 0 -44px;
   }
 
-  #menu_popup a[href="https://ru.alsosee.info"]::before
+  #menu_popup a[href="https://alsosee.info"]::before
   {
-    background-position: 0 -44px;
+    background-position: 0 0;
   }
 
   fieldset {

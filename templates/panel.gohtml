@@ -16,7 +16,7 @@
                         {{- if .IsMissing}} missing{{ end }}
                         {{- if .Image }} has-image
                             {{- if isJPG .Image.Path }} jpg{{end}}
-                            {{- if hasPrefix $.Path "People" }} people{{ end }}
+                            {{- if hasPrefix $.Path "Люди" }} people{{ end }}
                         {{- end -}}
                     " href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
                     {{- if .Image }} style="--background-image: url('{{ config "MediaHost" }}/{{ $.Panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStylePx .Image 100 "--" }}; {{ thumbStylePx .Image 24 "--small-" }}"{{ end -}}

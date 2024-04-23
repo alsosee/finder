@@ -1,16 +1,16 @@
-name: deploy
+name: deploy-ru
 
 on:
   repository_dispatch:
-    types: [deploy]
+    types: [deploy-ru]
   workflow_dispatch:
 
 concurrency:
-  group: main
+  group: main-ru
   cancel-in-progress: false
 
 jobs:
-  main:
+  deploy-ru:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -19,14 +19,14 @@ jobs:
       - name: Clone info
         uses: actions/checkout@v4
         with:
-          repository: alsosee/info
+          repository: alsosee/ru
           path: info
           token: ${{ secrets.PKG_TOKEN }}
 
       - name: Clone media
         uses: actions/checkout@v4
         with:
-          repository: alsosee/media
+          repository: alsosee/media-ru
           path: media
           token: ${{ secrets.PKG_TOKEN }}
 
@@ -36,7 +36,7 @@ jobs:
           info: ./info
           media: ./media
           output: ./output
-          media_host: https://media.alsosee.info
+          media_host: https://ru.media.alsosee.info
           search_host: https://search.alsosee.info
           search_api_key: ${{ secrets.MEILISEARCH_KEY }}
 
@@ -45,4 +45,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: pages deploy output --project-name=finder --branch=main --commit-dirty=true
+          command: pages deploy output --project-name=finder-ru --branch=main --commit-dirty=true

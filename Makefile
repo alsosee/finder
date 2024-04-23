@@ -35,4 +35,7 @@ hash:
 .PHONY: serve
 ## serve: serve the static site
 serve: hash build
-	@wrangler pages dev --local-protocol=https output/ --compatibility-date=2024-02-25 --binding GHP_TOKEN=${GHP_TOKEN}
+	@wrangler pages dev --local-protocol=https output/ \
+	--compatibility-date=2024-02-25 \
+	--binding GHP_TOKEN=${GHP_TOKEN} \
+	--port 8789

@@ -40,8 +40,8 @@ type Content struct {
 	HTML   string `yaml:"-" json:",omitempty"` // for Markdown files
 
 	// for everything
-	Name        string    `yaml:",omitempty" json:",omitempty"` // name of the file, used in the breadcrumbs
-	Title       string    `yaml:",omitempty" json:",omitempty"` // override for the name, used as page title, fallback to Name
+	Name        string    `yaml:"имя,omitempty" json:",omitempty"`      // name of the file, used in the breadcrumbs
+	Title       string    `yaml:"название,omitempty" json:",omitempty"` // override for the name, used as page title, fallback to Name
 	Subtitle    string    `yaml:",omitempty" json:",omitempty"`
 	Year        int       `yaml:",omitempty" json:",omitempty"`
 	Authors     oneOrMany `yaml:",omitempty" json:",omitempty"`
@@ -151,8 +151,8 @@ type Content struct {
 	Designers      oneOrMany     `yaml:",omitempty" json:",omitempty"`
 
 	// for podcasts
-	Hosts  oneOrMany `yaml:",omitempty" json:",omitempty"`
-	Guests oneOrMany `yaml:",omitempty" json:",omitempty"`
+	Hosts  oneOrMany `yaml:"ведущие,omitempty" json:",omitempty"`
+	Guests oneOrMany `yaml:"гости,omitempty" json:",omitempty"`
 
 	RemakeOf string `yaml:"remake_of,omitempty" json:",omitempty"`
 

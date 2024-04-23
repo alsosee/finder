@@ -415,7 +415,7 @@ func (g *Generator) fm() template.FuncMap {
 		"title": func(b structs.Breadcrumbs) string {
 			b = b[1:] // skip the first element (it's always "Home")
 			if len(b) == 0 {
-				return "Also, see"
+				return "См. ещё"
 			}
 
 			var dirs []string
@@ -831,8 +831,8 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 	g.addConnectionList(from, "People", content.StoryBy, "Story")
 	g.addConnectionList(from, "People", content.DialoguesBy, "Dialogues")
 	g.addConnectionList(from, "People", content.Composers, "Composer")
-	g.addConnectionList(from, "People", content.Hosts, "Host")
-	g.addConnectionList(from, "People", content.Guests, "Guest")
+	g.addConnectionList(from, "Люди", content.Hosts, "Ведущий подкста")
+	g.addConnectionList(from, "Люди", content.Guests, "Гость подкста")
 	g.addConnectionList(from, "People", content.Programmers, "Programmer")
 	g.addConnectionList(from, "People", content.Designers, "Designer")
 	g.addConnectionList(from, "People", content.Cinematography, "Cinematography")
@@ -1473,7 +1473,7 @@ func (g *Generator) buildPanels(path string, isFile bool) (structs.Panels, struc
 		cumulativePath = filepath.Join(cumulativePath, dir)
 
 		if dir == "" {
-			dir = "Home"
+			dir = "Главная"
 		}
 
 		breadcrumbs = append(breadcrumbs, structs.Dir{

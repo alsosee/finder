@@ -1,13 +1,15 @@
-name: main
+name: main-ru
 
 on:
   push:
     branches:
-      - main
+      - ru
   pull_request:
+    branches:
+      - ru
 
 jobs:
-  main:
+  main-ru:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -39,10 +41,10 @@ jobs:
           test-results: test.json
 
       - name: Build and push to CR
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/ru'
         uses: chuhlomin/actions/docker-build-push@main
         env:
-          DOCKER_IMAGE: ghcr.io/alsosee/finder
+          DOCKER_IMAGE: ghcr.io/alsosee/finder-ru
         with:
           registry: ghcr.io
           username: chuhlomin
@@ -54,17 +56,17 @@ jobs:
           platforms: linux/amd64
 
       - name: Trigger deploy
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/ru'
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.PKG_TOKEN }}
           repository: alsosee/finder
-          event-type: deploy
+          event-type: deploy-ru
 
-      - name: Trigger index
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.PKG_TOKEN }}
-          repository: alsosee/search
-          event-type: index
+      # - name: Trigger index
+      #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      #   uses: peter-evans/repository-dispatch@v3
+      #   with:
+      #     token: ${{ secrets.PKG_TOKEN }}
+      #     repository: alsosee/search
+      #     event-type: index

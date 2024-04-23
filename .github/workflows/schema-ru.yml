@@ -1,15 +1,15 @@
-name: schema
+name: schema-ru
 
 on:
   push:
     branches:
-      - main
+      - ru
     paths:
       - "structs/content.go"
   workflow_dispatch:
 
 jobs:
-  schema:
+  schema-ru:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger schema update
