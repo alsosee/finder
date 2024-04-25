@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-title" content="Also, see">
+    <meta name="apple-mobile-web-app-title" content="См. ещё">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>{{ title .Breadcrumbs }}</title>
     <link rel="stylesheet" href="/style.css?crc={{ crc32 "style.css" }}">
@@ -16,21 +16,21 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <script src="/meilisearch.umd.js"></script>
     {{- if .Content }}
-    <link rel="edit" href="https://github.com/alsosee/info/edit/main/{{ .Content.Source }}">
+    <link rel="edit" href="https://github.com/alsosee/ru/edit/main/{{ .Content.Source }}">
     {{- else }}
-    <link rel="edit" href="https://github.com/alsosee/info/tree/main/{{ .CurrentPath }}">
+    <link rel="edit" href="https://github.com/alsosee/ru/tree/main/{{ .CurrentPath }}">
     {{- end }}
     {{- if eq (len .Breadcrumbs) 1 }}
-    <meta property="og:image" content="https://media.alsosee.info/opengraph.png">
+    <meta property="og:image" content="https://ru.media.alsosee.info/opengraph.png">
     <meta property="og:image:width" content="1920">
     <meta property="og:image:height" content="1080">
-    <meta property="og:title" content="Also, see">
+    <meta property="og:title" content="См. ещё">
     <meta property="og:description" content="A collection of things, people and more">
-    <meta property="og:url" content="https://alsosee.info">
+    <meta property="og:url" content="https://ru.alsosee.info">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Also, see">
-    <meta name="twitter:image" content="https://media.alsosee.info/twitter.png">
+    <meta name="twitter:title" content="См. ещё">
+    <meta name="twitter:image" content="https://ru.media.alsosee.info/twitter.png">
     {{- end }}
 </head>
 <body data-view="columns">
@@ -54,7 +54,7 @@
         <label tabindex="0" role="menuitem"><input type="radio" name="view" value="columns" checked> <span>Columns</span></label>
     </fieldset>
     <!--label id="searchWrapper">
-        <input id="search" type="search" role="searchbox" placeholder="Search" oninput="search(event)" autocomplete="off">
+        <input id="search" type="search" role="searchbox" placeholder="Поиск" oninput="search(event)" autocomplete="off">
     </label-->
 </div>
 <nav>
