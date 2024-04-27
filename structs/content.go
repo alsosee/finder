@@ -46,7 +46,7 @@ type Content struct {
 	Year        int       `yaml:",omitempty" json:",omitempty"`
 	Authors     oneOrMany `yaml:",omitempty" json:",omitempty"`
 	Developers  string    `yaml:",omitempty" json:",omitempty"`
-	Description string    `yaml:",omitempty" json:",omitempty"`
+	Description string    `yaml:"описание,omitempty" json:",omitempty"`
 	CoverArtist string    `yaml:"cover_artist,omitempty" json:",omitempty"`
 	Designer    string    `yaml:",omitempty" json:",omitempty"`
 
@@ -58,6 +58,7 @@ type Content struct {
 	DOB     string `yaml:",omitempty" json:",omitempty"` // date of birth
 	DOD     string `yaml:",omitempty" json:",omitempty"` // date of death
 	Contact string `yaml:"contact,omitempty" json:",omitempty"`
+	Nick    string `yaml:"ник,omitempty" json:",omitempty"`
 
 	Founded  string `yaml:",omitempty" json:",omitempty"` // for companies
 	Released string `yaml:",omitempty" json:",omitempty"` // for games, ...
@@ -65,6 +66,7 @@ type Content struct {
 	// general external links
 	Website          string   `yaml:",omitempty" json:",omitempty"`
 	Websites         []string `yaml:",omitempty" json:",omitempty"`
+	RSS              string   `yaml:",omitempty" json:",omitempty"`
 	Wikipedia        string   `yaml:",omitempty" json:",omitempty"`
 	GoodReads        string   `yaml:",omitempty" json:",omitempty"`
 	Bookshop         string   `yaml:",omitempty" json:",omitempty"`
@@ -91,6 +93,9 @@ type Content struct {
 	Threads          string   `yaml:",omitempty" json:",omitempty"`
 	TikTok           string   `yaml:",omitempty" json:",omitempty"`
 	TelegramChannel  string   `yaml:"telegram_channel,omitempty" json:",omitempty"`
+	TelegramChat     string   `yaml:"telegram_chat,omitempty" json:",omitempty"`
+	Mave             string   `yaml:",omitempty" json:",omitempty"`
+	Bento            string   `yaml:",omitempty" json:",omitempty"`
 	PlayStation      string   `yaml:"playstation,omitempty" json:",omitempty"`
 	XBox             string   `yaml:"xbox,omitempty" json:",omitempty"`
 	GOG              string   `yaml:"gog,omitempty" json:",omitempty"`
@@ -102,6 +107,13 @@ type Content struct {
 	PrimeVideo       string   `yaml:"prime_video,omitempty" json:",omitempty"`
 	AppleTV          string   `yaml:"apple_tv,omitempty" json:",omitempty"`
 	ApplePodcasts    string   `yaml:"apple_podcasts,omitempty" json:",omitempty"`
+	GooglePodcasts   string   `yaml:"google_podcasts,omitempty" json:",omitempty"`
+	YandexMusic      string   `yaml:"yandex_music,omitempty" json:",omitempty"`
+	Boosty           string   `yaml:",omitempty" json:",omitempty"`
+	Patreon          string   `yaml:",omitempty" json:",omitempty"`
+	Mastodon         string   `yaml:",omitempty" json:",omitempty"`
+	Bluesky          string   `yaml:",omitempty" json:",omitempty"`
+	DTF              string   `yaml:",omitempty" json:",omitempty"`
 	Peacock          string   `yaml:",omitempty" json:",omitempty"`
 	GooglePlay       string   `yaml:"google_play,omitempty" json:",omitempty"`
 	MicrosoftStore   string   `yaml:"microsoft_store,omitempty" json:",omitempty"`
@@ -111,6 +123,8 @@ type Content struct {
 	Redbox           string   `yaml:",omitempty" json:",omitempty"`
 	Vudu             string   `yaml:",omitempty" json:",omitempty"`
 	DarkHorse        string   `yaml:",omitempty" json:",omitempty"`
+	VK               string   `yaml:",omitempty" json:",omitempty"`
+	PrevouslyKnownAs string   `yaml:"ранее_известен_как,omitempty" json:",omitempty"`
 
 	// for books
 	ISBN        string    `yaml:",omitempty" json:",omitempty"`

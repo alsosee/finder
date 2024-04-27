@@ -20,7 +20,10 @@ Inputs (same as for "index" template):
         " style="background-image: url('{{ config "MediaHost" }}/{{ $.Dir }}/{{ .ThumbPath }}');
         {{- thumbStylePct . -}}"></div>
     {{- end }}
-    {{ if either .Name .Title }}<h1{{ if .Subtitle }} class="with-subtitle"{{ end }}>{{ if .Title }}{{ .Title }}{{ else }}{{ .Name }}{{ end }}</h1>{{ end }}
+    {{ if either .Name .Title }}<h1{{ if or .Subtitle .Nick }} class="with-subtitle"{{ end }}>{{ if .Title }}{{ .Title }}{{ else }}{{ .Name }}{{ end }}</h1>{{ end }}
+    {{- with .Nick }}
+    <p class="nick">{{ . }}</p>
+    {{- end }}
     {{- with .Subtitle }}
     <p class="subtitle">{{ . }}</p>
     {{- end }}
@@ -82,6 +85,10 @@ Inputs (same as for "index" template):
     <p>Remake of: {{ template "reference" dict "Path" . "HideType" true }}</p>
     {{- end }}
 
+    {{- with .PrevouslyKnownAs }}
+    <p>Ранее известен как: {{ . }}</p>
+    {{- end }}
+
     {{- with .Engine }}<p>Engine: {{ . }}</p>{{ end }}
     {{- template "single" dict "Type" "company" "Label" "Developers"     "Field" .Developers }}
     {{- template "list"   dict "Type" "person"  "Label" "Authors"        "Field" .Authors }}
@@ -116,6 +123,9 @@ Inputs (same as for "index" template):
     {{- with .UPC }}<p>UPC: {{ . }}</p>{{ end }}
 
     <p class="links">
+        {{- template "link" dict "Label" "RSS" "URL" .RSS }}
+        {{- template "link" dict "Label" "Patreon" "URL" .Patreon }}
+        {{- template "link" dict "Label" "Boosty" "URL" .Boosty }}
         {{- template "link" dict "Label" "Contact" "URL" .Contact }}
         {{- template "link" dict "Label" "Trailer" "URL" .Trailer }}
         {{- template "link" dict "Label" "Wikipedia" "URL" .Wikipedia }}
@@ -131,6 +141,9 @@ Inputs (same as for "index" template):
         {{- template "link" dict "Label" "Twitch" "URL" .Twitch }}
         {{- template "link" dict "Label" "YouTube" "URL" .YouTube }}
         {{- template "link" dict "Label" "Reddit" "URL" .Reddit }}
+        {{- template "link" dict "Label" "Mastodon" "URL" .Mastodon }}
+        {{- template "link" dict "Label" "Bluesky" "URL" .Bluesky }}
+        {{- template "link" dict "Label" "Bento" "URL" .Bento }}
         {{- template "link" dict "Label" "X" "URL" .X }}
         {{- template "link" dict "Label" "X" "URL" .Twitter }}
         {{- template "link" dict "Label" "Facebook" "URL" .Facebook }}
@@ -144,7 +157,8 @@ Inputs (same as for "index" template):
         {{- template "link" dict "Label" "AdultSwim" "URL" .AdultSwim }}
         {{- template "link" dict "Label" "Peacock" "URL" .Peacock }}
         {{- template "link" dict "Label" "Fandom" "URL" .Fandom }}
-        {{- template "link" dict "Label" "Telegram channel" "URL" .TelegramChannel }}
+        {{- template "link" dict "Label" "Telegram канал" "URL" .TelegramChannel }}
+        {{- template "link" dict "Label" "Telegram чат" "URL" .TelegramChat }}
         {{- template "link" dict "Label" "Steam" "URL" .Steam }}
         {{- template "link" dict "Label" "PlayStation" "URL" .PlayStation }}
         {{- template "link" dict "Label" "XBox" "URL" .XBox }}
@@ -155,7 +169,12 @@ Inputs (same as for "index" template):
         {{- template "link" dict "Label" "Amazon" "URL" .Amazon }}
         {{- template "link" dict "Label" "Prime Video" "URL" .PrimeVideo }}
         {{- template "link" dict "Label" "AppleTV" "URL" .AppleTV }}
-        {{- template "link" dict "Label" "Apple Podcasts" "URL" .ApplePodcasts }}
+        {{- template "link" dict "Label" "Apple Подкасты" "URL" .ApplePodcasts }}
+        {{- template "link" dict "Label" "Google Подкасты" "URL" .GooglePodcasts }}
+        {{- template "link" dict "Label" "VK" "URL" .VK }}
+        {{- template "link" dict "Label" "DTF" "URL" .DTF }}
+        {{- template "link" dict "Label" "Mave" "URL" .Mave }}
+        {{- template "link" dict "Label" "Яндекс Музыка" "URL" .YandexMusic }}
         {{- template "link" dict "Label" "GooglePlay" "URL" .GooglePlay }}
         {{- template "link" dict "Label" "Microsoft Store" "URL" .MicrosoftStore }}
         {{- template "link" dict "Label" "Nintendo" "URL" .Nintendo }}
@@ -267,7 +286,6 @@ Inputs (same as for "index" template):
     {{- end }}
 
     {{- with connections $.CurrentPath }}
-    <h2>Связи</h2>
     <ul class="connections flat">
         {{- template "connections" . }}
     </ul>
