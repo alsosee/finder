@@ -831,8 +831,8 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 	g.addConnectionList(from, "People", content.StoryBy, "Story")
 	g.addConnectionList(from, "People", content.DialoguesBy, "Dialogues")
 	g.addConnectionList(from, "People", content.Composers, "Composer")
-	g.addConnectionList(from, "Люди", content.Hosts, "Ведущий подкста")
-	g.addConnectionList(from, "Люди", content.Guests, "Гость подкста")
+	g.addConnectionList(from, "Люди", content.Hosts, "Ведущий подкаста")
+	g.addConnectionList(from, "Люди", content.Guests, "Гость подкаста")
 	g.addConnectionList(from, "People", content.Programmers, "Programmer")
 	g.addConnectionList(from, "People", content.Designers, "Designer")
 	g.addConnectionList(from, "People", content.Cinematography, "Cinematography")
@@ -872,6 +872,16 @@ func (g *Generator) addConnection(from, to string, info ...string) {
 	}
 
 	if _, ok := g.connections[to][from]; !ok {
+		// hack to handle Russian language
+		if strings.HasSuffix(to, "а") || strings.HasSuffix(to, "я") {
+			newInfo := make([]string, len(info))
+			for i, s := range info {
+				newInfo[i] = strings.Replace(s, "ий", "ая", 1)
+			}
+			g.connections[to][from] = newInfo
+			return
+		}
+
 		g.connections[to][from] = info
 		return
 	}
