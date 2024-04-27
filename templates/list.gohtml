@@ -8,14 +8,15 @@ Input:
 - .Awards ([]Award): a list of awards
 */ -}}
 {{- with .Field }}
-    <p>{{ with $.Awards }}{{ template "awards" . }}{{ end }}{{ $.Label }}:
+    <p>{{ with $.Awards }}{{ template "awards" . }}{{ end }}{{ $.Label }}:</p>
+    <ul class="list">
     {{- range . }}
         {{- if eq $.Type "person" }}
-        <span class="list">{{ template "person" . }}</span>
+        <li>{{ template "person" . }}</li>
         {{- else if eq $.Type "company" }}
-        <span class="list">{{ template "company" . }}</span>
+        <li>{{ template "company" . }}</li>
         {{- end }}
     {{- end }}
-    </p>
+    </ul>
 {{- end }}
 {{- end }}

@@ -257,14 +257,14 @@ pre code {
   background-position: -44px -44px;
 }
 
-#menu_popup a[href="https://ru.alsosee.info"]::before
+#menu_popup a[href="https://alsosee.info"]::before
 {
-  background-position: -44px -44px;
+  background-position: -44px 0px;
 }
 
-#menu_popup a[href="https://ru.alsosee.info"]:hover::before
+#menu_popup a[href="https://alsosee.info"]:hover::before
 {
-  background-position: 0 -44px;
+  background-position: 0 0px;
 }
 
 #menu.open {
@@ -576,6 +576,10 @@ fieldset.radio label:last-of-type {
   margin-bottom: 0;
 }
 
+.content .nick {
+  font-style: italic;
+}
+
 .content h2 {
   font-size: 1.2em;
   margin-top: 20px;
@@ -594,6 +598,10 @@ fieldset.radio label:last-of-type {
 
 .content p + ul {
   margin-top: -10px;
+}
+
+.content p + ul.connections {
+  margin-top: 0;
 }
 
 .content ul,
@@ -631,12 +639,17 @@ fieldset.radio label:last-of-type {
   margin-right: 0.33em;
 }
 
-.content .list:not(:last-child) {
-  display: inline-flex; /* to avoid space before comma */
+.content .list {
+  list-style: none;
+  padding-left: 29px;
 }
 
-.content .list:not(:last-child)::after {
-  content: ",";
+.content .list li {
+  margin-top: 0.33em;
+}
+
+.content .list .reference.has-image::before {
+  margin-left: calc(var(--comp-margin-left) - 29px);
 }
 
 .content a.website {
