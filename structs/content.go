@@ -42,7 +42,7 @@ type Content struct {
 	// for everything
 	Name        string    `yaml:"имя,omitempty" json:",omitempty"`      // name of the file, used in the breadcrumbs
 	Title       string    `yaml:"название,omitempty" json:",omitempty"` // override for the name, used as page title, fallback to Name
-	Subtitle    string    `yaml:",omitempty" json:",omitempty"`
+	Subtitle    string    `yaml:"подзаголовок,omitempty" json:",omitempty"`
 	Year        int       `yaml:",omitempty" json:",omitempty"`
 	Authors     oneOrMany `yaml:",omitempty" json:",omitempty"`
 	Developers  string    `yaml:",omitempty" json:",omitempty"`
@@ -111,6 +111,8 @@ type Content struct {
 	YandexMusic      string   `yaml:"yandex_music,omitempty" json:",omitempty"`
 	Boosty           string   `yaml:",omitempty" json:",omitempty"`
 	Patreon          string   `yaml:",omitempty" json:",omitempty"`
+	Donatty          string   `yaml:",omitempty" json:",omitempty"`
+	Destream         string   `yaml:",omitempty" json:",omitempty"`
 	Mastodon         string   `yaml:",omitempty" json:",omitempty"`
 	Bluesky          string   `yaml:",omitempty" json:",omitempty"`
 	DTF              string   `yaml:",omitempty" json:",omitempty"`
@@ -167,6 +169,8 @@ type Content struct {
 	// for podcasts
 	Hosts  oneOrMany `yaml:"ведущие,omitempty" json:",omitempty"`
 	Guests oneOrMany `yaml:"гости,omitempty" json:",omitempty"`
+
+	From string `yaml:"от,omitempty" json:",omitempty"`
 
 	RemakeOf string `yaml:"remake_of,omitempty" json:",omitempty"`
 

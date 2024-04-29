@@ -117,6 +117,9 @@ Inputs (same as for "index" template):
     {{- template "list"   dict "Type" "person"  "Label" "Composers"      "Field" .Composers }}
     {{- template "list"   dict "Type" "person"  "Label" "Ведущие"        "Field" .Hosts }}
     {{- template "list"   dict "Type" "person"  "Label" "Guests"         "Field" .Guests }}
+    
+    {{- with .From }}<p>{{ template "reference" dict "Path" . "Prefix" "Организации/" "HideType" true }}</p>{{ end }}
+    
     {{- with .ISBN }}<p>ISBN: {{ . }}</p>{{ end }}
     {{- with .ISBN10 }}<p>ISBN10: {{ . }}</p>{{ end }}
     {{- with .ISBN13 }}<p>ISBN13: {{ . }}</p>{{ end }}
@@ -126,6 +129,8 @@ Inputs (same as for "index" template):
         {{- template "link" dict "Label" "RSS" "URL" .RSS }}
         {{- template "link" dict "Label" "Patreon" "URL" .Patreon }}
         {{- template "link" dict "Label" "Boosty" "URL" .Boosty }}
+        {{- template "link" dict "Label" "Donatty" "URL" .Donatty }}
+        {{- template "link" dict "Label" "Destream" "URL" .Destream }}
         {{- template "link" dict "Label" "Contact" "URL" .Contact }}
         {{- template "link" dict "Label" "Trailer" "URL" .Trailer }}
         {{- template "link" dict "Label" "Wikipedia" "URL" .Wikipedia }}
