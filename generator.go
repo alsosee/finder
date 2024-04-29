@@ -849,6 +849,8 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 	g.addConnectionSingle(from, "Companies", content.Developers, "Developers")
 	g.addConnectionSingle(from, "", content.RemakeOf, "Remake")
 
+	g.addConnectionSingle(from, "Организации", content.From, "Проект")
+
 	if content.Series != "" {
 		g.addConnectionSingle(from, "", series(content), "Series")
 	}
