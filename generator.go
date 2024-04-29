@@ -1272,8 +1272,12 @@ func (g *Generator) processPanels() {
 
 		// update Title if content has it
 		for i, file := range files {
-			if content := g.contents[filepath.Join(path, file.Name)]; content.Name != "" {
-				files[i].Title = content.Name
+			if content, ok := g.contents[filepath.Join(path, file.Name)]; ok {
+				if content.Name != "" {
+					files[i].Title = content.Name
+				} else if content.Title != "" {
+					files[i].Title = content.Title
+				}
 
 				// extra fields to use in list view
 				files[i].Columns.Add("Length", length(content.Length))
