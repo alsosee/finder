@@ -1019,7 +1019,7 @@ fieldset.radio label:last-of-type {
   width: var(--small-width);
   height: var(--small-height);
   margin-left: calc(var(--small-comp-margin-left) + 10px);
-  margin-right: calc(var(--small-comp-margin-right) + 10px);
+  margin-right: calc(var(--small-comp-margin-right) + 5px);
   margin-top: calc(var(--small-comp-margin-top, 0px) - 5px);
   margin-bottom: calc(var(--small-comp-margin-bottom, 0px) - 6px);
 }
