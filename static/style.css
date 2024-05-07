@@ -1557,8 +1557,7 @@ p .award + .award {
 
   #searchWrapper:has(#search:focus) {
     width: calc(
-      100% - 20px /* body padding */ - 44px /* logo width */ - 10px
-        /* additional margin */
+      100% - 20px /* body padding */ - 78px /* logo width */ - 10px /* additional margin */
     );
     /* transition: width 0.2s ease-in-out 0.2s; */
   }
