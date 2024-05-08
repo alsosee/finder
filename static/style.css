@@ -535,6 +535,10 @@ fieldset.radio label:last-of-type {
   opacity: 0.5;
 }
 
+.panel .missing.has-image::before {
+  opacity: 1;
+}
+
 .content {
   height: 100%;
   width: 641px; /* 640 + 1px border */
