@@ -7,7 +7,7 @@ Inputs (same as for "index" template):
 - .Dir: content directory, used to build image URLs
 */ -}}
 {{- with .Content }}
-<div class="content" data-name="{{ .Name }}" data-dir="{{ $.Dir }}"{{ if .Source }} data-source="{{ .Source }}"{{ end }} tabindex="0">
+<div class="content drop" data-name="{{ .Name }}"{{ if hasPrefix $.CurrentPath "People" }} data-viewport="circle"{{ end }} data-dir="{{ $.Dir }}"{{ if .Source }} data-source="{{ .Source }}"{{ end }} tabindex="0">
     {{- with .HTML }}{{ . }}{{ end }}
     {{- with .Image }}
         {{- $div := 3 }}
@@ -178,9 +178,9 @@ Inputs (same as for "index" template):
         {{- range . }}
         <li>
         {{- if .Image }}
-            <span class="image drop" data-name="{{ htmlEscape .Name }}" style="background-image: url('{{ config "MediaHost" }}/{{ escape $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStylePct .Image }}"></span>
+            <span class="image drop" data-viewport="circle" data-name="{{ htmlEscape .Name }}" data-suffix="/Characters/{{ htmlEscape .Name }}" style="background-image: url('{{ config "MediaHost" }}/{{ escape $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStylePct .Image }}"></span>
         {{- else }}
-            <span class="no-image drop" data-name="{{ htmlEscape .Name }}"></span>
+            <span class="no-image drop" data-viewport="circle" data-name="{{ htmlEscape .Name }}" data-suffix="/Characters/{{ htmlEscape .Name }}"></span>
         {{- end }}
             <span class="name">{{ .Name }}</span>
         {{- if .Actor }}

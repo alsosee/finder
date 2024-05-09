@@ -30,8 +30,8 @@ if (typeof hasRun === 'undefined') {
         // scan for characters without images
         var drops = document.querySelectorAll('.characters .drop');
         drops.forEach(function(someDrop) {
-            var name = someDrop.getAttribute('data-name');
-            var key = path() + "/Characters/" + name;
+            var name = someDrop.dataset.name;
+            var key = path() + (someDrop.dataset.suffix || "");
             if (!uploadedImages.includes(key)) {
                 return;
             }
@@ -523,6 +523,8 @@ if (typeof hasRun === 'undefined') {
         btn_uploader_upload.classList.add('htmx-request');
         btn_uploader_upload.disabled = true;
 
+        var format = "jpeg";
+
         c.result({
             type: 'blob',
             size: 'viewport',
@@ -533,11 +535,14 @@ if (typeof hasRun === 'undefined') {
             const reader = new FileReader();
             reader.onloadend = function() {
                 // put base64-encoded image into style attribute
-                drop.setAttribute('style', `background-image: url(${reader.result})`);
+                drop.setAttribute('style', `background-image: url(${reader.result})${dropStyle}`);
+                if (format == "jpeg") {
+                    drop.classList.add('jpg');
+                }
 
                 // store the image in local storage to persist it across page reloads till it approved
-                localStorage.setItem(path() + "/Characters/" + uploader.dataset.target, reader.result);
-                uploadedImages.push(path() + "/Characters/" + uploader.dataset.target);
+                localStorage.setItem(path() + uploader.dataset.suffix, reader.result);
+                uploadedImages.push(path() + uploader.dataset.suffix);
                 localStorage.setItem("uploadedImages", JSON.stringify(uploadedImages));
             };
             reader.readAsDataURL(blob);
@@ -545,7 +550,7 @@ if (typeof hasRun === 'undefined') {
             fetch('/upload', {
                 method: 'PUT',
                 headers: {
-                  'x-file-name': encodeURIComponent(path() + "/Characters/" + uploader.dataset.target + ".jpg"),
+                  'x-file-name': encodeURIComponent(path() + uploader.dataset.suffix + ".jpg"),
                 },
                 body: blob
             }).then(function(response) {
@@ -571,29 +576,56 @@ if (typeof hasRun === 'undefined') {
         event.dataTransfer.dropEffect = 'copy';
     });
 
-    var drop;
+    var drop; // drop variable points DOM element that will be updated with the image
+    var dropStyle; // dropStyle users to set additional style for the drop element
     document.addEventListener('drop', function (event) {
         event.preventDefault();
 
         drop = event.target;
+        dropStyle = "";
         if (!drop.classList.contains('drop')) {
             return;
         }
-        name = drop.dataset.name;
 
+        // name used as uploader modal title
+        var name = drop.dataset.name;
         if (name === null || name === undefined || name === "") {
             return;
         }
 
+        var viewport = drop.dataset.viewport || "square";
+
+        // suffix is part of URL that needs to be added to the current page URL.
+        // it's empty for images that uploaded to assign to current page,
+        // and it's "/Characters/{name}" for images that uploaded to assign to characters
+        var suffix = drop.dataset.suffix || "";
+
+        if (drop.classList.contains('content')) {
+            // create .thumb element
+            var thumb = document.createElement('div');
+            drop.insertBefore(thumb, drop.firstChild);
+            drop = thumb;
+
+            drop.classList.add('thumb');
+            if (viewport == "circle") {
+                drop.classList.add('people'); // todo: rename "people" class to "circle"
+            }
+            if (suffix == "") {
+                // this is main image for the content
+                dropStyle = ";height: 200px;width: 200px;background-size: 100%;";
+            }
+        }
+
         uploader_target.innerText = name;
         uploader.dataset.target = name;
+        uploader.dataset.suffix = suffix;
 
         backdrop.classList.add('open');
         uploader.classList.add('open');
 
-        opts = {
+        var opts = {
             viewport: {
-                type: "circle",
+                type: viewport,
                 width: 400,
                 height: 400
             },
