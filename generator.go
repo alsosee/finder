@@ -412,6 +412,7 @@ func (g *Generator) fm() template.FuncMap {
 			defer g.muAwardsMissingContent.Unlock()
 			return len(g.awardsMissingContent[id])
 		},
+		"image": g.getImageForPath,
 		"title": func(b structs.Breadcrumbs) string {
 			b = b[1:] // skip the first element (it's always "Home")
 			if len(b) == 0 {
