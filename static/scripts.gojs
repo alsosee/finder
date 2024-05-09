@@ -905,6 +905,10 @@ if (typeof hasRun === 'undefined') {
         }
 
         if (e.keyCode === 37) { // left
+            // make sure Cmd and Ctrl keys are not pressed to avoid conflict with browser shortcuts
+            if (e.metaKey || e.ctrlKey) {
+                return;
+            }
             if (view === "columns") {
                 // if focused element is a link in .panel, link in the previous panel that has "in-path" class
                 if (document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
@@ -951,6 +955,10 @@ if (typeof hasRun === 'undefined') {
         }
 
         if (e.keyCode === 39) { // right
+            // make sure Cmd and Ctrl keys are not pressed to avoid conflict with browser shortcuts
+            if (e.metaKey || e.ctrlKey) {
+                return;
+            }
             if (view === "columns" && document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
                 // if focused element is a link in .panel, link in the next panel that has "in-path" class
                 var panel = document.activeElement.closest('.panel');
