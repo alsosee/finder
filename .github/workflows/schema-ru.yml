@@ -17,4 +17,4 @@ jobs:
         with:
           token: ${{ secrets.PKG_TOKEN }}
           repository: alsosee/search
-          event-type: schema
+          event-type: schema-ru
