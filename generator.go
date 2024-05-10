@@ -1280,22 +1280,22 @@ func (g *Generator) processPanels() {
 				}
 
 				// extra fields to use in list view
-				files[i].Columns.Add("Length", length(content.Length))
-				files[i].Columns.Add("Directors", strings.Join(content.Directors, ", "))
-				files[i].Columns.Add("Writers", strings.Join(content.Writers, ", "))
-				files[i].Columns.Add("Distributors", strings.Join(content.Distributors, ", "))
-				files[i].Columns.Add("Rating", content.Rating)
-				files[i].Columns.Add("Released", content.Released)
-				files[i].Columns.Add("Network", content.Network)
-				files[i].Columns.Add("Creators", strings.Join(content.Creators, ", "))
-				files[i].Columns.Add("Authors", strings.Join(content.Authors, ", "))
-				files[i].Columns.Add("Hosts", strings.Join(content.Hosts, ", "))
-				files[i].Columns.Add("Publishers", strings.Join(content.Publishers, ", "))
-				files[i].Columns.Add("Screenplay", strings.Join(content.Screenplay, ", "))
-				files[i].Columns.Add("StoryBy", strings.Join(content.StoryBy, ", "))
-				files[i].Columns.Add("DialoguesBy", strings.Join(content.DialoguesBy, ", "))
-				files[i].Columns.Add("Born", content.DOB)
-				files[i].Columns.Add("Died", content.DOD)
+				files[i].Columns.Add("Длина", length(content.Length))
+				files[i].Columns.Add("Режиссёры", strings.Join(content.Directors, ", "))
+				files[i].Columns.Add("Писатели", strings.Join(content.Writers, ", "))
+				files[i].Columns.Add("Дистрибьюторы", strings.Join(content.Distributors, ", "))
+				files[i].Columns.Add("Рейтинг", content.Rating)
+				files[i].Columns.Add("Дата релиза", content.Released)
+				files[i].Columns.Add("Сеть", content.Network)
+				files[i].Columns.Add("Создатели", strings.Join(content.Creators, ", "))
+				files[i].Columns.Add("Авторы", strings.Join(content.Authors, ", "))
+				files[i].Columns.Add("Ведущие", strings.Join(content.Hosts, ", "))
+				files[i].Columns.Add("Издатели", strings.Join(content.Publishers, ", "))
+				files[i].Columns.Add("Сценаристы", strings.Join(content.Screenplay, ", "))
+				files[i].Columns.Add("История", strings.Join(content.StoryBy, ", "))
+				files[i].Columns.Add("Диалоги", strings.Join(content.DialoguesBy, ", "))
+				files[i].Columns.Add("Дата рождения", content.DOB)
+				files[i].Columns.Add("Дата смерти", content.DOD)
 			} else {
 				files[i].Title = file.Name
 			}
