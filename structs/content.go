@@ -86,6 +86,7 @@ type Content struct {
 	Fandom           string   `yaml:",omitempty" json:",omitempty"`
 	RottenTomatoes   string   `yaml:"rotten_tomatoes,omitempty" json:",omitempty"`
 	Metacritic       string   `yaml:",omitempty" json:",omitempty"`
+	GitHub           string   `yaml:",omitempty" json:",omitempty"`
 	Twitter          string   `yaml:",omitempty" json:",omitempty"`
 	Reddit           string   `yaml:",omitempty" json:",omitempty"`
 	Facebook         string   `yaml:",omitempty" json:",omitempty"`
