@@ -59,6 +59,10 @@ Inputs (same as for "index" template):
     {{- with .Founded }}
     <p>Founded: {{ . }}</p>
     {{- end }}
+    {{- template "list" dict "Type" "person" "Label" "Founders" "Field" .Founders }}
+    {{- with .Parent }}
+    <p>Parent company: {{ template "company" . }}</p>
+    {{- end }}
     {{- with .Publication }}
     <p>Publication: {{ . }}</p>
     {{- end }}
@@ -146,6 +150,7 @@ Inputs (same as for "index" template):
         {{- template "link" dict "Label" "GitHub" "URL" .GitHub }}
         {{- template "link" dict "Label" "Twitch" "URL" .Twitch }}
         {{- template "link" dict "Label" "YouTube" "URL" .YouTube }}
+        {{- template "link" dict "Label" "Vimeo" "URL" .Vimeo }}
         {{- template "link" dict "Label" "Reddit" "URL" .Reddit }}
         {{- template "link" dict "Label" "Mastodon" "URL" .Mastodon }}
         {{- template "link" dict "Label" "Bluesky" "URL" .Bluesky }}
@@ -155,6 +160,7 @@ Inputs (same as for "index" template):
         {{- template "link" dict "Label" "Facebook" "URL" .Facebook }}
         {{- template "link" dict "Label" "Instagram" "URL" .Instagram }}
         {{- template "link" dict "Label" "Threads" "URL" .Threads }}
+        {{- template "link" dict "Label" "LinkedIn" "URL" .LinkedIn }}
         {{- template "link" dict "Label" "TikTok" "URL" .TikTok }}
         {{- template "link" dict "Label" "Netflix" "URL" .Netflix }}
         {{- template "link" dict "Label" "Spotify" "URL" .Spotify }}

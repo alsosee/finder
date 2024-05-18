@@ -60,8 +60,10 @@ type Content struct {
 	Contact string `yaml:"contact,omitempty" json:",omitempty"`
 	Nick    string `yaml:"ник,omitempty" json:",omitempty"`
 
-	Founded  string `yaml:",omitempty" json:",omitempty"` // for companies
-	Released string `yaml:",omitempty" json:",omitempty"` // for games, ...
+	Parent   string    `yaml:",omitempty" json:",omitempty"` // for companies
+	Founded  string    `yaml:",omitempty" json:",omitempty"` // for companies
+	Founders oneOrMany `yaml:",omitempty" json:",omitempty"` // for companies
+	Released string    `yaml:",omitempty" json:",omitempty"` // for games, ...
 
 	// general external links
 	Website          string   `yaml:",omitempty" json:",omitempty"`
@@ -73,6 +75,7 @@ type Content struct {
 	AnimeNewsNetwork string   `yaml:"anime_news_network,omitempty" json:",omitempty"`
 	Twitch           string   `yaml:",omitempty" json:",omitempty"`
 	YouTube          string   `yaml:",omitempty" json:",omitempty"`
+	Vimeo            string   `yaml:",omitempty" json:",omitempty"`
 	IMDB             string   `yaml:",omitempty" json:",omitempty"`
 	TMDB             string   `yaml:",omitempty" json:",omitempty"`
 	TPDB             string   `yaml:",omitempty" json:",omitempty"`
@@ -92,6 +95,7 @@ type Content struct {
 	Facebook         string   `yaml:",omitempty" json:",omitempty"`
 	Instagram        string   `yaml:",omitempty" json:",omitempty"`
 	Threads          string   `yaml:",omitempty" json:",omitempty"`
+	LinkedIn         string   `yaml:"linkedin,omitempty" json:",omitempty"`
 	TikTok           string   `yaml:",omitempty" json:",omitempty"`
 	TelegramChannel  string   `yaml:"telegram_channel,omitempty" json:",omitempty"`
 	TelegramChat     string   `yaml:"telegram_chat,omitempty" json:",omitempty"`
