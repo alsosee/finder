@@ -104,6 +104,7 @@ type Content struct {
 	ApplePodcasts    string   `yaml:"apple_podcasts,omitempty" json:",omitempty"`
 	Peacock          string   `yaml:",omitempty" json:",omitempty"`
 	GooglePlay       string   `yaml:"google_play,omitempty" json:",omitempty"`
+	DisneyPlus       string   `yaml:"disney_plus,omitempty" json:",omitempty"`
 	MicrosoftStore   string   `yaml:"microsoft_store,omitempty" json:",omitempty"`
 	Nintendo         string   `yaml:",omitempty" json:",omitempty"`
 	HumbleBundle     string   `yaml:"humble_bundle,omitempty" json:",omitempty"`

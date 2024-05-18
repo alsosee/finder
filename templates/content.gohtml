@@ -10,10 +10,6 @@ Inputs (same as for "index" template):
 <div class="content drop" data-name="{{ .Name }}"{{ if hasPrefix $.CurrentPath "People" }} data-viewport="circle"{{ end }} data-dir="{{ $.Dir }}"{{ if .Source }} data-source="{{ .Source }}"{{ end }} tabindex="0">
     {{- with .HTML }}{{ . }}{{ end }}
     {{- with .Image }}
-        {{- $div := 3 }}
-        {{- if hasPrefix $.CurrentPath "Movies" }}
-            {{- $div = 2 }}
-        {{- end }}
     <div class="thumb
         {{- if isJPG .Path }} jpg{{ end }}
         {{- if hasPrefix $.CurrentPath "People" }} people{{ end -}}
@@ -159,6 +155,7 @@ Inputs (same as for "index" template):
         {{- template "link" dict "Label" "GooglePlay" "URL" .GooglePlay }}
         {{- template "link" dict "Label" "Microsoft Store" "URL" .MicrosoftStore }}
         {{- template "link" dict "Label" "Nintendo" "URL" .Nintendo }}
+        {{- template "link" dict "Label" "Disney+" "URL" .DisneyPlus }}
         {{- template "link" dict "Label" "Humble Bundle" "URL" .HumbleBundle }}
         {{- template "link" dict "Label" "Row8" "URL" .Row8 }}
         {{- template "link" dict "Label" "Redbox" "URL" .Redbox }}
