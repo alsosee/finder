@@ -490,7 +490,13 @@ if (typeof hasRun === 'undefined') {
     }
 
     /* handle drag and drop */
-    var c = null; /* croppie instance */
+    // Users may upload images as avatars (for characters, people)
+    // or as main images for the content (posters, covers, etc.).
+    // For avatars we use Croppie to crop the image to a circle.
+    // For main images we use a regular image preview with pica to resize the image.
+    // We use the same uploader modal for both cases.
+
+    var c = null; /* croppie instance re-created every time */
 
     function extension(mime) {
         switch (mime) {
@@ -515,7 +521,204 @@ if (typeof hasRun === 'undefined') {
     function uploader_cancel() {
         backdrop.classList.remove('open');
         uploader.classList.remove('open');
-        c.destroy();
+        image_handler_destroy();
+    }
+
+    var useCroppie = false;
+    var format = "jpg";
+    var offScreenCanvas = null; // canvas for pica source image
+    var resizer = null; // lazy init pica
+    var canvas = null;
+
+    function init_image_handler(viewport) {
+        // used to determine which image handler to use in all *_image_handler_* functions
+        useCroppie = viewport == "circle";
+
+        // default format is jpg
+        format = "jpg";
+
+        if (useCroppie) {
+            init_image_handler_croppie();
+            return;
+        }
+
+        init_image_handler_pica();
+    }
+
+    function init_image_handler_pica() {
+        uploader_preview.classList.remove("png"); // remove .png class if it was set
+        uploader_preview.innerHTML = '<canvas class="image-pica"></canvas>';
+        canvas = uploader_preview.querySelector("canvas");
+    }
+
+    function init_image_handler_croppie() {
+        c = new Croppie(uploader_preview, {
+            viewport: {
+                type: "circle",
+                width: 400,
+                height: 400
+            },
+            boundary: {
+                width: 420,
+                height: 420
+            },
+        });
+    }
+
+    function set_image_handler_image(image) {
+        if (useCroppie) {
+            set_image_handler_image_croppie(image);
+            return;
+        }
+
+        set_image_handler_image_pica(image);
+    }
+
+    function set_image_handler_image_croppie(image) {
+        c.bind({url: image});
+    }
+
+    function set_image_handler_image_pica(image) {
+        offScreenCanvas = document.createElement('canvas');
+        
+        var img = new Image();
+        img.onload = function() {
+            offScreenCanvas.width = img.width;
+            offScreenCanvas.height = img.height;
+            offScreenCanvas.getContext('2d').drawImage(img, 0, 0);
+
+            // copy original image to visible canvas
+            canvas.width = img.width;
+            canvas.height = img.height;
+            canvas.getContext('2d').drawImage(img, 0, 0);
+
+            // update input fields with image dimensions
+            uploader_width.value = img.width;
+            uploader_height.value = img.height;
+        }
+        img.src = image;
+
+        if (image.substr(0, 15).indexOf("image/png") > -1) {
+            uploader_preview.classList.add("png");
+            format = "png";
+        }
+    }
+
+    function image_handler_promise() {
+        if (useCroppie) {
+            return image_handler_promise_croppie();
+        }
+
+        return image_handler_promise_pica();
+    }
+
+    function image_handler_promise_croppie() {
+        return c.result({
+            type: 'blob',
+            size: 'viewport',
+            format: 'jpeg',
+            circle: false
+        });
+    }
+
+    function image_handler_promise_pica() {
+        return new Promise(function(resolve, reject) {
+            if (!resizer) {
+                resizer = window.pica();
+            }
+            resizer.resize(offScreenCanvas, canvas).then(function(result) {
+                let mimeType = "image/jpeg";
+                if (format == "png") {
+                    mimeType = 'image/png';
+                }
+                resolve(resizer.toBlob(result, mimeType, 0.90));
+            }).catch(function(error) {
+                reject(error);
+            });
+        });
+    }
+
+    function image_handler_destroy() {
+        if (useCroppie) {
+            c.destroy();
+            return;
+        }
+
+        offScreenCanvas = null;
+    }
+
+    const minWidth = 100;
+    const maxWidth = 2084;
+    const minHeight = 100;
+    const maxHeight = 2084;
+
+    function pica_resize_image(width, height) {
+        if (width < minWidth || height < minHeight ||
+            width > maxWidth || height > maxHeight) {
+            return;
+        }
+
+        if (!resizer) {
+            resizer = window.pica();
+        }
+
+        if (dropStyle != "") {
+            let maxSize = 200;
+            let dropWidth, dropHeight;
+            if (width > height) {
+                dropHeight = maxSize * height / width;
+                dropWidth = maxSize;
+            } else {
+                dropWidth = maxSize * width / height;
+                dropHeight = maxSize;
+            }
+
+            dropStyle = `;height: ${dropHeight}px;width: ${dropWidth}px;background-size: 100%`;
+        }
+
+        var tempOffScreenCanvas = document.createElement('canvas')
+        tempOffScreenCanvas.width  = width;
+        tempOffScreenCanvas.height = height;
+
+        resizer.resize(offScreenCanvas, tempOffScreenCanvas).then(function(result) {
+            var canvas = uploader_preview.querySelector("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            canvas.getContext('2d').drawImage(result, 0, 0);
+            tempOffScreenCanvas.remove();
+        });
+    }
+
+    function uploader_set_width(el) {
+        let width = parseInt(el.value);
+        if (width < minWidth || width > maxWidth) {
+            uploader_width.setCustomValidity(`Width must be between ${minWidth} and ${maxWidth} pixels`);
+            uploader_width.reportValidity();
+            return;
+        }
+        uploader_width.setCustomValidity("");
+        uploader_width.reportValidity();
+
+        let height = offScreenCanvas.height * width / offScreenCanvas.width;
+        uploader_height.value = Math.round(height);
+
+        pica_resize_image(width, height);
+    }
+
+    function uploader_set_height(el) {
+        let height = parseInt(el.value);
+        if (height < minHeight || height > maxHeight) {
+            uploader_height.setCustomValidity(`Height must be between ${minHeight} and ${maxHeight} pixels`);
+            uploader_height.reportValidity();
+            return;
+        }
+        uploader_height.setCustomValidity("");
+        uploader_height.reportValidity();
+
+        let width = offScreenCanvas.width * height / offScreenCanvas.height;
+        uploader_width.value = Math.round(width);
+
+        pica_resize_image(width, height);
     }
 
     function uploader_upload() {
@@ -523,20 +726,13 @@ if (typeof hasRun === 'undefined') {
         btn_uploader_upload.classList.add('htmx-request');
         btn_uploader_upload.disabled = true;
 
-        var format = "jpeg";
-
-        c.result({
-            type: 'blob',
-            size: 'viewport',
-            format: 'jpeg',
-            circle: false
-        }).then(function(blob) {
+        image_handler_promise().then(function(blob) {
             // read converted JPEG image
             const reader = new FileReader();
             reader.onloadend = function() {
                 // put base64-encoded image into style attribute
                 drop.setAttribute('style', `background-image: url(${reader.result})${dropStyle}`);
-                if (format == "jpeg") {
+                if (format == "jpg") {
                     drop.classList.add('jpg');
                 }
 
@@ -550,7 +746,7 @@ if (typeof hasRun === 'undefined') {
             fetch('/upload', {
                 method: 'PUT',
                 headers: {
-                  'x-file-name': encodeURIComponent(path() + uploader.dataset.suffix + ".jpg"),
+                  'x-file-name': encodeURIComponent(path() + uploader.dataset.suffix + "." + format),
                 },
                 body: blob
             }).then(function(response) {
@@ -593,7 +789,8 @@ if (typeof hasRun === 'undefined') {
             return;
         }
 
-        var viewport = drop.dataset.viewport || "square";
+        var viewport = drop.dataset.viewport
+        uploader_args.style.display = (viewport == "circle") ? "none" : "flex";
 
         // suffix is part of URL that needs to be added to the current page URL.
         // it's empty for images that uploaded to assign to current page,
@@ -623,22 +820,11 @@ if (typeof hasRun === 'undefined') {
         backdrop.classList.add('open');
         uploader.classList.add('open');
 
-        var opts = {
-            viewport: {
-                type: viewport,
-                width: 400,
-                height: 400
-            },
-            boundary: {
-                width: 420,
-                height: 420
-            }
-        }
-        c = new Croppie(uploader_preview, opts);
+        init_image_handler(viewport);
 
         var reader = new FileReader();
         reader.onload = function(e) {
-            c.bind({url: e.target.result});
+            set_image_handler_image(e.target.result);
         }
 
         if (event.dataTransfer.files.length > 0) {
@@ -810,6 +996,10 @@ if (typeof hasRun === 'undefined') {
         }
 
         if (e.keyCode === 40) { // down
+            if (uploader.classList.contains('open')) {
+                return;
+            }
+
             if (view !== "icons" && document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
                 // if focused element is a link in .panel, move to the next link
                 e.preventDefault(); /* avoid scroll */
@@ -959,6 +1149,10 @@ if (typeof hasRun === 'undefined') {
             if (e.metaKey || e.ctrlKey) {
                 return;
             }
+            if (uploader.classList.contains('open')) {
+                return;
+            }
+
             if (view === "columns" && document.activeElement.tagName === "A" && document.activeElement.closest('.panel')) {
                 // if focused element is a link in .panel, link in the next panel that has "in-path" class
                 var panel = document.activeElement.closest('.panel');

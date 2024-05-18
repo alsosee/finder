@@ -95,6 +95,10 @@
     <div id="uploader">
         <h1 id="uploader_target"></h1>
         <div id="uploader_preview"></div>
+        <div id="uploader_args">
+            <input type="number" min="100" max="2084" id="uploader_width" placeholder="Width" oninput="uploader_set_width(this)"> ×
+            <input type="number" min="100" max="2084" id="uploader_height" placeholder="Height" oninput="uploader_set_height(this)">
+        </div>
         <div class="buttons">
             <button class="dismiss" onclick="uploader_cancel()">Cancel</button>
             <button id="btn_uploader_upload" class="primary" onclick="uploader_upload()">Upload</button>
@@ -103,5 +107,6 @@
 </div>
 <script src="/scripts.js?crc={{ crc32 "scripts.js" }}" hx-preserve="true"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js" hx-preserve="true"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pica/9.0.1/pica.min.js" hx-preserve="true"></script>
 </body>
 </html>
