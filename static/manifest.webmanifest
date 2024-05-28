@@ -15,6 +15,5 @@
         }
     ],
     "start_url": "/",
-    "scope": "/",
-    "background_color": "white"
+    "scope": "/"
 }
