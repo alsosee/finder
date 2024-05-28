@@ -1,5 +1,5 @@
 {
-    "name": "Also, see",
+    "name": "См. ещё",
     "description": "",
     "display": "standalone",
     "icons": [
@@ -15,6 +15,5 @@
         }
     ],
     "start_url": "/",
-    "scope": "/",
-    "background_color": "black"
+    "scope": "/"
 }
