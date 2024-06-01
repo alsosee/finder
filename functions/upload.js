@@ -1,3 +1,10 @@
+/* This function is triggered by a PUT request to the /upload endpoint from scripts.gojs.
+   It uploads the file to "media-purgatory" R2 bucket in Cloudflare
+   and triggers GitHub Actions to create/update PR that will add the file to the media repo.
+
+   It requires `x-file-name` header to be set with the file name, which is used as the key in the bucket.
+   Example key value: "People/John Doe.jpg"
+*/
 export async function onRequest(context) {
   try {
     switch (context.request.method) {
@@ -16,7 +23,7 @@ export async function onRequest(context) {
           await context.env.MEDIA.put(key, context.request.body);
         } else {
           // send a POST request with body to local server
-          var uploaderResponse = await fetch("http://localhost:8789/upload", {
+          var uploaderResponse = await fetch("http://localhost:8780/upload", {
             method: "POST",
             body: context.request.body,
             headers: {
@@ -32,7 +39,7 @@ export async function onRequest(context) {
         }
 
         const response = await fetch(
-          "https://api.github.com/repos/alsosee/media/dispatches",
+          `https://api.github.com/repos/alsosee/${context.env.MEDIA_REPO}/dispatches`,
           {
             method: "POST",
             headers: {
