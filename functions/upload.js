@@ -32,7 +32,7 @@ export async function onRequest(context) {
         }
 
         const response = await fetch(
-          "https://api.github.com/repos/alsosee/media/dispatches",
+          "https://api.github.com/repos/alsosee/media-ru/dispatches",
           {
             method: "POST",
             headers: {
