@@ -1,0 +1,24 @@
+{{ define "breadcrumbs" }}
+<nav>
+    <ul id="breadcrumbs" class="menubar-navigation" role="menubar" aria-label="breadcrumbs" hx-boost="true">
+        {{- range .Breadcrumbs }}
+        {{- $slash := "/" }}
+        {{- if eq .Path "" }}
+        {{- $slash = "" }}
+        {{- end }}
+        {{- $isCurrent := eq $.CurrentPath .Path }}
+        {{- if $isCurrent }}
+        <li role="none"><span>
+            {{- if and $.Content $.Content.Name }}
+                {{- $.Content.Name }}
+            {{- else }}
+                {{- .Name }}
+            {{- end -}}
+        </span></li>
+        {{- else }}
+        <li role="none"><a role="menuitem" href="/{{ .Path }}{{ $slash }}">{{ .Name }}</a></li>
+        {{- end }}
+        {{- end }}
+    </ul>
+</nav>
+{{ end }}

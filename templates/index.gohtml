@@ -38,51 +38,8 @@
     {{- end }}
 </head>
 <body data-view="columns">
-<div id="toolbar" hx-preserve="true">
-    <div id="menu" tabindex="0" onclick="toggleMenu()">
-        <span id="logo"></span>
-        <span class="toggle"></span>
-    </div>
-    <ul id="menu_popup">
-        <li class="current"><span>alsosee.info</span></li>
-        <li><a href="https://ru.alsosee.info">ru.alsosee.info</a></li>
-    </ul>
-    <fieldset
-        class="radio menubar-navigation"
-        title="Show items as icons, in a list or in columns"
-        role="menubar"
-        aria-label="View">
-        <legend>View</legend>
-        <label tabindex="0" role="menuitem"><input type="radio" name="view" value="icons"> <span>Icons</span></label>
-        <label tabindex="0" role="menuitem"><input type="radio" name="view" value="list"> <span>List</span></label>
-        <label tabindex="0" role="menuitem"><input type="radio" name="view" value="columns" checked> <span>Columns</span></label>
-    </fieldset>
-    <label id="searchWrapper">
-        <input id="search" type="search" role="searchbox" placeholder="Search" oninput="search(event)" autocomplete="off">
-    </label>
-</div>
-<nav>
-    <ul id="breadcrumbs" class="menubar-navigation" role="menubar" aria-label="breadcrumbs" hx-boost="true">
-        {{- range .Breadcrumbs }}
-        {{- $slash := "/" }}
-        {{- if eq .Path "" }}
-        {{- $slash = "" }}
-        {{- end }}
-        {{- $isCurrent := eq $.CurrentPath .Path }}
-        {{- if $isCurrent }}
-        <li role="none"><span>
-            {{- if and $.Content $.Content.Name }}
-                {{- $.Content.Name }}
-            {{- else }}
-                {{- .Name }}
-            {{- end -}}
-        </span></li>
-        {{- else }}
-        <li role="none"><a role="menuitem" href="/{{ .Path }}{{ $slash }}">{{ .Name }}</a></li>
-        {{- end }}
-        {{- end }}
-    </ul>
-</nav>
+{{ template "toolbar" }}
+{{ template "breadcrumbs" . }}
 <div id="container" hx-boost="true">
     <nav id="panels">
     {{- $lenPanels := len $.Panels }}
