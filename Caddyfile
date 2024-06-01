@@ -19,8 +19,25 @@ alsosee.local {
   encode gzip
 }
 
+ru.alsosee.local {
+  tls internal
+  reverse_proxy https://localhost:8789 {
+    transport http {
+      tls
+      tls_insecure_skip_verify
+    }
+  }
+  encode gzip
+}
+
 media.alsosee.local {
   root * media
+  encode gzip
+  file_server
+}
+
+ru.media.alsosee.local {
+  root * media-ru
   encode gzip
   file_server
 }
