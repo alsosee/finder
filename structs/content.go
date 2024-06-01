@@ -127,6 +127,9 @@ type Content struct {
 	Vudu             string   `yaml:",omitempty" json:",omitempty"`
 	DarkHorse        string   `yaml:",omitempty" json:",omitempty"`
 	VK               string   `yaml:",omitempty" json:",omitempty"`
+	Unsplash         string   `yaml:",omitempty" json:",omitempty"`
+	Medium           string   `yaml:",omitempty" json:",omitempty"`
+	Kinopoisk        string   `yaml:",omitempty" json:",omitempty"`
 	PrevouslyKnownAs string   `yaml:"ранее_известен_как,omitempty" json:",omitempty"`
 
 	// for books
