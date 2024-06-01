@@ -337,6 +337,14 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return false
 		},
+		"fallback": func(args ...string) string {
+			for _, arg := range args {
+				if arg != "" {
+					return arg
+				}
+			}
+			return ""
+		},
 		"character": func(content structs.Content, characterName string) *structs.Character {
 			for _, character := range content.Characters {
 				if character.Name == characterName {
