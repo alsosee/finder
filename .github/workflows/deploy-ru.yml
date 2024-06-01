@@ -33,7 +33,7 @@ jobs:
           token: ${{ secrets.PKG_TOKEN }}
 
       - name: Run action
-        uses: ./.github/actions/ru
+        uses: ./
         with:
           info: ./info
           media: ./media
