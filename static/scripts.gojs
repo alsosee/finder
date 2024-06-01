@@ -726,6 +726,8 @@ if (typeof hasRun === 'undefined') {
         btn_uploader_upload.classList.add('htmx-request');
         btn_uploader_upload.disabled = true;
 
+        let suffix = uploader.dataset.suffix || "";
+
         image_handler_promise().then(function(blob) {
             // read converted JPEG image
             const reader = new FileReader();
@@ -737,8 +739,8 @@ if (typeof hasRun === 'undefined') {
                 }
 
                 // store the image in local storage to persist it across page reloads till it approved
-                localStorage.setItem(path() + uploader.dataset.suffix, reader.result);
-                uploadedImages.push(path() + uploader.dataset.suffix);
+                localStorage.setItem(path() + suffix, reader.result);
+                uploadedImages.push(path() + suffix);
                 localStorage.setItem("uploadedImages", JSON.stringify(uploadedImages));
             };
             reader.readAsDataURL(blob);
@@ -746,7 +748,7 @@ if (typeof hasRun === 'undefined') {
             fetch('/upload', {
                 method: 'PUT',
                 headers: {
-                  'x-file-name': encodeURIComponent(path() + uploader.dataset.suffix + "." + format),
+                  'x-file-name': encodeURIComponent(path() + suffix + "." + format),
                 },
                 body: blob
             }).then(function(response) {
