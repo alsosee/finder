@@ -83,7 +83,7 @@ Inputs (same as for "index" template):
     {{- end }}
 
     {{- with .Engine }}<p>Engine: {{ . }}</p>{{ end }}
-    {{- template "single" dict "Type" "company" "Label" "Developers"     "Field" .Developers }}
+    {{- template "list"   dict "Type" "company" "Label" "Developers"     "Field" .Developers }}
     {{- template "list"   dict "Type" "person"  "Label" "Authors"        "Field" .Authors }}
     {{- template "single" dict "Type" "person"  "Label" "Designer"       "Field" .Designer }}
     {{- template "list"   dict "Type" "person"  "Label" "Directors"      "Field" .Directors "Awards" $.Content.DirectorsAwards }}

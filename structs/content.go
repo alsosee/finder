@@ -45,7 +45,7 @@ type Content struct {
 	Subtitle    string    `yaml:",omitempty" json:",omitempty"`
 	Year        int       `yaml:",omitempty" json:",omitempty"`
 	Authors     oneOrMany `yaml:",omitempty" json:",omitempty"`
-	Developers  string    `yaml:",omitempty" json:",omitempty"`
+	Developers  oneOrMany `yaml:",omitempty" json:",omitempty"`
 	Description string    `yaml:",omitempty" json:",omitempty"`
 	CoverArtist string    `yaml:"cover_artist,omitempty" json:",omitempty"`
 	Designer    string    `yaml:",omitempty" json:",omitempty"`
