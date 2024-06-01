@@ -841,13 +841,13 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 	g.addConnectionList(from, "Companies", content.Distributors, "Distributor")
 	g.addConnectionList(from, "Companies", content.Publishers, "Publisher")
 	g.addConnectionList(from, "Companies", content.Production, "Production")
+	g.addConnectionList(from, "Companies", content.Developers, "Developers")
 	g.addConnectionList(from, "", content.BasedOn, "Based on")
 
 	g.addConnectionSingle(from, "People", content.Designer, "Designer")
 	g.addConnectionSingle(from, "People", content.CoverArtist, "Cover artist")
 	g.addConnectionSingle(from, "People", content.Colorist, "Colorist")
 	g.addConnectionSingle(from, "Companies", content.Network, "Network")
-	g.addConnectionSingle(from, "Companies", content.Developers, "Developers")
 	g.addConnectionSingle(from, "", content.RemakeOf, "Remake")
 
 	if content.Series != "" {
