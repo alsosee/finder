@@ -39,7 +39,7 @@ export async function onRequest(context) {
         }
 
         const response = await fetch(
-          `https://api.github.com/repos/alsosee/${context.env.MEDIA_REPO}/dispatches`,
+          `https://api.github.com/repos/alsosee/media/dispatches`,
           {
             method: "POST",
             headers: {
