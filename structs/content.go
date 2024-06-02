@@ -108,6 +108,7 @@ type Content struct {
 	PrimeVideo       string   `yaml:"prime_video,omitempty" json:",omitempty"`
 	AppleTV          string   `yaml:"apple_tv,omitempty" json:",omitempty"`
 	ApplePodcasts    string   `yaml:"apple_podcasts,omitempty" json:",omitempty"`
+	AppleBooks       string   `yaml:"apple_books,omitempty" json:",omitempty"`
 	Peacock          string   `yaml:",omitempty" json:",omitempty"`
 	GooglePlay       string   `yaml:"google_play,omitempty" json:",omitempty"`
 	DisneyPlus       string   `yaml:"disney_plus,omitempty" json:",omitempty"`
