@@ -1426,6 +1426,10 @@ p .award + .award {
     /* todo: refactor use of --color-background-toolbar for dark mode */
   }
 
+  #breadcrumbs {
+    box-shadow: 0 0.5px 0px rgba(255, 255, 255, 0.1);
+  }
+
   #logo {
     background-position: 0 0;
   }
