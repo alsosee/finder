@@ -315,7 +315,7 @@ if (typeof hasRun === 'undefined') {
                 // a corner case when page is loaded with a query, and then the query is cleared
                 console.log("Navigating to home");
                 sessionStorage.setItem("restoreSearchInputFocus", "true");
-                logo.querySelector("a").click();
+                breadcrumbs.querySelector("a").click();
                 return;
             }
             if (pushState) {
