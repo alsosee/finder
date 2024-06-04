@@ -767,12 +767,17 @@ fieldset.radio label:last-of-type {
   background-repeat: no-repeat;
   width: var(--width);
   height: var(--height);
-  margin-left: var(--comp-margin-left);
-  margin-right: calc(var(--comp-margin-right) + 5px);
+  margin-left: 0;
+  margin-right: 5px;
   margin-top: var(--comp-margin-top);
   margin-bottom: calc(
     var(--comp-margin-bottom) - 7px
   ); /* compensate for line height */
+}
+
+.connections .reference.has-image.jpg::before {
+  margin-left: var(--comp-margin-left);
+  margin-right: calc(var(--comp-margin-right) + 5px);
 }
 
 .reference.has-image.jpg::before {
