@@ -1497,12 +1497,18 @@ func (g *Generator) buildPanels(path string, isFile bool) (structs.Panels, struc
 	return panels, breadcrumbs
 }
 
-var crc32cache = map[string]string{}
+var (
+	crc32cache = map[string]string{}
+	crc32mu    = sync.Mutex{}
+)
 
 // crc32 calculates CRC32 checksum for a file.
 // It's used to add a get parameter to a static file URL,
 // so that when the file is updated, the browser will download the new version.
 func crc32sum(path string) string {
+	crc32mu.Lock()
+	defer crc32mu.Unlock()
+
 	if crc, ok := crc32cache[path]; ok {
 		return crc
 	}
