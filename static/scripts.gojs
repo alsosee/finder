@@ -150,12 +150,12 @@ if (typeof hasRun === 'undefined') {
 
         if (content) {
             if (content.dataset.source) {
-                editLink.href = "https://github.com/alsosee/info/edit/main/" + content.dataset.source;
+                editLink.href = "https://github.com/alsosee/ru/edit/main/" + content.dataset.source;
             } else {
-                editLink.href = "https://github.com/alsosee/info/new/main/" + content.dataset.dir + "/?filename=" + encodeURI(content.dataset.name) + ".yml";
+                editLink.href = "https://github.com/alsosee/ru/new/main/" + content.dataset.dir + "/?filename=" + encodeURI(content.dataset.name) + ".yml";
             }
         } else {
-            editLink.href = "https://github.com/alsosee/info/tree/main/" + path();
+            editLink.href = "https://github.com/alsosee/ru/tree/main/" + path();
         }
     });
 
