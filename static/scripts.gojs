@@ -552,6 +552,7 @@ if (typeof hasRun === 'undefined') {
     }
 
     function init_image_handler_croppie() {
+        uploader_preview.innerHTML = '';
         c = new Croppie(uploader_preview, {
             viewport: {
                 type: "circle",
@@ -663,17 +664,7 @@ if (typeof hasRun === 'undefined') {
         }
 
         if (dropStyle != "") {
-            let maxSize = 200;
-            let dropWidth, dropHeight;
-            if (width > height) {
-                dropHeight = maxSize * height / width;
-                dropWidth = maxSize;
-            } else {
-                dropWidth = maxSize * width / height;
-                dropHeight = maxSize;
-            }
-
-            dropStyle = `;height: ${dropHeight}px;width: ${dropWidth}px;background-size: 100%`;
+            dropStyle = `;aspect-ratio: ${width} / ${height}; background-size: 100%`;
         }
 
         var tempOffScreenCanvas = document.createElement('canvas')
