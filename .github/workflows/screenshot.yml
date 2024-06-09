@@ -1,0 +1,48 @@
+name: screenshot
+
+on:
+  workflow_dispatch:
+
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Clone info
+        uses: actions/checkout@v4
+        with:
+          repository: alsosee/info
+          path: info
+          token: ${{ secrets.PKG_TOKEN }}
+
+      - name: Clone media
+        uses: actions/checkout@v4
+        with:
+          repository: alsosee/media
+          path: media
+          token: ${{ secrets.PKG_TOKEN }}
+
+      - name: Run action
+        uses: ./
+        with:
+          info: ./info
+          media: ./media
+          output: ./output
+          media_host: https://media.alsosee.info
+          search_host: https://search.alsosee.info
+          search_api_key: ${{ secrets.MEILISEARCH_KEY }}
+
+      - name: Make screenshot
+        uses: chuhlomin/actions/screenshot@main
+        with:
+          url: file://${{github.workspace}}/output/index.html
+          mode: wholePage
+          output: screenshot.png
+          width: 800
+          height: 600
+          deviceScaleFactor: 2
+          cornerRadius: 20
+          addShadow: true
+          commit: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
