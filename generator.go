@@ -433,6 +433,12 @@ func (g *Generator) fm() template.FuncMap {
 		"chooseColumns": chooseColumns,
 		"column":        column,
 		"renderPanel":   g.renderPanel,
+		"label": func(label string, list []string) string {
+			if len(list) == 1 && strings.HasSuffix(label, "s") {
+				return label[:len(label)-1]
+			}
+			return label
+		},
 	}
 }
 

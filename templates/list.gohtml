@@ -8,7 +8,7 @@ Input:
 - .Awards ([]Award): a list of awards
 */ -}}
 {{- with .Field }}
-    <p>{{ with $.Awards }}{{ template "awards" . }}{{ end }}{{ $.Label }}:
+    <p>{{ with $.Awards }}{{ template "awards" . }}{{ end }}{{ label $.Label . }}:
     {{- range . }}
         {{- if eq $.Type "person" }}
         <span class="list">{{ template "person" . }}</span>
