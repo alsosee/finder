@@ -272,6 +272,15 @@ Inputs (same as for "index" template):
     {{- end }}
     {{- end }}
 
+    {{- with .Episodes }}
+    <h2>Episodes</h2>
+    <ul class="episodes">
+        {{- range . }}
+        <li>{{- template "episode" . }}</li>
+        {{- end }}
+    </ul>
+    {{- end }}
+
     {{- with connections $.CurrentPath }}
     <h2>Connections</h2>
     <ul class="connections flat">

@@ -691,6 +691,14 @@ fieldset.radio label:last-of-type {
   font-style: italic;
 }
 
+.content .episodes p {
+  margin-bottom: 3px;
+}
+
+.episodes li + li {
+  margin-top: 15px;
+}
+
 .content .characters {
   list-style: none;
   padding: 0;

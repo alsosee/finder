@@ -174,6 +174,8 @@ type Content struct {
 
 	References []Reference `yaml:"refs,omitempty" json:",omitempty"`
 
+	Episodes []*Episode `yaml:",omitempty" json:",omitempty"` // for series
+
 	// fields populated by the generator
 	Image                *Media  `yaml:"-" json:",omitempty"`
 	Awards               []Award `yaml:"-" json:",omitempty"`
@@ -227,4 +229,14 @@ type Winner struct {
 	MakeUpAndHair  oneOrMany `yaml:",omitempty" json:",omitempty"`
 
 	Fallback string `yaml:"-" json:"-,omitempty"` // used to store the fallback value for template
+}
+
+type Episode struct {
+	Name       string
+	Released   string       `yaml:",omitempty" json:",omitempty"`
+	Directors  oneOrMany    `yaml:",omitempty" json:",omitempty"`
+	Writers    oneOrMany    `yaml:",omitempty" json:",omitempty"`
+	Story      oneOrMany    `yaml:",omitempty" json:",omitempty"`
+	Studio     string       `yaml:",omitempty" json:",omitempty"`
+	Characters []*Character `yaml:",omitempty" json:",omitempty"`
 }

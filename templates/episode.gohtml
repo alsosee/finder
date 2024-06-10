@@ -1,0 +1,12 @@
+{{ define "episode" }}
+<div class="episode">
+<p><strong>{{ .Name }}</strong></p>
+{{- template "list" dict "Type" "person" "Label" "Directors" "Field" .Directors }}
+{{- template "list" dict "Type" "person" "Label" "Writers" "Field" .Writers }}
+{{- template "list" dict "Type" "person" "Label" "Story" "Field" .Story }}
+{{- template "single" dict "Type" "company" "Label" "Studio" "Field" .Studio }}
+{{- with .Released }}
+<p>Released: {{ . }}</p>
+{{- end }}
+</div>
+{{- end }}
