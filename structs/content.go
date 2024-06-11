@@ -82,6 +82,7 @@ type Content struct {
 	Spotify          string   `yaml:",omitempty" json:",omitempty"`
 	Soundcloud       string   `yaml:",omitempty" json:",omitempty"`
 	Hulu             string   `yaml:",omitempty" json:",omitempty"`
+	Max              string   `yaml:",omitempty" json:",omitempty"`
 	AdultSwim        string   `yaml:",omitempty" json:",omitempty"`
 	AppStore         string   `yaml:"app_store,omitempty" json:",omitempty"`
 	Fandom           string   `yaml:",omitempty" json:",omitempty"`
