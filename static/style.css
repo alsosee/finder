@@ -592,6 +592,12 @@ fieldset.radio label:last-of-type {
   margin-bottom: 10px;
 }
 
+.content h4 {
+  font-size: 1em;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
 .content p {
   margin-bottom: 10px;
 }
@@ -691,14 +697,6 @@ fieldset.radio label:last-of-type {
   font-style: italic;
 }
 
-.content .episodes p {
-  margin-bottom: 3px;
-}
-
-.episodes li + li {
-  margin-top: 15px;
-}
-
 .content .characters {
   list-style: none;
   padding: 0;
@@ -763,6 +761,32 @@ fieldset.radio label:last-of-type {
 
 .content .characters .actor::last-child {
   padding-right: 0;
+}
+
+.content .episodes p {
+  margin-bottom: 3px;
+}
+
+.content .episodes p.links {
+  margin-bottom: 0;
+}
+
+.episodes > li + li {
+  margin-top: 15px;
+}
+
+.episodes .characters {
+  grid-template-columns: repeat(auto-fill, 140px);
+}
+
+.episodes .characters li {
+  width: 140px;
+}
+
+.episodes .characters .no-image,
+.episodes .characters .image {
+  width: 90px;
+  height: 90px;
 }
 
 .reference.has-image::before {
@@ -1441,6 +1465,23 @@ p .award + .award {
 
   #breadcrumbs {
     box-shadow: 0 0.5px 0px rgba(255, 255, 255, 0.1);
+  }
+
+  #breadcrumbs li a {
+    position: relative;
+  }
+
+  #breadcrumbs li a:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0px;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 0.5px) 50%, calc(100% - 10.5px) 0.5px, 0 0.5px);
+    background: rgba(255, 255, 255, 0.1);
   }
 
   #logo {

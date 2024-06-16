@@ -1,12 +1,43 @@
 {{ define "episode" }}
+{{- /*
+episode template used to display information about a series episode
+Inputs:
+- .Episode (Episode): episode information
+- .CurrentPath (string): current content path
+*/ -}}
 <div class="episode">
-<p><strong>{{ .Name }}</strong></p>
-{{- template "list" dict "Type" "person" "Label" "Directors" "Field" .Directors }}
-{{- template "list" dict "Type" "person" "Label" "Writers" "Field" .Writers }}
-{{- template "list" dict "Type" "person" "Label" "Story" "Field" .Story }}
-{{- template "single" dict "Type" "company" "Label" "Studio" "Field" .Studio }}
-{{- with .Released }}
+<h3>{{ .Episode.Name }}</h3>
+{{- with .Episode.Description }}
+<p>{{ . }}</p>
+{{- end }}
+{{- template "list" dict "Type" "person" "Label" "Directors" "Field" .Episode.Directors }}
+{{- template "list" dict "Type" "person" "Label" "Writers" "Field" .Episode.Writers }}
+{{- template "list" dict "Type" "person" "Label" "Editors" "Field" .Episode.Editors }}
+{{- template "list" dict "Type" "person" "Label" "Story" "Field" .Episode.Story }}
+{{- template "single" dict "Type" "company" "Label" "Studio" "Field" .Episode.Studio }}
+{{- with .Episode.Released }}
 <p>Released: {{ . }}</p>
+{{- end }}
+<p class="links">
+{{- if .Length }}{{ length .Episode.Length }}{{ end -}}
+{{- template "link" dict "Label" "IMDB" "URL" .Episode.IMDB }}
+{{- template "link" dict "Label" "TMDB" "URL" .Episode.TMDB }}
+{{- template "link" dict "Label" "Netflix" "URL" .Episode.Netflix }}
+</p>
+{{- with .Episode.Characters }}
+<h4>Characters</h4>
+<ul class="characters">
+    {{- range . }}
+    <li>{{ template "character_circle" dict "Character" . "CurrentPath" $.CurrentPath "Dir" $.Dir }}</li>
+    {{- end }}
+</ul>
+{{- end }}
+{{- with .Episode.Extra }}
+<pre>
+    {{- range $key, $value := . }}
+    {{- $key }}: {{ $value }}<br>
+    {{- end -}}
+</pre>
 {{- end }}
 </div>
 {{- end }}

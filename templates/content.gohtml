@@ -183,35 +183,7 @@ Inputs (same as for "index" template):
     <h2>Characters</h2>
     <ul class="characters">
         {{- range . }}
-        <li>
-        {{- if .Image }}
-            <span class="image drop" data-viewport="circle" data-name="{{ htmlEscape .Name }}" data-suffix="/Characters/{{ htmlEscape .Name }}" style="background-image: url('{{ config "MediaHost" }}/{{ escape $.CurrentPath }}/Characters/{{ .Image.ThumbPath }}'); {{ thumbStylePct .Image }}"></span>
-        {{- else }}
-            <span class="no-image drop" data-viewport="circle" data-name="{{ htmlEscape .Name }}" data-suffix="/Characters/{{ htmlEscape .Name }}"></span>
-        {{- end }}
-            <span class="name">{{ .Name }}</span>
-        {{- if .Actor }}
-            {{- $actorID := join "People/" .Actor }}
-            {{- $person := content $actorID }}
-            {{- if $person }}
-            <span><a class="actor" href="/People/{{ .Actor }}">{{ .Actor }}</a>{{ template "awards" .Awards }}</span>
-            {{- else if gt (len (connections $actorID)) 1 }}
-            <span><a class="actor missing" href="/People/{{ .Actor }}">{{ .Actor }}</a>{{ template "awards" .Awards }}</span>
-            {{- else }}
-            <span><span class="actor missing">{{ .Actor }}</span>{{ template "awards" .Awards }}</span>
-            {{- end }}
-        {{- else if .Voice }}
-            {{- $actorID := join "People/" .Voice }}
-            {{- $person := content $actorID }}
-            {{- if $person }}
-            <span><a class="actor" href="/People/{{ .Voice }}">{{ .Voice }}</a>{{ template "awards" .Awards }}</span>
-            {{- else if gt (len (connections $actorID)) 1 }}
-            <span><a class="actor missing" href="/People/{{ .Voice }}">{{ .Voice }}</a>{{ template "awards" .Awards }}</span>
-            {{- else }}
-            <span><span class="actor">{{ .Voice }}</span>{{ template "awards" .Awards }}</span>
-            {{- end }}
-        {{- end }}
-        </li>
+        <li>{{ template "character_circle" dict "Character" . "CurrentPath" $.CurrentPath "Dir" $.Dir }}</li>
         {{- end }}
     </ul>
     {{- end }}
@@ -277,7 +249,7 @@ Inputs (same as for "index" template):
     <h2>Episodes</h2>
     <ul class="episodes">
         {{- range . }}
-        <li>{{- template "episode" . }}</li>
+        <li>{{- template "episode" dict "Episode" . "CurrentPath" $.CurrentPath }}</li>
         {{- end }}
     </ul>
     {{- end }}

@@ -1,0 +1,35 @@
+{{ define "character_circle" }}
+{{- /*
+character_circle template used to display movie/game character in list of characters.
+Inputs:
+- .Character (Character): character to display
+- .CurrentPath (string): current path
+*/ -}}
+{{- if .Character.Image }}
+    <span class="image drop" data-viewport="circle" data-name="{{ htmlEscape .Character.Name }}" data-suffix="/Characters/{{ htmlEscape .Character.Name }}" style="background-image: url('{{ config "MediaHost" }}/{{ escape .CurrentPath }}/Characters/{{ .Character.Image.ThumbPath }}'); {{ thumbStylePct .Character.Image }}"></span>
+{{- else }}
+    <span class="no-image drop" data-viewport="circle" data-name="{{ htmlEscape .Character.Name }}" data-suffix="/Characters/{{ htmlEscape .Character.Name }}"></span>
+{{- end }}
+    <span class="name">{{ .Character.Name }}</span>
+{{- if .Character.Actor }}
+    {{- $actorID := join "People/" .Character.Actor }}
+    {{- $person := content $actorID }}
+    {{- if $person }}
+    <span><a class="actor" href="/People/{{ .Character.Actor }}">{{ .Character.Actor }}</a>{{ template "awards" .Character.Awards }}</span>
+    {{- else if gt (len (connections $actorID)) 1 }}
+    <span><a class="actor missing" href="/People/{{ .Character.Actor }}">{{ .Character.Actor }}</a>{{ template "awards" .Character.Awards }}</span>
+    {{- else }}
+    <span><span class="actor missing">{{ .Character.Actor }}</span>{{ template "awards" .Character.Awards }}</span>
+    {{- end }}
+{{- else if .Character.Voice }}
+    {{- $actorID := join "People/" .Character.Voice }}
+    {{- $person := content $actorID }}
+    {{- if $person }}
+    <span><a class="actor" href="/People/{{ .Character.Voice }}">{{ .Character.Voice }}</a>{{ template "awards" .Character.Awards }}</span>
+    {{- else if gt (len (connections $actorID)) 1 }}
+    <span><a class="actor missing" href="/People/{{ .Character.Voice }}">{{ .Character.Voice }}</a>{{ template "awards" .Character.Awards }}</span>
+    {{- else }}
+    <span><span class="actor">{{ .Character.Voice }}</span>{{ template "awards" .Character.Awards }}</span>
+    {{- end }}
+{{- end }}
+{{- end }}

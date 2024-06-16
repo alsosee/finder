@@ -1610,6 +1610,11 @@ func length(a time.Duration) string {
 		return ""
 	}
 
+	if a < time.Hour {
+		// format duration as "2m"
+		return fmt.Sprintf("%dm", int(a.Minutes()))
+	}
+
 	// format duration as "1h 2m"
 	return fmt.Sprintf("%dh %dm", int(a.Hours()), int(a.Minutes())%60)
 }
