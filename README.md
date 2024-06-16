@@ -1,6 +1,11 @@
 # finder
 
+[![main](https://github.com/alsosee/finder/actions/workflows/main.yml/badge.svg)](https://github.com/alsosee/finder/actions/workflows/main.yml)
+[![deploy](https://github.com/alsosee/finder/actions/workflows/deploy.yml/badge.svg)](https://github.com/alsosee/finder/actions/workflows/deploy.yml)
+
 A project to bring the Finder experience to the web.
+
+![Screenshot](screenshot.png)
 
 It is part of a larger project to store information in a structured way:
 
