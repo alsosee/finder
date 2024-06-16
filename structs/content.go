@@ -244,9 +244,11 @@ type Episode struct {
 	Studio      string        `yaml:",omitempty" json:",omitempty"`
 	Characters  []*Character  `yaml:",omitempty" json:",omitempty"`
 
-	IMDB    string `yaml:",omitempty" json:",omitempty"`
-	TMDB    string `yaml:",omitempty" json:",omitempty"`
-	Netflix string `yaml:",omitempty" json:",omitempty"`
+	IMDB      string `yaml:",omitempty" json:",omitempty"`
+	TMDB      string `yaml:",omitempty" json:",omitempty"`
+	Netflix   string `yaml:",omitempty" json:",omitempty"`
+	Wikipedia string `yaml:",omitempty" json:",omitempty"`
+	Fandom    string `yaml:",omitempty" json:",omitempty"`
 
 	// unknown fields are stored in the Extra map
 	Extra map[string]interface{} `yaml:",inline" json:",omitempty"`

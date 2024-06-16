@@ -20,8 +20,10 @@ Inputs:
 {{- end }}
 <p class="links">
 {{- if .Length }}{{ length .Episode.Length }}{{ end -}}
+{{- template "link" dict "Label" "Wikipedia" "URL" .Episode.Wikipedia }}
 {{- template "link" dict "Label" "IMDB" "URL" .Episode.IMDB }}
 {{- template "link" dict "Label" "TMDB" "URL" .Episode.TMDB }}
+{{- template "link" dict "Label" "Fandom" "URL" .Episode.Fandom }}
 {{- template "link" dict "Label" "Netflix" "URL" .Episode.Netflix }}
 </p>
 {{- with .Episode.Characters }}
