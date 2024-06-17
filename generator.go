@@ -1094,7 +1094,7 @@ func (g *Generator) generateContentTemplates() error {
 			Panels:      panels,
 			Content:     &cnt,
 			Timestamp:   time.Now().Unix(),
-		})
+		}, "index.gohtml")
 		if err != nil {
 			return fmt.Errorf("executing template for %q: %w", id, err)
 		}
@@ -1163,7 +1163,7 @@ func (g *Generator) generateIndexes() error {
 			Content:     nil,
 			Timestamp:   time.Now().Unix(),
 			Connections: nil,
-		})
+		}, "index.gohtml")
 		if err != nil {
 			return fmt.Errorf("executing template for %q: %w", dir, err)
 		}
@@ -1230,7 +1230,7 @@ func (g *Generator) generateMissing(missing []structs.Missing) error {
 		go func() {
 			defer wg.Done()
 			for pd := range pagesDataChan {
-				err := g.executeTemplate(pd.OutputPath, pd)
+				err := g.executeTemplate(pd.OutputPath, pd, "index.gohtml")
 				if err != nil {
 					errChan <- fmt.Errorf("executing template for %q: %w", pd.CurrentPath, err)
 					return
@@ -1373,7 +1373,7 @@ func (g *Generator) missing() []structs.Missing {
 	return result
 }
 
-func (g *Generator) executeTemplate(path string, pageData structs.PageData) error {
+func (g *Generator) executeTemplate(path string, pageData structs.PageData, templateName string) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return fmt.Errorf("creating directory: %w", err)
 	}
@@ -1383,7 +1383,7 @@ func (g *Generator) executeTemplate(path string, pageData structs.PageData) erro
 		return fmt.Errorf("creating file: %w", err)
 	}
 
-	if err := g.templates.ExecuteTemplate(f, "index.gohtml", pageData); err != nil {
+	if err := g.templates.ExecuteTemplate(f, templateName, pageData); err != nil {
 		err2 := f.Close()
 		if err2 != nil {
 			err = errors.Join(err, err2)
