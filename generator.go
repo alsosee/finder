@@ -448,6 +448,51 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return label
 		},
+		"splitExtra": func(extra []string) structs.Extra {
+			// turn list like
+			// ["a", "", "c", "a", "", "d"]
+			// into
+			// ["a"] and "c, d"
+			var (
+				roles        = map[string]interface{}{}
+				addon        []string
+				i            int
+				collectAddon bool
+			)
+
+			for i < len(extra) {
+				if extra[i] == "" {
+					collectAddon = true
+					i++
+					continue
+				}
+
+				if collectAddon {
+					addon = append(addon, extra[i])
+					collectAddon = false
+					i++
+					continue
+				}
+
+				if _, ok := roles[extra[i]]; ok {
+					i++
+					continue
+				}
+
+				roles[extra[i]] = nil
+				i++
+			}
+
+			var primary []string
+			for role := range roles {
+				primary = append(primary, role)
+			}
+
+			return structs.Extra{
+				Primary: primary,
+				Addon:   strings.Join(addon, ", "),
+			}
+		},
 	}
 }
 
@@ -872,6 +917,18 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 	g.addConnectionSingle(from, "People", content.Colorist, "Colorist")
 	g.addConnectionSingle(from, "Companies", content.Network, "Network")
 	g.addConnectionSingle(from, "", content.RemakeOf, "Remake")
+
+	for _, episode := range content.Episodes {
+		g.addConnectionList(from, "People", episode.Writers, "Writer", "", episode.Name)
+		g.addConnectionList(from, "People", episode.Directors, "Director", "", episode.Name)
+		g.addConnectionList(from, "People", episode.Story, "Story", "", episode.Name)
+		g.addConnectionSingle(from, "Companies", episode.Studio, "Studio", "", episode.Name)
+
+		for _, character := range episode.Characters {
+			g.addConnectionSingle(from, "People", character.Actor, "Actor", character.Name, "", episode.Name)
+			g.addConnectionSingle(from, "People", character.Voice, "Voice", character.Name, "", episode.Name)
+		}
+	}
 
 	if content.Series != "" {
 		g.addConnectionSingle(from, "", series(content), "Series")

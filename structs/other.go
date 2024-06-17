@@ -38,6 +38,20 @@ type Contents map[string]Content
 //			"Cinema": ["Voice", "Bob"],
 //		}
 //	}
+//
+// In case of TV series, it's a bit more complicated, because there are multiple episodes.
+// The problem is that same person can be a writer for a multiple episodes.
+// And when adding connection for the same person to the same content, it will append to the list.
+//
+//	{
+//		"Charlie Brooker": {
+//			"Black Mirror": [
+//				"Writer", "", "The National Anthem",
+//				"Writer", "", "Fifteen Million Merits",
+//				"Writer", "", "The Entire History of You",
+//			],
+//		}
+//	}
 type Connections map[string]map[string][]string
 
 type Columns map[string]string
@@ -168,4 +182,10 @@ type Missing struct {
 	To     string
 	From   map[string][]string
 	Awards []Award
+}
+
+// Extra usind in "splitExtra" template function to separate episode titles from the rest of the data.
+type Extra struct {
+	Primary []string
+	Addon   string
 }
