@@ -535,8 +535,16 @@ fieldset.radio label:last-of-type {
   opacity: 0.5;
 }
 
+.panel .missing.people::before,
 .panel .missing.has-image::before {
   opacity: 1;
+}
+
+.panel .people:not(.has-image)::before {
+  background: var(--background-radial);
+  border-radius: var(--border-radius-avatar);
+  box-shadow: var(--shadow-avatar);
+  background-size: 100%;
 }
 
 .content {
@@ -936,7 +944,8 @@ fieldset.radio label:last-of-type {
   margin-bottom: calc(var(--comp-margin-bottom) + 10px);
 }
 
-[data-view="icons"] .panel li a.has-image::after {
+[data-view="icons"] .panel li a.has-image::after,
+[data-view="icons"] .panel li a.people::after {
   display: none;
 }
 
@@ -945,7 +954,7 @@ fieldset.radio label:last-of-type {
   border-radius: var(--border-radius-medium);
 }
 
-[data-view="icons"] .panel li a.has-image.people::before,
+[data-view="icons"] .panel li a.people::before,
 [data-view="icons"] .panel li a.has-image[href^="/People/"]::before {
   border-radius: var(--border-radius-avatar);
 }
@@ -1130,7 +1139,7 @@ fieldset.radio label:last-of-type {
   outline: var(--outline-small);
 }
 
-[data-view="columns"] .panel a.has-image.people::before,
+[data-view="columns"] .panel a.people::before,
 [data-view="columns"] .panel a.has-image[href^="/People/"]::before {
   border-radius: var(--border-radius-avatar);
 }
