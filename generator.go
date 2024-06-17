@@ -343,6 +343,15 @@ func (g *Generator) fm() template.FuncMap {
 					return character
 				}
 			}
+
+			for _, episode := range content.Episodes {
+				for _, character := range episode.Characters {
+					if character.Name == characterName {
+						return character
+					}
+				}
+			}
+
 			return nil
 		},
 		"characterByActor": func(content *structs.Content, characterName string) *structs.Character {
