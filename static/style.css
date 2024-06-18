@@ -815,11 +815,6 @@ fieldset.radio label:last-of-type {
   ); /* compensate for line height */
 }
 
-.connections .reference.has-image.jpg::before {
-  margin-left: var(--comp-margin-left);
-  margin-right: calc(var(--comp-margin-right) + 5px);
-}
-
 .reference.has-image.jpg::before {
   border-radius: var(--border-radius-small);
   box-shadow: var(--shadow-small);
