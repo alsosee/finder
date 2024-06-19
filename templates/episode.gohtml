@@ -14,6 +14,8 @@ Inputs:
 {{- template "list" dict "Type" "person" "Label" "Writers" "Field" .Episode.Writers }}
 {{- template "list" dict "Type" "person" "Label" "Editors" "Field" .Episode.Editors }}
 {{- template "list" dict "Type" "person" "Label" "Story" "Field" .Episode.Story }}
+{{- template "list" dict "Type" "person" "Label" "Teleplay" "Field" .Episode.Teleplay }}
+{{- template "list" dict "Type" "person" "Label" "Cinematography" "Field" .Episode.Cinematography }}
 {{- template "single" dict "Type" "company" "Label" "Studio" "Field" .Episode.Studio }}
 {{- with .Episode.Released }}
 <p>Released: {{ . }}</p>

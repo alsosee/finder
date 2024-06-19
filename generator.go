@@ -922,6 +922,9 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		g.addConnectionList(from, "People", episode.Writers, "Writer", "", episode.Name)
 		g.addConnectionList(from, "People", episode.Directors, "Director", "", episode.Name)
 		g.addConnectionList(from, "People", episode.Story, "Story", "", episode.Name)
+		g.addConnectionList(from, "People", episode.Editors, "Editor", "", episode.Name)
+		g.addConnectionList(from, "People", episode.Cinematography, "Cinematography", "", episode.Name)
+		g.addConnectionList(from, "People", episode.Teleplay, "Teleplay", "", episode.Name)
 		g.addConnectionSingle(from, "Companies", episode.Studio, "Studio", "", episode.Name)
 
 		for _, character := range episode.Characters {
@@ -1355,6 +1358,7 @@ func (g *Generator) processPanels() {
 				files[i].Columns.Add("Creators", strings.Join(content.Creators, ", "))
 				files[i].Columns.Add("Authors", strings.Join(content.Authors, ", "))
 				files[i].Columns.Add("Hosts", strings.Join(content.Hosts, ", "))
+				files[i].Columns.Add("Developers", strings.Join(content.Developers, ", "))
 				files[i].Columns.Add("Publishers", strings.Join(content.Publishers, ", "))
 				files[i].Columns.Add("Screenplay", strings.Join(content.Screenplay, ", "))
 				files[i].Columns.Add("StoryBy", strings.Join(content.StoryBy, ", "))
