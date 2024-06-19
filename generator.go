@@ -1080,7 +1080,7 @@ func (g *Generator) renderPanel(panel structs.Panel, index int, isLast bool, pat
 		return markInPathLinks(rendered, panel, path, isLast)
 	}
 
-	rendered, err := g.renderPanelImpl(panel, index, path)
+	rendered, err := g.renderPanelImpl(panel, index)
 	if err != nil {
 		log.Fatalf("rendering panel %q: %v", path, err)
 	}
@@ -1090,16 +1090,14 @@ func (g *Generator) renderPanel(panel structs.Panel, index int, isLast bool, pat
 	return markInPathLinks(rendered, panel, path, isLast)
 }
 
-func (g *Generator) renderPanelImpl(panel structs.Panel, index int, path string) (string, error) {
+func (g *Generator) renderPanelImpl(panel structs.Panel, index int) (string, error) {
 	var b bytes.Buffer
 	err := g.templates.Lookup("panel.gohtml").Execute(&b, struct {
 		Panel structs.Panel
 		Index int
-		Path  string
 	}{
 		Panel: panel,
 		Index: index,
-		Path:  path,
 	})
 
 	if err != nil {
