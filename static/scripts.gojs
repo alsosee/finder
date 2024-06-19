@@ -15,13 +15,6 @@ if (typeof hasRun === 'undefined') {
     var uploader_preview = document.querySelector('#uploader_preview');
     var btn_uploader_upload = document.querySelector('#btn_uploader_upload');
 
-    var uploadedImages = localStorage.getItem("uploadedImages");
-    if (uploadedImages == null) {
-        uploadedImages = [];
-    } else {
-        uploadedImages = JSON.parse(uploadedImages);
-    }
-
     function path() {
         return decodeURI(window.location.pathname).substr(1);
     }
@@ -32,20 +25,16 @@ if (typeof hasRun === 'undefined') {
         drops.forEach(function(someDrop) {
             var name = someDrop.dataset.name;
             var key = path() + (someDrop.dataset.suffix || "");
-            if (!uploadedImages.includes(key)) {
-                return;
-            }
             if (someDrop.classList.contains('image')) {
-                localStorage.removeItem(key);
-                uploadedImages = uploadedImages.filter(function(item) {
-                    return item !== key;
-                });
+                ldb.delete(key);
             } else {
-                var image = localStorage.getItem(key);
-                someDrop.setAttribute("style", `background-image: url(${image})`);
+                ldb.get(key, function(image) {
+                    if (image) {
+                        someDrop.setAttribute("style", `background-image: url(${image})`);
+                    }
+                });
             }
         });
-        localStorage.setItem("uploadedImages", JSON.stringify(uploadedImages));
     }
 
     var view = localStorage.getItem('view') || 'icons';
@@ -731,9 +720,7 @@ if (typeof hasRun === 'undefined') {
                 }
 
                 // store the image in local storage to persist it across page reloads till it approved
-                localStorage.setItem(path() + suffix, reader.result);
-                uploadedImages.push(path() + suffix);
-                localStorage.setItem("uploadedImages", JSON.stringify(uploadedImages));
+                ldb.set(path() + suffix, reader.result);
             };
             reader.readAsDataURL(blob);
 
