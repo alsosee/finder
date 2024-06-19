@@ -13,10 +13,10 @@
             {{- $path := join $.Panel.Dir .Name }}
             <li role="none">
                 <a role="menuitem" class="{{ if .IsFolder }}folder{{ end }}
+                        {{- if hasPrefix $.Path "People" }} people{{ end }}
                         {{- if .IsMissing}} missing{{ end }}
                         {{- if .Image }} has-image
                             {{- if isJPG .Image.Path }} jpg{{end}}
-                            {{- if hasPrefix $.Path "People" }} people{{ end }}
                         {{- end -}}
                     " href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
                     {{- if .Image }} style="--background-image: url('{{ config "MediaHost" }}/{{ $.Panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStylePx .Image 100 "--" }}; {{ thumbStylePx .Image 24 "--small-" }}"{{ end -}}
