@@ -757,12 +757,20 @@ if (typeof hasRun === 'undefined') {
     var dropStyle; // dropStyle users to set additional style for the drop element
     document.addEventListener('drop', function (event) {
         event.preventDefault();
-
         drop = event.target;
-        dropStyle = "";
+
         if (!drop.classList.contains('drop')) {
-            return;
+            // try parent elements, till the root element
+            drop = drop.parentElement;
+            while (drop && !drop.classList.contains('drop')) {
+                drop = drop.parentElement;
+            }
+            if (!parent) {
+                return;
+            }
         }
+
+        dropStyle = "";
 
         // name used as uploader modal title
         var name = drop.dataset.name;
