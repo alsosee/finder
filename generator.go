@@ -448,7 +448,7 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return label
 		},
-		"splitExtra": func(extra []string) structs.Extra {
+		"splitExtra": func(extra []string, content structs.Content) structs.Extra {
 			// turn list like
 			// ["a", "", "c", "a", "", "d"]
 			// into
@@ -486,6 +486,10 @@ func (g *Generator) fm() template.FuncMap {
 			var primary []string
 			for role := range roles {
 				primary = append(primary, role)
+			}
+
+			if len(addon) > 0 && len(content.Episodes) == len(addon) {
+				addon = nil
 			}
 
 			return structs.Extra{
