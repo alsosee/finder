@@ -724,6 +724,7 @@ fieldset.radio label:last-of-type {
   align-self: flex-start;
   width: 150px;
   padding: 10px;
+  position: relative;
 }
 
 .content .characters .image {
@@ -751,14 +752,15 @@ fieldset.radio label:last-of-type {
 
 /* show yellow dot next to character name without image, if image was uploaded */
 .content .characters .no-image[style^="background-image"] + .name::after {
+  position: absolute;
   content: "";
   display: inline-block;
   width: 5px;
   height: 5px;
+  margin-left: 2px;
+  margin-top: 4px;
   border-radius: 100%;
   background: #c4a000;
-  margin-left: 3px;
-  margin-bottom: 2px;
 }
 
 .content .characters .actor {
