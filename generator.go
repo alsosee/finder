@@ -8,6 +8,7 @@ import (
 	"html"
 	"io"
 	"log"
+	"net/url"
 	"os"
 	"path/filepath"
 	"slices"
@@ -415,6 +416,7 @@ func (g *Generator) fm() template.FuncMap {
 			return strings.ReplaceAll(s, `'`, `\'`)
 		},
 		"htmlEscape": html.EscapeString,
+		"value":      newFileValue,
 		"missing":    g.missing,
 		"missingAwardsLen": func(id string) int {
 			g.muAwardsMissingContent.Lock()
@@ -1758,4 +1760,16 @@ func chooseColumns(files []structs.File) []string {
 
 func column(file structs.File, column string) string {
 	return file.Columns.Get(column)
+}
+
+func newFileValue(content structs.Content, dir string) string {
+	b, err := yaml.Marshal(content)
+	if err != nil {
+		log.Fatalf("Error marshaling content: %v", err)
+		return ""
+	}
+
+	// todo: add more placeholders depending on dir
+
+	return url.PathEscape(string(b))
 }
