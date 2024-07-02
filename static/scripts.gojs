@@ -49,6 +49,7 @@ if (typeof hasRun === 'undefined') {
         localStorage.setItem('view', value);
         document.body.setAttribute('data-view', value);
         document.getElementById("_").scrollIntoView();
+        restoreFocus("setView");
     };
 
     // if enter or space is pressed on a toolbar item, check the radio button
@@ -72,8 +73,29 @@ if (typeof hasRun === 'undefined') {
             focusedLink = link;
         }
         localStorage.setItem('focusedLink', focusedLink);
+
+        // iterate over all panels and save scroll position
+        var panels = document.querySelectorAll('.panel');
+        var scrollPostions = [];
+        panels.forEach(function(panel) {
+            scrollPostions.push(panel.scrollTop);
+        });
+        localStorage.setItem('scrollY', JSON.stringify(scrollPostions));
     }
     function restoreFocus(when) {
+        // restore panel scroll positions
+        var scrollPostions = JSON.parse(localStorage.getItem('scrollY'));
+        var panels = document.querySelectorAll('.panel');
+        panels.forEach(function(panel, index) {
+            if (scrollPostions[index] === null) {
+                return;
+            }
+            panel.scrollTop = scrollPostions[index];
+
+            var inPath = panel.querySelector(".in-path");
+            scrollToIfNotVisible(inPath);
+        });
+        
         if (focusedLink) {
             var suffix = "";
             if (view !== "columns") {
@@ -995,6 +1017,7 @@ if (typeof hasRun === 'undefined') {
                 var links = Array.from(document.activeElement.closest('.panel').querySelectorAll('a'));
                 var index = links.indexOf(document.activeElement);
                 if (index < links.length - 1) {
+                    scrollToIfNotVisible(links[index + 1]);
                     links[index + 1].focus();
                     saveFocus();
 
@@ -1052,6 +1075,7 @@ if (typeof hasRun === 'undefined') {
                     var links = Array.from(document.activeElement.closest('.panel').querySelectorAll('a'));
                     var index = links.indexOf(document.activeElement);
                     if (index > 0) {
+                        scrollToIfNotVisible(links[index - 1]);
                         links[index - 1].focus();
                         saveFocus();
 
@@ -1101,7 +1125,7 @@ if (typeof hasRun === 'undefined') {
                         });
                         if (inPath) {
                             inPath.focus();
-                            inPath.scrollIntoView();
+                            scrollToIfNotVisible(inPath);
                             saveFocus();
                         }
                     }
@@ -1116,7 +1140,7 @@ if (typeof hasRun === 'undefined') {
                     });
                     if (inPath) {
                         inPath.focus();
-                        inPath.scrollIntoView();
+                        scrollToIfNotVisible(inPath);
                         saveFocus();
                     }
                     return;
@@ -1196,4 +1220,23 @@ if (typeof hasRun === 'undefined') {
     });
 
     hasRun = true;
+}
+
+function isElementInViewport(el) {
+    var rect = el.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+}
+
+function scrollToIfNotVisible(el) {
+    if (!el) {
+        return;
+    }
+    if (!isElementInViewport(el)) {
+        el.scrollIntoView();
+    }
 }
