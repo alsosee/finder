@@ -1,8 +1,9 @@
+[*.js,*.gojs,*.gohtml]
+tag_width = 4
+indent_size = 4
+indent_style = space
+
 [*.yml,*.yaml,*.ts,*.css]
 tab_width = 2
 indent_size = 2
 indent_style = space
-
-[*.js,*.gojs]
-tag_width = 4
-indent_size = 4
