@@ -9,6 +9,13 @@ export async function onRequest(context) {
   try {
     switch (context.request.method) {
       case "PUT":
+        if (!context.env.GHP_TOKEN) {
+          return new Response(
+            JSON.stringify({ error: "Missing GHP_TOKEN environment variable" }),
+            { status: 500 },
+          );
+        }
+
         const key = decodeURIComponent(
           context.request.headers.get("x-file-name"),
         );
