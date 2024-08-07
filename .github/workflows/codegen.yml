@@ -2,10 +2,9 @@ name: codegen
 
 on:
   push:
-    branches:
-      - codegen
     paths:
       - 'codegen/**'
+      - '.github/workflows/codegen.yml'
   workflow_dispatch:
 
 jobs:
@@ -42,7 +41,6 @@ jobs:
           test-results: test.json
 
       - name: Build and push to CR
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: chuhlomin/actions/docker-build-push@main
         env:
           DOCKER_IMAGE: ghcr.io/alsosee/codegen
