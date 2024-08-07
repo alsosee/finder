@@ -1,0 +1,73 @@
+name: codegen
+
+on:
+  push:
+    branches:
+      - codegen
+    paths:
+      - 'codegen/**'
+
+jobs:
+  codegen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21"
+
+      - name: Go Format
+        run: gofmt -s -w -l $(find ./codegen -type f -name '*.go'| grep -v "/vendor/") && git diff --exit-code
+
+      - name: Go Vet
+        run: go vet ./codegen/...
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          working-directory: ./codegen
+          version: latest
+
+      - name: Test
+        run: go test -v -count=1 -race -shuffle=on -coverprofile=coverage.txt -json ./codegen/... > test.json
+
+      - name: Annotate tests
+        if: always()
+        uses: guyarb/golang-test-annotations@v0.8.0
+        with:
+          test-results: test.json
+
+      - name: Build and push to CR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: chuhlomin/actions/docker-build-push@main
+        env:
+          DOCKER_IMAGE: ghcr.io/alsosee/codegen
+        with:
+          registry: ghcr.io
+          username: chuhlomin
+          password: ${{ secrets.PKG_TOKEN }}
+          image_name: ${{ env.DOCKER_IMAGE }}
+          tags: |
+            ${{ env.DOCKER_IMAGE }}:latest
+            ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+          platforms: linux/amd64,linux/arm64/v8
+
+      # Todo: Trigger deploy for repos that depend on codegen
+      # - name: Trigger deploy: info
+      #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      #   uses: peter-evans/repository-dispatch@v3
+      #   with:
+      #     token: ${{ secrets.PKG_TOKEN }}
+      #     repository: alsosee/info
+      #     event-type: rebuild
+      #
+      # - name: Trigger deploy: ru
+      #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      #   uses: peter-evans/repository-dispatch@v3
+      #   with:
+      #     token: ${{ secrets.PKG_TOKEN }}
+      #     repository: alsosee/ru
+      #     event-type: rebuild

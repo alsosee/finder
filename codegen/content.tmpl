@@ -1,0 +1,27 @@
+package structs
+
+import "time"
+
+// Content represents the content of a file.
+type Content struct {
+	ID     string `yaml:"-"`                   // used by Search
+	Source string `yaml:"-"`                   // path to the file
+	HTML   string `yaml:"-" json:",omitempty"` // for Markdown files
+
+	{{- range $name, $value := .Content.Properties }}
+	{{ titleCase $name }} {{ fieldType $name $value }} `yaml:"{{ $name }},omitempty" json:"{{ $name }},omitempty"`
+	{{- end }}
+
+	// unknown fields are stored in the Extra map
+	Extra map[string]interface{} `yaml:",inline" json:",omitempty"`
+
+	// fields populated by the generator
+	Image                *Media  `yaml:"-" json:",omitempty"`
+	Awards               []Award `yaml:"-" json:",omitempty"`
+	EditorsAwards        []Award `yaml:"-" json:",omitempty"`
+	WritersAwards        []Award `yaml:"-" json:",omitempty"`
+	DirectorsAwards      []Award `yaml:"-" json:",omitempty"`
+	CinematographyAwards []Award `yaml:"-" json:",omitempty"`
+	MusicAwards          []Award `yaml:"-" json:",omitempty"`
+	ScreenplayAwards     []Award `yaml:"-" json:",omitempty"`
+}
