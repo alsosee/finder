@@ -45,7 +45,6 @@ jobs:
         env:
           DOCKER_IMAGE: ghcr.io/alsosee/codegen
         with:
-          context: ./codegen
           dockerfile: ./codegen/Dockerfile
           registry: ghcr.io
           username: chuhlomin

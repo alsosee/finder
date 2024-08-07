@@ -1,10 +1,15 @@
 FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.21 as build-env
 
-WORKDIR /go/src/codegen
-ADD . /go/src/codegen
+WORKDIR /go/src/app
+ADD . /go/src/app
 
-RUN go test -mod=vendor -cover ./...
+RUN go test -mod=vendor -cover ./codegen/...
 
 ARG TARGETOS
 ARG TARGETARCH
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags="-w -s" -mod=vendor -o /go/bin/codegen
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+    go build -ldflags="-w -s" -mod=vendor -o /go/bin/codegen ./codegen
+
+
+FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.21
+COPY --from=build-env /go/bin/codegen /usr/local/bin/codegen
