@@ -1,37 +1,6 @@
 package structs
 
-import (
-	"fmt"
-	"time"
-
-	"gopkg.in/yaml.v3"
-)
-
-// oneOrMany represents a list of strings that can be passed as a single string in YAML.
-type oneOrMany []string
-
-// UnmarshalYAML makes oneOrMany support both a string and a list of strings.
-func (b *oneOrMany) UnmarshalYAML(value *yaml.Node) error {
-	if value.Kind == yaml.ScalarNode {
-		*b = []string{value.Value}
-		return nil
-	}
-
-	if value.Kind != yaml.SequenceNode {
-		return fmt.Errorf("based_on must be a string or a list of strings")
-	}
-
-	if len(value.Content) == 0 {
-		return nil
-	}
-
-	*b = make([]string, len(value.Content))
-	for i, v := range value.Content {
-		(*b)[i] = v.Value
-	}
-
-	return nil
-}
+import "time"
 
 // Content represents the content of a file.
 type Content struct {
@@ -186,72 +155,4 @@ type Content struct {
 	CinematographyAwards []Award `yaml:"-" json:",omitempty"`
 	MusicAwards          []Award `yaml:"-" json:",omitempty"`
 	ScreenplayAwards     []Award `yaml:"-" json:",omitempty"`
-}
-
-// Character represents a character in a movie, tv show, etc.
-type Character struct {
-	Name       string
-	Actor      string `json:",omitempty"`
-	Voice      string `json:",omitempty"`
-	Image      *Media `json:",omitempty"`
-	ActorImage *Media `json:",omitempty"`
-
-	// populated by the generator
-	Awards []Award `yml:"-" json:",omitempty"`
-}
-
-type Award struct {
-	Category  string `json:",omitempty"`
-	Reference string `json:",omitempty"` // who gave the award
-}
-
-type Category struct {
-	Name   string `json:",omitempty"`
-	Winner Winner `json:",omitempty"`
-}
-
-type Winner struct {
-	Reference      string    `yaml:"ref,omitempty" json:",omitempty"` // full path to referenced content
-	Movie          string    `yaml:",omitempty" json:",omitempty"`
-	Game           string    `yaml:",omitempty" json:",omitempty"`
-	Series         string    `yaml:",omitempty" json:",omitempty"`
-	Person         string    `yaml:",omitempty" json:",omitempty"`
-	Actor          string    `yaml:",omitempty" json:",omitempty"`
-	Editors        oneOrMany `yaml:",omitempty" json:",omitempty"`
-	Track          string    `yaml:",omitempty" json:",omitempty"`
-	Directors      oneOrMany `yaml:",omitempty" json:",omitempty"`
-	Writers        oneOrMany `yaml:",omitempty" json:",omitempty"`
-	Cinematography oneOrMany `yaml:",omitempty" json:",omitempty"`
-	Music          oneOrMany `yaml:",omitempty" json:",omitempty"`
-	Screenplay     oneOrMany `yaml:",omitempty" json:",omitempty"`
-	Producers      oneOrMany `yaml:",omitempty" json:",omitempty"`
-	Casting        oneOrMany `yaml:",omitempty" json:",omitempty"`
-	ConstumeDesign oneOrMany `yaml:",omitempty" json:",omitempty"`
-	MakeUpAndHair  oneOrMany `yaml:",omitempty" json:",omitempty"`
-
-	Fallback string `yaml:"-" json:"-,omitempty"` // used to store the fallback value for template
-}
-
-type Episode struct {
-	Name           string
-	Description    string        `yaml:",omitempty" json:",omitempty"`
-	Length         time.Duration `yaml:",omitempty" json:",omitempty"`
-	Released       string        `yaml:",omitempty" json:",omitempty"`
-	Directors      oneOrMany     `yaml:",omitempty" json:",omitempty"`
-	Writers        oneOrMany     `yaml:",omitempty" json:",omitempty"`
-	Editors        oneOrMany     `yaml:",omitempty" json:",omitempty"`
-	Cinematography oneOrMany     `yaml:",omitempty" json:",omitempty"`
-	Teleplay       oneOrMany     `yaml:",omitempty" json:",omitempty"`
-	Story          oneOrMany     `yaml:",omitempty" json:",omitempty"`
-	Studio         string        `yaml:",omitempty" json:",omitempty"`
-	Characters     []*Character  `yaml:",omitempty" json:",omitempty"`
-
-	IMDB      string `yaml:",omitempty" json:",omitempty"`
-	TMDB      string `yaml:",omitempty" json:",omitempty"`
-	Netflix   string `yaml:",omitempty" json:",omitempty"`
-	Wikipedia string `yaml:",omitempty" json:",omitempty"`
-	Fandom    string `yaml:",omitempty" json:",omitempty"`
-
-	// unknown fields are stored in the Extra map
-	Extra map[string]interface{} `yaml:",inline" json:",omitempty"`
 }
