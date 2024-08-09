@@ -20,8 +20,8 @@ type Content struct {
 	Designer    string    `yaml:",omitempty" json:",omitempty"`
 
 	BasedOn  oneOrMany `yaml:"based_on,omitempty" json:",omitempty"`
-	Series   string    `yaml:",omitempty" json:",omitempty"`
-	Previous string    `yaml:",omitempty" json:",omitempty"` // reference to previous in the series
+	Series   Reference `yaml:",omitempty" json:",omitempty"`
+	Previous Reference `yaml:",omitempty" json:",omitempty"` // reference to previous in the series
 
 	// for people
 	DOB     string `yaml:",omitempty" json:",omitempty"` // date of birth
@@ -132,9 +132,9 @@ type Content struct {
 	Hosts  oneOrMany `yaml:",omitempty" json:",omitempty"`
 	Guests oneOrMany `yaml:",omitempty" json:",omitempty"`
 
-	RemakeOf string `yaml:"remake_of,omitempty" json:",omitempty"`
+	RemakeOf Reference `yaml:"remake_of,omitempty" json:",omitempty"`
 
-	Characters []*Character `yaml:",omitempty" json:",omitempty"`
+	Characters []Character `yaml:",omitempty" json:",omitempty"`
 
 	// for awards
 	Categories []Category `yaml:",omitempty" json:",omitempty"`
@@ -144,7 +144,7 @@ type Content struct {
 
 	References []Reference `yaml:"refs,omitempty" json:",omitempty"`
 
-	Episodes []*Episode `yaml:",omitempty" json:",omitempty"` // for series
+	Episodes []Episode `yaml:",omitempty" json:",omitempty"` // for series
 
 	// fields populated by the generator
 	Image                *Media  `yaml:"-" json:",omitempty"`

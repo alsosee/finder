@@ -341,14 +341,14 @@ func (g *Generator) fm() template.FuncMap {
 		"character": func(content structs.Content, characterName string) *structs.Character {
 			for _, character := range content.Characters {
 				if character.Name == characterName {
-					return character
+					return &character
 				}
 			}
 
 			for _, episode := range content.Episodes {
 				for _, character := range episode.Characters {
 					if character.Name == characterName {
-						return character
+						return &character
 					}
 				}
 			}
@@ -363,10 +363,10 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			for _, character := range content.Characters {
 				if character.Actor == characterName {
-					return character
+					return &character
 				}
 				if character.Voice == characterName {
-					return character
+					return &character
 				}
 			}
 			return nil
@@ -922,7 +922,7 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 	g.addConnectionSingle(from, "People", content.CoverArtist, "Cover artist")
 	g.addConnectionSingle(from, "People", content.Colorist, "Colorist")
 	g.addConnectionSingle(from, "Companies", content.Network, "Network")
-	g.addConnectionSingle(from, "", content.RemakeOf, "Remake")
+	g.addConnectionSingle(from, "", content.RemakeOf.Path, "Remake")
 
 	for _, episode := range content.Episodes {
 		g.addConnectionList(from, "People", episode.Writers, "Writer", "", episode.Name)
@@ -939,12 +939,12 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		}
 	}
 
-	if content.Series != "" {
+	if content.Series.Path != "" {
 		g.addConnectionSingle(from, "", series(content), "Series")
 	}
 
-	if content.Previous != "" {
-		g.addPrevious(from, content.Previous)
+	if content.Previous.Path != "" {
+		g.addPrevious(from, content.Previous.Path)
 	}
 
 	// Prepare for adding Awards
@@ -1285,7 +1285,6 @@ func (g *Generator) addMissingFilesToPanels(missing []structs.Missing) {
 func (g *Generator) generateMissing(missing []structs.Missing) error {
 	// create channel with PageData to render
 	pagesDataChan := make(chan structs.PageData)
-	errChan := make(chan error, len(missing))
 
 	// start 10 workers to render missing files
 	var wg sync.WaitGroup
@@ -1296,8 +1295,7 @@ func (g *Generator) generateMissing(missing []structs.Missing) error {
 			for pd := range pagesDataChan {
 				err := g.executeTemplate(pd.OutputPath, pd, "index.gohtml")
 				if err != nil {
-					errChan <- fmt.Errorf("executing template for %q: %w", pd.CurrentPath, err)
-					return
+					log.Fatalf("Error executing template for %q: %v", pd.CurrentPath, err)
 				}
 			}
 		}()
@@ -1328,15 +1326,9 @@ func (g *Generator) generateMissing(missing []structs.Missing) error {
 	}
 
 	close(pagesDataChan)
-	wg.Wait()
 
-	// check errChan for errors
-	select {
-	case err := <-errChan:
-		return err
-	default:
-		return nil
-	}
+	wg.Wait()
+	return nil
 }
 
 func (g *Generator) processPanels() {
@@ -1674,7 +1666,7 @@ func series(c structs.Content) string {
 	return filepath.Join(
 		filepath.Dir(filepath.Dir(c.Source)),
 		"Series",
-		c.Series,
+		c.Series.Path,
 	)
 }
 
