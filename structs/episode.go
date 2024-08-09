@@ -14,7 +14,7 @@ type Episode struct {
 	Teleplay       oneOrMany     `yaml:",omitempty" json:",omitempty"`
 	Story          oneOrMany     `yaml:",omitempty" json:",omitempty"`
 	Studio         string        `yaml:",omitempty" json:",omitempty"`
-	Characters     []*Character  `yaml:",omitempty" json:",omitempty"`
+	Characters     []Character   `yaml:",omitempty" json:",omitempty"`
 
 	IMDB      string `yaml:",omitempty" json:",omitempty"`
 	TMDB      string `yaml:",omitempty" json:",omitempty"`

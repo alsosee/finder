@@ -33,6 +33,13 @@ var (
 		"ISBN",
 		"ISBN10",
 		"ISBN13",
+		"GoodReads",
+		"YouTube",
+		"LinkedIn",
+		"TikTok",
+		"PlayStation",
+		"AppleTV",
+		"DarkHorse",
 	}
 	knownAbbreviationsMap = map[string]string{}
 )
@@ -160,18 +167,14 @@ func titleCase(s string) string {
 
 func fieldType(name string, value Property) string {
 	switch value.Type {
-	case "string", "reference", "person":
+	case "string", "person":
 		return "string"
 	case "duration":
 		return "time.Duration"
 	case "references":
 		return "oneOrMany"
-	case "category":
-		return "Category"
-	case "character":
-		return "Character"
-	case "episode":
-		return "Episode"
+	case "reference", "category", "character", "episode":
+		return caser.String(value.Type)
 	case "array":
 		if value.Items == nil {
 			log.Fatalf("items field is required for array type")
