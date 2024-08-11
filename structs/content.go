@@ -20,7 +20,7 @@ type Content struct {
 	Designer    string    `yaml:",omitempty" json:",omitempty"`
 
 	BasedOn  oneOrMany `yaml:"based_on,omitempty" json:",omitempty"`
-	Series   Reference `yaml:",omitempty" json:",omitempty"`
+	Series   string    `yaml:",omitempty" json:",omitempty"`
 	Previous Reference `yaml:",omitempty" json:",omitempty"` // reference to previous in the series
 
 	// for people

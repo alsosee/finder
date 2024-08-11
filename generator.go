@@ -939,7 +939,7 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		}
 	}
 
-	if content.Series.Path != "" {
+	if content.Series != "" {
 		g.addConnectionSingle(from, "", series(content), "Series")
 	}
 
@@ -1666,7 +1666,7 @@ func series(c structs.Content) string {
 	return filepath.Join(
 		filepath.Dir(filepath.Dir(c.Source)),
 		"Series",
-		c.Series.Path,
+		c.Series,
 	)
 }
 
