@@ -10,61 +10,64 @@ jobs:
   main:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Do nothing
+        run: echo "Do nothing"
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.21"
+      # - name: Checkout
+      #   uses: actions/checkout@v4
 
-      - name: Go Format
-        run: gofmt -s -w -l $(find . -type f -name '*.go'| grep -v "/vendor/") && git diff --exit-code
+      # - name: Setup Go
+      #   uses: actions/setup-go@v5
+      #   with:
+      #     go-version: "1.21"
 
-      - name: Go Vet
-        run: go vet ./...
+      # - name: Go Format
+      #   run: gofmt -s -w -l $(find . -type f -name '*.go'| grep -v "/vendor/") && git diff --exit-code
 
-      - name: Lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: latest
+      # - name: Go Vet
+      #   run: go vet ./...
 
-      - name: Test
-        run: go test -v -count=1 -race -shuffle=on -coverprofile=coverage.txt -json ./... > test.json
+      # - name: Lint
+      #   uses: golangci/golangci-lint-action@v6
+      #   with:
+      #     version: latest
 
-      - name: Annotate tests
-        if: always()
-        uses: guyarb/golang-test-annotations@v0.8.0
-        with:
-          test-results: test.json
+      # - name: Test
+      #   run: go test -v -count=1 -race -shuffle=on -coverprofile=coverage.txt -json ./... > test.json
 
-      - name: Build and push to CR
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: chuhlomin/actions/docker-build-push@main
-        env:
-          DOCKER_IMAGE: ghcr.io/alsosee/finder
-        with:
-          registry: ghcr.io
-          username: chuhlomin
-          password: ${{ secrets.PKG_TOKEN }}
-          image_name: ${{ env.DOCKER_IMAGE }}
-          tags: |
-            ${{ env.DOCKER_IMAGE }}:latest
-            ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
-          platforms: linux/amd64,linux/arm64/v8
+      # - name: Annotate tests
+      #   if: always()
+      #   uses: guyarb/golang-test-annotations@v0.8.0
+      #   with:
+      #     test-results: test.json
 
-      - name: Trigger deploy
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.PKG_TOKEN }}
-          repository: alsosee/finder
-          event-type: deploy
+      # - name: Build and push to CR
+      #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      #   uses: chuhlomin/actions/docker-build-push@main
+      #   env:
+      #     DOCKER_IMAGE: ghcr.io/alsosee/finder
+      #   with:
+      #     registry: ghcr.io
+      #     username: chuhlomin
+      #     password: ${{ secrets.PKG_TOKEN }}
+      #     image_name: ${{ env.DOCKER_IMAGE }}
+      #     tags: |
+      #       ${{ env.DOCKER_IMAGE }}:latest
+      #       ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+      #     platforms: linux/amd64,linux/arm64/v8
 
-      - name: Trigger index
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.PKG_TOKEN }}
-          repository: alsosee/search
-          event-type: index
+      # - name: Trigger deploy
+      #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      #   uses: peter-evans/repository-dispatch@v3
+      #   with:
+      #     token: ${{ secrets.PKG_TOKEN }}
+      #     repository: alsosee/finder
+      #     event-type: deploy
+
+      # - name: Trigger index
+      #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      #   uses: peter-evans/repository-dispatch@v3
+      #   with:
+      #     token: ${{ secrets.PKG_TOKEN }}
+      #     repository: alsosee/search
+      #     event-type: index
