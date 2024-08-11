@@ -173,8 +173,11 @@ func fieldType(name string, value Property) string {
 		return "time.Duration"
 	case "references":
 		return "oneOrMany"
-	case "reference", "category":
+	case "category":
 		return caser.String(value.Type)
+	case "reference":
+		// Reference should be a pointer, so that we can check if it's nil in the templates
+		return "*Reference"
 	case "character", "episode":
 		// Characters may have images assigned to them.
 		// Episodes have a list of characters.
