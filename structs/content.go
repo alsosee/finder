@@ -19,9 +19,9 @@ type Content struct {
 	CoverArtist string    `yaml:"cover_artist,omitempty" json:",omitempty"`
 	Designer    string    `yaml:",omitempty" json:",omitempty"`
 
-	BasedOn  oneOrMany `yaml:"based_on,omitempty" json:",omitempty"`
-	Series   string    `yaml:",omitempty" json:",omitempty"`
-	Previous Reference `yaml:",omitempty" json:",omitempty"` // reference to previous in the series
+	BasedOn  oneOrMany  `yaml:"based_on,omitempty" json:",omitempty"`
+	Series   string     `yaml:",omitempty" json:",omitempty"`
+	Previous *Reference `yaml:",omitempty" json:",omitempty"` // reference to previous in the series
 
 	// for people
 	DOB     string `yaml:",omitempty" json:",omitempty"` // date of birth
@@ -132,7 +132,7 @@ type Content struct {
 	Hosts  oneOrMany `yaml:",omitempty" json:",omitempty"`
 	Guests oneOrMany `yaml:",omitempty" json:",omitempty"`
 
-	RemakeOf Reference `yaml:"remake_of,omitempty" json:",omitempty"`
+	RemakeOf *Reference `yaml:"remake_of,omitempty" json:",omitempty"`
 
 	Characters []*Character `yaml:",omitempty" json:",omitempty"`
 
@@ -142,7 +142,7 @@ type Content struct {
 	// unknown fields are stored in the Extra map
 	Extra map[string]interface{} `yaml:",inline" json:",omitempty"`
 
-	References []Reference `yaml:"refs,omitempty" json:",omitempty"`
+	References []*Reference `yaml:"refs,omitempty" json:",omitempty"`
 
 	Episodes []*Episode `yaml:",omitempty" json:",omitempty"` // for series
 
