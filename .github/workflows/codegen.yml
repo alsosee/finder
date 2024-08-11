@@ -55,14 +55,15 @@ jobs:
             ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
           platforms: linux/amd64,linux/arm64/v8
 
+      - name: Trigger finder rebuild (info)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PKG_TOKEN }}
+          repository: alsosee/info
+          event-type: finder
+
       # Todo: Trigger deploy for repos that depend on codegen
-      # - name: Trigger deploy: info
-      #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      #   uses: peter-evans/repository-dispatch@v3
-      #   with:
-      #     token: ${{ secrets.PKG_TOKEN }}
-      #     repository: alsosee/info
-      #     event-type: rebuild
       #
       # - name: Trigger deploy: ru
       #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
