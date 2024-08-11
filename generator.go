@@ -945,7 +945,7 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 		g.addConnectionSingle(from, "", series(content), "Series")
 	}
 
-	if content.Previous.Path != "" {
+	if content.Previous != nil {
 		g.addPrevious(from, content.Previous.Path)
 	}
 
@@ -1332,6 +1332,21 @@ func (g *Generator) generateMissing(missing []structs.Missing) error {
 	wg.Wait()
 	return nil
 }
+
+// func (g *Generator) generate404() error {
+// 	outputPath := filepath.Join(cfg.OutputDirectory, "404.html")
+
+// 	return g.executeTemplate(outputPath, structs.PageData{
+// 		CurrentPath: "404",
+// 		Dir:         "",
+// 		Breadcrumbs: structs.Breadcrumbs{
+// 			{Name: "Home", Path: "/"},
+// 			{Name: "404", Path: "/404"},
+// 		},
+// 		Panels:    nil, // no panels on 404 page
+// 		Timestamp: time.Now().Unix(),
+// 	}, "404.gohtml")
+// }
 
 func (g *Generator) processPanels() {
 	g.muDir.Lock()
