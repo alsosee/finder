@@ -134,7 +134,7 @@ type Content struct {
 
 	RemakeOf Reference `yaml:"remake_of,omitempty" json:",omitempty"`
 
-	Characters []Character `yaml:",omitempty" json:",omitempty"`
+	Characters []*Character `yaml:",omitempty" json:",omitempty"`
 
 	// for awards
 	Categories []Category `yaml:",omitempty" json:",omitempty"`
@@ -144,7 +144,7 @@ type Content struct {
 
 	References []Reference `yaml:"refs,omitempty" json:",omitempty"`
 
-	Episodes []Episode `yaml:",omitempty" json:",omitempty"` // for series
+	Episodes []*Episode `yaml:",omitempty" json:",omitempty"` // for series
 
 	// fields populated by the generator
 	Image                *Media  `yaml:"-" json:",omitempty"`

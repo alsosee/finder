@@ -173,8 +173,14 @@ func fieldType(name string, value Property) string {
 		return "time.Duration"
 	case "references":
 		return "oneOrMany"
-	case "reference", "category", "character", "episode":
+	case "reference", "category":
 		return caser.String(value.Type)
+	case "character", "episode":
+		// Characters may have images assigned to them.
+		// Episodes have a list of characters.
+		// Both are represented as a slice of pointers to the respective structs,
+		// so that we can assign images to them.
+		return "*" + caser.String(value.Type)
 	case "array":
 		if value.Items == nil {
 			log.Fatalf("items field is required for array type")

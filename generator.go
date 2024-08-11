@@ -341,14 +341,14 @@ func (g *Generator) fm() template.FuncMap {
 		"character": func(content structs.Content, characterName string) *structs.Character {
 			for _, character := range content.Characters {
 				if character.Name == characterName {
-					return &character
+					return character
 				}
 			}
 
 			for _, episode := range content.Episodes {
 				for _, character := range episode.Characters {
 					if character.Name == characterName {
-						return &character
+						return character
 					}
 				}
 			}
@@ -363,10 +363,10 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			for _, character := range content.Characters {
 				if character.Actor == characterName {
-					return &character
+					return character
 				}
 				if character.Voice == characterName {
-					return &character
+					return character
 				}
 			}
 			return nil
