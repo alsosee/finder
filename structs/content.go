@@ -198,11 +198,29 @@ func (c Content) Columns() map[string]string {
 // Connections returns a list of connections to other content.
 func (c Content) Connections() []Connection {
 	var connections []Connection
+	if c.CoverArtist != "" {
+		connections = append(connections, Connection{
+			To:    "People/" + c.CoverArtist,
+			Label: "Cover artist",
+		})
+	}
+	if c.Designer != "" {
+		connections = append(connections, Connection{
+			To:    "People/" + c.Designer,
+			Label: "Designer",
+		})
+	}
 	if c.Previous != nil {
 		connections = append(connections, Connection{
 			To:    c.Previous.Path,
 			Label: "",
 			Meta:  "previous",
+		})
+	}
+	if c.Colorist != "" {
+		connections = append(connections, Connection{
+			To:    "People/" + c.Colorist,
+			Label: "Colorist",
 		})
 	}
 	if c.RemakeOf != nil {

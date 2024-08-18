@@ -907,9 +907,6 @@ func (g *Generator) addConnections(content structs.Content) {
 	g.addConnectionList(from, "Companies", content.Developers, "Developers")
 	g.addConnectionList(from, "", content.BasedOn, "Based on")
 
-	g.addConnectionSingle(from, "People", content.Designer, "Designer")
-	g.addConnectionSingle(from, "People", content.CoverArtist, "Cover artist")
-	g.addConnectionSingle(from, "People", content.Colorist, "Colorist")
 	g.addConnectionSingle(from, "Companies", content.Network, "Network")
 
 	for _, episode := range content.Episodes {

@@ -5,6 +5,7 @@ const (
 	ConnectionPrevious = "previous"
 )
 
+// Connection represents a connection to another content.
 type Connection struct {
 	To    string
 	Label string

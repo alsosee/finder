@@ -83,6 +83,14 @@ func (c Content) Connections() []Connection {
 			Meta: "{{ .Meta }}",
 		})
 	}
+	{{- else if eq .Type "person" }}
+	if c.{{ titleCase .Name }} != "" {
+		connections = append(connections, Connection{
+			To: "People/" + c.{{ titleCase .Name }},
+			Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
+		})
+	}
+	{{- else if eq .Type "references" }}
 	{{- end }}
 	{{- end }}
 	return connections
