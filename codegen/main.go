@@ -100,8 +100,10 @@ func (p *PropertySlice) UnmarshalYAML(value *yaml.Node) error {
 // Property represents a Content struct field.
 type Property struct {
 	Name        string
+	Title       string // used to override Column title
 	Type        string
 	Description string
+	Column      bool // indicates if the field should be included in the Columns method
 	Items       *Property
 }
 
@@ -180,6 +182,25 @@ func generateCode(schema *Schema, out string) error {
 var fm = template.FuncMap{
 	"titleCase": titleCase,
 	"fieldType": fieldType,
+	"columnTitle": func(p Property) string {
+		if p.Title != "" {
+			return p.Title
+		}
+		return titleCase(p.Name)
+	},
+	"columnValue": func(p Property) string {
+		switch p.Type {
+		case "string":
+			return "c." + titleCase(p.Name)
+		case "duration":
+			return "length(c." + titleCase(p.Name) + ")"
+		case "references":
+			return "strings.Join(c." + titleCase(p.Name) + ", \", \")"
+		default:
+			log.Fatalf("columnValue: unknown type %q for field %q (%s)", p.Type, p.Name, p.Description)
+			return ""
+		}
+	},
 }
 
 var caser = cases.Title(language.English)

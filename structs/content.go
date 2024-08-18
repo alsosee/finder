@@ -14,8 +14,6 @@ type Content struct {
 	Name             string        `yaml:"name,omitempty" json:"name,omitempty"`
 	Title            string        `yaml:"title,omitempty" json:"title,omitempty"`
 	Subtitle         string        `yaml:"subtitle,omitempty" json:"subtitle,omitempty"`
-	Authors          oneOrMany     `yaml:"authors,omitempty" json:"authors,omitempty"`
-	Developers       oneOrMany     `yaml:"developers,omitempty" json:"developers,omitempty"`
 	Description      string        `yaml:"description,omitempty" json:"description,omitempty"`
 	CoverArtist      string        `yaml:"cover_artist,omitempty" json:"cover_artist,omitempty"`
 	Designer         string        `yaml:"designer,omitempty" json:"designer,omitempty"`
@@ -28,7 +26,6 @@ type Content struct {
 	Parent           string        `yaml:"parent,omitempty" json:"parent,omitempty"`
 	Founded          string        `yaml:"founded,omitempty" json:"founded,omitempty"`
 	Founders         oneOrMany     `yaml:"founders,omitempty" json:"founders,omitempty"`
-	Released         string        `yaml:"released,omitempty" json:"released,omitempty"`
 	Website          string        `yaml:"website,omitempty" json:"website,omitempty"`
 	Websites         []string      `yaml:"websites,omitempty" json:"websites,omitempty"`
 	Wikipedia        string        `yaml:"wikipedia,omitempty" json:"wikipedia,omitempty"`
@@ -96,14 +93,19 @@ type Content struct {
 	Imprint          string        `yaml:"imprint,omitempty" json:"imprint,omitempty"`
 	UPC              string        `yaml:"upc,omitempty" json:"upc,omitempty"`
 	Genres           []string      `yaml:"genres,omitempty" json:"genres,omitempty"`
-	Engine           string        `yaml:"engine,omitempty" json:"engine,omitempty"`
-	Trailer          string        `yaml:"trailer,omitempty" json:"trailer,omitempty"`
-	Rating           string        `yaml:"rating,omitempty" json:"rating,omitempty"`
 	Length           time.Duration `yaml:"length,omitempty" json:"length,omitempty"`
-	Creators         oneOrMany     `yaml:"creators,omitempty" json:"creators,omitempty"`
-	Writers          oneOrMany     `yaml:"writers,omitempty" json:"writers,omitempty"`
-	Editors          oneOrMany     `yaml:"editors,omitempty" json:"editors,omitempty"`
 	Directors        oneOrMany     `yaml:"directors,omitempty" json:"directors,omitempty"`
+	Writers          oneOrMany     `yaml:"writers,omitempty" json:"writers,omitempty"`
+	Distributors     oneOrMany     `yaml:"distributors,omitempty" json:"distributors,omitempty"`
+	Rating           string        `yaml:"rating,omitempty" json:"rating,omitempty"`
+	Released         string        `yaml:"released,omitempty" json:"released,omitempty"`
+	Network          string        `yaml:"network,omitempty" json:"network,omitempty"`
+	Engine           string        `yaml:"engine,omitempty" json:"engine,omitempty"`
+	Creators         oneOrMany     `yaml:"creators,omitempty" json:"creators,omitempty"`
+	Authors          oneOrMany     `yaml:"authors,omitempty" json:"authors,omitempty"`
+	Developers       oneOrMany     `yaml:"developers,omitempty" json:"developers,omitempty"`
+	Trailer          string        `yaml:"trailer,omitempty" json:"trailer,omitempty"`
+	Editors          oneOrMany     `yaml:"editors,omitempty" json:"editors,omitempty"`
 	Cinematography   oneOrMany     `yaml:"cinematography,omitempty" json:"cinematography,omitempty"`
 	Producers        oneOrMany     `yaml:"producers,omitempty" json:"producers,omitempty"`
 	Screenplay       oneOrMany     `yaml:"screenplay,omitempty" json:"screenplay,omitempty"`
@@ -111,8 +113,6 @@ type Content struct {
 	DialoguesBy      oneOrMany     `yaml:"dialogues_by,omitempty" json:"dialogues_by,omitempty"`
 	Music            oneOrMany     `yaml:"music,omitempty" json:"music,omitempty"`
 	Production       oneOrMany     `yaml:"production,omitempty" json:"production,omitempty"`
-	Distributors     oneOrMany     `yaml:"distributors,omitempty" json:"distributors,omitempty"`
-	Network          string        `yaml:"network,omitempty" json:"network,omitempty"`
 	Composers        oneOrMany     `yaml:"composers,omitempty" json:"composers,omitempty"`
 	Programmers      oneOrMany     `yaml:"programmers,omitempty" json:"programmers,omitempty"`
 	Designers        oneOrMany     `yaml:"designers,omitempty" json:"designers,omitempty"`
@@ -141,6 +141,9 @@ type Content struct {
 // Columns defines the columns to be displayed in the List view.
 func (c Content) Columns() map[string]string {
 	return map[string]string{
+		"Born":         c.DOB,
+		"Died":         c.DOD,
+		"Publishers":   strings.Join(c.Publishers, ", "),
 		"Length":       length(c.Length),
 		"Directors":    strings.Join(c.Directors, ", "),
 		"Writers":      strings.Join(c.Writers, ", "),
@@ -150,14 +153,11 @@ func (c Content) Columns() map[string]string {
 		"Network":      c.Network,
 		"Creators":     strings.Join(c.Creators, ", "),
 		"Authors":      strings.Join(c.Authors, ", "),
-		"Hosts":        strings.Join(c.Hosts, ", "),
 		"Developers":   strings.Join(c.Developers, ", "),
-		"Publishers":   strings.Join(c.Publishers, ", "),
 		"Screenplay":   strings.Join(c.Screenplay, ", "),
 		"StoryBy":      strings.Join(c.StoryBy, ", "),
 		"DialoguesBy":  strings.Join(c.DialoguesBy, ", "),
-		"Born":         c.DOB,
-		"Died":         c.DOD,
+		"Hosts":        strings.Join(c.Hosts, ", "),
 	}
 }
 

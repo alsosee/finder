@@ -33,23 +33,11 @@ type Content struct {
 // Columns defines the columns to be displayed in the List view.
 func (c Content) Columns() map[string]string {
 	return map[string]string{
-		"Length":       length(c.Length),
-		"Directors":    strings.Join(c.Directors, ", "),
-		"Writers":      strings.Join(c.Writers, ", "),
-		"Distributors": strings.Join(c.Distributors, ", "),
-		"Rating":       c.Rating,
-		"Released":     c.Released,
-		"Network":      c.Network,
-		"Creators":     strings.Join(c.Creators, ", "),
-		"Authors":      strings.Join(c.Authors, ", "),
-		"Hosts":        strings.Join(c.Hosts, ", "),
-		"Developers":   strings.Join(c.Developers, ", "),
-		"Publishers":   strings.Join(c.Publishers, ", "),
-		"Screenplay":   strings.Join(c.Screenplay, ", "),
-		"StoryBy":      strings.Join(c.StoryBy, ", "),
-		"DialoguesBy":  strings.Join(c.DialoguesBy, ", "),
-		"Born":         c.DOB,
-		"Died":         c.DOD,
+	{{- range .Content.Properties }}
+		{{- if .Column }}
+		"{{ columnTitle . }}": {{ columnValue . }},
+		{{- end }}
+	{{- end }}
 	}
 }
 
