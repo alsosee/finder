@@ -4,10 +4,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"html/template"
 	"log"
 	"os"
 	"strings"
+	"text/template"
 
 	_ "embed"
 
@@ -62,11 +62,44 @@ type Schema struct {
 // Content represents a Content struct.
 type Content struct {
 	Type       string
-	Properties map[string]Property
+	Properties PropertySlice
+}
+
+// PropertySlice is a slice of Property.
+// Need to parse YAML map into a slice of structs to preserve the order of fields.
+// That way order of fields in the generated code will be the same as in the schema.
+// Especially useful for content.Columns() method.
+type PropertySlice []Property
+
+// UnmarshalYAML unmarshals a YAML mapping node into a slice of Property.
+func (p *PropertySlice) UnmarshalYAML(value *yaml.Node) error {
+	if value.Kind != yaml.MappingNode {
+		return fmt.Errorf("expected a mapping node")
+	}
+
+	var properties []Property
+	for i := 0; i < len(value.Content); i += 2 {
+		nameNode := value.Content[i]
+		propertyNode := value.Content[i+1]
+
+		var property Property
+		err := propertyNode.Decode(&property)
+		if err != nil {
+			return fmt.Errorf("failed to decode property: %w", err)
+		}
+
+		property.Name = nameNode.Value
+
+		properties = append(properties, property)
+	}
+
+	*p = properties
+	return nil
 }
 
 // Property represents a Content struct field.
 type Property struct {
+	Name        string
 	Type        string
 	Description string
 	Items       *Property
@@ -165,8 +198,8 @@ func titleCase(s string) string {
 	return result
 }
 
-func fieldType(name string, value Property) string {
-	switch value.Type {
+func fieldType(property Property) string {
+	switch property.Type {
 	case "string", "person":
 		return "string"
 	case "duration":
@@ -174,7 +207,7 @@ func fieldType(name string, value Property) string {
 	case "references":
 		return "oneOrMany"
 	case "category":
-		return caser.String(value.Type)
+		return caser.String(property.Type)
 	case "reference":
 		// Reference should be a pointer, so that we can check if it's nil in the templates
 		return "*Reference"
@@ -183,15 +216,15 @@ func fieldType(name string, value Property) string {
 		// Episodes have a list of characters.
 		// Both are represented as a slice of pointers to the respective structs,
 		// so that we can assign images to them.
-		return "*" + caser.String(value.Type)
+		return "*" + caser.String(property.Type)
 	case "array":
-		if value.Items == nil {
+		if property.Items == nil {
 			log.Fatalf("items field is required for array type")
 			return ""
 		}
-		return "[]" + fieldType(name, *value.Items)
+		return "[]" + fieldType(*property.Items)
 	default:
-		log.Fatalf("unknown type %q for field %q (%s)", value.Type, name, value.Description)
+		log.Fatalf("unknown type %q for field %q (%s)", property.Type, property.Name, property.Description)
 		return ""
 	}
 }

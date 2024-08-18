@@ -1,6 +1,10 @@
 package structs
 
-import "time"
+import (
+	"fmt"
+	"strings"
+	"time"
+)
 
 // Content represents the content of a file.
 type Content struct {
@@ -8,8 +12,8 @@ type Content struct {
 	Source string `yaml:"-"`                   // path to the file
 	HTML   string `yaml:"-" json:",omitempty"` // for Markdown files
 
-	{{- range $name, $value := .Content.Properties }}
-	{{ titleCase $name }} {{ fieldType $name $value }} `yaml:"{{ $name }},omitempty" json:"{{ $name }},omitempty"`
+	{{- range .Content.Properties }}
+	{{ titleCase .Name }} {{ fieldType . }} `yaml:"{{ .Name }},omitempty" json:"{{ .Name }},omitempty"`
 	{{- end }}
 
 	// unknown fields are stored in the Extra map
@@ -24,4 +28,41 @@ type Content struct {
 	CinematographyAwards []Award `yaml:"-" json:",omitempty"`
 	MusicAwards          []Award `yaml:"-" json:",omitempty"`
 	ScreenplayAwards     []Award `yaml:"-" json:",omitempty"`
+}
+
+// Columns defines the columns to be displayed in the List view.
+func (c Content) Columns() map[string]string {
+	return map[string]string{
+		"Length":       length(c.Length),
+		"Directors":    strings.Join(c.Directors, ", "),
+		"Writers":      strings.Join(c.Writers, ", "),
+		"Distributors": strings.Join(c.Distributors, ", "),
+		"Rating":       c.Rating,
+		"Released":     c.Released,
+		"Network":      c.Network,
+		"Creators":     strings.Join(c.Creators, ", "),
+		"Authors":      strings.Join(c.Authors, ", "),
+		"Hosts":        strings.Join(c.Hosts, ", "),
+		"Developers":   strings.Join(c.Developers, ", "),
+		"Publishers":   strings.Join(c.Publishers, ", "),
+		"Screenplay":   strings.Join(c.Screenplay, ", "),
+		"StoryBy":      strings.Join(c.StoryBy, ", "),
+		"DialoguesBy":  strings.Join(c.DialoguesBy, ", "),
+		"Born":         c.DOB,
+		"Died":         c.DOD,
+	}
+}
+
+func length(a time.Duration) string {
+	if a == 0 {
+		return ""
+	}
+
+	if a < time.Hour {
+		// format duration as "2m"
+		return fmt.Sprintf("%dm", int(a.Minutes()))
+	}
+
+	// format duration as "1h 2m"
+	return fmt.Sprintf("%dh %dm", int(a.Hours()), int(a.Minutes())%60)
 }
