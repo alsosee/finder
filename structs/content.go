@@ -2,6 +2,7 @@ package structs
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -138,6 +139,28 @@ type Content struct {
 	ScreenplayAwards     []Award `yaml:"-" json:",omitempty"`
 }
 
+// Type return a type of the content in singular form
+// (e.g. "person" for "People", "book" for "Books", etc.)
+// it used to add an additional context to reference link
+// when current page and the reference have the same name
+func (c Content) Type() string {
+	// get first part of the Source path
+	// (e.g. "People" or "Book")
+	root := pathType(c.Source)
+	switch root {
+	case "Books":
+		return "book"
+	case "Games":
+		return "game"
+	case "Movies":
+		return "movie"
+	case "People":
+		return "person"
+	default:
+		return strings.ToLower(root)
+	}
+}
+
 // Columns defines the columns to be displayed in the List view.
 func (c Content) Columns() map[string]string {
 	return map[string]string{
@@ -173,4 +196,8 @@ func length(a time.Duration) string {
 
 	// format duration as "1h 2m"
 	return fmt.Sprintf("%dh %dm", int(a.Hours()), int(a.Minutes())%60)
+}
+
+func pathType(path string) string {
+	return strings.Split(path, string(filepath.Separator))[0]
 }

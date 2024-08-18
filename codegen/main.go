@@ -63,6 +63,7 @@ type Schema struct {
 type Content struct {
 	Type       string
 	Properties PropertySlice
+	RootTypes  map[string]string `yaml:"root_types"`
 }
 
 // PropertySlice is a slice of Property.

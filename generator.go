@@ -387,26 +387,8 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return dict, nil
 		},
-		// "type" return a type of the content in singular form
-		// (e.g. "person" for "People", "book" for "Books", etc.)
-		// it used to add an additional context to reference link
-		// when current page and the reference have the same name
 		"type": func(c structs.Content) string {
-			// get first part of the Source path
-			// (e.g. "People" or "Book")
-			root := pathType(c.Source)
-			switch root {
-			case "People":
-				return "person"
-			case "Books":
-				return "book"
-			case "Movies":
-				return "movie"
-			case "Games":
-				return "game"
-			default:
-				return strings.ToLower(root)
-			}
+			return c.Type()
 		},
 		"series": series,
 		"isLast": func(i, total int) bool {
