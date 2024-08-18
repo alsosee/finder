@@ -746,9 +746,8 @@ func (g *Generator) processYAMLFile(file string) error {
 		return fmt.Errorf("unmarshaling yaml: %w", err)
 	}
 
-	id := removeFileExtention(file)
-
 	content.Source = file
+	id := content.GenerateID()
 	content.Image = g.getImageForPath(id)
 
 	// add image to Characters
@@ -765,8 +764,8 @@ func (g *Generator) processYAMLFile(file string) error {
 		}
 	}
 
-	g.addContent(id, content)
-	g.addConnections(id, content)
+	g.addContent(content)
+	g.addConnections(content)
 
 	return nil
 }
@@ -785,16 +784,10 @@ func (g *Generator) processMarkdownFile(file string) error {
 	htmlBody = bytes.ReplaceAll(htmlBody, []byte("[x] "), []byte(`<br><input type="checkbox" disabled checked> `))
 	htmlBody = bytes.ReplaceAll(htmlBody, []byte("<p><br>"), []byte("<p>"))
 
-	id := removeFileExtention(file)
-
-	g.addContent(
-		id,
-		structs.Content{
-			ID:     id,
-			Source: file,
-			HTML:   string(htmlBody),
-		},
-	)
+	g.addContent(structs.Content{
+		Source: file,
+		HTML:   string(htmlBody),
+	})
 	return nil
 }
 
@@ -804,9 +797,7 @@ func (g *Generator) processGoMarkdownFile(file string) error {
 		return fmt.Errorf("reading file: %w", err)
 	}
 
-	id := removeFileExtention(file)
-	g.addContent(id, structs.Content{
-		ID:     id,
+	g.addContent(structs.Content{
 		Source: file,
 		HTML:   string(b),
 	})
@@ -857,13 +848,29 @@ func (g *Generator) copyFileAsIs(file string) error {
 	)
 }
 
-func (g *Generator) addContent(id string, content structs.Content) {
+func (g *Generator) addContent(content structs.Content) {
+	id := content.GenerateID()
 	g.muContents.Lock()
 	g.contents[id] = content
 	g.muContents.Unlock()
 }
 
-func (g *Generator) addConnections(from string, content structs.Content) {
+// addConnections adds a "connection" for a given content file.
+func (g *Generator) addConnections(content structs.Content) {
+	from := content.GenerateID()
+
+	// new logic for connections that will take over the old one
+	connections := content.Connections()
+	for _, conn := range connections {
+		if conn.Meta == structs.ConnectionPrevious {
+			g.addPrevious(from, conn.To)
+		} else {
+			g.addConnection(from, conn.To, conn.Label)
+		}
+	}
+
+	// old logic for connections:
+
 	for _, ref := range content.References {
 		g.addConnection(from, ref.Path)
 	}
@@ -904,9 +911,6 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 	g.addConnectionSingle(from, "People", content.CoverArtist, "Cover artist")
 	g.addConnectionSingle(from, "People", content.Colorist, "Colorist")
 	g.addConnectionSingle(from, "Companies", content.Network, "Network")
-	if content.RemakeOf != nil {
-		g.addConnectionSingle(from, "", content.RemakeOf.Path, "Remake")
-	}
 
 	for _, episode := range content.Episodes {
 		g.addConnectionList(from, "People", episode.Writers, "Writer", "", episode.Name)
@@ -925,10 +929,6 @@ func (g *Generator) addConnections(from string, content structs.Content) {
 
 	if content.Series != "" {
 		g.addConnectionSingle(from, "", series(content), "Series")
-	}
-
-	if content.Previous != nil {
-		g.addPrevious(from, content.Previous.Path)
 	}
 
 	// Prepare for adding Awards

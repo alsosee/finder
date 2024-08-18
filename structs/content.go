@@ -139,6 +139,17 @@ type Content struct {
 	ScreenplayAwards     []Award `yaml:"-" json:",omitempty"`
 }
 
+// GenerateID generates an ID for the content.
+// Used for identifying the content in connections and search.
+func (c Content) GenerateID() string {
+	if c.ID != "" {
+		return c.ID
+	}
+
+	c.ID = removeFileExtention(c.Source)
+	return c.ID
+}
+
 // Type return a type of the content in singular form
 // (e.g. "person" for "People", "book" for "Books", etc.)
 // it used to add an additional context to reference link
@@ -148,14 +159,14 @@ func (c Content) Type() string {
 	// (e.g. "People" or "Book")
 	root := pathType(c.Source)
 	switch root {
+	case "People":
+		return "person"
 	case "Books":
 		return "book"
 	case "Games":
 		return "game"
 	case "Movies":
 		return "movie"
-	case "People":
-		return "person"
 	default:
 		return strings.ToLower(root)
 	}
@@ -184,6 +195,26 @@ func (c Content) Columns() map[string]string {
 	}
 }
 
+// Connections returns a list of connections to other content.
+func (c Content) Connections() []Connection {
+	var connections []Connection
+	if c.Previous != nil {
+		connections = append(connections, Connection{
+			To:    c.Previous.Path,
+			Label: "",
+			Meta:  "previous",
+		})
+	}
+	if c.RemakeOf != nil {
+		connections = append(connections, Connection{
+			To:    c.RemakeOf.Path,
+			Label: "Remake",
+			Meta:  "",
+		})
+	}
+	return connections
+}
+
 func length(a time.Duration) string {
 	if a == 0 {
 		return ""
@@ -200,4 +231,12 @@ func length(a time.Duration) string {
 
 func pathType(path string) string {
 	return strings.Split(path, string(filepath.Separator))[0]
+}
+
+func removeFileExtention(path string) string {
+	withoutExt := path[:len(path)-len(filepath.Ext(path))]
+	if withoutExt != "" {
+		return withoutExt
+	}
+	return path
 }

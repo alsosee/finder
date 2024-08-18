@@ -63,7 +63,13 @@ type Schema struct {
 type Content struct {
 	Type       string
 	Properties PropertySlice
-	RootTypes  map[string]string `yaml:"root_types"`
+	RootTypes  []RootType `yaml:"root_types"`
+}
+
+// RootType represents a root type for the schema.
+type RootType struct {
+	Path string
+	Type string
 }
 
 // PropertySlice is a slice of Property.
@@ -104,7 +110,9 @@ type Property struct {
 	Title       string // used to override Column title
 	Type        string
 	Description string
-	Column      bool // indicates if the field should be included in the Columns method
+	Label       string // used for Connections to display reference on the other content page
+	Meta        string // used for Connections to customize the logic (e.g. "previous" case)
+	Column      bool   // indicates if the field should be included in the Columns method
 	Items       *Property
 }
 
