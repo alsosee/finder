@@ -167,6 +167,8 @@ func (c Content) Type() string {
 		return "game"
 	case "Movies":
 		return "movie"
+	case "Companies":
+		return "company"
 	default:
 		return strings.ToLower(root)
 	}

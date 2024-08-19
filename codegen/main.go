@@ -197,7 +197,7 @@ var fm = template.FuncMap{
 		}
 		return titleCase(p.Name)
 	},
-	"columnValue": func(p Property) string {
+	"columnValue": func(p Property, rootTypes []RootType) string {
 		switch p.Type {
 		case "string":
 			return "c." + titleCase(p.Name)
@@ -206,6 +206,12 @@ var fm = template.FuncMap{
 		case "references":
 			return "strings.Join(c." + titleCase(p.Name) + ", \", \")"
 		default:
+			for _, rootType := range rootTypes {
+				if rootType.Type == p.Type {
+					return "c." + titleCase(p.Name)
+				}
+			}
+
 			log.Fatalf("columnValue: unknown type %q for field %q (%s)", p.Type, p.Name, p.Description)
 			return ""
 		}
@@ -228,9 +234,9 @@ func titleCase(s string) string {
 	return result
 }
 
-func fieldType(property Property) string {
+func fieldType(property Property, rootTypes []RootType) string {
 	switch property.Type {
-	case "string", "person":
+	case "string":
 		return "string"
 	case "duration":
 		return "time.Duration"
@@ -252,8 +258,15 @@ func fieldType(property Property) string {
 			log.Fatalf("items field is required for array type")
 			return ""
 		}
-		return "[]" + fieldType(*property.Items)
+		return "[]" + fieldType(*property.Items, rootTypes)
 	default:
+		// iterate over root types to find the type
+		for _, rootType := range rootTypes {
+			if rootType.Type == property.Type {
+				return "string"
+			}
+		}
+
 		log.Fatalf("unknown type %q for field %q (%s)", property.Type, property.Name, property.Description)
 		return ""
 	}
