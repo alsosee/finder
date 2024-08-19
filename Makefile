@@ -36,3 +36,8 @@ hash:
 ## serve: serve the static site
 serve: hash build
 	@wrangler pages dev --local-protocol=https output/ --compatibility-date=2024-02-25 --binding GHP_TOKEN=${GHP_TOKEN}
+
+.PHONY: codegen
+## codegen: generate code from the schema
+codegen:
+	@cd codegen && go build -o codegen . && ./codegen -in ../../info/_finder/schema.yml -out ../structs/content.gen.go

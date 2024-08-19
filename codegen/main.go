@@ -63,7 +63,20 @@ type Schema struct {
 type Content struct {
 	Type       string
 	Properties PropertySlice
-	RootTypes  []RootType `yaml:"root_types"`
+	RootTypes  RootTypes `yaml:"root_types"`
+}
+
+// RootTypes represents a list of root types for the schema.
+type RootTypes []RootType
+
+// HasType checks if the schema has a root type with the provided type.
+func (rt *RootTypes) HasType(t string) bool {
+	for _, rootType := range *rt {
+		if rootType.Type == t {
+			return true
+		}
+	}
+	return false
 }
 
 // RootType represents a root type for the schema.
@@ -197,7 +210,15 @@ var fm = template.FuncMap{
 		}
 		return titleCase(p.Name)
 	},
-	"columnValue": func(p Property, rootTypes []RootType) string {
+	"rootTypePath": func(t string, rootTypes RootTypes) string {
+		for _, rt := range rootTypes {
+			if rt.Type == t {
+				return rt.Path
+			}
+		}
+		return ""
+	},
+	"columnValue": func(p Property, rootTypes RootTypes) string {
 		switch p.Type {
 		case "string":
 			return "c." + titleCase(p.Name)
@@ -205,11 +226,11 @@ var fm = template.FuncMap{
 			return "length(c." + titleCase(p.Name) + ")"
 		case "references":
 			return "strings.Join(c." + titleCase(p.Name) + ", \", \")"
+		case "array":
+			return "strings.Join(c." + titleCase(p.Name) + ", \", \")"
 		default:
-			for _, rootType := range rootTypes {
-				if rootType.Type == p.Type {
-					return "c." + titleCase(p.Name)
-				}
+			if rootTypes.HasType(p.Type) {
+				return "c." + titleCase(p.Name)
 			}
 
 			log.Fatalf("columnValue: unknown type %q for field %q (%s)", p.Type, p.Name, p.Description)
@@ -234,7 +255,7 @@ func titleCase(s string) string {
 	return result
 }
 
-func fieldType(property Property, rootTypes []RootType) string {
+func fieldType(property Property, rootTypes RootTypes) string {
 	switch property.Type {
 	case "string":
 		return "string"
@@ -258,13 +279,16 @@ func fieldType(property Property, rootTypes []RootType) string {
 			log.Fatalf("items field is required for array type")
 			return ""
 		}
+
+		if rootTypes.HasType(property.Items.Type) {
+			return "oneOrMany"
+		}
+
 		return "[]" + fieldType(*property.Items, rootTypes)
 	default:
 		// iterate over root types to find the type
-		for _, rootType := range rootTypes {
-			if rootType.Type == property.Type {
-				return "string"
-			}
+		if rootTypes.HasType(property.Type) {
+			return "string"
 		}
 
 		log.Fatalf("unknown type %q for field %q (%s)", property.Type, property.Name, property.Description)

@@ -862,9 +862,12 @@ func (g *Generator) addConnections(content structs.Content) {
 	// new logic for connections that will take over the old one
 	connections := content.Connections()
 	for _, conn := range connections {
-		if conn.Meta == structs.ConnectionPrevious {
+		switch conn.Meta {
+		case structs.ConnectionPrevious:
 			g.addPrevious(from, conn.To)
-		} else {
+		case structs.ConnectionSeries:
+			g.addConnection(from, series(content), "Series")
+		default:
 			g.addConnection(from, conn.To, conn.Label)
 		}
 	}
@@ -884,30 +887,7 @@ func (g *Generator) addConnections(content structs.Content) {
 		g.addConnectionSingle(from, "People", character.Voice, "Voice", character.Name)
 	}
 
-	g.addConnectionList(from, "People", content.Authors, "Author")
-	g.addConnectionList(from, "People", content.Writers, "Writer")
-	g.addConnectionList(from, "People", content.Directors, "Director")
-	g.addConnectionList(from, "People", content.Creators, "Creator")
-	g.addConnectionList(from, "People", content.Producers, "Producer")
-	g.addConnectionList(from, "People", content.Editors, "Editor")
-	g.addConnectionList(from, "People", content.Artists, "Artist")
-	g.addConnectionList(from, "People", content.Screenplay, "Screenplay")
-	g.addConnectionList(from, "People", content.StoryBy, "Story")
-	g.addConnectionList(from, "People", content.DialoguesBy, "Dialogues")
-	g.addConnectionList(from, "People", content.Composers, "Composer")
-	g.addConnectionList(from, "People", content.Hosts, "Host")
-	g.addConnectionList(from, "People", content.Guests, "Guest")
-	g.addConnectionList(from, "People", content.Programmers, "Programmer")
-	g.addConnectionList(from, "People", content.Designers, "Designer")
-	g.addConnectionList(from, "People", content.Cinematography, "Cinematography")
-	g.addConnectionList(from, "People", content.Music, "Music")
-	g.addConnectionList(from, "Companies", content.Distributors, "Distributor")
-	g.addConnectionList(from, "Companies", content.Publishers, "Publisher")
-	g.addConnectionList(from, "Companies", content.Production, "Production")
-	g.addConnectionList(from, "Companies", content.Developers, "Developers")
 	g.addConnectionList(from, "", content.BasedOn, "Based on")
-
-	g.addConnectionSingle(from, "Companies", content.Network, "Network")
 
 	for _, episode := range content.Episodes {
 		g.addConnectionList(from, "People", episode.Writers, "Writer", "", episode.Name)
@@ -922,10 +902,6 @@ func (g *Generator) addConnections(content structs.Content) {
 			g.addConnectionSingle(from, "People", character.Actor, "Actor", character.Name, "", episode.Name)
 			g.addConnectionSingle(from, "People", character.Voice, "Voice", character.Name, "", episode.Name)
 		}
-	}
-
-	if content.Series != "" {
-		g.addConnectionSingle(from, "", series(content), "Series")
 	}
 
 	// Prepare for adding Awards
