@@ -359,6 +359,29 @@ func (c Content) Connections() []Connection {
 	return connections
 }
 
+type Episode struct {
+	Name           string        `yaml:"name,omitempty" json:"name,omitempty"`
+	Description    string        `yaml:"description,omitempty" json:"description,omitempty"`
+	Length         time.Duration `yaml:"length,omitempty" json:"length,omitempty"`
+	Released       string        `yaml:"released,omitempty" json:"released,omitempty"`
+	Directors      oneOrMany     `yaml:"directors,omitempty" json:"directors,omitempty"`
+	Writers        oneOrMany     `yaml:"writers,omitempty" json:"writers,omitempty"`
+	Editors        oneOrMany     `yaml:"editors,omitempty" json:"editors,omitempty"`
+	Cinematography oneOrMany     `yaml:"cinematography,omitempty" json:"cinematography,omitempty"`
+	Teleplay       oneOrMany     `yaml:"teleplay,omitempty" json:"teleplay,omitempty"`
+	Story          oneOrMany     `yaml:"story,omitempty" json:"story,omitempty"`
+	Studio         string        `yaml:"studio,omitempty" json:"studio,omitempty"`
+	Characters     []*Character  `yaml:"characters,omitempty" json:"characters,omitempty"`
+	IMDB           string        `yaml:"imdb,omitempty" json:"imdb,omitempty"`
+	TMDB           string        `yaml:"tmdb,omitempty" json:"tmdb,omitempty"`
+	Netflix        string        `yaml:"netflix,omitempty" json:"netflix,omitempty"`
+	Wikipedia      string        `yaml:"wikipedia,omitempty" json:"wikipedia,omitempty"`
+	Fandom         string        `yaml:"fandom,omitempty" json:"fandom,omitempty"`
+
+	// unknown fields are stored in the Extra map
+	Extra map[string]interface{} `yaml:",inline" json:",omitempty"`
+}
+
 func length(a time.Duration) string {
 	if a == 0 {
 		return ""

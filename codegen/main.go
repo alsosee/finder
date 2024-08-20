@@ -57,6 +57,8 @@ var contentTemplate string
 // Schema represents a YAML schema definition for code generation.
 type Schema struct {
 	Content Content
+
+	Extra map[string]Content `yaml:",inline"`
 }
 
 // Content represents a Content struct.
