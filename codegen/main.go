@@ -144,6 +144,9 @@ func main() {
 	log.Println("codegen finished")
 }
 
+// global schema to use in the template functions
+var schema *Schema
+
 func run(in, out string) error {
 	if in == "" {
 		return fmt.Errorf("input file is required")
@@ -153,7 +156,8 @@ func run(in, out string) error {
 		return fmt.Errorf("output file is required")
 	}
 
-	schema, err := parseSchema(in)
+	var err error
+	schema, err = parseSchema(in)
 	if err != nil {
 		return fmt.Errorf("failed to parse schema: %w", err)
 	}
@@ -205,7 +209,9 @@ func generateCode(schema *Schema, out string) error {
 
 var fm = template.FuncMap{
 	"titleCase": titleCase,
-	"fieldType": fieldType,
+	"fieldType": func(property Property, rootTypes RootTypes) string {
+		return schema.FieldType(property, rootTypes)
+	},
 	"columnTitle": func(p Property) string {
 		if p.Title != "" {
 			return p.Title
@@ -257,7 +263,7 @@ func titleCase(s string) string {
 	return result
 }
 
-func fieldType(property Property, rootTypes RootTypes) string {
+func (s *Schema) FieldType(property Property, rootTypes RootTypes) string {
 	switch property.Type {
 	case "string":
 		return "string"
@@ -270,11 +276,7 @@ func fieldType(property Property, rootTypes RootTypes) string {
 	case "reference":
 		// Reference should be a pointer, so that we can check if it's nil in the templates
 		return "*Reference"
-	case "character", "episode":
-		// Characters may have images assigned to them.
-		// Episodes have a list of characters.
-		// Both are represented as a slice of pointers to the respective structs,
-		// so that we can assign images to them.
+	case "award", "media": // todo move to default case
 		return "*" + caser.String(property.Type)
 	case "array":
 		if property.Items == nil {
@@ -286,11 +288,18 @@ func fieldType(property Property, rootTypes RootTypes) string {
 			return "oneOrMany"
 		}
 
-		return "[]" + fieldType(*property.Items, rootTypes)
+		return "[]" + s.FieldType(*property.Items, rootTypes)
 	default:
 		// iterate over root types to find the type
 		if rootTypes.HasType(property.Type) {
 			return "string"
+		}
+
+		// check if type is defined in the extra content
+		for name := range s.Extra {
+			if property.Type == name {
+				return "*" + titleCase(name)
+			}
 		}
 
 		log.Fatalf("unknown type %q for field %q (%s)", property.Type, property.Name, property.Description)

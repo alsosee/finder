@@ -1466,7 +1466,7 @@ func (g *Generator) addAwards() {
 				var found bool
 				for _, character := range awadredContent.Characters {
 					if character.Actor == category.Winner.Actor {
-						character.Awards = append(character.Awards, award)
+						character.Awards = append(character.Awards, &award)
 						found = true
 						break
 					}

@@ -359,6 +359,18 @@ func (c Content) Connections() []Connection {
 	return connections
 }
 
+type Character struct {
+	Name       string   `yaml:"name,omitempty" json:"name,omitempty"`
+	Actor      string   `yaml:"actor,omitempty" json:"actor,omitempty"`
+	Voice      string   `yaml:"voice,omitempty" json:"voice,omitempty"`
+	Image      *Media   `yaml:"image,omitempty" json:"image,omitempty"`
+	ActorImage *Media   `yaml:"actor_image,omitempty" json:"actor_image,omitempty"`
+	Awards     []*Award `yaml:"awards,omitempty" json:"awards,omitempty"`
+
+	// unknown fields are stored in the Extra map
+	Extra map[string]interface{} `yaml:",inline" json:",omitempty"`
+}
+
 type Episode struct {
 	Name           string        `yaml:"name,omitempty" json:"name,omitempty"`
 	Description    string        `yaml:"description,omitempty" json:"description,omitempty"`
