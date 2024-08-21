@@ -17,7 +17,7 @@ func (b *oneOrMany) UnmarshalYAML(value *yaml.Node) error {
 	}
 
 	if value.Kind != yaml.SequenceNode {
-		return fmt.Errorf("based_on must be a string or a list of strings")
+		return fmt.Errorf("expected a string or a sequence")
 	}
 
 	if len(value.Content) == 0 {

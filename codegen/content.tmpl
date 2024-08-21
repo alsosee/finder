@@ -102,6 +102,14 @@ func (c Content) Connections() []Connection {
 			Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
 		})
 	}
+	{{- else if and (eq .Type "array") (eq .Items.Type "reference") }}
+	for _, item := range c.{{ titleCase .Name }} {
+		connections = append(connections, Connection{
+			To: item.Path,
+			Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
+			Meta: "{{ .Meta }}",
+		})
+	}
 	{{- else if eq .Meta "series" }}
 	if c.{{ titleCase .Name }} != "" {
 		connections = append(connections, Connection{

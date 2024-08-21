@@ -22,7 +22,7 @@ type Content struct {
 	Description      string        `yaml:"description,omitempty" json:"description,omitempty"`
 	CoverArtist      string        `yaml:"cover_artist,omitempty" json:"cover_artist,omitempty"`
 	Designer         string        `yaml:"designer,omitempty" json:"designer,omitempty"`
-	BasedOn          oneOrMany     `yaml:"based_on,omitempty" json:"based_on,omitempty"`
+	BasedOn          References    `yaml:"based_on,omitempty" json:"based_on,omitempty"`
 	Series           string        `yaml:"series,omitempty" json:"series,omitempty"`
 	Previous         *Reference    `yaml:"previous,omitempty" json:"previous,omitempty"`
 	DOB              string        `yaml:"dob,omitempty" json:"dob,omitempty"`
@@ -126,7 +126,7 @@ type Content struct {
 	RemakeOf         *Reference    `yaml:"remake_of,omitempty" json:"remake_of,omitempty"`
 	Characters       []*Character  `yaml:"characters,omitempty" json:"characters,omitempty"`
 	Categories       []Category    `yaml:"categories,omitempty" json:"categories,omitempty"`
-	References       []*Reference  `yaml:"references,omitempty" json:"references,omitempty"`
+	References       References    `yaml:"references,omitempty" json:"references,omitempty"`
 	Episodes         []*Episode    `yaml:"episodes,omitempty" json:"episodes,omitempty"`
 
 	// unknown fields are stored in the Extra map
@@ -216,6 +216,13 @@ func (c Content) Connections() []Connection {
 			Label: "Designer",
 		})
 	}
+	for _, item := range c.BasedOn {
+		connections = append(connections, Connection{
+			To:    item.Path,
+			Label: "Source",
+			Meta:  "",
+		})
+	}
 	if c.Series != "" {
 		connections = append(connections, Connection{
 			To:   c.Series,
@@ -229,10 +236,28 @@ func (c Content) Connections() []Connection {
 			Meta:  "previous",
 		})
 	}
+	for _, item := range c.Founders {
+		connections = append(connections, Connection{
+			To:    "People/" + item,
+			Label: "Founder",
+		})
+	}
 	if c.AnimeNewsNetwork != "" {
 		connections = append(connections, Connection{
 			To:    "Companies/" + c.AnimeNewsNetwork,
 			Label: "AnimeNewsNetwork",
+		})
+	}
+	for _, item := range c.Publishers {
+		connections = append(connections, Connection{
+			To:    "Companies/" + item,
+			Label: "Publishers",
+		})
+	}
+	for _, item := range c.Artists {
+		connections = append(connections, Connection{
+			To:    "People/" + item,
+			Label: "Artist",
 		})
 	}
 	if c.Colorist != "" {
@@ -241,10 +266,28 @@ func (c Content) Connections() []Connection {
 			Label: "Colorist",
 		})
 	}
+	for _, item := range c.Illustrators {
+		connections = append(connections, Connection{
+			To:    "People/" + item,
+			Label: "Illustrator",
+		})
+	}
 	for _, item := range c.Directors {
 		connections = append(connections, Connection{
 			To:    "People/" + item,
 			Label: "Director",
+		})
+	}
+	for _, item := range c.Writers {
+		connections = append(connections, Connection{
+			To:    "People/" + item,
+			Label: "Writer",
+		})
+	}
+	for _, item := range c.Distributors {
+		connections = append(connections, Connection{
+			To:    "Companies/" + item,
+			Label: "Distributor",
 		})
 	}
 	if c.Network != "" {
@@ -354,6 +397,13 @@ func (c Content) Connections() []Connection {
 			To:    c.RemakeOf.Path,
 			Label: "Remake",
 			Meta:  "",
+		})
+	}
+	for _, item := range c.References {
+		connections = append(connections, Connection{
+			To:    item.Path,
+			Label: "References",
+			Meta:  "none",
 		})
 	}
 	return connections

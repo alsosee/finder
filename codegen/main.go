@@ -288,6 +288,10 @@ func (s *Schema) FieldType(property Property, rootTypes RootTypes) string {
 			return "oneOrMany"
 		}
 
+		if property.Items.Type == "reference" {
+			return "References"
+		}
+
 		return "[]" + s.FieldType(*property.Items, rootTypes)
 	default:
 		// iterate over root types to find the type

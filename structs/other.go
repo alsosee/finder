@@ -1,6 +1,7 @@
 package structs
 
 import (
+	"fmt"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -174,6 +175,41 @@ func (r *Reference) UnmarshalYAML(value *yaml.Node) error {
 	}
 
 	return value.Decode(&r)
+}
+
+// References represents a list of references.
+type References []Reference
+
+// UnmarshalYAML is a custom unmarshaler for References,
+// allowing to unmarshal a single string as a reference.
+func (r *References) UnmarshalYAML(value *yaml.Node) error {
+	if value.Kind == yaml.ScalarNode {
+		*r = []Reference{{Path: value.Value}}
+		return nil
+	}
+
+	if value.Kind != yaml.SequenceNode {
+		return fmt.Errorf("expected a string or a sequence")
+	}
+
+	if len(value.Content) == 0 {
+		return nil
+	}
+
+	*r = make([]Reference, len(value.Content))
+	for i, v := range value.Content {
+		if v.Kind == yaml.ScalarNode {
+			(*r)[i].Path = v.Value
+			continue
+		}
+
+		err := v.Decode(&(*r)[i])
+		if err != nil {
+			return fmt.Errorf("failed to decode reference: %w", err)
+		}
+	}
+
+	return nil
 }
 
 // Missing represents a missing reference.

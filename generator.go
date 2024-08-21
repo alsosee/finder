@@ -867,16 +867,14 @@ func (g *Generator) addConnections(content structs.Content) {
 			g.addPrevious(from, conn.To)
 		case structs.ConnectionSeries:
 			g.addConnection(from, series(content), "Series")
+		case structs.ConnectionNone:
+			g.addConnection(from, conn.To)
 		default:
 			g.addConnection(from, conn.To, conn.Label)
 		}
 	}
 
 	// old logic for connections:
-
-	for _, ref := range content.References {
-		g.addConnection(from, ref.Path)
-	}
 
 	// Add connections for other less obvious references
 	// (maybe it would be better to define these connections in some config.yml file,
@@ -886,8 +884,6 @@ func (g *Generator) addConnections(content structs.Content) {
 		g.addConnectionSingle(from, "People", character.Actor, "Actor", character.Name)
 		g.addConnectionSingle(from, "People", character.Voice, "Voice", character.Name)
 	}
-
-	g.addConnectionList(from, "", content.BasedOn, "Based on")
 
 	for _, episode := range content.Episodes {
 		g.addConnectionList(from, "People", episode.Writers, "Writer", "", episode.Name)

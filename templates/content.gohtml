@@ -73,7 +73,7 @@ Inputs (same as for "index" template):
     {{- with .BasedOn }}
     <p>Based on
     {{- range . }}
-        <span class="list">{{ template "reference" dict "Path" . "HideType" true}}</span>
+        <span class="list">{{ template "reference" dict "Path" .Path "HideType" true}}</span>
     {{- end }}
     </p>
     {{- end }}
