@@ -242,6 +242,9 @@ var fm = template.FuncMap{
 	"extraType": func(t string) bool {
 		return schema.HasExtraType(t)
 	},
+	"lookupExtraType": func(t string) Content {
+		return schema.Extra[t]
+	},
 	"columnValue": func(p Property, rootTypes RootTypes) string {
 		switch p.Type {
 		case "string":
@@ -276,6 +279,29 @@ var fm = template.FuncMap{
 			dict[key] = values[i+1]
 		}
 		return dict, nil
+	},
+	"camelCaseConcat": func(item ...string) string {
+		// contact strings together and upper case the first letter of each word
+		// except for first word
+
+		// also skip the first work if it's "c"
+		result := strings.Builder{}
+
+		var firstWordSeen bool
+		for _, word := range item {
+			if word == "c" {
+				continue
+			}
+
+			if !firstWordSeen {
+				result.WriteString(word)
+				firstWordSeen = true
+				continue
+			}
+			result.WriteString(caser.String(word))
+		}
+
+		return result.String()
 	},
 }
 

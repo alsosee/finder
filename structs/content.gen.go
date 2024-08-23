@@ -217,9 +217,9 @@ func (c Content) Connections() []Connection {
 			Label: "Designer",
 		})
 	}
-	for _, item := range c.BasedOn {
+	for _, reference := range c.BasedOn {
 		connections = append(connections, Connection{
-			To:    item.Path,
+			To:    reference.Path,
 			Label: "Source",
 			Meta:  "",
 		})
@@ -237,9 +237,9 @@ func (c Content) Connections() []Connection {
 			Meta:  "previous",
 		})
 	}
-	for _, item := range c.Founders {
+	for _, person := range c.Founders {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Founder",
 		})
 	}
@@ -249,15 +249,15 @@ func (c Content) Connections() []Connection {
 			Label: "AnimeNewsNetwork",
 		})
 	}
-	for _, item := range c.Publishers {
+	for _, company := range c.Publishers {
 		connections = append(connections, Connection{
-			To:    "Companies/" + item,
+			To:    "Companies/" + company,
 			Label: "Publishers",
 		})
 	}
-	for _, item := range c.Artists {
+	for _, person := range c.Artists {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Artist",
 		})
 	}
@@ -267,27 +267,27 @@ func (c Content) Connections() []Connection {
 			Label: "Colorist",
 		})
 	}
-	for _, item := range c.Illustrators {
+	for _, person := range c.Illustrators {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Illustrator",
 		})
 	}
-	for _, item := range c.Directors {
+	for _, person := range c.Directors {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Director",
 		})
 	}
-	for _, item := range c.Writers {
+	for _, person := range c.Writers {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Writer",
 		})
 	}
-	for _, item := range c.Distributors {
+	for _, company := range c.Distributors {
 		connections = append(connections, Connection{
-			To:    "Companies/" + item,
+			To:    "Companies/" + company,
 			Label: "Distributor",
 		})
 	}
@@ -297,99 +297,99 @@ func (c Content) Connections() []Connection {
 			Label: "Network",
 		})
 	}
-	for _, item := range c.Creators {
+	for _, person := range c.Creators {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Creator",
 		})
 	}
-	for _, item := range c.Authors {
+	for _, person := range c.Authors {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Author",
 		})
 	}
-	for _, item := range c.Developers {
+	for _, person := range c.Developers {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Developer",
 		})
 	}
-	for _, item := range c.Editors {
+	for _, person := range c.Editors {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Editor",
 		})
 	}
-	for _, item := range c.Cinematography {
+	for _, person := range c.Cinematography {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Cinematography",
 		})
 	}
-	for _, item := range c.Producers {
+	for _, person := range c.Producers {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Producer",
 		})
 	}
-	for _, item := range c.Screenplay {
+	for _, person := range c.Screenplay {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Screenplay",
 		})
 	}
-	for _, item := range c.StoryBy {
+	for _, person := range c.StoryBy {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Story",
 		})
 	}
-	for _, item := range c.DialoguesBy {
+	for _, person := range c.DialoguesBy {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Dialogues",
 		})
 	}
-	for _, item := range c.Music {
+	for _, person := range c.Music {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Music",
 		})
 	}
-	for _, item := range c.Production {
+	for _, company := range c.Production {
 		connections = append(connections, Connection{
-			To:    "Companies/" + item,
+			To:    "Companies/" + company,
 			Label: "Production",
 		})
 	}
-	for _, item := range c.Composers {
+	for _, person := range c.Composers {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Composer",
 		})
 	}
-	for _, item := range c.Programmers {
+	for _, person := range c.Programmers {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Programmer",
 		})
 	}
-	for _, item := range c.Designers {
+	for _, person := range c.Designers {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Designer",
 		})
 	}
-	for _, item := range c.Hosts {
+	for _, person := range c.Hosts {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Host",
 		})
 	}
-	for _, item := range c.Guests {
+	for _, person := range c.Guests {
 		connections = append(connections, Connection{
-			To:    "People/" + item,
+			To:    "People/" + person,
 			Label: "Guest",
 		})
 	}
@@ -400,19 +400,52 @@ func (c Content) Connections() []Connection {
 			Meta:  "",
 		})
 	}
-	for _, _ = range c.Characters {
+	for _, character := range c.Characters {
+
+		if character.Actor != "" {
+			connections = append(connections, Connection{
+				To:    "People/" + character.Actor,
+				Label: "Actor",
+			})
+		}
+		if character.Voice != "" {
+			connections = append(connections, Connection{
+				To:    "People/" + character.Voice,
+				Label: "Voice",
+			})
+		}
 	}
-	// Characters
-	for _, item := range c.References {
+	for _, reference := range c.References {
 		connections = append(connections, Connection{
-			To:    item.Path,
+			To:    reference.Path,
 			Label: "References",
 			Meta:  "none",
 		})
 	}
-	for _, _ = range c.Episodes {
+	for _, episode := range c.Episodes {
+
+		if episode.Studio != "" {
+			connections = append(connections, Connection{
+				To:    "Companies/" + episode.Studio,
+				Label: "Studio",
+			})
+		}
+		for _, episodeCharacter := range episode.Characters {
+
+			if episodeCharacter.Actor != "" {
+				connections = append(connections, Connection{
+					To:    "People/" + episodeCharacter.Actor,
+					Label: "Actor",
+				})
+			}
+			if episodeCharacter.Voice != "" {
+				connections = append(connections, Connection{
+					To:    "People/" + episodeCharacter.Voice,
+					Label: "Voice",
+				})
+			}
+		}
 	}
-	// Episodes
 	return connections
 }
 

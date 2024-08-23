@@ -78,7 +78,10 @@ func (c Content) Columns() map[string]string {
 // Connections returns a list of connections to other content.
 func (c Content) Connections() []Connection {
 	var connections []Connection
-	{{ template "connections" dict "Content" .Content "RootTypes" .Content.RootTypes }}
+	{{ template "connections" dict
+		"Content" .Content
+		"RootTypes" .Content.RootTypes
+		"Prefix" "c" }}
 	return connections
 }
 {{- range $key, $content := .Extra }}
