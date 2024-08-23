@@ -78,52 +78,7 @@ func (c Content) Columns() map[string]string {
 // Connections returns a list of connections to other content.
 func (c Content) Connections() []Connection {
 	var connections []Connection
-	{{- range .Content.Properties }}
-	{{- $path := rootTypePath .Type $.Content.RootTypes }}
-	{{- if eq .Type "reference" }}
-	if c.{{ titleCase .Name }} != nil {
-		connections = append(connections, Connection{
-			To: c.{{ titleCase .Name }}.Path,
-			Label: "{{ .Label }}",
-			Meta: "{{ .Meta }}",
-		})
-	}
-	{{- else if $path }}
-	if c.{{ titleCase .Name }} != "" {
-		connections = append(connections, Connection{
-			To: "{{ $path }}/" + c.{{ titleCase .Name }},
-			Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
-		})
-	}
-	{{- else if and (eq .Type "array") (eq .Items.Type "reference") }}
-	for _, item := range c.{{ titleCase .Name }} {
-		connections = append(connections, Connection{
-			To: item.Path,
-			Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
-			Meta: "{{ .Meta }}",
-		})
-	}
-	{{- else if and (eq .Type "array") (rootTypePath .Items.Type $.Content.RootTypes) }}
-	for _, item := range c.{{ titleCase .Name }} {
-		connections = append(connections, Connection{
-			To: "{{ rootTypePath .Items.Type $.Content.RootTypes }}/" + item,
-			Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
-		})
-	}
-	{{- else if and (eq .Type "array") (extraType .Items.Type $) }}
-	for _, _ = range c.{{ titleCase .Name }} {
-		{{- template "connection" .Items }}
-	}
-	// {{ titleCase .Name }}
-	{{- else if eq .Meta "series" }}
-	if c.{{ titleCase .Name }} != "" {
-		connections = append(connections, Connection{
-			To: c.{{ titleCase .Name }},
-			Meta: "{{ .Meta }}",
-		})
-	}
-	{{- end }}
-	{{- end }}
+	{{ template "connections" dict "Content" .Content "RootTypes" .Content.RootTypes }}
 	return connections
 }
 {{- range $key, $content := .Extra }}

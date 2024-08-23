@@ -204,6 +204,7 @@ func (c Content) Columns() map[string]string {
 // Connections returns a list of connections to other content.
 func (c Content) Connections() []Connection {
 	var connections []Connection
+
 	if c.CoverArtist != "" {
 		connections = append(connections, Connection{
 			To:    "People/" + c.CoverArtist,
@@ -400,7 +401,6 @@ func (c Content) Connections() []Connection {
 		})
 	}
 	for _, _ = range c.Characters {
-		// ...
 	}
 	// Characters
 	for _, item := range c.References {
@@ -411,7 +411,6 @@ func (c Content) Connections() []Connection {
 		})
 	}
 	for _, _ = range c.Episodes {
-		// ...
 	}
 	// Episodes
 	return connections

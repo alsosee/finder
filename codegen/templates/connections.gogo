@@ -1,0 +1,51 @@
+{{ define "connections" }}
+{{- /*
+1 - content: Content
+2 - rootTypes: RootTypes
+*/ -}}
+{{- range .Content.Properties }}
+{{- $path := rootTypePath .Type $.RootTypes }}
+{{- if eq .Type "reference" }}
+if c.{{ titleCase .Name }} != nil {
+    connections = append(connections, Connection{
+        To: c.{{ titleCase .Name }}.Path,
+        Label: "{{ .Label }}",
+        Meta: "{{ .Meta }}",
+    })
+}
+{{- else if $path }}
+if c.{{ titleCase .Name }} != "" {
+    connections = append(connections, Connection{
+        To: "{{ $path }}/" + c.{{ titleCase .Name }},
+        Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
+    })
+}
+{{- else if and (eq .Type "array") (eq .Items.Type "reference") }}
+for _, item := range c.{{ titleCase .Name }} {
+    connections = append(connections, Connection{
+        To: item.Path,
+        Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
+        Meta: "{{ .Meta }}",
+    })
+}
+{{- else if and (eq .Type "array") (rootTypePath .Items.Type $.Content.RootTypes) }}
+for _, item := range c.{{ titleCase .Name }} {
+    connections = append(connections, Connection{
+        To: "{{ rootTypePath .Items.Type $.Content.RootTypes }}/" + item,
+        Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
+    })
+}
+{{- else if and (eq .Type "array") (extraType .Items.Type) }}
+for _, _ = range c.{{ titleCase .Name }} {
+}
+// {{ titleCase .Name }}
+{{- else if eq .Meta "series" }}
+if c.{{ titleCase .Name }} != "" {
+    connections = append(connections, Connection{
+        To: c.{{ titleCase .Name }},
+        Meta: "{{ .Meta }}",
+    })
+}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -239,7 +239,7 @@ var fm = template.FuncMap{
 		}
 		return ""
 	},
-	"extraType": func(t string, schema *Schema) bool {
+	"extraType": func(t string) bool {
 		return schema.HasExtraType(t)
 	},
 	"columnValue": func(p Property, rootTypes RootTypes) string {
@@ -260,6 +260,22 @@ var fm = template.FuncMap{
 			log.Fatalf("columnValue: unknown type %q for field %q (%s)", p.Type, p.Name, p.Description)
 			return ""
 		}
+	},
+	// "dict" used to pass multiple key-value pairs to a template
+	// (e.g. {{ template "something" dict "Key1" "value1" "Key2" "value2" }})
+	"dict": func(values ...interface{}) (map[string]interface{}, error) {
+		if len(values)%2 != 0 {
+			return nil, fmt.Errorf("dict must have an even number of arguments, got %d", len(values))
+		}
+		dict := make(map[string]interface{}, len(values)/2)
+		for i := 0; i < len(values); i += 2 {
+			key, ok := values[i].(string)
+			if !ok {
+				return nil, fmt.Errorf("dict keys must be strings, got %T", values[i])
+			}
+			dict[key] = values[i+1]
+		}
+		return dict, nil
 	},
 }
 
