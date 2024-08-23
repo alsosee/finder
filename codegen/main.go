@@ -2,6 +2,7 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"fmt"
 	"log"
@@ -51,8 +52,8 @@ func init() {
 	}
 }
 
-//go:embed content.tmpl
-var contentTemplate string
+//go:embed templates/*
+var templatesFS embed.FS
 
 // Schema represents a YAML schema definition for code generation.
 type Schema struct {
@@ -206,12 +207,12 @@ func generateCode(schema *Schema, out string) error {
 
 	defer f.Close()
 
-	tmpl, err := template.New("content").Funcs(fm).Parse(contentTemplate)
+	tmpls, err := template.New("").Funcs(fm).ParseFS(templatesFS, "templates/*")
 	if err != nil {
 		return fmt.Errorf("failed to parse template: %w", err)
 	}
 
-	err = tmpl.Execute(f, schema)
+	err = tmpls.Lookup("content.gogo").Execute(f, schema)
 	if err != nil {
 		return fmt.Errorf("failed to execute template: %w", err)
 	}
