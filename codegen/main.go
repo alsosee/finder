@@ -61,6 +61,18 @@ type Schema struct {
 	Extra map[string]Content `yaml:",inline"`
 }
 
+// HasExtraType checks if the schema has any extra schema types defined.
+// Used in Connections() generation,
+// for example, to connect Character in a Movie to an Actor.
+func (s *Schema) HasExtraType(t string) bool {
+	for name := range s.Extra {
+		if t == name {
+			return true
+		}
+	}
+	return false
+}
+
 // Content represents a Content struct.
 type Content struct {
 	Type       string
@@ -226,6 +238,9 @@ var fm = template.FuncMap{
 		}
 		return ""
 	},
+	"extraType": func(t string, schema *Schema) bool {
+		return schema.HasExtraType(t)
+	},
 	"columnValue": func(p Property, rootTypes RootTypes) string {
 		switch p.Type {
 		case "string":
@@ -300,10 +315,8 @@ func (s *Schema) FieldType(property Property, rootTypes RootTypes) string {
 		}
 
 		// check if type is defined in the extra content
-		for name := range s.Extra {
-			if property.Type == name {
-				return "*" + titleCase(name)
-			}
+		if s.HasExtraType(property.Type) {
+			return "*" + titleCase(property.Type)
 		}
 
 		log.Fatalf("unknown type %q for field %q (%s)", property.Type, property.Name, property.Description)

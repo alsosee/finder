@@ -95,13 +95,6 @@ func (c Content) Connections() []Connection {
 			Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
 		})
 	}
-	{{- else if and (eq .Type "array") (rootTypePath .Items.Type $.Content.RootTypes) }}
-	for _, item := range c.{{ titleCase .Name }} {
-		connections = append(connections, Connection{
-			To: "{{ rootTypePath .Items.Type $.Content.RootTypes }}/" + item,
-			Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
-		})
-	}
 	{{- else if and (eq .Type "array") (eq .Items.Type "reference") }}
 	for _, item := range c.{{ titleCase .Name }} {
 		connections = append(connections, Connection{
@@ -110,6 +103,18 @@ func (c Content) Connections() []Connection {
 			Meta: "{{ .Meta }}",
 		})
 	}
+	{{- else if and (eq .Type "array") (rootTypePath .Items.Type $.Content.RootTypes) }}
+	for _, item := range c.{{ titleCase .Name }} {
+		connections = append(connections, Connection{
+			To: "{{ rootTypePath .Items.Type $.Content.RootTypes }}/" + item,
+			Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
+		})
+	}
+	{{- else if and (eq .Type "array") (extraType .Items.Type $) }}
+	for _, _ = range c.{{ titleCase .Name }} {
+		// ...
+	}
+	// {{ titleCase .Name }}
 	{{- else if eq .Meta "series" }}
 	if c.{{ titleCase .Name }} != "" {
 		connections = append(connections, Connection{

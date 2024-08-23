@@ -399,6 +399,10 @@ func (c Content) Connections() []Connection {
 			Meta:  "",
 		})
 	}
+	for _, _ = range c.Characters {
+		// ...
+	}
+	// Characters
 	for _, item := range c.References {
 		connections = append(connections, Connection{
 			To:    item.Path,
@@ -406,6 +410,10 @@ func (c Content) Connections() []Connection {
 			Meta:  "none",
 		})
 	}
+	for _, _ = range c.Episodes {
+		// ...
+	}
+	// Episodes
 	return connections
 }
 
