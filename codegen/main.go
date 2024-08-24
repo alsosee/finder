@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"text/template"
 
@@ -144,6 +145,7 @@ type Property struct {
 	Column      bool   // indicates if the field should be included in the Columns method
 	Items       *Property
 	Info        string
+	Path        string // for fields with type "media": template path to media
 }
 
 func main() {
@@ -307,21 +309,46 @@ var fm = template.FuncMap{
 	},
 	"structRef": func(ref, prefix string) string {
 		// replace "$" with prefix and convert to camel case
-		// e.g. "$.content" -> "prefix.Content"
+		// e.g. "$name" -> prefix.Name
+		// "$ID" is a special case, it's used to reference the ID field of the content
+		// e.g. "$ID/Characters/$name" -> c.ID + "/Characters/" + character.Name
 
 		if ref == "" {
 			return ""
 		}
 
-		if ref[0] != '$' {
+		matches := structRefRegexp.FindAllStringSubmatchIndex(ref, -1)
+		if matches == nil {
 			return ref
 		}
 
-		return prefix + "." + caser.String(ref[1:])
+		result := strings.Builder{}
+
+		for i, match := range matches {
+			if i == 0 && match[0] > 0 {
+				result.WriteString("\"" + ref[:match[0]] + "\" + ")
+			}
+
+			switch ref[match[0]:match[1]] {
+			case "$ID":
+				result.WriteString("c.ID")
+			default:
+				result.WriteString(prefix + "." + caser.String(ref[match[0]+1:match[1]]))
+			}
+
+			if i < len(matches)-1 {
+				result.WriteString(" + \"" + ref[match[1]:matches[i+1][0]] + "\" + ")
+			}
+		}
+
+		return result.String()
 	},
 }
 
-var caser = cases.Title(language.English)
+var (
+	caser           = cases.Title(language.English, cases.NoLower)
+	structRefRegexp = regexp.MustCompile(`(\$[a-zA-Z0-9_]+)`)
+)
 
 func titleCase(s string) string {
 	var result string

@@ -8,17 +8,17 @@ import (
 
 type Media struct {
 	Path                string
-	Width               int    `yaml:"width,omitempty" json:",omitempty"`
-	Height              int    `yaml:"height,omitempty" json:",omitempty"`
-	ThumbPath           string `yaml:"thumb,omitempty" json:",omitempty"`
-	ThumbXOffset        int    `yaml:"thumb_x,omitempty" json:",omitempty"`
-	ThumbYOffset        int    `yaml:"thumb_y,omitempty" json:",omitempty"`
-	ThumbWidth          int    `yaml:"thumb_width,omitempty" json:",omitempty"`
-	ThumbHeight         int    `yaml:"thumb_height,omitempty" json:",omitempty"`
-	ThumbTotalWidth     int    `yaml:"thumb_total_width,omitempty" json:",omitempty"`
-	ThumbTotalHeight    int    `yaml:"thumb_total_height,omitempty" json:",omitempty"`
-	Blurhash            string `yaml:"blurhash,omitempty" json:",omitempty"`
-	BlurhashImageBase64 string `yaml:"blurhash_image_base64,omitempty" json:",omitempty"`
+	Width               int    `yaml:"width,omitempty" json:"width,omitempty"`
+	Height              int    `yaml:"height,omitempty" json:"height,omitempty"`
+	ThumbPath           string `yaml:"thumb,omitempty" json:"thumb,omitempty"`
+	ThumbXOffset        int    `yaml:"thumb_x,omitempty" json:"thumb_x,omitempty"`
+	ThumbYOffset        int    `yaml:"thumb_y,omitempty" json:"thumb_y,omitempty"`
+	ThumbWidth          int    `yaml:"thumb_width,omitempty" json:"thumb_width,omitempty"`
+	ThumbHeight         int    `yaml:"thumb_height,omitempty" json:"thumb_height,omitempty"`
+	ThumbTotalWidth     int    `yaml:"thumb_total_width,omitempty" json:"thumb_total_width,omitempty"`
+	ThumbTotalHeight    int    `yaml:"thumb_total_height,omitempty" json:"thumb_total_height,omitempty"`
+	Blurhash            string `yaml:"blurhash,omitempty" json:"blurhash,omitempty"`
+	BlurhashImageBase64 string `yaml:"blurhash_image_base64,omitempty" json:"blurhash_image_base64,omitempty"`
 }
 
 func ParseMediaFile(path string) ([]Media, error) {

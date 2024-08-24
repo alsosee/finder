@@ -1,0 +1,19 @@
+{{ define "media" }}
+{{- /*
+content: Content
+prefix: string, e.g. "c", "item"
+f
+*/ -}}
+{{- range .Content.Properties }}
+{{- $path := rootTypePath .Type }}
+{{- if eq .Type "media" }}
+{{ $.Prefix }}.{{ titleCase .Name }} = getImage({{ structRef .Path $.Prefix }})
+{{- else if and (eq .Type "array") (extraType .Items.Type) }}
+for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ titleCase .Name }} {
+    {{- template "media" dict
+        "Content" (lookupExtraType .Items.Type)
+        "Prefix" (camelCaseConcat $.Prefix .Items.Type) }}
+}
+{{- end }}
+{{- end }}
+{{- end }}

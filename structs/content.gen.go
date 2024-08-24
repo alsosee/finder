@@ -18,6 +18,7 @@ type Content struct {
 	HTML             string        `yaml:"-" json:",omitempty"` // for Markdown files
 	Name             string        `yaml:"name,omitempty" json:"name,omitempty"`
 	Title            string        `yaml:"title,omitempty" json:"title,omitempty"`
+	Image            *Media        `yaml:"image,omitempty" json:"image,omitempty"`
 	Subtitle         string        `yaml:"subtitle,omitempty" json:"subtitle,omitempty"`
 	Description      string        `yaml:"description,omitempty" json:"description,omitempty"`
 	CoverArtist      string        `yaml:"cover_artist,omitempty" json:"cover_artist,omitempty"`
@@ -133,7 +134,6 @@ type Content struct {
 	Extra map[string]interface{} `yaml:",inline" json:",omitempty"`
 
 	// fields populated by the generator
-	Image                *Media  `yaml:"-" json:",omitempty"`
 	Awards               []Award `yaml:"-" json:",omitempty"`
 	EditorsAwards        []Award `yaml:"-" json:",omitempty"`
 	WritersAwards        []Award `yaml:"-" json:",omitempty"`
@@ -145,7 +145,7 @@ type Content struct {
 
 // GenerateID generates an ID for the content.
 // Used for identifying the content in connections and search.
-func (c Content) GenerateID() string {
+func (c *Content) GenerateID() string {
 	if c.ID != "" {
 		return c.ID
 	}
@@ -558,6 +558,21 @@ type Episode struct {
 
 	// unknown fields are stored in the Extra map
 	Extra map[string]interface{} `yaml:",inline" json:",omitempty"`
+}
+
+// AddMedia populates the Image field with a Media object.
+func (c *Content) AddMedia(getImage func(string) *Media) {
+	c.Image = getImage(c.ID)
+	for _, character := range c.Characters {
+		character.Image = getImage(c.ID + "/Characters/" + character.Name)
+		character.ActorImage = getImage("People/" + character.Actor)
+	}
+	for _, episode := range c.Episodes {
+		for _, episodeCharacter := range episode.Characters {
+			episodeCharacter.Image = getImage(c.ID + "/Characters/" + episodeCharacter.Name)
+			episodeCharacter.ActorImage = getImage("People/" + episodeCharacter.Actor)
+		}
+	}
 }
 
 func length(a time.Duration) string {

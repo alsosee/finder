@@ -25,7 +25,6 @@ type Content struct {
 	Extra map[string]interface{} `yaml:",inline" json:",omitempty"`
 
 	// fields populated by the generator
-	Image                *Media  `yaml:"-" json:",omitempty"`
 	Awards               []Award `yaml:"-" json:",omitempty"`
 	EditorsAwards        []Award `yaml:"-" json:",omitempty"`
 	WritersAwards        []Award `yaml:"-" json:",omitempty"`
@@ -37,7 +36,7 @@ type Content struct {
 
 // GenerateID generates an ID for the content.
 // Used for identifying the content in connections and search.
-func (c Content) GenerateID() string {
+func (c *Content) GenerateID() string {
 	if c.ID != "" {
 		return c.ID
 	}
@@ -94,6 +93,13 @@ type {{ titleCase $key }} struct {
 	Extra map[string]interface{} `yaml:",inline" json:",omitempty"`
 }
 {{- end }}
+
+// AddMedia populates the Image field with a Media object.
+func (c *Content) AddMedia(getImage func(string) *Media) {
+	{{- template "media" dict
+		"Content" .Content
+		"Prefix" "c" }}
+}
 
 func length(a time.Duration) string {
 	if a == 0 {
