@@ -17,4 +17,5 @@ type Connection struct {
 	To    string
 	Label string
 	Meta  string
+	Info  []string
 }

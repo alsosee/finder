@@ -859,7 +859,6 @@ func (g *Generator) addContent(content structs.Content) {
 func (g *Generator) addConnections(content structs.Content) {
 	from := content.GenerateID()
 
-	// new logic for connections that will take over the old one
 	connections := content.Connections()
 	for _, conn := range connections {
 		switch conn.Meta {
@@ -868,35 +867,9 @@ func (g *Generator) addConnections(content structs.Content) {
 		case structs.ConnectionSeries:
 			g.addConnection(from, series(content), "Series")
 		case structs.ConnectionNone:
-			g.addConnection(from, conn.To)
+			g.addConnection(from, conn.To, conn.Info...)
 		default:
-			g.addConnection(from, conn.To, conn.Label)
-		}
-	}
-
-	// old logic for connections:
-
-	// Add connections for other less obvious references
-	// (maybe it would be better to define these connections in some config.yml file,
-	// or use Go struct field tags, but for now it's fine)
-
-	for _, character := range content.Characters {
-		g.addConnectionSingle(from, "People", character.Actor, "Actor", character.Name)
-		g.addConnectionSingle(from, "People", character.Voice, "Voice", character.Name)
-	}
-
-	for _, episode := range content.Episodes {
-		g.addConnectionList(from, "People", episode.Writers, "Writer", "", episode.Name)
-		g.addConnectionList(from, "People", episode.Directors, "Director", "", episode.Name)
-		g.addConnectionList(from, "People", episode.Story, "Story", "", episode.Name)
-		g.addConnectionList(from, "People", episode.Editors, "Editor", "", episode.Name)
-		g.addConnectionList(from, "People", episode.Cinematography, "Cinematography", "", episode.Name)
-		g.addConnectionList(from, "People", episode.Teleplay, "Teleplay", "", episode.Name)
-		g.addConnectionSingle(from, "Companies", episode.Studio, "Studio", "", episode.Name)
-
-		for _, character := range episode.Characters {
-			g.addConnectionSingle(from, "People", character.Actor, "Actor", character.Name, "", episode.Name)
-			g.addConnectionSingle(from, "People", character.Voice, "Voice", character.Name, "", episode.Name)
+			g.addConnection(from, conn.To, append([]string{conn.Label}, conn.Info...)...)
 		}
 	}
 

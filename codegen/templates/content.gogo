@@ -18,7 +18,7 @@ type Content struct {
 	HTML   string `yaml:"-" json:",omitempty"` // for Markdown files
 
 	{{- range .Content.Properties }}
-	{{ titleCase .Name }} {{ fieldType . $.Content.RootTypes }} `yaml:"{{ .Name }},omitempty" json:"{{ .Name }},omitempty"`
+	{{ titleCase .Name }} {{ fieldType . }} `yaml:"{{ .Name }},omitempty" json:"{{ .Name }},omitempty"`
 	{{- end }}
 
 	// unknown fields are stored in the Extra map
@@ -55,7 +55,7 @@ func (c Content) Type() string {
 	// (e.g. "People" or "Book")
 	root := pathType(c.Source)
 	switch root {
-	{{- range $rootType := .Content.RootTypes }}
+	{{- range $rootType := .RootTypes }}
 	case "{{ .Path }}":
 		return "{{ .Type }}"
 	{{- end }}
@@ -69,7 +69,7 @@ func (c Content) Columns() map[string]string {
 	return map[string]string{
 	{{- range .Content.Properties }}
 		{{- if .Column }}
-		"{{ columnTitle . }}": {{ columnValue . $.Content.RootTypes }},
+		"{{ columnTitle . }}": {{ columnValue . }},
 		{{- end }}
 	{{- end }}
 	}
@@ -80,7 +80,6 @@ func (c Content) Connections() []Connection {
 	var connections []Connection
 	{{ template "connections" dict
 		"Content" .Content
-		"RootTypes" .Content.RootTypes
 		"Prefix" "c" }}
 	return connections
 }
@@ -88,7 +87,7 @@ func (c Content) Connections() []Connection {
 
 type {{ titleCase $key }} struct {
 {{- range $content.Properties }}
-	{{ titleCase .Name }} {{ fieldType . $.Content.RootTypes }} `yaml:"{{ .Name }},omitempty" json:"{{ .Name }},omitempty"`
+	{{ titleCase .Name }} {{ fieldType . }} `yaml:"{{ .Name }},omitempty" json:"{{ .Name }},omitempty"`
 {{- end }}
 
 	// unknown fields are stored in the Extra map

@@ -1,11 +1,14 @@
 {{ define "connections" }}
 {{- /*
 content: Content
-rootTypes: RootTypes
 prefix: string, e.g. "c", "item"
+info: []string
+    piece of information to be included in the connection for child references
+    e.g. so that if person played in a single eposide, the connection info will
+    include episode name (or whatever is passed in the info field)
 */ -}}
 {{- range .Content.Properties }}
-{{- $path := rootTypePath .Type $.RootTypes }}
+{{- $path := rootTypePath .Type }}
 {{- if eq .Type "reference" }}
 if {{ $.Prefix }}.{{ titleCase .Name }} != nil {
     connections = append(connections, Connection{
@@ -19,6 +22,17 @@ if {{ $.Prefix }}.{{ titleCase .Name }} != "" {
     connections = append(connections, Connection{
         To: "{{ $path }}/" + {{ $.Prefix }}.{{ titleCase .Name }},
         Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
+        {{- if or .Info $.Info }}
+        Info: []string{
+            {{- with .Info }}
+            {{ structRef . $.Prefix }},
+            {{- end }}
+            {{- with $.Info }}
+            "", {{/* to separate information for easier parsing */}}
+            {{ structRef . $.Prefix }},
+            {{- end }}
+        },
+        {{- end }}
     })
 }
 {{- else if and (eq .Type "array") (eq .Items.Type "reference") }}
@@ -29,19 +43,32 @@ for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ tit
         Meta: "{{ .Meta }}",
     })
 }
-{{- else if and (eq .Type "array") (rootTypePath .Items.Type $.Content.RootTypes) }}
+{{- else if and (eq .Type "array") (rootTypePath .Items.Type) }}
 for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ titleCase .Name }} {
     connections = append(connections, Connection{
-        To: "{{ rootTypePath .Items.Type $.Content.RootTypes }}/" + {{ camelCaseConcat $.Prefix .Items.Type }},
+        To: "{{ rootTypePath .Items.Type}}/" + {{ camelCaseConcat $.Prefix .Items.Type }},
         Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
+        {{- if or .Info $.Info }}
+        Info: []string{
+            {{- with .Info }}
+            "", {{/* to separate information for easier parsing */}}
+            {{ structRef . $.Prefix }},
+            {{- end }}
+            {{- with $.Info }}
+            "", {{/* to separate information for easier parsing */}}
+            {{ structRef . $.Prefix }},
+            {{- end }}
+        },
+        {{- end }}
     })
 }
 {{- else if and (eq .Type "array") (extraType .Items.Type) }}
 for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ titleCase .Name }} {
-    {{ template "connections" dict
+    {{- template "connections" dict
         "Content" (lookupExtraType .Items.Type)
-        "RootTypes" $.RootTypes
-        "Prefix" (camelCaseConcat $.Prefix .Items.Type) }}
+        "Prefix" (camelCaseConcat $.Prefix .Items.Type)
+        "Info" (structRef .Info $.Prefix)
+    }}
 }
 {{- else if eq .Meta "series" }}
 if {{ $.Prefix }}.{{ titleCase .Name }} != "" {

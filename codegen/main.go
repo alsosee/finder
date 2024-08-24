@@ -57,6 +57,8 @@ var templatesFS embed.FS
 
 // Schema represents a YAML schema definition for code generation.
 type Schema struct {
+	RootTypes RootTypes `yaml:"root_types"`
+
 	Content Content
 
 	Extra map[string]Content `yaml:",inline"`
@@ -78,7 +80,6 @@ func (s *Schema) HasExtraType(t string) bool {
 type Content struct {
 	Type       string
 	Properties PropertySlice
-	RootTypes  RootTypes `yaml:"root_types"`
 }
 
 // RootTypes represents a list of root types for the schema.
@@ -142,6 +143,7 @@ type Property struct {
 	Meta        string // used for Connections to customize the logic (e.g. "previous" case)
 	Column      bool   // indicates if the field should be included in the Columns method
 	Items       *Property
+	Info        string
 }
 
 func main() {
@@ -222,8 +224,8 @@ func generateCode(schema *Schema, out string) error {
 
 var fm = template.FuncMap{
 	"titleCase": titleCase,
-	"fieldType": func(property Property, rootTypes RootTypes) string {
-		return schema.FieldType(property, rootTypes)
+	"fieldType": func(property Property) string {
+		return schema.FieldType(property)
 	},
 	"columnTitle": func(p Property) string {
 		if p.Title != "" {
@@ -231,8 +233,8 @@ var fm = template.FuncMap{
 		}
 		return titleCase(p.Name)
 	},
-	"rootTypePath": func(t string, rootTypes RootTypes) string {
-		for _, rt := range rootTypes {
+	"rootTypePath": func(t string) string {
+		for _, rt := range schema.RootTypes {
 			if rt.Type == t {
 				return rt.Path
 			}
@@ -245,7 +247,7 @@ var fm = template.FuncMap{
 	"lookupExtraType": func(t string) Content {
 		return schema.Extra[t]
 	},
-	"columnValue": func(p Property, rootTypes RootTypes) string {
+	"columnValue": func(p Property) string {
 		switch p.Type {
 		case "string":
 			return "c." + titleCase(p.Name)
@@ -256,7 +258,7 @@ var fm = template.FuncMap{
 		case "array":
 			return "strings.Join(c." + titleCase(p.Name) + ", \", \")"
 		default:
-			if rootTypes.HasType(p.Type) {
+			if schema.RootTypes.HasType(p.Type) {
 				return "c." + titleCase(p.Name)
 			}
 
@@ -303,6 +305,20 @@ var fm = template.FuncMap{
 
 		return result.String()
 	},
+	"structRef": func(ref, prefix string) string {
+		// replace "$" with prefix and convert to camel case
+		// e.g. "$.content" -> "prefix.Content"
+
+		if ref == "" {
+			return ""
+		}
+
+		if ref[0] != '$' {
+			return ref
+		}
+
+		return prefix + "." + caser.String(ref[1:])
+	},
 }
 
 var caser = cases.Title(language.English)
@@ -321,7 +337,7 @@ func titleCase(s string) string {
 	return result
 }
 
-func (s *Schema) FieldType(property Property, rootTypes RootTypes) string {
+func (s *Schema) FieldType(property Property) string {
 	switch property.Type {
 	case "string":
 		return "string"
@@ -342,7 +358,7 @@ func (s *Schema) FieldType(property Property, rootTypes RootTypes) string {
 			return ""
 		}
 
-		if rootTypes.HasType(property.Items.Type) {
+		if s.RootTypes.HasType(property.Items.Type) {
 			return "oneOrMany"
 		}
 
@@ -350,10 +366,10 @@ func (s *Schema) FieldType(property Property, rootTypes RootTypes) string {
 			return "References"
 		}
 
-		return "[]" + s.FieldType(*property.Items, rootTypes)
+		return "[]" + s.FieldType(*property.Items)
 	default:
 		// iterate over root types to find the type
-		if rootTypes.HasType(property.Type) {
+		if s.RootTypes.HasType(property.Type) {
 			return "string"
 		}
 
