@@ -58,11 +58,11 @@ var templatesFS embed.FS
 
 // Schema represents a YAML schema definition for code generation.
 type Schema struct {
-	RootTypes RootTypes `yaml:"root_types"`
+	Extra map[string]Content `yaml:",inline"`
 
 	Content Content
 
-	Extra map[string]Content `yaml:",inline"`
+	RootTypes RootTypes `yaml:"root_types"`
 }
 
 // HasExtraType checks if the schema has any extra schema types defined.
@@ -136,16 +136,16 @@ func (p *PropertySlice) UnmarshalYAML(value *yaml.Node) error {
 
 // Property represents a Content struct field.
 type Property struct {
+	Items       *Property
 	Name        string
 	Title       string // used to override Column title
 	Type        string
 	Description string
 	Label       string // used for Connections to display reference on the other content page
 	Meta        string // used for Connections to customize the logic (e.g. "previous" case)
-	Column      bool   // indicates if the field should be included in the Columns method
-	Items       *Property
 	Info        string
 	Path        string // for fields with type "media": template path to media
+	Column      bool   // indicates if the field should be included in the Columns method
 }
 
 func main() {

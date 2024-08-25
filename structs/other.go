@@ -8,14 +8,14 @@ import (
 )
 
 type PageData struct {
+	Content     *Content
+	Connections Connections
 	OutputPath  string
 	CurrentPath string
 	Dir         string
 	Breadcrumbs []Dir
 	Panels      Panels
-	Content     *Content
 	Timestamp   int64
-	Connections Connections
 }
 
 // Contents represents a list of contents, where key is a file path.
@@ -83,13 +83,13 @@ func (c *Columns) Get(key string) string {
 
 // File represents a file or directory in the file system.
 type File struct {
+	Image *Media
+
+	Columns   Columns // extra fields to use in list view
 	Name      string
 	Title     string // value from YAML "name" field, may contain colons
 	IsFolder  bool   // used to render folder icon and to sort files
 	IsMissing bool   // for pages that have no source file; used to show striped background
-	Image     *Media
-
-	Columns Columns // extra fields to use in list view
 }
 
 // ByNameFolderOnTop sorts files by name, with folders on top.
@@ -222,6 +222,6 @@ type Missing struct {
 
 // Extra usind in "splitExtra" template function to separate episode titles from the rest of the data.
 type Extra struct {
-	Primary []string
 	Addon   string
+	Primary []string
 }

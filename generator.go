@@ -31,39 +31,40 @@ type Generator struct {
 	templates *template.Template
 	ignore    *gitignore.GitIgnore
 
-	contents   structs.Contents
-	muContents sync.Mutex
+	contents structs.Contents
 
 	// dirContents is a map where
 	// key is a directory path,
 	// value is a list of files and directories;
 	// used to build Panels
 	dirContents map[string][]structs.File
-	muDir       sync.Mutex
 
 	// Connections keep track of references from one file to another.
 	// key is a file path, where reference is pointing to.
 	// value is a list of files that are pointing to the key.
-	connections   structs.Connections
-	muConnections sync.Mutex
+	connections structs.Connections
 
 	mediaDirContents map[string][]structs.Media
-	muMedia          sync.Mutex
-
-	awardPages   []string
-	muAwardPages sync.Mutex
 
 	// awardsMissingContent used to temporary hold awards
 	// that are for content that is not yet added.
-	awardsMissingContent   map[string][]structs.Award
-	muAwardsMissingContent sync.Mutex
+	awardsMissingContent map[string][]structs.Award
 
 	// chainPages used to keep track of next/prev pages in a series.
-	chainPages   map[string]map[bool]string // from -> true(next)/false(prev) -> reference
-	muChainPages sync.Mutex
+	chainPages map[string]map[bool]string // from -> true(next)/false(prev) -> reference
 
 	renderedPanelsCache map[string]string
-	muRenderedPanels    sync.Mutex
+
+	awardPages []string
+
+	muContents             sync.Mutex // protects writes to contents
+	muDir                  sync.Mutex // protects writes to dirContents
+	muConnections          sync.Mutex // protects writes to connections
+	muMedia                sync.Mutex // protects writes to mediaDirContents
+	muAwardPages           sync.Mutex // protects writes to awardPages
+	muAwardsMissingContent sync.Mutex // protects writes to awardsMissingContent
+	muChainPages           sync.Mutex // protects writes to chainPages
+	muRenderedPanels       sync.Mutex // protects writes to renderedPanelsCache
 }
 
 // NewGenerator creates a new Generator.
