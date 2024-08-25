@@ -747,22 +747,8 @@ func (g *Generator) processYAMLFile(file string) error {
 	}
 
 	content.Source = file
-	id := content.GenerateID()
-	content.Image = g.getImageForPath(id)
-
-	// add image to Characters
-	for _, character := range content.Characters {
-		character.Image = g.getImageForPath(filepath.Join(id, "Characters", character.Name))
-		character.ActorImage = g.getImageForPath("People/" + character.Actor)
-	}
-
-	// add image to Episodes Characters
-	for _, episode := range content.Episodes {
-		for _, character := range episode.Characters {
-			character.Image = g.getImageForPath(filepath.Join(id, "Characters", character.Name))
-			character.ActorImage = g.getImageForPath("People/" + character.Actor)
-		}
-	}
+	content.GenerateID()
+	content.AddMedia(g.getImageForPath)
 
 	g.addContent(content)
 	g.addConnections(content)
