@@ -40,4 +40,5 @@ serve: hash build
 .PHONY: codegen
 ## codegen: generate code from the schema
 codegen:
-	@cd codegen && go build -o codegen . && ./codegen -in ../../info/_finder/schema.yml -out ../structs/content.gen.go
+	@cd codegen && go build -o codegen . && ./codegen -in ${INPUT_INFO}/_finder/schema.yml -out ../structs/content.gen.go
+	@go fmt ./structs/content.gen.go
