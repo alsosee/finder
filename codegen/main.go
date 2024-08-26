@@ -35,13 +35,17 @@ var (
 		"ISBN",
 		"ISBN10",
 		"ISBN13",
+		"RSS",
 		"GoodReads",
+		"GitHub",
 		"YouTube",
 		"LinkedIn",
+		"VK",
 		"TikTok",
 		"PlayStation",
 		"AppleTV",
 		"DarkHorse",
+		"DTF",
 	}
 	knownAbbreviationsMap = map[string]string{}
 )
