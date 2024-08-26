@@ -46,6 +46,14 @@ jobs:
           repository: alsosee/info
           event-type: finder
 
+      - name: Trigger finder rebuild (ru)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PKG_TOKEN }}
+          repository: alsosee/ru
+          event-type: finder
+
       # - name: Trigger index
       #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       #   uses: peter-evans/repository-dispatch@v3
