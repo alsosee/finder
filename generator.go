@@ -433,6 +433,14 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return label
 		},
+		"fallback": func(args ...string) string {
+			for _, arg := range args {
+				if arg != "" {
+					return arg
+				}
+			}
+			return ""
+		},
 		"splitExtra": func(extra []string, content structs.Content) structs.Extra {
 			// turn list like
 			// ["a", "", "c", "a", "", "d"]
