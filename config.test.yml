@@ -1,0 +1,10 @@
+title: Also, see
+description: A collection of things, people and more.
+lang: en
+url: https://alsosee.info
+repo: https://github.com/alsosee/info
+opengraph:
+  image: https://media.alsosee.info/opengraph.png
+  width: 1920
+  height: 1080
+  twitter_image: https://media.alsosee.info/twitter.png
