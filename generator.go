@@ -911,29 +911,6 @@ func (g *Generator) addConnection(from, to string, info ...string) {
 	g.connections[to][from] = append(g.connections[to][from], info...)
 }
 
-func (g *Generator) addConnectionSingle(from, prefix string, item string, info ...string) {
-	if item == "" {
-		return
-	}
-
-	ref := item
-	if prefix != "" {
-		ref = prefix + "/" + item
-	}
-
-	g.addConnection(from, ref, info...)
-}
-
-func (g *Generator) addConnectionList(from, prefix string, list []string, info ...string) {
-	for _, item := range list {
-		ref := item
-		if prefix != "" {
-			ref = prefix + "/" + item
-		}
-		g.addConnection(from, ref, info...)
-	}
-}
-
 func (g *Generator) addPrevious(from, to string) {
 	g.muChainPages.Lock()
 	defer g.muChainPages.Unlock()
