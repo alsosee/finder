@@ -30,6 +30,7 @@ import (
 type Generator struct {
 	templates *template.Template
 	ignore    *gitignore.GitIgnore
+	config    structs.Config
 
 	contents structs.Contents
 
@@ -74,7 +75,13 @@ func NewGenerator() (*Generator, error) {
 		return nil, fmt.Errorf("processing ignore file: %w", err)
 	}
 
+	config, err := parseConfig(cfg.ConfigFile)
+	if err != nil {
+		return nil, fmt.Errorf("parsing site config: %w", err)
+	}
+
 	return &Generator{
+		config:               config,
 		ignore:               ignore,
 		contents:             structs.Contents{},
 		dirContents:          map[string][]structs.File{},
@@ -99,6 +106,20 @@ func processIgnoreFile(ignoreFile string) (*gitignore.GitIgnore, error) {
 	}
 
 	return ignore, nil
+}
+
+func parseConfig(configFile string) (structs.Config, error) {
+	b, err := os.ReadFile(filepath.Join(cfg.InfoDirectory, configFile))
+	if err != nil {
+		return structs.Config{}, fmt.Errorf("reading config file: %w", err)
+	}
+
+	var config structs.Config
+	if err = yaml.Unmarshal(b, &config); err != nil {
+		return structs.Config{}, fmt.Errorf("unmarshaling config: %w", err)
+	}
+
+	return config, nil
 }
 
 func (g *Generator) fm() template.FuncMap {
@@ -1073,6 +1094,7 @@ func (g *Generator) generateContentTemplates() error {
 		cnt := content
 
 		err := g.executeTemplate(path, structs.PageData{
+			Config:      g.config,
 			CurrentPath: id,
 			Dir:         filepath.Dir(id),
 			Breadcrumbs: breadcrumbs,
@@ -1142,6 +1164,7 @@ func (g *Generator) generateIndexes() error {
 		panels, breadcrumbs := g.buildPanels(dir, false)
 
 		err := g.executeTemplate(path, structs.PageData{
+			Config:      g.config,
 			CurrentPath: dir,
 			Breadcrumbs: breadcrumbs,
 			Panels:      panels,
@@ -1232,6 +1255,7 @@ func (g *Generator) generateMissing(missing []structs.Missing) error {
 		panels, breadcrumbs := g.buildPanels(id, true)
 
 		pagesDataChan <- structs.PageData{
+			Config:      g.config,
 			OutputPath:  filepath.Join(cfg.OutputDirectory, id+".html"),
 			CurrentPath: id,
 			Dir:         filepath.Dir(id),

@@ -8,6 +8,7 @@ import (
 )
 
 type PageData struct {
+	Config      Config
 	Content     *Content
 	Connections Connections
 	OutputPath  string
