@@ -257,12 +257,12 @@ pre code {
   background-position: -44px 0;
 }
 
-#menu_popup a[href="https://ru.alsosee.info"]::before
+#menu_popup :nth-child(2) a::before
 {
   background-position: -44px -44px;
 }
 
-#menu_popup a[href="https://ru.alsosee.info"]:hover::before
+#menu_popup :nth-child(2) a:hover::before
 {
   background-position: 0 -44px;
 }
@@ -653,7 +653,7 @@ fieldset.radio label:last-of-type {
 }
 
 .content .list:not(:last-child) {
-  display: inline-flex; /* to avoid space before comma */
+  display: inline-block;
 }
 
 .content .list:not(:last-child)::after {
