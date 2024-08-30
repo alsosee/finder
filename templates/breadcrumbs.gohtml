@@ -9,8 +9,8 @@
         {{- $isCurrent := eq $.CurrentPath .Path }}
         {{- if $isCurrent }}
         <li role="none"><span>
-            {{- if and $.Content $.Content.Name }}
-                {{- $.Content.Name }}
+            {{- if and $.Content $.Content.GetName }}
+                {{- $.Content.GetName }}
             {{- else }}
                 {{- .Name }}
             {{- end -}}

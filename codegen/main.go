@@ -145,6 +145,7 @@ type Property struct {
 	Title       string // used to override Column title
 	Type        string
 	Description string
+	Alias       string // field name to use in the template
 	Label       string // used for Connections to display reference on the other content page
 	Meta        string // used for Connections to customize the logic (e.g. "previous" case)
 	Info        string

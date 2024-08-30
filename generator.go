@@ -1240,12 +1240,8 @@ func (g *Generator) generateMissing(missing []structs.Missing) error {
 			Dir:         filepath.Dir(id),
 			Breadcrumbs: breadcrumbs,
 			Panels:      panels,
-			Content: &structs.Content{
-				Name:   filepath.Base(id),
-				Image:  g.getImageForPath(id),
-				Awards: m.Awards,
-			},
-			Timestamp: time.Now().Unix(),
+			Content:     g.generateConntentForMissing(m),
+			Timestamp:   time.Now().Unix(),
 		}
 	}
 
@@ -1253,6 +1249,17 @@ func (g *Generator) generateMissing(missing []structs.Missing) error {
 
 	wg.Wait()
 	return nil
+}
+
+func (g *Generator) generateConntentForMissing(m structs.Missing) *structs.Content {
+	content := &structs.Content{
+		Image:  g.getImageForPath(m.To),
+		Awards: m.Awards,
+	}
+
+	content.SetName(filepath.Base(m.To))
+
+	return content
 }
 
 // func (g *Generator) generate404() error {
@@ -1279,8 +1286,8 @@ func (g *Generator) processPanels() {
 
 		// update Title if content has it
 		for i, file := range files {
-			if content := g.contents[filepath.Join(path, file.Name)]; content.Name != "" {
-				files[i].Title = content.Name
+			if content := g.contents[filepath.Join(path, file.Name)]; content.GetName() != "" {
+				files[i].Title = content.GetName()
 
 				for key, value := range content.Columns() {
 					files[i].Columns.Add(key, value)

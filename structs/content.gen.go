@@ -178,6 +178,23 @@ func (c Content) Type() string {
 	}
 }
 
+// Header returns a string to be displayed in the header of the content.
+// Title is used by default, Name is a fallback.
+func (c Content) Header() string {
+	if c.Title != "" {
+		return c.Title
+	}
+	return c.Name
+}
+
+func (c *Content) SetName(name string) {
+	c.Name = name
+}
+
+func (c Content) GetName() string {
+	return c.Name
+}
+
 // Columns defines the columns to be displayed in the List view.
 func (c Content) Columns() map[string]string {
 	return map[string]string{
