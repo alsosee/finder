@@ -309,9 +309,9 @@ func (c Content) Connections() []Connection {
 			Label: "Author",
 		})
 	}
-	for _, person := range c.Developers {
+	for _, company := range c.Developers {
 		connections = append(connections, Connection{
-			To:    "People/" + person,
+			To:    "Companies/" + company,
 			Label: "Developer",
 		})
 	}
