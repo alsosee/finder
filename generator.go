@@ -427,22 +427,8 @@ func (g *Generator) fm() template.FuncMap {
 			defer g.muAwardsMissingContent.Unlock()
 			return len(g.awardsMissingContent[id])
 		},
-		"image": g.getImageForPath,
-		"title": func(b structs.Breadcrumbs) string {
-			b = b[1:] // skip the first element (it's always "Home")
-			if len(b) == 0 {
-				return "Also, see"
-			}
-
-			var dirs []string
-			for _, dir := range b {
-				dirs = append(dirs, dir.Name)
-			}
-
-			slices.Reverse(dirs)
-
-			return strings.Join(dirs, " \\ ")
-		},
+		"image":         g.getImageForPath,
+		"title":         g.title,
 		"awardYear":     awardYear,
 		"prefix":        prefix,
 		"chooseColumns": chooseColumns,
@@ -1135,6 +1121,22 @@ func (g *Generator) getImageForPath(path string) *structs.Media {
 	return nil
 }
 
+func (g *Generator) title(b structs.Breadcrumbs) string {
+	b = b[1:] // skip the first element (it's always "Home")
+	if len(b) == 0 {
+		return g.config.Title
+	}
+
+	var dirs []string
+	for _, dir := range b {
+		dirs = append(dirs, dir.Name)
+	}
+
+	slices.Reverse(dirs)
+
+	return strings.Join(dirs, " \\ ")
+}
+
 func (g *Generator) generateIndexes() error {
 	for dir := range g.dirContents {
 		path := filepath.Join(cfg.OutputDirectory, dir, "index.html")
@@ -1476,7 +1478,7 @@ func (g *Generator) buildPanels(path string, isFile bool) (structs.Panels, struc
 		cumulativePath = filepath.Join(cumulativePath, dir)
 
 		if dir == "" {
-			dir = "Home"
+			dir = g.config.HomeLabel
 		}
 
 		breadcrumbs = append(breadcrumbs, structs.Dir{

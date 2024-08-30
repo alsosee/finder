@@ -201,7 +201,7 @@ pre code {
   margin-left: 5px;
   background: url("/logo.png") no-repeat;
   background-size: 88px 88px;
-  background-position: -44px 0;
+  background-position: -44px var(--shift-y, 0);
 }
 
 #logo:focus {
@@ -1503,7 +1503,7 @@ p .award + .award {
   }
 
   #logo {
-    background-position: 0 0;
+    background-position: 0 var(--shift-y, 0);
   }
 
   #menu {
