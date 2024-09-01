@@ -13,14 +13,14 @@ Inputs:
 {{- $content := .Content -}}
 {{- if not $content }}{{ $content = content $id }}{{ end }}
 {{- if $content -}}
-<a href="/{{ $id }}" class="reference{{- if hasPrefix $content.Source "People" }} people{{ end }}{{ if $content.Image }} has-image{{ if isJPG $content.Image.Path }} jpg{{end}}{{ end }}"
+<a href="/{{ $id }}" class="reference{{- if isPerson $content.Source }} people{{ end }}{{ if $content.Image }} has-image{{ if isJPG $content.Image.Path }} jpg{{end}}{{ end }}"
 {{- if $content.Image }} style="--background-image: url('{{ config "MediaHost" }}/{{ dir $id }}/{{ $content.Image.ThumbPath }}'); {{ thumbStylePx $content.Image 24 "--" }}"{{ end }}>
 {{- $content.Header }}</a>
 {{- if not .HideType }} ({{ type $content }}){{ end }}
 {{- else -}}
     {{- $image := image $id -}}
     {{- if gt (sum (missingAwardsLen $id) (len (connections $id))) 1 -}}
-<a href="/{{ $id }}" class="reference missing{{- if hasPrefix $id "People" }} people{{ end }}{{ if $image }} has-image{{ if isJPG $image.Path }} jpg{{end}}{{ end }}"
+<a href="/{{ $id }}" class="reference missing{{- if isPerson $id }} people{{ end }}{{ if $image }} has-image{{ if isJPG $image.Path }} jpg{{end}}{{ end }}"
 {{- if $image }} style="--background-image: url('{{ config "MediaHost" }}/{{ dir $id }}/{{ $image.ThumbPath }}'); {{ thumbStylePx $image 24 "--" }}"{{ end }}>
 {{- if .Fallback }}{{ .Fallback }}{{ else }}{{ .Path }}{{ end }}</a>
     {{- else -}}
