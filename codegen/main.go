@@ -104,6 +104,7 @@ func (rt *RootTypes) HasType(t string) bool {
 type RootType struct {
 	Path string
 	Type string
+	Meta string
 }
 
 // PropertySlice is a slice of Property.

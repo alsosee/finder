@@ -592,6 +592,10 @@ func (c *Content) AddMedia(getImage func(string) *Media) {
 	}
 }
 
+func IsPerson(path string) bool {
+	return pathType(path) == "People"
+}
+
 func length(a time.Duration) string {
 	if a == 0 {
 		return ""

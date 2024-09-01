@@ -130,9 +130,7 @@ func (g *Generator) fm() template.FuncMap {
 		"base":      filepath.Base,
 		"hasPrefix": strings.HasPrefix,
 		"strjoin":   strings.Join,
-		"isPerson": func(path string) bool {
-			return strings.HasPrefix(path, "People")
-		},
+		"isPerson":  structs.IsPerson,
 		"sum": func(ints ...int) int {
 			var sum int
 			for _, i := range ints {
