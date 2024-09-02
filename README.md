@@ -28,13 +28,11 @@ export INPUT_MEDIA=/<path-to-media-directory>/media
 export INPUT_STATIC=static
 export INPUT_OUTPUT=output
 
-make build
-```
-
-Use Cloudflare Wrangler to preview the site locally:
-
-```bash
-wrangler pages dev --local-protocol=https output/
+make serve
 ```
 
 Then press <kbd>b</kbd> that will open URL like this https://127.0.0.1:8788/ in your browser.
+
+## Architecture decisions log
+
+[Finder Federation](https://docs.google.com/document/d/1ygAVjABPIJ7oNBH8phhP0mpEP_WQsUQ_xxMwOpSCUHg/edit#heading=h.p1dqhy5mhxb1) – reduce couping between `finder` and `info` repositories
