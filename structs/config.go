@@ -23,8 +23,9 @@ type Config struct {
 	ViewList     string `yaml:"view_list"`
 	ViewColumns  string `yaml:"view_columns"`
 	Menu         []struct {
-		Title string `yaml:"title"`
-		URL   string `yaml:"url"`
+		Title      string `yaml:"title"`
+		URL        string `yaml:"url"`
+		LogoShiftY string `yaml:"logo_shift_y"`
 	} `yaml:"menu"`
 	ButtonCancel string `yaml:"button_cancel"`
 	ButtonUpload string `yaml:"button_upload"`

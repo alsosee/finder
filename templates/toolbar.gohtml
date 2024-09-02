@@ -1,15 +1,15 @@
 {{ define "toolbar" }}
 <div id="toolbar" hx-preserve="true">
     <div id="menu" tabindex="0" onclick="toggleMenu()">
-        <span id="logo"{{ with .LogoShiftY }} style="--shift-y: {{ .}} "{{ end }}></span>
+        <span id="logo"{{ with .LogoShiftY }} style="--shift-y: {{ .}}"{{ end }}></span>
         <span class="toggle"></span>
     </div>
     <ul id="menu_popup">
         {{- range .Menu }}
         {{- $current := eq .URL $.URL }}
         <li{{ if $current }} class="current"{{ end }}>
-            {{- if $current }}<span>{{ .Title }}</span>
-            {{- else }}<a href="{{ .URL }}">{{ .Title }}</a>
+            {{- if $current }}<span{{ with .LogoShiftY }} style="--shift-y: {{ .}}"{{ end }}>{{ .Title }}</span>
+            {{- else }}<a href="{{ .URL }}"{{ with .LogoShiftY }} style="--shift-y: {{ .}}"{{ end }}>{{ .Title }}</a>
             {{- end -}}
         </li>
         {{- end }}

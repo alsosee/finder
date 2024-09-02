@@ -253,18 +253,13 @@ pre code {
   color: var(--color-text-selection);
 }
 
-#menu_popup span::before {
-  background-position: -44px 0;
+#menu_popup span::before,
+#menu_popup a::before {
+  background-position: -44px var(--shift-y, 0);
 }
 
-#menu_popup :nth-child(2) a::before
-{
-  background-position: -44px -44px;
-}
-
-#menu_popup :nth-child(2) a:hover::before
-{
-  background-position: 0 -44px;
+#menu_popup a:hover::before {
+  background-position: 0 var(--shift-y, 0);
 }
 
 #menu.open {
@@ -1516,13 +1511,9 @@ p .award + .award {
     background-color: #3b3838;
   }
 
-  #menu_popup span::before {
-    background-position: 0 0;
-  }
-
-  #menu_popup a[href="https://ru.alsosee.info"]::before
-  {
-    background-position: 0 -44px;
+  #menu_popup span::before,
+  #menu_popup a::before {
+    background-position: 0 var(--shift-y, 0);
   }
 
   fieldset {
