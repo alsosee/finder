@@ -12,7 +12,7 @@
             {{- $file := . }}
             {{- $path := join $.Panel.Dir .Name }}
             <li role="none">
-                <a role="menuitem" class="{{ if .IsFolder }}folder{{ else if hasPrefix $path "People" }} people{{ end }}
+                <a role="menuitem" class="{{ if .IsFolder }}folder{{ else if isPerson $path }} people{{ end }}
                         {{- if .IsMissing}} missing{{ end }}
                         {{- if .Image }} has-image
                             {{- if isJPG .Image.Path }} jpg{{end}}

@@ -7,12 +7,12 @@ Inputs (same as for "index" template):
 - .Dir: content directory, used to build image URLs
 */ -}}
 {{- with .Content }}
-<div class="content drop" data-name="{{ .GetName }}"{{ if hasPrefix $.CurrentPath "People" }} data-viewport="circle"{{ end }} data-dir="{{ $.Dir }}"{{ if .Source }} data-source="{{ .Source }}"{{ end }} tabindex="0">
+<div class="content drop" data-name="{{ .GetName }}"{{ if isPerson $.CurrentPath }} data-viewport="circle"{{ end }} data-dir="{{ $.Dir }}"{{ if .Source }} data-source="{{ .Source }}"{{ end }} tabindex="0">
     {{- with .HTML }}{{ . }}{{ end }}
     {{- with .Image }}
     <div class="thumb
         {{- if isJPG .Path }} jpg{{ end }}
-        {{- if hasPrefix $.CurrentPath "People" }} people{{ end -}}
+        {{- if isPerson $.CurrentPath }} people{{ end -}}
         " style="background-image: url('{{ config "MediaHost" }}/{{ $.Dir }}/{{ .ThumbPath }}');
         {{- thumbStylePct . -}}"></div>
     {{- end }}
