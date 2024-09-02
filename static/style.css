@@ -959,10 +959,9 @@ fieldset.radio label:last-of-type {
   border-radius: var(--border-radius-medium);
 }
 
-[data-view="icons"] .panel li a.people::before,
-[data-view="icons"] .panel li a.has-image[href^="/People/"]::before {
+[data-view="icons"] .panel li a.people::before {
   box-shadow: var(--shadow-avatar);
-  border-radius: var(--border-radius-avatar);
+  border-radius: var(--border-radius-avatar) !important;
 }
 
 [data-view="icons"] .panel li .folder::before {
@@ -1086,9 +1085,8 @@ fieldset.radio label:last-of-type {
   outline: var(--outline-small);
 }
 
-[data-view="list"] .panel li a.people::before,
-[data-view="list"] .panel li a.has-image[href^="/People/"]::before {
-  border-radius: var(--border-radius-avatar);
+[data-view="list"] .panel li a.people::before {
+  border-radius: var(--border-radius-avatar) !important;
   box-shadow: var(--shadow-small);
   outline: var(--outline-small);
 }
@@ -1141,9 +1139,8 @@ fieldset.radio label:last-of-type {
   margin-right: calc(var(--small-comp-margin-right) + 5px);
 }
 
-[data-view="columns"] .panel a.people::before,
-[data-view="columns"] .panel a.has-image[href^="/People/"]::before {
-  border-radius: var(--border-radius-avatar);
+[data-view="columns"] .panel a.people::before {
+  border-radius: var(--border-radius-avatar) !important;
   box-shadow: var(--shadow-small);
   outline: var(--outline-small);
 }
