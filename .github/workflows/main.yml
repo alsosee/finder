@@ -9,6 +9,7 @@ on:
 jobs:
   main:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,11 +54,3 @@ jobs:
           token: ${{ secrets.PKG_TOKEN }}
           repository: alsosee/ru
           event-type: finder
-
-      # - name: Trigger index
-      #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      #   uses: peter-evans/repository-dispatch@v3
-      #   with:
-      #     token: ${{ secrets.PKG_TOKEN }}
-      #     repository: alsosee/search
-      #     event-type: index
