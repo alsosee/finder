@@ -3,7 +3,10 @@ package main
 
 import (
 	"log"
+	"os"
 	"reflect"
+	"runtime/pprof"
+	"time"
 
 	flags "github.com/jessevdk/go-flags"
 )
@@ -48,6 +51,17 @@ func main() {
 		log.Fatalf("Error parsing flags: %v", err)
 	}
 
+	fn := run
+	if cfg.Profile {
+		fn = profileWrapper(run, "cpu.pprof", "mem.pprof")
+	}
+
+	if err := fn(); err != nil {
+		log.Fatalf("Error running app: %v", err)
+	}
+}
+
+func run() error {
 	generator, err := NewGenerator()
 	if err != nil {
 		log.Fatalf("Error creating generator: %v", err)
@@ -55,5 +69,37 @@ func main() {
 
 	if err := generator.Run(); err != nil {
 		log.Fatalf("Error running generator: %v", err)
+	}
+
+	return nil
+}
+
+func profileWrapper(fn func() error, cpuProfile, memProfile string) func() error {
+	return func() error {
+		f, err := os.Create("cpu.pprof")
+		if err != nil {
+			return err
+		}
+		if err := pprof.StartCPUProfile(f); err != nil {
+			return err
+		}
+
+		err = fn()
+		if err != nil {
+			return err
+		}
+
+		// Stop CPU profiling and take a memory snapshot
+		pprof.StopCPUProfile()
+		f, err = os.Create("mem.pprof")
+		if err != nil {
+			return err
+		}
+		if err := pprof.WriteHeapProfile(f); err != nil {
+			return err
+		}
+		f.Close()
+
+		return err
 	}
 }
