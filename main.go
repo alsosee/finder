@@ -2,13 +2,16 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"reflect"
 	"runtime/pprof"
 	"time"
 
 	flags "github.com/jessevdk/go-flags"
+	"github.com/meilisearch/meilisearch-go"
 )
 
 // Config represents an app configuration.
@@ -24,9 +27,17 @@ type Config struct {
 	SearchHost         string `env:"INPUT_SEARCH_HOST" short:"h" long:"search-host" description:"Host for search" default:""`
 	SearchAPIKey       string `env:"INPUT_SEARCH_API_KEY" short:"k" long:"search-api-key" description:"API key for search" default:""`
 	NumWorkers         int    `env:"INPUT_NUMWORKERS" short:"w" long:"workers" description:"Number of workers to use" default:"4"`
+
+	SearchMasterKey string        `env:"INPUT_MASTER_KEY" long:"master-key" description:"search master key"`
+	SearchIndexName string        `env:"INPUT_INDEX" long:"index" description:"search index name" default:"info"`
+	StateFile       string        `env:"INPUT_STATE_FILE" long:"state-file" description:"path to state file" default:".state"`
+	Force           string        `env:"INPUT_FORCE" long:"force" description:"force reindexing specified path (\"all\" will reindex everything)" default:""`
+	Timeout         time.Duration `env:"INPUT_TIMEOUT" long:"timeout" description:"search timeout" default:"5s"`
+
+	Profile bool `env:"INPUT_PROFILE" long:"profile" description:"enable profiling"`
 }
 
-var cfg Config // global config
+var cfg Config // global env config
 
 // GetString returns the value of the environment variable named by the key.
 // If the variable is not present, GetString returns empty string.
@@ -57,18 +68,44 @@ func main() {
 	}
 
 	if err := fn(); err != nil {
-		log.Fatalf("Error running app: %v", err)
+		log.Fatalf("Error %v", err)
 	}
 }
 
 func run() error {
 	generator, err := NewGenerator()
 	if err != nil {
-		log.Fatalf("Error creating generator: %v", err)
+		return fmt.Errorf("creating generator: %v", err)
 	}
 
 	if err := generator.Run(); err != nil {
-		log.Fatalf("Error running generator: %v", err)
+		return fmt.Errorf("running generator: %v", err)
+	}
+
+	client := meilisearch.New(
+		cfg.SearchHost,
+		meilisearch.WithAPIKey(cfg.SearchMasterKey),
+		meilisearch.WithCustomClient(&http.Client{
+			Timeout: cfg.Timeout,
+		}),
+	)
+
+	indexer, err := NewIndexer(
+		client,
+		cfg.InfoDirectory,
+		cfg.MediaDirectory,
+	)
+	if err != nil {
+		return fmt.Errorf("creating indexer: %v", err)
+	}
+
+	if err := indexer.Index(
+		cfg.StateFile,
+		cfg.IgnoreFile,
+		cfg.SearchIndexName,
+		cfg.Force,
+	); err != nil {
+		return fmt.Errorf("indexing: %v", err)
 	}
 
 	return nil
@@ -76,12 +113,12 @@ func run() error {
 
 func profileWrapper(fn func() error, cpuProfile, memProfile string) func() error {
 	return func() error {
-		f, err := os.Create("cpu.pprof")
+		f, err := os.Create(cpuProfile)
 		if err != nil {
-			return err
+			return fmt.Errorf("creating cpu profile: %v", err)
 		}
 		if err := pprof.StartCPUProfile(f); err != nil {
-			return err
+			return fmt.Errorf("starting cpu profile: %v", err)
 		}
 
 		err = fn()
@@ -91,15 +128,17 @@ func profileWrapper(fn func() error, cpuProfile, memProfile string) func() error
 
 		// Stop CPU profiling and take a memory snapshot
 		pprof.StopCPUProfile()
-		f, err = os.Create("mem.pprof")
+		f, err = os.Create(memProfile)
 		if err != nil {
-			return err
+			return fmt.Errorf("creating memory profile: %v", err)
 		}
 		if err := pprof.WriteHeapProfile(f); err != nil {
-			return err
+			return fmt.Errorf("writing memory profile: %v", err)
 		}
-		f.Close()
+		if err = f.Close(); err != nil {
+			return fmt.Errorf("closing memory profile: %v", err)
+		}
 
-		return err
+		return nil
 	}
 }
