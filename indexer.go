@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/meilisearch/meilisearch-go"
+	gitignore "github.com/sabhiram/go-gitignore"
 	"gopkg.in/yaml.v3"
 
 	"github.com/alsosee/finder/structs"
@@ -26,6 +27,7 @@ var errNotFound = fmt.Errorf("not found")
 // Indexer reads files and writes them to a MeiliSearch index.
 type Indexer struct {
 	client meilisearch.ServiceManager
+	ignore *gitignore.GitIgnore
 
 	state   map[string]string
 	muState sync.Mutex
@@ -42,6 +44,7 @@ type Indexer struct {
 // NewIndexer creates a new Indexer.
 func NewIndexer(
 	client meilisearch.ServiceManager,
+	ignore *gitignore.GitIgnore,
 	infoDir string,
 	mediaDir string,
 ) (*Indexer, error) {
@@ -52,6 +55,7 @@ func NewIndexer(
 
 	return &Indexer{
 		client:        client,
+		ignore:        ignore,
 		state:         make(map[string]string),
 		toUpdateThumb: make(map[string]interface{}),
 		infoDir:       infoDir,
@@ -60,12 +64,7 @@ func NewIndexer(
 }
 
 // Index reads files from the info directory and writes them to the MeiliSearch.
-func (i *Indexer) Index(stateFile, ignoreFile, index, force string) error {
-	ignore, err := processIgnoreFile(filepath.Join(i.infoDir, ignoreFile))
-	if err != nil {
-		return fmt.Errorf("processing ignore file: %w", err)
-	}
-
+func (i *Indexer) Index(stateFile, index, force string) error {
 	absDir, err := filepath.Abs(i.infoDir)
 	if err != nil {
 		return fmt.Errorf("getting absolute path: %w", err)
@@ -77,7 +76,7 @@ func (i *Indexer) Index(stateFile, ignoreFile, index, force string) error {
 
 		relPath := strings.TrimPrefix(path, absDir+string(filepath.Separator))
 
-		if ignore.MatchesPath(relPath) {
+		if i.ignore.MatchesPath(relPath) {
 			return nil
 		}
 

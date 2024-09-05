@@ -3,12 +3,14 @@ package main
 import (
 	"testing"
 
+	gitignore "github.com/sabhiram/go-gitignore"
+
 	"github.com/alsosee/finder/structs"
 )
 
 func TestGetFilesForPathSimple(t *testing.T) {
 	cfg = Config{TemplatesDirectory: "templates", ConfigFile: "config.test.yml"}
-	g, err := NewGenerator()
+	g, err := NewGenerator(&gitignore.GitIgnore{})
 	if err != nil {
 		t.Fatalf("error creating generator: %v", err)
 	}

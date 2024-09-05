@@ -73,7 +73,12 @@ func main() {
 }
 
 func run() error {
-	generator, err := NewGenerator()
+	ignore, err := processIgnoreFile(cfg.IgnoreFile)
+	if err != nil {
+		return fmt.Errorf("processing ignore file: %w", err)
+	}
+
+	generator, err := NewGenerator(ignore)
 	if err != nil {
 		return fmt.Errorf("creating generator: %v", err)
 	}
@@ -92,6 +97,7 @@ func run() error {
 
 	indexer, err := NewIndexer(
 		client,
+		ignore,
 		cfg.InfoDirectory,
 		cfg.MediaDirectory,
 	)
@@ -101,7 +107,6 @@ func run() error {
 
 	if err := indexer.Index(
 		cfg.StateFile,
-		cfg.IgnoreFile,
 		cfg.SearchIndexName,
 		cfg.Force,
 	); err != nil {

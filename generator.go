@@ -69,12 +69,7 @@ type Generator struct {
 }
 
 // NewGenerator creates a new Generator.
-func NewGenerator() (*Generator, error) {
-	ignore, err := processIgnoreFile(cfg.IgnoreFile)
-	if err != nil {
-		return nil, fmt.Errorf("processing ignore file: %w", err)
-	}
-
+func NewGenerator(ignore *gitignore.GitIgnore) (*Generator, error) {
 	config, err := parseConfig(cfg.ConfigFile)
 	if err != nil {
 		return nil, fmt.Errorf("parsing site config: %w", err)
