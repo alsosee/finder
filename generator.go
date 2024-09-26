@@ -119,13 +119,14 @@ func parseConfig(configFile string) (structs.Config, error) {
 
 func (g *Generator) fm() template.FuncMap {
 	return template.FuncMap{
-		"config":    cfg.GetString,
-		"join":      filepath.Join,
-		"dir":       filepath.Dir,
-		"base":      filepath.Base,
-		"hasPrefix": strings.HasPrefix,
-		"strjoin":   strings.Join,
-		"isPerson":  structs.IsPerson,
+		"config":       cfg.GetString,
+		"join":         filepath.Join,
+		"dir":          filepath.Dir,
+		"base":         filepath.Base,
+		"hasPrefix":    strings.HasPrefix,
+		"strjoin":      strings.Join,
+		"isPerson":     structs.IsPerson,
+		"personPrefix": structs.PersonPrefix,
 		"sum": func(ints ...int) int {
 			var sum int
 			for _, i := range ints {

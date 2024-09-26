@@ -596,6 +596,10 @@ func IsPerson(path string) bool {
 	return pathType(path) == "People"
 }
 
+func PersonPrefix() string {
+	return "People"
+}
+
 func length(a time.Duration) string {
 	if a == 0 {
 		return ""

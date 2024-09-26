@@ -12,22 +12,22 @@ Inputs:
 {{- end }}
     <span class="name">{{ .Character.Name }}</span>
 {{- if .Character.Actor }}
-    {{- $actorID := join "People/" .Character.Actor }}
+    {{- $actorID := join personPrefix "/" .Character.Actor }}
     {{- $person := content $actorID }}
     {{- if $person }}
-    <span><a class="actor" href="/People/{{ .Character.Actor }}">{{ .Character.Actor }}</a>{{ template "awards" .Character.Awards }}</span>
+    <span><a class="actor" href="/{{ personPrefix }}/{{ .Character.Actor }}">{{ .Character.Actor }}</a>{{ template "awards" .Character.Awards }}</span>
     {{- else if gt (len (connections $actorID)) 1 }}
-    <span><a class="actor missing" href="/People/{{ .Character.Actor }}">{{ .Character.Actor }}</a>{{ template "awards" .Character.Awards }}</span>
+    <span><a class="actor missing" href="/{{ personPrefix }}/{{ .Character.Actor }}">{{ .Character.Actor }}</a>{{ template "awards" .Character.Awards }}</span>
     {{- else }}
     <span><span class="actor missing">{{ .Character.Actor }}</span>{{ template "awards" .Character.Awards }}</span>
     {{- end }}
 {{- else if .Character.Voice }}
-    {{- $actorID := join "People/" .Character.Voice }}
+    {{- $actorID := join personPrefix "/" .Character.Voice }}
     {{- $person := content $actorID }}
     {{- if $person }}
-    <span><a class="actor" href="/People/{{ .Character.Voice }}">{{ .Character.Voice }}</a>{{ template "awards" .Character.Awards }}</span>
+    <span><a class="actor" href="/{{ personPrefix }}/{{ .Character.Voice }}">{{ .Character.Voice }}</a>{{ template "awards" .Character.Awards }}</span>
     {{- else if gt (len (connections $actorID)) 1 }}
-    <span><a class="actor missing" href="/People/{{ .Character.Voice }}">{{ .Character.Voice }}</a>{{ template "awards" .Character.Awards }}</span>
+    <span><a class="actor missing" href="/{{ personPrefix }}/{{ .Character.Voice }}">{{ .Character.Voice }}</a>{{ template "awards" .Character.Awards }}</span>
     {{- else }}
     <span><span class="actor">{{ .Character.Voice }}</span>{{ template "awards" .Character.Awards }}</span>
     {{- end }}

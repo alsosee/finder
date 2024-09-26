@@ -143,6 +143,14 @@ func IsPerson(path string) bool {
 	{{- end }}
 }
 
+func PersonPrefix() string {
+    {{- range .RootTypes }}
+	{{- if or (eq .Path "People") (eq .Meta "People") }}
+	return "{{ .Path }}"
+    {{- end }}
+    {{- end }}
+}
+
 func length(a time.Duration) string {
 	if a == 0 {
 		return ""
