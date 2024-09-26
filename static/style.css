@@ -487,6 +487,7 @@ fieldset.radio label:last-of-type {
   list-style: none;
   cursor: default;
   overflow-y: scroll;
+  scrollbar-width: thin;
 }
 
 /* panel li is a file or directory */
@@ -709,7 +710,7 @@ fieldset.radio label:last-of-type {
   margin: 0;
   display: grid;
   gap: 0;
-  grid-template-columns: repeat(auto-fill, 150px);
+  grid-template-columns: repeat(auto-fill, 25%);
   align-content: start;
   clear: both;
 }
@@ -784,7 +785,7 @@ fieldset.radio label:last-of-type {
 }
 
 .episodes .characters {
-  grid-template-columns: repeat(auto-fill, 140px);
+  grid-template-columns: repeat(auto-fill, 25%);
 }
 
 .episodes .characters li {
