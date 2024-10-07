@@ -2,10 +2,7 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
-	"hash/crc32"
-	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -47,6 +44,7 @@ func NewIndexer(
 	ignore *gitignore.GitIgnore,
 	infoDir string,
 	mediaDir string,
+	state map[string]string,
 ) (*Indexer, error) {
 	mediaAbsPath, err := filepath.Abs(mediaDir)
 	if err != nil {
@@ -56,7 +54,7 @@ func NewIndexer(
 	return &Indexer{
 		client:        client,
 		ignore:        ignore,
-		state:         make(map[string]string),
+		state:         state,
 		toUpdateThumb: make(map[string]interface{}),
 		infoDir:       infoDir,
 		mediaAbsPath:  mediaAbsPath,
@@ -65,39 +63,6 @@ func NewIndexer(
 
 // Index reads files from the info directory and writes them to the MeiliSearch.
 func (i *Indexer) Index(stateFile, index, force string) error {
-	absDir, err := filepath.Abs(i.infoDir)
-	if err != nil {
-		return fmt.Errorf("getting absolute path: %w", err)
-	}
-	err = filepath.Walk(absDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return fmt.Errorf("walking directory: %w", err)
-		}
-
-		relPath := strings.TrimPrefix(path, absDir+string(filepath.Separator))
-
-		if i.ignore.MatchesPath(relPath) {
-			return nil
-		}
-
-		if info.IsDir() {
-			return nil
-		}
-
-		ext := filepath.Ext(path)
-		if ext != ".yml" && ext != ".yaml" { // && ext != ".md" {
-			return nil
-		}
-
-		if err := i.addFile(path, relPath); err != nil {
-			return fmt.Errorf("adding file: %w", err)
-		}
-		return nil
-	})
-	if err != nil {
-		return fmt.Errorf("walking directory: %w", err)
-	}
-
 	state, err := readStateFromFile(stateFile)
 	if err != nil {
 		return fmt.Errorf("reading state file: %w", err)
@@ -114,36 +79,23 @@ func (i *Indexer) Index(stateFile, index, force string) error {
 	return nil
 }
 
-func (i *Indexer) addFile(path, relPath string) error {
-	i.muState.Lock()
-	defer i.muState.Unlock()
-
-	hash, err := hash(path)
-	if err != nil {
-		return fmt.Errorf("hashing file: %w", err)
-	}
-
-	i.state[relPath] = hash
-	return nil
-}
-
 func (i *Indexer) updateIndex(oldState map[string]string, index, force string) error {
-	if force == "all" {
-		return i.addToIndexAll(index)
-	}
-	if force != "" {
-		var forceList []string
-		if strings.HasPrefix(force, "[") {
-			// force is a JSON array
-			if err := json.Unmarshal([]byte(force), &forceList); err != nil {
-				return fmt.Errorf("parsing force list: %w", err)
-			}
-		} else {
-			// split force string by comma
-			forceList = strings.Split(force, ",")
-		}
-		return i.addToIndex(forceList, index)
-	}
+	// if force == "all" {
+	// 	return i.addToIndexAll(index)
+	// }
+	// if force != "" {
+	// 	var forceList []string
+	// 	if strings.HasPrefix(force, "[") {
+	// 		// force is a JSON array
+	// 		if err := json.Unmarshal([]byte(force), &forceList); err != nil {
+	// 			return fmt.Errorf("parsing force list: %w", err)
+	// 		}
+	// 	} else {
+	// 		// split force string by comma
+	// 		forceList = strings.Split(force, ",")
+	// 	}
+	// 	return i.addToIndex(forceList, index)
+	// }
 
 	// find deleted files
 	var toDelete []string
@@ -372,22 +324,6 @@ func (i *Indexer) waitForTask(taskID int64, timeout time.Duration) error {
 		return fmt.Errorf("task failed: %s", task.Error)
 	}
 	return nil
-}
-
-// hash returns the CRC32 checksum of the file at the given path.
-func hash(path string) (string, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return "", fmt.Errorf("opening file: %w", err)
-	}
-	defer file.Close()
-
-	hash := crc32.NewIEEE()
-	if _, err := io.Copy(hash, file); err != nil {
-		return "", fmt.Errorf("calculating CRC32 checksum: %w", err)
-	}
-
-	return fmt.Sprintf("%x", hash.Sum32()), nil
 }
 
 func readStateFromFile(stateFile string) (map[string]string, error) {

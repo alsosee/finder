@@ -28,9 +28,9 @@ type Config struct {
 	SearchAPIKey       string `env:"INPUT_SEARCH_API_KEY" short:"k" long:"search-api-key" description:"API key for search" default:""`
 	NumWorkers         int    `env:"INPUT_NUMWORKERS" short:"w" long:"workers" description:"Number of workers to use" default:"4"`
 
-	SearchMasterKey string        `env:"INPUT_MASTER_KEY" long:"master-key" description:"search master key"`
-	SearchIndexName string        `env:"INPUT_INDEX" long:"index" description:"search index name" default:"info"`
-	StateFile       string        `env:"INPUT_STATE_FILE" long:"state-file" description:"path to state file" default:".state"`
+	SearchMasterKey string        `env:"INPUT_SEARCH_MASTER_KEY" long:"master-key" description:"search master key"`
+	SearchIndexName string        `env:"INPUT_SEARCH_INDEX" long:"index" description:"search index name" default:"info"`
+	StateFile       string        `env:"INPUT_SEARCH_STATE" long:"state-file" description:"path to state file" default:".state"`
 	Force           string        `env:"INPUT_FORCE" long:"force" description:"force reindexing specified path (\"all\" will reindex everything)" default:""`
 	Timeout         time.Duration `env:"INPUT_TIMEOUT" long:"timeout" description:"search timeout" default:"5s"`
 
@@ -100,6 +100,7 @@ func run() error {
 		ignore,
 		cfg.InfoDirectory,
 		cfg.MediaDirectory,
+		generator.hashes,
 	)
 	if err != nil {
 		return fmt.Errorf("creating indexer: %v", err)

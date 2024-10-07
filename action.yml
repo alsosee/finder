@@ -23,13 +23,25 @@ inputs:
   search_host:
     description: Host of MeiliSearch
     required: false
+  search_index:
+    description: Name of MeiliSearch index
+    required: false
   search_api_key:
     description: Public API key of MeiliSearch
+    required: false
+  search_master_key:
+    description: Master API key of MeiliSearch
+    required: false
+  search_state:
+    description: File to store search state
     required: false
   num_workers:
     description: Number of workers to use
     required: false
     default: "4"
+  ignorefile:
+    description: File used to list files to ignore
+    required: false
 
 runs:
   using: docker

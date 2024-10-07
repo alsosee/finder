@@ -56,6 +56,11 @@ type Generator struct {
 
 	renderedPanelsCache map[string]string
 
+	// hashes is map of CRC32 hashes for each file.
+	// key is a file path, value is a hash.
+	// Used by indexer to check if file was changed.
+	hashes map[string]string
+
 	awardPages []string
 
 	muContents             sync.Mutex // protects writes to contents
@@ -66,6 +71,7 @@ type Generator struct {
 	muAwardsMissingContent sync.Mutex // protects writes to awardsMissingContent
 	muChainPages           sync.Mutex // protects writes to chainPages
 	muRenderedPanels       sync.Mutex // protects writes to renderedPanelsCache
+	muHashes               sync.Mutex // protects writes to hashes
 }
 
 // NewGenerator creates a new Generator.
@@ -85,6 +91,7 @@ func NewGenerator(ignore *gitignore.GitIgnore) (*Generator, error) {
 		chainPages:           map[string]map[bool]string{},
 		awardsMissingContent: map[string][]structs.Award{},
 		renderedPanelsCache:  map[string]string{},
+		hashes:               map[string]string{},
 	}, nil
 }
 
@@ -754,6 +761,8 @@ func (g *Generator) processYAMLFile(file string) error {
 		return fmt.Errorf("reading file: %w", err)
 	}
 
+	g.addHash(file, b)
+
 	var content structs.Content
 	if err = yaml.Unmarshal(b, &content); err != nil {
 		return fmt.Errorf("unmarshaling yaml: %w", err)
@@ -942,6 +951,13 @@ func (g *Generator) addFile(path string) {
 		Image: g.getImageForPath(removeFileExtention(path)),
 	})
 	g.muDir.Unlock()
+}
+
+func (g *Generator) addHash(path string, b []byte) {
+	g.muHashes.Lock()
+	defer g.muHashes.Unlock()
+
+	g.hashes[path] = fmt.Sprintf("%x", crc32.ChecksumIEEE(b))
 }
 
 func (g *Generator) addDir(path string) {
