@@ -9,7 +9,6 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/meilisearch/meilisearch-go"
@@ -26,8 +25,7 @@ type Indexer struct {
 	client meilisearch.ServiceManager
 	ignore *gitignore.GitIgnore
 
-	state   map[string]string
-	muState sync.Mutex
+	state map[string]string
 
 	// toUpdateThumb is a map of paths that need to be updated additionally.
 	// Processing a single document can trigger processing of another
@@ -80,9 +78,9 @@ func (i *Indexer) Index(stateFile, index, force string) error {
 }
 
 func (i *Indexer) updateIndex(oldState map[string]string, index, force string) error {
-	// if force == "all" {
-	// 	return i.addToIndexAll(index)
-	// }
+	if force == "all" {
+		return i.addToIndexAll(index)
+	}
 	// if force != "" {
 	// 	var forceList []string
 	// 	if strings.HasPrefix(force, "[") {
