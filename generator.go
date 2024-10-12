@@ -416,6 +416,9 @@ func (g *Generator) fm() template.FuncMap {
 		"type": func(c structs.Content) string {
 			return c.Type()
 		},
+		"contentFieldName": func(field string) string {
+			return structs.ContentFieldName(field)
+		},
 		"series": series,
 		"isLast": func(i, total int) bool {
 			return i == total-1

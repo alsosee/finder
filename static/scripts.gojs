@@ -390,7 +390,7 @@ if (typeof hasRun === 'undefined') {
                 }
 
                 return {
-                    name: hit.Name || hit.Title,
+                    name: hit.{{ contentFieldName "name" }} || hit.{{ contentFieldName "title" }},
                     href: path,
                     attr: attr,
                     columns: columns

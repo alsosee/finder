@@ -151,6 +151,32 @@ func PersonPrefix() string {
     {{- end }}
 }
 
+func ContentFieldName(field string) string {
+	{{- $nameAlias := "" }}
+	{{- $titleAlias := "" }}
+	{{- range .Content.Properties }}
+	{{- if (eq .Alias "name") }}
+	{{- $nameAlias = .Name }}
+	{{- end }}
+	{{- if (eq .Alias "title") }}
+	{{- $titleAlias = .Name }}
+	{{- end }}
+	{{- end }}
+
+	{{- if $nameAlias }}
+	if field == "name" {
+		return "{{ $nameAlias }}"
+	}
+	{{- end }}
+
+	{{- if $titleAlias }}
+	if field == "title" {
+		return "{{ $titleAlias }}"
+	}
+	{{- end }}
+	return field
+}
+
 func length(a time.Duration) string {
 	if a == 0 {
 		return ""

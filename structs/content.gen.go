@@ -600,6 +600,10 @@ func PersonPrefix() string {
 	return "People"
 }
 
+func ContentFieldName(field string) string {
+	return field
+}
+
 func length(a time.Duration) string {
 	if a == 0 {
 		return ""
