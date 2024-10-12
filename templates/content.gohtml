@@ -8,6 +8,7 @@ Inputs (same as for "index" template):
 */ -}}
 {{- with .Content }}
 <div class="content drop" data-name="{{ .GetName }}"{{ if isPerson $.CurrentPath }} data-viewport="circle"{{ end }} data-dir="{{ $.Dir }}"{{ if .Source }} data-source="{{ .Source }}"{{ end }} tabindex="0">
+<div class="content-inner">
     {{- with .HTML }}{{ . }}{{ end }}
     {{- with .Image }}
     <div class="thumb
@@ -277,6 +278,7 @@ Inputs (same as for "index" template):
         {{- end -}}
     </pre>
     {{- end }}
+</div>
 </div>
 {{- end }}
 {{- end }}

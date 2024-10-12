@@ -545,10 +545,28 @@ fieldset.radio label:last-of-type {
 .content {
   height: 100%;
   width: 641px; /* 640 + 1px border */
-  padding: 20px;
   overflow-y: auto;
   border-right: 1px solid var(--color-border);
   flex-shrink: 0;
+}
+
+.content-inner {
+  padding: 20px;
+}
+
+[data-view="icons"] .content,
+[data-view="list"] .content {
+  width: 100%;
+  border: none;
+  padding: 0;
+}
+
+[data-view="icons"] .content-inner,
+[data-view="list"] .content-inner {
+  width: 642px; /* 640 + 2px border */
+  border-right: 1px solid var(--color-border);
+  border-left: 1px solid var(--color-border);
+  margin: 0 auto;
 }
 
 .content:focus {
@@ -1628,6 +1646,19 @@ p .award + .award {
   }
 
   .content .characters {
+    justify-content: space-around;
+  }
+}
+
+@media (max-width: 642px) {
+  [data-view="icons"] .content-inner,
+  [data-view="list"] .content-inner {
+    width: 100%;
+    border: none;
+  }
+
+  [data-view="icons"] .content .characters,
+  [data-view="list"] .content .characters {
     justify-content: space-around;
   }
 }
