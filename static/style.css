@@ -557,13 +557,22 @@ fieldset.radio label:last-of-type {
 [data-view="icons"] .content,
 [data-view="list"] .content {
   width: 100%;
+  background: var(--color-background-secondary);
   border: none;
   padding: 0;
+}
+
+[data-view="icons"] .content:focus,
+[data-view="list"] .content:focus {
+  outline: none;
+  box-shadow: none; /* .content-inner shown on top of shadow */
 }
 
 [data-view="icons"] .content-inner,
 [data-view="list"] .content-inner {
   width: 642px; /* 640 + 2px border */
+  min-height: 100%;
+  background: var(--color-background);
   border-right: 1px solid var(--color-border);
   border-left: 1px solid var(--color-border);
   margin: 0 auto;
