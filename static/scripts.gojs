@@ -181,19 +181,19 @@ if (typeof hasRun === 'undefined') {
             return "";
         }
 
-        var backgroundWidth = media.ThumbTotalWidth * max / media.ThumbWidth;
-        var backgroundHeight = media.ThumbTotalHeight * max / media.ThumbWidth;
-        var positionX = (media.ThumbXOffset || 0) * max / media.ThumbWidth;
-        var positionY = (media.ThumbYOffset || 0) * max / media.ThumbWidth;
+        var backgroundWidth = media.thumb_total_width * max / media.thumb_width;
+        var backgroundHeight = media.thumb_total_height * max / media.thumb_width;
+        var positionX = (media.thumb_x || 0) * max / media.thumb_width;
+        var positionY = (media.thumb_y || 0) * max / media.thumb_width;
         var width = max;
-        var height = media.ThumbHeight * max / media.ThumbWidth;
+        var height = media.thumb_height * max / media.thumb_width;
 
-        if (media.Height > media.Width) {
-          backgroundWidth = media.ThumbTotalWidth * max / media.ThumbHeight;
-          backgroundHeight = media.ThumbTotalHeight * max / media.ThumbHeight;
-          positionX = (media.ThumbXOffset || 0) * max / media.ThumbHeight;
-          positionY = (media.ThumbYOffset || 0) * max / media.ThumbHeight;
-          width = media.ThumbWidth * max / media.ThumbHeight;
+        if (media.height > media.width) {
+          backgroundWidth = media.thumb_total_width * max / media.thumb_height;
+          backgroundHeight = media.thumb_total_height * max / media.thumb_height;
+          positionX = (media.thumb_x || 0) * max / media.thumb_height;
+          positionY = (media.thumb_y || 0) * max / media.thumb_height;
+          width = media.thumb_width * max / media.thumb_height;
           height = max;
         }
 
@@ -381,7 +381,7 @@ if (typeof hasRun === 'undefined') {
                         linkClass += " jpg";
                     }
 
-                    attr = `style="--background-image: url('{{ config "MediaHost" }}/${dir}/${hit.image.ThumbPath}'); ${thumbStylePx(hit.image, 100, "--")}; ${thumbStylePx(hit.image, 24, "--small-")}" class="${linkClass}"`;
+                    attr = `style="--background-image: url('{{ config "MediaHost" }}/${dir}/${hit.image.thumb}'); ${thumbStylePx(hit.image, 100, "--")}; ${thumbStylePx(hit.image, 24, "--small-")}" class="${linkClass}"`;
                 }
                 var columns = collectColumns(hit);
                 for (var key in columns) {
