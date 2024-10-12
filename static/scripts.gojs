@@ -374,14 +374,14 @@ if (typeof hasRun === 'undefined') {
                 const path = hit.Source.substring(0, hit.Source.lastIndexOf('.'))
                 const dir = path.substring(0, path.lastIndexOf('/'));
                 var attr = "";
-                if (hit.Image) {
-                    const ext = hit.Image.Path.substring(hit.Image.Path.lastIndexOf('.') + 1)
+                if (hit.image) {
+                    const ext = hit.image.Path.substring(hit.image.Path.lastIndexOf('.') + 1)
                     var linkClass = "has-image";
                     if (ext == "jpg" || ext == "jpeg") {
                         linkClass += " jpg";
                     }
 
-                    attr = `style="--background-image: url('{{ config "MediaHost" }}/${dir}/${hit.Image.ThumbPath}'); ${thumbStylePx(hit.Image, 100, "--")}; ${thumbStylePx(hit.Image, 24, "--small-")}" class="${linkClass}"`;
+                    attr = `style="--background-image: url('{{ config "MediaHost" }}/${dir}/${hit.image.ThumbPath}'); ${thumbStylePx(hit.image, 100, "--")}; ${thumbStylePx(hit.image, 24, "--small-")}" class="${linkClass}"`;
                 }
                 var columns = collectColumns(hit);
                 for (var key in columns) {
