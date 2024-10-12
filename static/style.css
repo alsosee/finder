@@ -728,7 +728,7 @@ fieldset.radio label:last-of-type {
   margin: 0;
   display: grid;
   gap: 0;
-  grid-template-columns: repeat(auto-fill, 25%);
+  grid-template-columns: repeat(auto-fill, minmax(135px, 25%));
   align-content: start;
   clear: both;
 }
@@ -800,10 +800,6 @@ fieldset.radio label:last-of-type {
 
 .episodes > li + li {
   margin-top: 15px;
-}
-
-.episodes .characters {
-  grid-template-columns: repeat(auto-fill, 25%);
 }
 
 .episodes .characters li {
