@@ -2,7 +2,7 @@
         <ul class="panel menubar-navigation" role="menu" data-level="{{ .Index }}" onclick="panelClick(event)">
             <li role="none" class="header">
                 <span class="icon"></span>
-                <span>Name</span>
+                <span>{{ .Config.ColumnName }}</span>
                 {{- range $columns }}
                 <span class="column" data-label="{{ . }}">{{ . }}</span>
                 {{- end }}

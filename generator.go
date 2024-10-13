@@ -1026,11 +1026,13 @@ func (g *Generator) renderPanel(panel structs.Panel, index int, isLast bool, pat
 func (g *Generator) renderPanelImpl(panel structs.Panel, index int) (string, error) {
 	var b bytes.Buffer
 	err := g.templates.Lookup("panel.gohtml").Execute(&b, struct {
-		Panel structs.Panel
-		Index int
+		Panel  structs.Panel
+		Index  int
+		Config structs.Config
 	}{
-		Panel: panel,
-		Index: index,
+		Panel:  panel,
+		Index:  index,
+		Config: g.config,
 	})
 
 	if err != nil {

@@ -409,8 +409,8 @@ if (typeof hasRun === 'undefined') {
             // for each result item, add "columns" dictionary with fields thay may be shown in list view
             var resultsHeader = `<li role="none" class="header">
                     <span class="icon"></span>
-                    <span>Name</span>
-                    <span class="column">Kind</span>`;
+                    <span>{{ .Config.ColumnName }}</span>
+                    <span class="column">{{ .Config.ColumnKind }}</span>`;
             for (var ci in chosenColumns) {
                 var column = chosenColumns[ci];
                 switch (column) {
@@ -426,7 +426,7 @@ if (typeof hasRun === 'undefined') {
             resultsHeader += `<span class="column expand"></span></li>`;
 
             const resultsHTML = results.map(function(result) {
-                var columns = `<span class="column" data-label="Kind">${kind(result.href)}</span>`;
+                var columns = `<span class="column" data-label="{{ .Config.ColumnKind }}">${kind(result.href)}</span>`;
                 for (var ci in chosenColumns) {
                     var column = chosenColumns[ci];
                     columns += `<span class="column" data-label="${column}">${result.columns[column] || ""}</span>`;

@@ -27,6 +27,10 @@ type Config struct {
 		URL        string `yaml:"url"`
 		LogoShiftY string `yaml:"logo_shift_y"`
 	} `yaml:"menu"`
-	ButtonCancel string `yaml:"button_cancel"`
-	ButtonUpload string `yaml:"button_upload"`
+	ButtonCancel   string `yaml:"button_cancel"`
+	ButtonUpload   string `yaml:"button_upload"`
+	NoResultsLabel string `yaml:"no_results_label"`
+	ColumnName     string `yaml:"column_name"`
+	ColumnKind     string `yaml:"column_kind"`
+	OfLabel        string `yaml:"of_label"`
 }
