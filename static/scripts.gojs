@@ -893,6 +893,11 @@ if (typeof hasRun === 'undefined') {
         }
         e.stopImmediatePropagation();
         if (e.keyCode === 190) { // .
+            // of search input is focused, do nothing
+            if (document.activeElement === searchInput) {
+                return;
+            }
+
             if (document.querySelector('head link[rel="edit"]')) {
                 click(document.querySelector('head link[rel="edit"]').href);
             }
