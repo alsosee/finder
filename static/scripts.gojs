@@ -351,10 +351,10 @@ if (typeof hasRun === 'undefined') {
         if (pushState) {
             console.log("Pushing state", query);
             history.pushState({query: query}, "", "/search?q=" + encodeURIComponent(query));
-            document.title = "Search: " + query;
+            document.title = "{{ .Config.SearchLabel }}: " + query;
         }
 
-        breadcrumbs.innerHTML = `<li role="none"><a role="menuitem" href="/">Home</a></li><li role="none"><span>Search: ${query}</span></li>`;
+        breadcrumbs.innerHTML = `<li role="none"><a role="menuitem" href="/">{{ .Config.HomeLabel }}</a></li><li role="none"><span>{{ .Config.SearchLabel }}: ${query}</span></li>`;
         if (previousQuery.length == 0) {
             panels.innerHTML = `<ul class="panel menubar-navigation" role="menu" data-level="0" id="_"></ul>`;
         }
@@ -444,7 +444,7 @@ if (typeof hasRun === 'undefined') {
         var query = "";
         if (event.state !== null && event.state.query !== undefined) {
             query = event.state.query;
-            document.title = "Search: " + query;
+            document.title = "{{ .Config.SearchLabel }}: " + query;
             search({target: {value: query}}, false);
             searchInput.value = query;
         }
@@ -454,7 +454,7 @@ if (typeof hasRun === 'undefined') {
             if (window.location.pathname.startsWith("/search")) {
                 const url = new URL(window.location.href);
                 query = url.searchParams.get("q");
-                document.title = "Search: " + query;
+                document.title = "{{ .Config.SearchLabel }}: " + query;
                 search({target: {value: query}}, false);
                 searchInput.value = query;
                 return;
@@ -474,7 +474,7 @@ if (typeof hasRun === 'undefined') {
         if (query) {
             previousQuery = query; // bugfix for cases where the user navigates back to the empty search from a page that was loaded directly with a search query
             search({target: {value: query}}, false);
-            document.title = "Search: " + query;
+            document.title = "{{ .Config.SearchLabel }}: " + query;
             searchInput.value = query;
         }
 

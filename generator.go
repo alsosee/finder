@@ -30,7 +30,11 @@ import (
 type Generator struct {
 	templates *template.Template
 	ignore    *gitignore.GitIgnore
-	config    structs.Config
+
+	// config is a site configuration, e.g. title, description, etc.
+	// It is different from Config struct in main package,
+	// which is used to store command line flags.
+	config structs.Config
 
 	contents structs.Contents
 
@@ -837,7 +841,11 @@ func (g *Generator) processGoJSFile(src, out string) error {
 	}
 	defer outFile.Close()
 
-	if err = t.Execute(outFile, nil); err != nil {
+	if err = t.Execute(outFile, struct {
+		Config structs.Config
+	}{
+		Config: g.config,
+	}); err != nil {
 		return fmt.Errorf("executing template: %w", err)
 	}
 
@@ -1102,7 +1110,11 @@ func (g *Generator) generateGoTemplates() error {
 		}
 
 		var buf bytes.Buffer
-		if err := t.Execute(&buf, nil); err != nil {
+		if err := t.Execute(&buf, struct {
+			Config structs.Config
+		}{
+			Config: g.config,
+		}); err != nil {
 			return fmt.Errorf("executing template: %w", err)
 		}
 
