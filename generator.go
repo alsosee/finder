@@ -26,6 +26,8 @@ import (
 	"github.com/alsosee/finder/structs"
 )
 
+var errExecutingTemplate = errors.New("error executing template")
+
 // Generator is a struct that generates a static site.
 type Generator struct {
 	templates *template.Template
@@ -846,7 +848,7 @@ func (g *Generator) processGoJSFile(src, out string) error {
 	}{
 		Config: g.config,
 	}); err != nil {
-		return fmt.Errorf("executing template for %q: %w", src, err)
+		return fmt.Errorf("%w for %q: %w", errExecutingTemplate, src, err)
 	}
 
 	return nil
@@ -1090,7 +1092,7 @@ func (g *Generator) generateContentTemplates() error {
 			Timestamp:   time.Now().Unix(),
 		}, "index.gohtml")
 		if err != nil {
-			return fmt.Errorf("executing template for %q: %w", id, err)
+			return fmt.Errorf("%w for %q: %w", errExecutingTemplate, id, err)
 		}
 	}
 
@@ -1115,7 +1117,7 @@ func (g *Generator) generateGoTemplates() error {
 		}{
 			Config: g.config,
 		}); err != nil {
-			return fmt.Errorf("executing template for %q: %w", id, err)
+			return fmt.Errorf("%w for %q: %w", errExecutingTemplate, id, err)
 		}
 
 		htmlBody := markdown.ToHTML(buf.Bytes(), nil, nil)
@@ -1180,7 +1182,7 @@ func (g *Generator) generateIndexes() error {
 			Connections: nil,
 		}, "index.gohtml")
 		if err != nil {
-			return fmt.Errorf("executing template for %q: %w", dir, err)
+			return fmt.Errorf("%w for %q: %w", errExecutingTemplate, dir, err)
 		}
 	}
 
