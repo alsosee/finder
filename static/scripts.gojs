@@ -381,8 +381,15 @@ if (typeof hasRun === 'undefined') {
                         linkClass += " jpg";
                     }
 
-                    attr = `style="--background-image: url('{{ config "MediaHost" }}/${dir}/${hit.image.thumb}'); ${thumbStylePx(hit.image, 100, "--")}; ${thumbStylePx(hit.image, 24, "--small-")}" class="${linkClass}"`;
+                    attr = `style="--background-image: url('{{ config "MediaHost" }}/${dir}/${hit.image.thumb}'); ${thumbStylePx(hit.image, 100, "--")}; ${thumbStylePx(hit.image, 24, "--small-")}"`;
                 }
+
+                // if path starts with "People", it's a person
+                if (path.startsWith("{{ personPrefix }}")) {
+                    linkClass += " people";
+                }
+                attr += ` class="${linkClass}"`;
+
                 var columns = collectColumns(hit);
                 for (var key in columns) {
                     columnsCounts[key] = columnsCounts[key] || 0;
