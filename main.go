@@ -12,6 +12,7 @@ import (
 
 	flags "github.com/jessevdk/go-flags"
 	"github.com/meilisearch/meilisearch-go"
+	gitignore "github.com/sabhiram/go-gitignore"
 )
 
 // Config represents an app configuration.
@@ -87,6 +88,18 @@ func run() error {
 		return fmt.Errorf("running generator: %v", err)
 	}
 
+	if cfg.SearchMasterKey != "" {
+		if err := indexSite(ignore, generator.hashes); err != nil {
+			return fmt.Errorf("indexing site: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func indexSite(ignore *gitignore.GitIgnore, state map[string]string) error {
+	log.Printf("Current state contains %d entries", len(state))
+
 	client := meilisearch.New(
 		cfg.SearchHost,
 		meilisearch.WithAPIKey(cfg.SearchMasterKey),
@@ -100,21 +113,17 @@ func run() error {
 		ignore,
 		cfg.InfoDirectory,
 		cfg.MediaDirectory,
-		generator.hashes,
+		state,
 	)
 	if err != nil {
 		return fmt.Errorf("creating indexer: %v", err)
 	}
 
-	if err := indexer.Index(
+	return indexer.Index(
 		cfg.StateFile,
 		cfg.SearchIndexName,
 		cfg.Force,
-	); err != nil {
-		return fmt.Errorf("indexing: %v", err)
-	}
-
-	return nil
+	)
 }
 
 func profileWrapper(fn func() error, cpuProfile, memProfile string) func() error {
