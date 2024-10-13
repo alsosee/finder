@@ -66,6 +66,8 @@ func (i *Indexer) Index(stateFile, index, force string) error {
 		return fmt.Errorf("reading state file: %w", err)
 	}
 
+	log.Printf("State file contains %d entries", len(state))
+
 	if err := i.updateIndex(state, index, force); err != nil {
 		return fmt.Errorf("updating index: %w", err)
 	}
@@ -126,6 +128,8 @@ func (i *Indexer) deleteFromIndex(paths []string, index string) error {
 	if len(paths) == 0 {
 		return nil
 	}
+
+	log.Printf("Deleting %d documents from index", len(paths))
 
 	// todo fix IDs
 	task, err := i.client.Index(index).DeleteDocuments(paths)
