@@ -846,7 +846,7 @@ func (g *Generator) processGoJSFile(src, out string) error {
 	}{
 		Config: g.config,
 	}); err != nil {
-		return fmt.Errorf("executing template: %w", err)
+		return fmt.Errorf("executing template for %q: %w", src, err)
 	}
 
 	return nil
@@ -1115,7 +1115,7 @@ func (g *Generator) generateGoTemplates() error {
 		}{
 			Config: g.config,
 		}); err != nil {
-			return fmt.Errorf("executing template: %w", err)
+			return fmt.Errorf("executing template for %q: %w", id, err)
 		}
 
 		htmlBody := markdown.ToHTML(buf.Bytes(), nil, nil)
@@ -1404,7 +1404,7 @@ func (g *Generator) executeTemplate(path string, pageData structs.PageData, temp
 		if err2 != nil {
 			err = errors.Join(err, err2)
 		}
-		return fmt.Errorf("executing template: %w", err)
+		return fmt.Errorf("executing template for %q: %w", path, err)
 	}
 
 	if err := f.Close(); err != nil {
