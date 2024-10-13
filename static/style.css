@@ -542,6 +542,10 @@ fieldset.radio label:last-of-type {
   background-size: 100%;
 }
 
+.noSearchResults {
+  padding: 10px;
+}
+
 .content {
   height: 100%;
   width: 641px; /* 640 + 1px border */
@@ -1024,7 +1028,7 @@ fieldset.radio label:last-of-type {
 }
 
 [data-view="list"] .panel li.header span.icon {
-  width: 44px;
+  min-width: 39px;
 }
 
 [data-view="list"] .panel li.header span {
