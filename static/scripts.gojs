@@ -362,7 +362,7 @@ if (typeof hasRun === 'undefined') {
         console.log("Setting previousQuery to", query);
         previousQuery = query;
 
-        client.index("info").search(query, {limit: 100}).then((response) => {
+        client.index("{{ config "SearchIndexName" }}").search(query, {limit: 100}).then((response) => {
             // if the query has changed, ignore the response
             if (previousQuery != query) {
                 return;
