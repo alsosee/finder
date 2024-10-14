@@ -172,8 +172,8 @@ if (typeof hasRun === 'undefined') {
 
     /* search */
     var client = new MeiliSearch({
-        host: "{{ config "SearchHost" }}",
-        apiKey: "{{ config "SearchAPIKey" }}",
+        host: "{{ (config).SearchHost }}",
+        apiKey: "{{ (config).SearchAPIKey }}",
     });
 
     function thumbStylePx(media, max, prefix) {
@@ -351,10 +351,10 @@ if (typeof hasRun === 'undefined') {
         if (pushState) {
             console.log("Pushing state", query);
             history.pushState({query: query}, "", "/search?q=" + encodeURIComponent(query));
-            document.title = "{{ .Config.SearchLabel }}: " + query;
+            document.title = "{{ (config).SearchLabel }}: " + query;
         }
 
-        breadcrumbs.innerHTML = `<li role="none"><a role="menuitem" href="/">{{ .Config.HomeLabel }}</a></li><li role="none"><span>{{ .Config.SearchLabel }}: ${htmlEntities(query)}</span></li>`;
+        breadcrumbs.innerHTML = `<li role="none"><a role="menuitem" href="/">{{ (config).HomeLabel }}</a></li><li role="none"><span>{{ (config).SearchLabel }}: ${htmlEntities(query)}</span></li>`;
         if (previousQuery.length == 0) {
             panels.innerHTML = `<ul class="panel menubar-navigation" role="menu" data-level="0" id="_"></ul>`;
         }
@@ -362,7 +362,7 @@ if (typeof hasRun === 'undefined') {
         console.log("Setting previousQuery to", query);
         previousQuery = query;
 
-        client.index("{{ config "SearchIndexName" }}").search(query, {limit: 100}).then((response) => {
+        client.index("{{ (config).SearchIndexName }}").search(query, {limit: 100}).then((response) => {
             // if the query has changed, ignore the response
             if (previousQuery != query) {
                 return;
@@ -370,7 +370,7 @@ if (typeof hasRun === 'undefined') {
 
             // if there are no results, show a message
             if (response.hits.length == 0) {
-                panels.innerHTML = `<div class="noSearchResults">{{ .Config.NoResultsLabel }}</div>`;
+                panels.innerHTML = `<div class="noSearchResults">{{ (config).NoResultsLabel }}</div>`;
                 return;
             }
 
@@ -387,7 +387,7 @@ if (typeof hasRun === 'undefined') {
                         linkClass += " jpg";
                     }
 
-                    attr = `style="--background-image: url('{{ config "MediaHost" }}/${dir}/${hit.image.thumb}'); ${thumbStylePx(hit.image, 100, "--")}; ${thumbStylePx(hit.image, 24, "--small-")}"`;
+                    attr = `style="--background-image: url('{{ (config).MediaHost }}/${dir}/${hit.image.thumb}'); ${thumbStylePx(hit.image, 100, "--")}; ${thumbStylePx(hit.image, 24, "--small-")}"`;
                 }
 
                 // if path starts with "People", it's a person
@@ -415,8 +415,8 @@ if (typeof hasRun === 'undefined') {
             // for each result item, add "columns" dictionary with fields thay may be shown in list view
             var resultsHeader = `<li role="none" class="header">
                     <span class="icon"></span>
-                    <span>{{ .Config.ColumnName }}</span>
-                    <span class="column">{{ .Config.ColumnKind }}</span>`;
+                    <span>{{ (config).ColumnName }}</span>
+                    <span class="column">{{ (config).ColumnKind }}</span>`;
             for (var ci in chosenColumns) {
                 var column = chosenColumns[ci];
                 switch (column) {
@@ -432,7 +432,7 @@ if (typeof hasRun === 'undefined') {
             resultsHeader += `<span class="column expand"></span></li>`;
 
             const resultsHTML = results.map(function(result) {
-                var columns = `<span class="column" data-label="{{ .Config.ColumnKind }}">${kind(result.href)}</span>`;
+                var columns = `<span class="column" data-label="{{ (config).ColumnKind }}">${kind(result.href)}</span>`;
                 for (var ci in chosenColumns) {
                     var column = chosenColumns[ci];
                     columns += `<span class="column" data-label="${column}">${result.columns[column] || ""}</span>`;
@@ -457,7 +457,7 @@ if (typeof hasRun === 'undefined') {
         var query = "";
         if (event.state !== null && event.state.query !== undefined) {
             query = event.state.query;
-            document.title = "{{ .Config.SearchLabel }}: " + query;
+            document.title = "{{ (config).SearchLabel }}: " + query;
             search({target: {value: query}}, false);
             searchInput.value = query;
         }
@@ -467,7 +467,7 @@ if (typeof hasRun === 'undefined') {
             if (window.location.pathname.startsWith("/search")) {
                 const url = new URL(window.location.href);
                 query = url.searchParams.get("q");
-                document.title = "{{ .Config.SearchLabel }}: " + query;
+                document.title = "{{ (config).SearchLabel }}: " + query;
                 search({target: {value: query}}, false);
                 searchInput.value = query;
                 return;
@@ -487,7 +487,7 @@ if (typeof hasRun === 'undefined') {
         if (query) {
             previousQuery = query; // bugfix for cases where the user navigates back to the empty search from a page that was loaded directly with a search query
             search({target: {value: query}}, false);
-            document.title = "{{ .Config.SearchLabel }}: " + query;
+            document.title = "{{ (config).SearchLabel }}: " + query;
             searchInput.value = query;
         }
 

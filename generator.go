@@ -87,6 +87,8 @@ func NewGenerator(ignore *gitignore.GitIgnore) (*Generator, error) {
 		return nil, fmt.Errorf("parsing site config: %w", err)
 	}
 
+	overrideConfig(&config)
+
 	return &Generator{
 		config:               config,
 		ignore:               ignore,
@@ -130,9 +132,24 @@ func parseConfig(configFile string) (structs.Config, error) {
 	return config, nil
 }
 
+func overrideConfig(config *structs.Config) {
+	if cfg.MediaHost != "" {
+		config.MediaHost = cfg.MediaHost
+	}
+	if cfg.SearchHost != "" {
+		config.SearchHost = cfg.SearchHost
+	}
+	if cfg.SearchIndexName != "" {
+		config.SearchIndexName = cfg.SearchIndexName
+	}
+	if cfg.SearchAPIKey != "" {
+		config.SearchAPIKey = cfg.SearchAPIKey
+	}
+}
+
 func (g *Generator) fm() template.FuncMap {
 	return template.FuncMap{
-		"config":       cfg.GetString,
+		"config":       func() structs.Config { return g.config },
 		"join":         filepath.Join,
 		"dir":          filepath.Dir,
 		"base":         filepath.Base,
@@ -843,11 +860,7 @@ func (g *Generator) processGoJSFile(src, out string) error {
 	}
 	defer outFile.Close()
 
-	if err = t.Execute(outFile, struct {
-		Config structs.Config
-	}{
-		Config: g.config,
-	}); err != nil {
+	if err = t.Execute(outFile, nil); err != nil {
 		return fmt.Errorf("%w for %q: %w", errExecutingTemplate, src, err)
 	}
 
@@ -1026,13 +1039,11 @@ func (g *Generator) renderPanel(panel structs.Panel, index int, isLast bool, pat
 func (g *Generator) renderPanelImpl(panel structs.Panel, index int) (string, error) {
 	var b bytes.Buffer
 	err := g.templates.Lookup("panel.gohtml").Execute(&b, struct {
-		Panel  structs.Panel
-		Index  int
-		Config structs.Config
+		Panel structs.Panel
+		Index int
 	}{
-		Panel:  panel,
-		Index:  index,
-		Config: g.config,
+		Panel: panel,
+		Index: index,
 	})
 
 	if err != nil {
@@ -1085,7 +1096,6 @@ func (g *Generator) generateContentTemplates() error {
 		cnt := content
 
 		err := g.executeTemplate(path, structs.PageData{
-			Config:      g.config,
 			CurrentPath: id,
 			Dir:         filepath.Dir(id),
 			Breadcrumbs: breadcrumbs,
@@ -1114,11 +1124,7 @@ func (g *Generator) generateGoTemplates() error {
 		}
 
 		var buf bytes.Buffer
-		if err := t.Execute(&buf, struct {
-			Config structs.Config
-		}{
-			Config: g.config,
-		}); err != nil {
+		if err := t.Execute(&buf, nil); err != nil {
 			return fmt.Errorf("%w for %q: %w", errExecutingTemplate, id, err)
 		}
 
@@ -1175,7 +1181,6 @@ func (g *Generator) generateIndexes() error {
 		panels, breadcrumbs := g.buildPanels(dir, false)
 
 		err := g.executeTemplate(path, structs.PageData{
-			Config:      g.config,
 			CurrentPath: dir,
 			Breadcrumbs: breadcrumbs,
 			Panels:      panels,
@@ -1266,7 +1271,6 @@ func (g *Generator) generateMissing(missing []structs.Missing) error {
 		panels, breadcrumbs := g.buildPanels(id, true)
 
 		pagesDataChan <- structs.PageData{
-			Config:      g.config,
 			OutputPath:  filepath.Join(cfg.OutputDirectory, id+".html"),
 			CurrentPath: id,
 			Dir:         filepath.Dir(id),

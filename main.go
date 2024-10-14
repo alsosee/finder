@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"reflect"
 	"runtime/pprof"
 	"time"
 
@@ -39,24 +38,6 @@ type Config struct {
 }
 
 var cfg Config // global env config
-
-// GetString returns the value of the environment variable named by the key.
-// If the variable is not present, GetString returns empty string.
-// Used in `config` template function to access config values.
-func (c Config) GetString(key string) string {
-	// use reflect to get the value of the key
-	v := reflect.ValueOf(c)
-	for i := 0; i < v.NumField(); i++ {
-		if v.Field(i).Kind() != reflect.String {
-			continue
-		}
-
-		if v.Type().Field(i).Name == key {
-			return v.Field(i).String()
-		}
-	}
-	return ""
-}
 
 func main() {
 	if _, err := flags.Parse(&cfg); err != nil {

@@ -8,7 +8,7 @@ Inputs:
 */ -}}
 {{- if .Character -}}
 <span class="reference character{{ if .Character.Image }} has-image{{ if isJPG .Character.Image.Path }} jpg{{ end }}{{ end }}"
-{{- if .Character.Image }} style="--background-image: url('{{ config "MediaHost" }}/{{ escape .Path }}/Characters/{{ .Character.Image.ThumbPath }}'); {{ thumbStylePx .Character.Image 24 "--" }}"{{ end }}>
+{{- if .Character.Image }} style="--background-image: url('{{ (config).MediaHost }}/{{ escape .Path }}/Characters/{{ .Character.Image.ThumbPath }}'); {{ thumbStylePx .Character.Image 24 "--" }}"{{ end }}>
 {{- .Character.Name -}}
 </span>
 {{- else }}

@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="{{ .Config.Lang }}">
+<html lang="{{ (config).Lang }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-title" content="{{ .Config.Title }}">
+    <meta name="apple-mobile-web-app-title" content="{{ (config).Title }}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="color-scheme" content="light dark">
@@ -21,28 +21,28 @@
     <script src="/meilisearch.umd.js"></script>
     {{- if .Content }}
         {{- if not .Content.Source }}
-    <link rel="edit" href="{{ .Config.Repo }}/new/main/{{ .CurrentPath }}/?filename={{ htmlEscape .Content.Name }}.yml&value={{ value .Content .CurrentPath }}">
+    <link rel="edit" href="{{ (config).Repo }}/new/main/{{ .CurrentPath }}/?filename={{ htmlEscape .Content.GetName }}.yml&value={{ value .Content .CurrentPath }}">
         {{- else }}
-    <link rel="edit" href="{{ .Config.Repo }}/edit/main/{{ .Content.Source }}">
+    <link rel="edit" href="{{ (config).Repo }}/edit/main/{{ .Content.Source }}">
         {{- end }}
     {{- else }}
-    <link rel="edit" href="{{ .Config.Repo }}/tree/main/{{ .CurrentPath }}">
+    <link rel="edit" href="{{ (config).Repo }}/tree/main/{{ .CurrentPath }}">
     {{- end }}
     {{- if eq (len .Breadcrumbs) 1 }}
-    <meta property="og:image" content="{{ .Config.OpenGraph.Image }}">
-    <meta property="og:image:width" content="{{ .Config.OpenGraph.Width }}">
-    <meta property="og:image:height" content="{{ .Config.OpenGraph.Height }}">
-    <meta property="og:title" content="{{ .Config.Title }}">
-    <meta property="og:description" content="{{ .Config.Description }}">
-    <meta property="og:url" content="{{ .Config.URL }}">
+    <meta property="og:image" content="{{ (config).OpenGraph.Image }}">
+    <meta property="og:image:width" content="{{ (config).OpenGraph.Width }}">
+    <meta property="og:image:height" content="{{ (config).OpenGraph.Height }}">
+    <meta property="og:title" content="{{ (config).Title }}">
+    <meta property="og:description" content="{{ (config).Description }}">
+    <meta property="og:url" content="{{ (config).URL }}">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ .Config.Title }}">
-    <meta name="twitter:image" content="{{ .Config.OpenGraph.TwitterImage}}">
+    <meta name="twitter:title" content="{{ (config).Title }}">
+    <meta name="twitter:image" content="{{ (config).OpenGraph.TwitterImage}}">
     {{- end }}
 </head>
 <body data-view="columns">
-{{ template "toolbar" .Config }}
+{{ template "toolbar" (config) }}
 {{ template "breadcrumbs" . }}
 <div id="container" hx-boost="true">
     <nav id="panels">
@@ -65,8 +65,8 @@
             <input type="number" min="100" max="2084" id="uploader_height" placeholder="Height" oninput="uploader_set_height(this)">
         </div>
         <div class="buttons">
-            <button class="dismiss" onclick="uploader_cancel()">{{ .Config.ButtonCancel }}</button>
-            <button id="btn_uploader_upload" class="primary" onclick="uploader_upload()">{{ .Config.ButtonUpload }}</button>
+            <button class="dismiss" onclick="uploader_cancel()">{{ (config).ButtonCancel }}</button>
+            <button id="btn_uploader_upload" class="primary" onclick="uploader_upload()">{{ (config).ButtonUpload }}</button>
         </div>
     </div>
 </div>

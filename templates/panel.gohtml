@@ -2,7 +2,7 @@
         <ul class="panel menubar-navigation" role="menu" data-level="{{ .Index }}" onclick="panelClick(event)">
             <li role="none" class="header">
                 <span class="icon"></span>
-                <span>{{ .Config.ColumnName }}</span>
+                <span>{{ (config).ColumnName }}</span>
                 {{- range $columns }}
                 <span class="column" data-label="{{ . }}">{{ . }}</span>
                 {{- end }}
@@ -18,7 +18,7 @@
                             {{- if isJPG .Image.Path }} jpg{{end}}
                         {{- end -}}
                     " href="/{{ $path }}{{ if .IsFolder }}/{{ end }}"
-                    {{- if .Image }} style="--background-image: url('{{ config "MediaHost" }}/{{ $.Panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStylePx .Image 100 "--" }}; {{ thumbStylePx .Image 24 "--small-" }}"{{ end -}}
+                    {{- if .Image }} style="--background-image: url('{{ (config).MediaHost }}/{{ $.Panel.Dir }}/{{ .Image.ThumbPath }}'); {{ thumbStylePx .Image 100 "--" }}; {{ thumbStylePx .Image 24 "--small-" }}"{{ end -}}
                     >
                     <span>{{ .Title }}</span>
                     {{- range $columns }}

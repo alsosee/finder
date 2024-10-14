@@ -3,12 +3,16 @@ package structs
 // Config represents a site configuration stored in a YAML file, e.g. config.yaml.
 // It is used to store site-specific configuration values.
 type Config struct {
-	Title       string `yaml:"title"`
-	Description string `yaml:"description"`
-	Lang        string `yaml:"lang"`
-	Repo        string `yaml:"repo"`
-	URL         string `yaml:"url"`
-	OpenGraph   struct {
+	Title           string `yaml:"title"`
+	Description     string `yaml:"description"`
+	Lang            string `yaml:"lang"`
+	Repo            string `yaml:"repo"`
+	URL             string `yaml:"url"`
+	MediaHost       string `yaml:"media_host"`
+	SearchHost      string `yaml:"search_host"`
+	SearchAPIKey    string `yaml:"search_api_key"`
+	SearchIndexName string `yaml:"search_index"`
+	OpenGraph       struct {
 		Image        string `yaml:"image"`
 		Width        int    `yaml:"width"`
 		Height       int    `yaml:"height"`

@@ -14,7 +14,7 @@ Inputs (same as for "index" template):
     <div class="thumb
         {{- if isJPG .Path }} jpg{{ end }}
         {{- if isPerson $.CurrentPath }} people{{ end -}}
-        " style="background-image: url('{{ config "MediaHost" }}/{{ $.Dir }}/{{ .ThumbPath }}');
+        " style="background-image: url('{{ (config).MediaHost }}/{{ $.Dir }}/{{ .ThumbPath }}');
         {{- thumbStylePct . -}}"></div>
     {{- end }}
     {{ if .Header }}<h1{{ if .Subtitle }} class="with-subtitle"{{ end }}>{{ .Header }}</h1>{{ end }}
@@ -176,7 +176,7 @@ Inputs (same as for "index" template):
 
     {{- if not .Source }}
     <div class="missing">
-        <p>This page is a stub. You can help by <a href="{{ $.Config.Repo }}/new/main/{{ $.Dir }}/?filename={{ htmlEscape .GetName }}.yml&value={{ value . $.Dir }}">contributing</a>.</p>
+        <p>This page is a stub. You can help by <a href="{{ (config).Repo }}/new/main/{{ $.Dir }}/?filename={{ htmlEscape .GetName }}.yml&value={{ value . $.Dir }}">contributing</a>.</p>
     </div>
     {{- end }}
 
