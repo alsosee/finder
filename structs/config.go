@@ -31,8 +31,8 @@ type Config struct {
 		URL        string `yaml:"url"`
 		LogoShiftY string `yaml:"logo_shift_y"`
 	} `yaml:"menu"`
-	ButtonCancel   string `yaml:"button_cancel"`
-	ButtonUpload   string `yaml:"button_upload"`
+	LabelCancel    string `yaml:"label_cancel"`
+	LabelUpload    string `yaml:"label_upload"`
 	NoResultsLabel string `yaml:"no_results_label"`
 	ColumnName     string `yaml:"column_name"`
 	ColumnKind     string `yaml:"column_kind"`
