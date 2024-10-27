@@ -88,6 +88,7 @@ export async function onRequest(context) {
             status: 405,
             headers: {
               Allow: "PUT",
+              XError: "Method " + context.request.method + " is not allowed",
             },
           },
         );
