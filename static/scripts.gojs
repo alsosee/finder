@@ -824,6 +824,7 @@ if (typeof hasRun === 'undefined') {
         if (drop.classList.contains('content')) {
             // create .thumb element
             var thumb = document.createElement('div');
+            drop = drop.firstElementChild;
             drop.insertBefore(thumb, drop.firstChild);
             drop = thumb;
 
