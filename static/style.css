@@ -1319,6 +1319,7 @@ p .award + .award {
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 #uploader .image-pica {
