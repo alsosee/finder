@@ -618,7 +618,7 @@ func (g *Generator) copyStaticFiles() {
 			}
 
 			if info.IsDir() {
-				return nil
+				return os.MkdirAll(filepath.Join(cfg.OutputDirectory, strings.TrimPrefix(path, cfg.StaticDirectory)), 0o755)
 			}
 
 			relPath := strings.TrimPrefix(path, cfg.StaticDirectory+string(filepath.Separator))
