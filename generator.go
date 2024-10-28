@@ -2,11 +2,13 @@ package main
 
 import (
 	"bytes"
+	"embed"
 	"errors"
 	"fmt"
 	"hash/crc32"
 	"html"
 	"io"
+	"io/fs"
 	"log"
 	"net/url"
 	"os"
@@ -27,6 +29,9 @@ import (
 )
 
 var errExecutingTemplate = errors.New("error executing template")
+
+//go:embed functions/*
+var functionsFS embed.FS
 
 // Generator is a struct that generates a static site.
 type Generator struct {
@@ -549,6 +554,7 @@ func (g *Generator) Run() error {
 	defer close(errorsChan)
 
 	g.copyStaticFiles()
+	g.copyFunctionsFiles()
 	go g.walkInfoDirectory(files, errorsChan)
 
 	g.walkMediaDirectory()
@@ -638,6 +644,55 @@ func (g *Generator) copyStaticFiles() {
 	}
 
 	log.Printf("Done copying static files from %q to %q", cfg.StaticDirectory, cfg.OutputDirectory)
+}
+
+func (g *Generator) copyFunctionsFiles() {
+	log.Printf("Copying functions files")
+
+	// check if functions directory exists, if it does – exit
+	if _, err := os.Stat("functions"); err == nil {
+		log.Printf("Functions directory already exists, skipping")
+		return
+	}
+
+	// unline static files, functions directory has to the directory where app is running
+	// so we can't use cfg.OutputDirectory
+	if err := os.MkdirAll("functions", 0o755); err != nil {
+		log.Fatalf("Error creating functions directory: %v", err)
+	}
+
+	// copy embedded functionsFS files to the functions directory
+	err := fs.WalkDir(functionsFS, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() {
+			return os.MkdirAll(filepath.Join("functions", path), 0o755)
+		}
+
+		outPath := filepath.Join("functions", path)
+		outFile, err := os.Create(outPath)
+		if err != nil {
+			return fmt.Errorf("creating file %q: %w", outPath, err)
+		}
+		defer outFile.Close()
+
+		inFile, err := functionsFS.Open(path)
+		if err != nil {
+			return fmt.Errorf("opening file %q: %w", path, err)
+		}
+
+		_, err = io.Copy(outFile, inFile)
+		if err != nil {
+			return fmt.Errorf("copying file %q to %q: %w", path, outPath, err)
+		}
+
+		return nil
+	})
+	if err != nil {
+		log.Fatalf("Error walking functions directory: %v", err)
+	}
 }
 
 func (g *Generator) walkInfoDirectory(files chan<- string, errorsChan chan<- error) {
