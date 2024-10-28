@@ -668,10 +668,10 @@ func (g *Generator) copyFunctionsFiles() {
 		}
 
 		if d.IsDir() {
-			return os.MkdirAll(filepath.Join("functions", path), 0o755)
+			return os.MkdirAll(path, 0o755)
 		}
 
-		outPath := filepath.Join("functions", path)
+		outPath := filepath.Join(path)
 		outFile, err := os.Create(outPath)
 		if err != nil {
 			return fmt.Errorf("creating file %q: %w", outPath, err)
