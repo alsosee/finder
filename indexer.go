@@ -2,7 +2,10 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -83,19 +86,19 @@ func (i *Indexer) updateIndex(oldState map[string]string, index, force string) e
 	if force == "all" {
 		return i.addToIndexAll(index)
 	}
-	// if force != "" {
-	// 	var forceList []string
-	// 	if strings.HasPrefix(force, "[") {
-	// 		// force is a JSON array
-	// 		if err := json.Unmarshal([]byte(force), &forceList); err != nil {
-	// 			return fmt.Errorf("parsing force list: %w", err)
-	// 		}
-	// 	} else {
-	// 		// split force string by comma
-	// 		forceList = strings.Split(force, ",")
-	// 	}
-	// 	return i.addToIndex(forceList, index)
-	// }
+	if force != "" {
+		var forceList []string
+		if strings.HasPrefix(force, "[") {
+			// force is a JSON array
+			if err := json.Unmarshal([]byte(force), &forceList); err != nil {
+				return fmt.Errorf("parsing force list: %w", err)
+			}
+		} else {
+			// split force string by comma
+			forceList = strings.Split(force, ",")
+		}
+		return i.addToIndex(forceList, index)
+	}
 
 	// find deleted files
 	var toDelete []string
@@ -153,6 +156,9 @@ func (i *Indexer) addToIndex(paths []string, index string) error {
 		if err != nil {
 			if err == errNotFound {
 				log.Printf("File %q not found, skipping", path)
+				continue
+			}
+			if errors.Is(err, io.EOF) {
 				continue
 			}
 			return fmt.Errorf("processing file %q: %w", path, err)
