@@ -4,18 +4,16 @@
 
    It requires `x-file-name` header to be set with the file name, which is used as the key in the bucket.
    Example key value: "People/John Doe.jpg"
+
+   Function expects following environment variables:
+   `MEDIA` – CloudFlare binding to R2 bucket
+   `GITHUB_REPO` (optional) – GitHub "media" repository
+   `GHP_TOKEN` (optional) – GitHub Private Token for triggering GitHub Actions for media repository
 */
 export async function onRequest(context) {
   try {
     switch (context.request.method) {
       case "PUT":
-        if (!context.env.GHP_TOKEN) {
-          return new Response(
-            JSON.stringify({ error: "Missing GHP_TOKEN environment variable" }),
-            { status: 500 },
-          );
-        }
-
         const key = decodeURIComponent(
           context.request.headers.get("x-file-name"),
         );
@@ -45,8 +43,20 @@ export async function onRequest(context) {
           }
         }
 
+        if (!context.env.GHP_TOKEN || !context.env.GITHUB_REPO) {
+          return new Response(
+            JSON.stringify({
+              status: "ok",
+              key: key,
+              actions_triggered: false
+            }), {
+              status: 200,
+            }
+          );
+        }
+
         const response = await fetch(
-          `https://api.github.com/repos/alsosee/media/dispatches`,
+          `https://api.github.com/repos/${context.env.GITHUB_REPO}/dispatches`,
           {
             method: "POST",
             headers: {
