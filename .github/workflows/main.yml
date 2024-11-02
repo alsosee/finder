@@ -46,6 +46,7 @@ jobs:
           token: ${{ secrets.PKG_TOKEN }}
           repository: alsosee/info
           event-type: finder
+          client-payload: '{"trigger": "finder", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
 
       - name: Trigger finder rebuild (ru)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -54,3 +55,4 @@ jobs:
           token: ${{ secrets.PKG_TOKEN }}
           repository: alsosee/ru
           event-type: finder
+          client-payload: '{"trigger": "finder", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'

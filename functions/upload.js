@@ -69,6 +69,7 @@ export async function onRequest(context) {
               event_type: "pull",
               client_payload: {
                 path: key,
+                trigger: "upload",
               },
             }),
           },
