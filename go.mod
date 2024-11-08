@@ -7,7 +7,7 @@ require (
 	github.com/jessevdk/go-flags v1.6.1
 	github.com/meilisearch/meilisearch-go v0.28.0
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
-	golang.org/x/text v0.18.0
+	golang.org/x/text v0.20.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
