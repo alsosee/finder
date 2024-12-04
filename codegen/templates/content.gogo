@@ -5,10 +5,14 @@
 package structs
 
 import (
+	{{- if .HashIDs }}
 	"crypto/sha1"
+	{{- end }}
 	"fmt"
 	"path/filepath"
+	{{- if not .HashIDs }}
 	"regexp"
+	{{- end }}
 	"strings"
 	"time"
 )
@@ -43,12 +47,12 @@ func (c *Content) GenerateID() string {
 		return c.ID
 	}
 
-	c.ID = formatID(removeFileExtention(c.Source))
+	c.ID = removeFileExtention(c.Source)
 
 	{{- if .HashIDs }}
 	return hashID(c.ID)
 	{{- else }}
-	return c.ID
+	return formatID(c.ID)
 	{{- end }}
 }
 
@@ -210,9 +214,12 @@ func removeFileExtention(path string) string {
 	return path
 }
 
+{{- if .HashIDs }}
+
 func hashID(id string) string {
 	return fmt.Sprintf("%x", sha1.Sum([]byte(id)))
 }
+{{- else }}
 
 var reNonID = regexp.MustCompile("[^a-zA-Z0-9-_]")
 
@@ -222,3 +229,4 @@ var reNonID = regexp.MustCompile("[^a-zA-Z0-9-_]")
 func formatID(id string) string {
 	return reNonID.ReplaceAllString(id, "_")
 }
+{{- end }}
