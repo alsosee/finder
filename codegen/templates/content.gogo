@@ -47,13 +47,13 @@ func (c *Content) GenerateID() string {
 		return c.ID
 	}
 
-	c.ID = removeFileExtention(c.Source)
-
 	{{- if .HashIDs }}
-	return hashID(c.ID)
+	c.ID = hashID(removeFileExtention(c.Source))
 	{{- else }}
-	return formatID(c.ID)
+	c.ID = formatID(removeFileExtention(c.Source))
 	{{- end }}
+
+	return c.ID
 }
 
 // Type return a type of the content in singular form
