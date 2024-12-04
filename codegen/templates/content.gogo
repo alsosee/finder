@@ -8,6 +8,7 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -42,7 +43,7 @@ func (c *Content) GenerateID() string {
 		return c.ID
 	}
 
-	c.ID = removeFileExtention(c.Source)
+	c.ID = formatID(removeFileExtention(c.Source))
 
 	{{- if .HashIDs }}
 	return hashID(c.ID)
@@ -211,4 +212,13 @@ func removeFileExtention(path string) string {
 
 func hashID(id string) string {
 	return fmt.Sprintf("%x", sha1.Sum([]byte(id)))
+}
+
+var reNonID = regexp.MustCompile("[^a-zA-Z0-9-_]")
+
+// formatID formats an ID for MeiliSearch.
+// A document identifier can be of type integer or string,
+// only composed of alphanumeric characters (a-z A-Z 0-9), hyphens (-) and underscores (_).
+func formatID(id string) string {
+	return reNonID.ReplaceAllString(id, "_")
 }

@@ -9,7 +9,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -378,13 +377,4 @@ func writeStateToFile(stateFile string, state map[string]string) error {
 	}
 
 	return nil
-}
-
-var reNonID = regexp.MustCompile("[^a-zA-Z0-9-_]")
-
-// formatID formats an ID for MeiliSearch.
-// A document identifier can be of type integer or string,
-// only composed of alphanumeric characters (a-z A-Z 0-9), hyphens (-) and underscores (_).
-func formatID(id string) string {
-	return reNonID.ReplaceAllString(id, "_")
 }
