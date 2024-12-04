@@ -1,7 +1,7 @@
-FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.21 as build-env
+FROM golang:1.21 AS build-env
 
 WORKDIR /go/src/app
-ADD . /go/src/app
+COPY . /go/src/app
 
 RUN go test -mod=vendor -cover ./codegen/...
 
