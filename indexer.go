@@ -246,25 +246,13 @@ func (i *Indexer) processYAMLFile(path string) (*structs.Content, error) {
 	}
 
 	content.Source = path
-
-	id := removeFileExtention(path)
-
-	content.Source = path
-	content.ID = formatID(id)
-	content.Image = i.getImageForPath(id, true)
-
-	// add image to Characters
-	for _, character := range content.Characters {
-		character.Image = i.getImageForPath(filepath.Join(id, "Characters", character.Name), false)
-		if character.Actor != "" {
-			character.ActorImage = i.getImageForPath("People/"+character.Actor, false)
-		}
-	}
+	content.GenerateID()
+	content.AddMedia(i.getImageForPath)
 
 	return &content, nil
 }
 
-func (i *Indexer) getImageForPath(path string, fanOut bool) *structs.Media {
+func (i *Indexer) getImageForPath(path string) *structs.Media {
 	dir := filepath.Dir(path)
 	if dir == "." {
 		dir = ""
@@ -296,7 +284,7 @@ func (i *Indexer) getImageForPath(path string, fanOut bool) *structs.Media {
 		}
 	}
 
-	if fanOut && image != nil {
+	if image != nil {
 		// Add other media that share the same ThumbPath for updating the index,
 		// because data in the index is used to display the thumb.
 		for _, m := range media {
