@@ -62,11 +62,10 @@ var templatesFS embed.FS
 
 // Schema represents a YAML schema definition for code generation.
 type Schema struct {
-	Extra map[string]Content `yaml:",inline"`
-
-	Content Content
-
+	Extra     map[string]Content `yaml:",inline"`
+	Content   Content
 	RootTypes RootTypes `yaml:"root_types"`
+	HashIDs   bool      `yaml:"hash_ids"`
 }
 
 // HasExtraType checks if the schema has any extra schema types defined.

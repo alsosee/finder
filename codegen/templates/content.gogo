@@ -5,6 +5,7 @@
 package structs
 
 import (
+	"crypto/sha1"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -42,7 +43,12 @@ func (c *Content) GenerateID() string {
 	}
 
 	c.ID = removeFileExtention(c.Source)
+
+	{{- if .HashIDs }}
+	return hashID(c.ID)
+	{{- else }}
 	return c.ID
+	{{- end }}
 }
 
 // Type return a type of the content in singular form
@@ -201,4 +207,8 @@ func removeFileExtention(path string) string {
 		return withoutExt
 	}
 	return path
+}
+
+func hashID(id string) string {
+	return fmt.Sprintf("%x", sha1.Sum([]byte(id)))
 }
