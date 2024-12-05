@@ -172,21 +172,21 @@ func (g *Generator) fm() template.FuncMap {
 		"in": in,
 		// "content" returns a Content struct for a given file path (without extension)
 		// It is used to render references.
-		"content": func(id string) *structs.Content {
+		"content": func(path, caller string) *structs.Content {
 			g.muContents.Lock()
 			defer g.muContents.Unlock()
 
-			if c, ok := g.contents[id]; ok {
+			if c, ok := g.contents[path]; ok {
 				return &c
 			}
 			return nil
 		},
-		// "connections" returns a list of connections for a given file id
-		"connections": func(id string) map[string][]string {
+		// "connections" returns a list of connections for a given file path (no extension).
+		"connections": func(path string) map[string][]string {
 			g.muConnections.Lock()
 			defer g.muConnections.Unlock()
 
-			if m, ok := g.connections[id]; ok {
+			if m, ok := g.connections[path]; ok {
 				return m
 			}
 			return nil
@@ -947,7 +947,8 @@ func (g *Generator) addContent(content structs.Content) {
 
 // addConnections adds a "connection" for a given content file.
 func (g *Generator) addConnections(content structs.Content) {
-	from := content.GenerateID()
+	content.GenerateID()
+	from := content.SourceNoExtention
 
 	connections := content.Connections()
 	for _, conn := range connections {
@@ -1168,7 +1169,7 @@ func (g *Generator) generateContentTemplates() error {
 }
 
 func (g *Generator) generateGoTemplates() error {
-	for id, content := range g.contents {
+	for path, content := range g.contents {
 		if filepath.Ext(content.Source) != ".gomd" {
 			continue
 		}
@@ -1181,13 +1182,13 @@ func (g *Generator) generateGoTemplates() error {
 
 		var buf bytes.Buffer
 		if err := t.Execute(&buf, nil); err != nil {
-			return fmt.Errorf("%w for %q: %w", errExecutingTemplate, id, err)
+			return fmt.Errorf("%w for %q: %w", errExecutingTemplate, path, err)
 		}
 
 		htmlBody := markdown.ToHTML(buf.Bytes(), nil, nil)
 		content.HTML = string(htmlBody)
 
-		g.contents[id] = content
+		g.contents[path] = content
 	}
 
 	return nil
@@ -1504,8 +1505,8 @@ func (g *Generator) addAwards() {
 			}
 			content.Categories[i] = category
 
-			id := category.Winner.Reference
-			if id == "" {
+			path := category.Winner.Reference
+			if path == "" {
 				log.Printf("Unknown winner reference in %q for %q", awardPage, category.Name)
 				continue
 			}
@@ -1519,9 +1520,9 @@ func (g *Generator) addAwards() {
 				awadredContent structs.Content
 				ok             bool
 			)
-			if awadredContent, ok = g.contents[id]; !ok {
+			if awadredContent, ok = g.contents[path]; !ok {
 				g.muAwardsMissingContent.Lock()
-				g.awardsMissingContent[id] = append(g.awardsMissingContent[id], award)
+				g.awardsMissingContent[path] = append(g.awardsMissingContent[path], award)
 				g.muAwardsMissingContent.Unlock()
 				continue
 			}
@@ -1556,7 +1557,7 @@ func (g *Generator) addAwards() {
 				awadredContent.Awards = append(awadredContent.Awards, award)
 			}
 
-			g.contents[id] = awadredContent
+			g.contents[path] = awadredContent
 		}
 
 		g.contents[awardPage] = content

@@ -195,7 +195,7 @@ Inputs (same as for "index" template):
     {{- range . }}
     <h3>{{ .Name }}</h3>
     {{- if .Winner.Actor }}
-        {{- $character := characterByActor (content .Winner.Reference) .Winner.Actor }}
+        {{- $character := characterByActor (content .Winner.Reference "content") .Winner.Actor }}
         {{ template "reference" dict "Path" .Winner.Actor "Prefix" "People" "HideType" true }}
 
         {{- if $character }}

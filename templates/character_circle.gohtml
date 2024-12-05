@@ -13,7 +13,7 @@ Inputs:
     <span class="name">{{ .Character.Name }}</span>
 {{- if .Character.Actor }}
     {{- $actorID := join personPrefix "/" .Character.Actor }}
-    {{- $person := content $actorID }}
+    {{- $person := content $actorID "character_circle" }}
     {{- if $person }}
     <span><a class="actor" href="/{{ personPrefix }}/{{ .Character.Actor }}">{{ .Character.Actor }}</a>{{ template "awards" .Character.Awards }}</span>
     {{- else if gt (len (connections $actorID)) 1 }}
@@ -23,7 +23,7 @@ Inputs:
     {{- end }}
 {{- else if .Character.Voice }}
     {{- $actorID := join personPrefix "/" .Character.Voice }}
-    {{- $person := content $actorID }}
+    {{- $person := content $actorID "character_circle" }}
     {{- if $person }}
     <span><a class="actor" href="/{{ personPrefix }}/{{ .Character.Voice }}">{{ .Character.Voice }}</a>{{ template "awards" .Character.Awards }}</span>
     {{- else if gt (len (connections $actorID)) 1 }}
