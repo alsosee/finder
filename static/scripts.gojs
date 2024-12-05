@@ -412,7 +412,7 @@ if (typeof hasRun === 'undefined') {
 
             chosenColumns = chooseColumns(columnsCounts, results.length);
 
-            // for each result item, add "columns" dictionary with fields thay may be shown in list view
+            // for each result item, add "columns" dictionary with fields they may be shown in list view
             var resultsHeader = `<li role="none" class="header">
                     <span class="icon"></span>
                     <span>{{ (config).ColumnName }}</span>
@@ -813,7 +813,7 @@ if (typeof hasRun === 'undefined') {
             return;
         }
 
-        var viewport = drop.dataset.viewport
+        var viewport = drop.dataset.viewport;
         uploader_args.style.display = (viewport == "circle") ? "none" : "flex";
 
         // suffix is part of URL that needs to be added to the current page URL.
