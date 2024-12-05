@@ -938,9 +938,10 @@ func (g *Generator) copyFileAsIs(file string) error {
 }
 
 func (g *Generator) addContent(content structs.Content) {
-	id := content.GenerateID()
+	content.GenerateID()
+
 	g.muContents.Lock()
-	g.contents[id] = content
+	g.contents[content.SourceNoExtention] = content
 	g.muContents.Unlock()
 }
 
