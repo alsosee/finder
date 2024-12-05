@@ -161,12 +161,12 @@ if (typeof hasRun === 'undefined') {
 
         if (content) {
             if (content.dataset.source) {
-                editLink.href = "https://github.com/alsosee/info/edit/main/" + content.dataset.source;
+                editLink.href = "{{ (config).Repo }}/edit/main/" + content.dataset.source;
             } else {
-                editLink.href = "https://github.com/alsosee/info/new/main/" + content.dataset.dir + "/?filename=" + encodeURI(content.dataset.name) + ".yml";
+                editLink.href = "{{ (config).Repo }}/new/main/" + content.dataset.dir + "/?filename=" + encodeURI(content.dataset.name) + ".yml";
             }
         } else {
-            editLink.href = "https://github.com/alsosee/info/tree/main/" + path();
+            editLink.href = "{{ (config).Repo }}/tree/main/" + path();
         }
     });
 
