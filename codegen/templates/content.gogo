@@ -19,9 +19,10 @@ import (
 
 // Content represents the content of a file.
 type Content struct {
-	ID     string `yaml:"-"`                   // used by Search
-	Source string `yaml:"-"`                   // path to the file
-	HTML   string `yaml:"-" json:",omitempty"` // for Markdown files
+	ID                string `yaml:"-"`                   // used by Search
+	Source            string `yaml:"-"`                   // path to the file
+	SourceNoExtention string `yaml:"-"`                   // path to the file without extention
+	HTML              string `yaml:"-" json:",omitempty"` // for Markdown files
 
 	{{- range .Content.Properties }}
 	{{ if eq .Meta "name" }}Name{{ else }}{{ titleCase .Name }}{{ end }} {{ fieldType . }} `yaml:"{{ .Name }},omitempty" json:"{{ .Name }},omitempty"`
@@ -47,10 +48,12 @@ func (c *Content) GenerateID() string {
 		return c.ID
 	}
 
+	c.SourceNoExtention = removeFileExtention(c.Source)
+
 	{{- if .HashIDs }}
-	c.ID = hashID(removeFileExtention(c.Source))
+	c.ID = hashID(c.SourceNoExtention)
 	{{- else }}
-	c.ID = formatID(removeFileExtention(c.Source))
+	c.ID = formatID(c.SourceNoExtention)
 	{{- end }}
 
 	return c.ID

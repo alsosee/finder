@@ -5,7 +5,6 @@ prefix: string, e.g. "c", "item"
 f
 */ -}}
 {{- range .Content.Properties }}
-{{- $path := rootTypePath .Type }}
 {{- if eq .Type "media" }}
 {{ $.Prefix }}.{{ titleCase .Name }} = getImage({{ structRef .Path $.Prefix }})
 {{- else if and (eq .Type "array") (extraType .Items.Type) }}
