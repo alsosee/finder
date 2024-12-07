@@ -463,11 +463,11 @@ func (g *Generator) fm() template.FuncMap {
 			defer g.muAwardsMissingContent.Unlock()
 			return len(g.awardsMissingContent[id])
 		},
-		"image":         g.getImageForPath,
-		"title":         g.title,
-		"awardYear":     awardYear,
-		"prefix":        prefix,
-		"columns":       func() []structs.Column {
+		"image":     g.getImageForPath,
+		"title":     g.title,
+		"awardYear": awardYear,
+		"prefix":    prefix,
+		"columns": func() []structs.Column {
 			return structs.ColumnsList
 		},
 		"column":        column,
@@ -1768,7 +1768,8 @@ func chooseColumns(files []structs.File) []string {
 	// choose columns that are present in > half of all files
 	chosenColumns := []string{}
 	for key, count := range columns {
-		if count > total/2 || key == "Died" { // todo: generalise
+		columnInfo := lookupColumnInfo(key)
+		if count > total/2 || (columnInfo != nil && columnInfo.AlwaysShow) {
 			chosenColumns = append(chosenColumns, key)
 		}
 	}
@@ -1776,6 +1777,17 @@ func chooseColumns(files []structs.File) []string {
 	sort.Strings(chosenColumns)
 
 	return chosenColumns
+}
+
+func lookupColumnInfo(columnTitle string) *structs.Column {
+	for _, column := range structs.ColumnsList {
+		if column.Title == columnTitle || strings.ToLower(columnTitle) == column.Name {
+			return &column
+		}
+	}
+
+	log.Printf("Column %s not found", columnTitle)
+	return nil
 }
 
 func column(file structs.File, column string) string {

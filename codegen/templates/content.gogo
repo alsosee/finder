@@ -18,18 +18,20 @@ import (
 )
 
 type Column struct {
-	Name  string // used to lookup property in search hits response
-	Title string // used for column name in UI
-	Type  string // used to conditionally convert "duration" value from search hits response into human readable format
+	Name       string // used to lookup property in search hits response
+	Title      string // used for column name in UI
+	Type       string // used to conditionally convert "duration" value from search hits response into human readable format
+	AlwaysShow bool   // used when choosing columns for search results
 }
 
 var ColumnsList = []Column{
 	{{- range .Content.Properties }}
 	{{- if .Column }}
 	{
-		Name: "{{ .Name }}",
-		Title: "{{ columnTitle . }}",
-		Type: "{{ .Type }}",
+		Name:       "{{ .Name }}",
+		Title:      "{{ columnTitle . }}",
+		Type:       "{{ .Type }}",
+		AlwaysShow: {{ .ColumnAlwaysShow }},
 	},
 	{{- end }}
 	{{- end }}

@@ -140,17 +140,18 @@ func (p *PropertySlice) UnmarshalYAML(value *yaml.Node) error {
 
 // Property represents a Content struct field.
 type Property struct {
-	Items       *Property
-	Name        string
-	Title       string // used to override Column title
-	Type        string
-	Description string
-	Alias       string // field name to use in the template
-	Label       string // used for Connections to display reference on the other content page
-	Meta        string // used for Connections to customize the logic (e.g. "previous" case)
-	Info        string
-	Path        string // for fields with type "media": template path to media
-	Column      bool   // indicates if the field should be included in the Columns method
+	Items            *Property
+	Name             string
+	Title            string // used to override Column title
+	Type             string
+	Description      string
+	Alias            string // field name to use in the template
+	Label            string // used for Connections to display reference on the other content page
+	Meta             string // used for Connections to customize the logic (e.g. "previous" case)
+	Info             string
+	Path             string // for fields with type "media": template path to media
+	Column           bool   // indicates if the field should be included in the Columns method
+	ColumnAlwaysShow bool   `yaml:"column_always_show"` // indicates if the column should be shown in search results, regardless of how many other rows have this field populated
 }
 
 func main() {

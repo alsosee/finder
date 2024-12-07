@@ -13,96 +13,114 @@ import (
 )
 
 type Column struct {
-	Name  string // used to lookup property in search hits response
-	Title string // used for column name in UI
-	Type  string // used to conditionally convert "duration" value from search hits response into human readable format
+	Name       string // used to lookup property in search hits response
+	Title      string // used for column name in UI
+	Type       string // used to conditionally convert "duration" value from search hits response into human readable format
+	AlwaysShow bool   // used when choosing columns for search results
 }
 
 var ColumnsList = []Column{
 	{
-		Name:  "dob",
-		Title: "Born",
-		Type:  "string",
+		Name:       "dob",
+		Title:      "Born",
+		Type:       "string",
+		AlwaysShow: false,
 	},
 	{
-		Name:  "dod",
-		Title: "Died",
-		Type:  "string",
+		Name:       "dod",
+		Title:      "Died",
+		Type:       "string",
+		AlwaysShow: true,
 	},
 	{
-		Name:  "publishers",
-		Title: "Publishers",
-		Type:  "array",
+		Name:       "publishers",
+		Title:      "Publishers",
+		Type:       "array",
+		AlwaysShow: false,
 	},
 	{
-		Name:  "length",
-		Title: "Length",
-		Type:  "duration",
+		Name:       "length",
+		Title:      "Length",
+		Type:       "duration",
+		AlwaysShow: false,
 	},
 	{
-		Name:  "directors",
-		Title: "Directors",
-		Type:  "array",
+		Name:       "directors",
+		Title:      "Directors",
+		Type:       "array",
+		AlwaysShow: false,
 	},
 	{
-		Name:  "writers",
-		Title: "Writers",
-		Type:  "array",
+		Name:       "writers",
+		Title:      "Writers",
+		Type:       "array",
+		AlwaysShow: false,
 	},
 	{
-		Name:  "distributors",
-		Title: "Distributors",
-		Type:  "array",
+		Name:       "distributors",
+		Title:      "Distributors",
+		Type:       "array",
+		AlwaysShow: false,
 	},
 	{
-		Name:  "rating",
-		Title: "Rating",
-		Type:  "string",
+		Name:       "rating",
+		Title:      "Rating",
+		Type:       "string",
+		AlwaysShow: false,
 	},
 	{
-		Name:  "released",
-		Title: "Released",
-		Type:  "string",
+		Name:       "released",
+		Title:      "Released",
+		Type:       "string",
+		AlwaysShow: false,
 	},
 	{
-		Name:  "network",
-		Title: "Network",
-		Type:  "company",
+		Name:       "network",
+		Title:      "Network",
+		Type:       "company",
+		AlwaysShow: false,
 	},
 	{
-		Name:  "creators",
-		Title: "Creators",
-		Type:  "array",
+		Name:       "creators",
+		Title:      "Creators",
+		Type:       "array",
+		AlwaysShow: false,
 	},
 	{
-		Name:  "authors",
-		Title: "Authors",
-		Type:  "array",
+		Name:       "authors",
+		Title:      "Authors",
+		Type:       "array",
+		AlwaysShow: false,
 	},
 	{
-		Name:  "developers",
-		Title: "Developers",
-		Type:  "array",
+		Name:       "developers",
+		Title:      "Developers",
+		Type:       "array",
+		AlwaysShow: false,
 	},
 	{
-		Name:  "screenplay",
-		Title: "Screenplay",
-		Type:  "array",
+		Name:       "screenplay",
+		Title:      "Screenplay",
+		Type:       "array",
+		AlwaysShow: false,
 	},
 	{
-		Name:  "story_by",
-		Title: "StoryBy",
-		Type:  "array",
+		Name:       "story_by",
+		Title:      "StoryBy",
+		Type:       "array",
+		AlwaysShow: false,
 	},
 	{
-		Name:  "dialogues_by",
-		Title: "DialoguesBy",
-		Type:  "array",
+		Name:       "dialogues_by",
+		Title:      "DialoguesBy",
+		Type:       "array",
+		AlwaysShow: false,
 	},
 	{
-		Name:  "hosts",
-		Title: "Hosts",
-		Type:  "array",
+		Name:       "hosts",
+		Title:      "Hosts",
+		Type:       "array",
+		AlwaysShow: false,
 	},
 }
 

@@ -240,6 +240,13 @@ if (typeof hasRun === 'undefined') {
         {{- end }}
         {{- end }}
     ]
+    var alwaysShowColumns = [
+        {{- range columns }}
+        {{- if .AlwaysShow }}
+        "{{ .Name }}",
+        {{- end }}
+        {{- end }}
+    ];
     function collectColumns(hit) {
         var columns = {};
         for (var key in hit) {
@@ -267,7 +274,7 @@ if (typeof hasRun === 'undefined') {
     function chooseColumns(columnCounts, length) {
         var columns = [];
         for (var key in columnCounts) {
-            if (columnCounts[key] > length * 0.33) {
+            if (columnCounts[key] > length * 0.33 || alwaysShowColumns.includes(key)) {
                 columns.push(key);
             }
         }
