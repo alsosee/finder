@@ -291,16 +291,11 @@ if (typeof hasRun === 'undefined') {
         // get first part before /
         var root = href.split("/")[0];
 
-        // todo: generate from Content struct
         switch (root) {
-            case "Books":
-                return "Book";
-            case "Movies":
-                return "Movie";
-            case "Games":
-                return "Game";
-            case "People":
-                return "Person";
+            {{- range $path, $type := rootTypes }}
+            case "{{ $path }}":
+                return "{{ title $type }}";
+            {{- end }}
             default:
                 return root;
         }

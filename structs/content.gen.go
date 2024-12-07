@@ -12,6 +12,15 @@ import (
 	"time"
 )
 
+var RootTypes = map[string]string{
+	"People":    "person",
+	"Books":     "book",
+	"Games":     "game",
+	"Movies":    "movie",
+	"Companies": "company",
+	"Podcasts":  "podcast",
+}
+
 type Column struct {
 	Name       string // used to lookup property in search hits response
 	Title      string // used for column name in UI
@@ -289,6 +298,8 @@ func (c Content) Type() string {
 		return "movie"
 	case "Companies":
 		return "company"
+	case "Podcasts":
+		return "podcast"
 	default:
 		return strings.ToLower(root)
 	}

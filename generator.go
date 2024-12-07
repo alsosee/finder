@@ -23,12 +23,16 @@ import (
 
 	"github.com/gomarkdown/markdown"
 	gitignore "github.com/sabhiram/go-gitignore"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"gopkg.in/yaml.v3"
 
 	"github.com/alsosee/finder/structs"
 )
 
 var errExecutingTemplate = errors.New("error executing template")
+
+var caser = cases.Title(language.English, cases.NoLower)
 
 //go:embed functions/*
 var functionsFS embed.FS
@@ -463,15 +467,17 @@ func (g *Generator) fm() template.FuncMap {
 			defer g.muAwardsMissingContent.Unlock()
 			return len(g.awardsMissingContent[id])
 		},
-		"image":     g.getImageForPath,
-		"title":     g.title,
-		"awardYear": awardYear,
-		"prefix":    prefix,
+		"image":       g.getImageForPath,
+		"formatTitle": g.formatTitle,
+		"title":       caser.String,
+		"awardYear":   awardYear,
+		"prefix":      prefix,
 		"columns": func() []structs.Column {
 			return structs.ColumnsList
 		},
 		"column":        column,
 		"chooseColumns": chooseColumns,
+		"rootTypes":     func() map[string]string { return structs.RootTypes },
 		"renderPanel":   g.renderPanel,
 		"label": func(label string, list []string) string {
 			if len(list) == 1 && strings.HasSuffix(label, "s") {
@@ -1220,7 +1226,7 @@ func (g *Generator) getImageForPath(path string) *structs.Media {
 	return nil
 }
 
-func (g *Generator) title(b structs.Breadcrumbs) string {
+func (g *Generator) formatTitle(b structs.Breadcrumbs) string {
 	b = b[1:] // skip the first element (it's always "Home")
 	if len(b) == 0 {
 		return g.config.Title

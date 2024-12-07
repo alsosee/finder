@@ -17,6 +17,12 @@ import (
 	"time"
 )
 
+var RootTypes = map[string]string{
+	{{- range .RootTypes }}
+	"{{ .Path }}": "{{ .Type }}",
+	{{- end }}
+}
+
 type Column struct {
 	Name       string // used to lookup property in search hits response
 	Title      string // used for column name in UI

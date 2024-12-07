@@ -9,7 +9,7 @@
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#333030" media="(prefers-color-scheme: dark)">
-    <title>{{ title .Breadcrumbs }}</title>
+    <title>{{ formatTitle .Breadcrumbs }}</title>
     <link rel="stylesheet" href="/style.css?crc={{ crc32 "style.css" }}">
     <link rel="stylesheet" href="/print.css?crc={{ crc32 "print.css" }}" media="print">
     <script src="https://unpkg.com/htmx.org@2.0.0" integrity="sha384-wS5l5IKJBvK6sPTKa2WZ1js3d947pvWXbPJ1OmWfEuxLgeHcEbjUUA5i9V5ZkpCw" crossorigin="anonymous"></script>
