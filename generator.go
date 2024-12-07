@@ -338,6 +338,7 @@ func (g *Generator) fm() template.FuncMap {
 				p, arX, arY,
 			)
 		},
+		// "isPNG" currenty not used
 		"isPNG": func(path string) bool {
 			return strings.HasSuffix(path, ".png")
 		},
@@ -466,8 +467,11 @@ func (g *Generator) fm() template.FuncMap {
 		"title":         g.title,
 		"awardYear":     awardYear,
 		"prefix":        prefix,
-		"chooseColumns": chooseColumns,
+		"columns":       func() []structs.Column {
+			return structs.ColumnsList
+		},
 		"column":        column,
+		"chooseColumns": chooseColumns,
 		"renderPanel":   g.renderPanel,
 		"label": func(label string, list []string) string {
 			if len(list) == 1 && strings.HasSuffix(label, "s") {
@@ -1764,7 +1768,7 @@ func chooseColumns(files []structs.File) []string {
 	// choose columns that are present in > half of all files
 	chosenColumns := []string{}
 	for key, count := range columns {
-		if count > total/2 || key == "Died" {
+		if count > total/2 || key == "Died" { // todo: generalise
 			chosenColumns = append(chosenColumns, key)
 		}
 	}

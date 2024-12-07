@@ -219,7 +219,7 @@ if (typeof hasRun === 'undefined') {
         return style;
     }
 
-    /* Because search naviration is not a real navigation,
+    /* Because search navigation is not a real navigation,
       * we need to backup the state of the page
       * before search, and restore it after search is cleared */
     var titleBackup = "";
@@ -228,33 +228,26 @@ if (typeof hasRun === 'undefined') {
     var previousQuery = "";
     var urlBackup = "";
 
-    var columnsFields = [
-        "Length",
-        "Directors",
-        "Writers",
-        "Distributors",
-        "Rating",
-        "Released",
-        "Network",
-        "Creators",
-        "Authors",
-        "Hosts",
-        "Developers",
-        "Publishers",
-        "Screenplay",
-        "StoryBy",
-        "DialoguesBy",
-        "DOB",
-        "DOD",
-    ];
+    var columnsTitles = {
+        {{- range columns }}
+        "{{ .Name }}": "{{ .Title }}",
+        {{- end }}
+    };
+    var columnDurationFields = [
+        {{- range columns }}
+        {{- if eq .Type "duration" }}
+        "{{ .Name }}",
+        {{- end }}
+        {{- end }}
+    ]
     function collectColumns(hit) {
         var columns = {};
         for (var key in hit) {
-            if (columnsFields.includes(key)) {
+            if (columnsTitles.hasOwnProperty(key)) {
                 if (Array.isArray(hit[key])) {
                     // if hit[key] is an array, join it with ", "
                     columns[key] = hit[key].join(", ");
-                } else if (key === "Length") {
+                } else if (columnDurationFields.includes(key)) {
                     // if key is "Length", convert it to "2h 3m" format
                     var minutes = Math.floor(hit[key] / 60000000000);
                     var hours = Math.floor(minutes / 60);
@@ -290,6 +283,8 @@ if (typeof hasRun === 'undefined') {
 
         // get first part before /
         var root = href.split("/")[0];
+
+        // todo: generate from Content struct
         switch (root) {
             case "Books":
                 return "Book";
@@ -419,15 +414,8 @@ if (typeof hasRun === 'undefined') {
                     <span class="column">{{ (config).ColumnKind }}</span>`;
             for (var ci in chosenColumns) {
                 var column = chosenColumns[ci];
-                switch (column) {
-                    case "DOB":
-                        column = "Born";
-                        break;
-                    case "DOD":
-                        column = "Died";
-                        break;
-                }
-                resultsHeader += `<span class="column" data-label="${column}">${column}</span>`;
+                var title = columnsTitles[column]
+                resultsHeader += `<span class="column" data-label="${column}">${title}</span>`;
             }
             resultsHeader += `<span class="column expand"></span></li>`;
 
@@ -830,7 +818,7 @@ if (typeof hasRun === 'undefined') {
 
             drop.classList.add('thumb');
             if (viewport == "circle") {
-                drop.classList.add('people'); // todo: rename "people" class to "circle"
+                drop.classList.add('people');
             }
             if (suffix == "") {
                 // this is main image for the content

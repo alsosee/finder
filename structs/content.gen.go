@@ -12,6 +12,100 @@ import (
 	"time"
 )
 
+type Column struct {
+	Name  string // used to lookup property in search hits response
+	Title string // used for column name in UI
+	Type  string // used to conditionally convert "duration" value from search hits response into human readable format
+}
+
+var ColumnsList = []Column{
+	{
+		Name:  "dob",
+		Title: "Born",
+		Type:  "string",
+	},
+	{
+		Name:  "dod",
+		Title: "Died",
+		Type:  "string",
+	},
+	{
+		Name:  "publishers",
+		Title: "Publishers",
+		Type:  "array",
+	},
+	{
+		Name:  "length",
+		Title: "Length",
+		Type:  "duration",
+	},
+	{
+		Name:  "directors",
+		Title: "Directors",
+		Type:  "array",
+	},
+	{
+		Name:  "writers",
+		Title: "Writers",
+		Type:  "array",
+	},
+	{
+		Name:  "distributors",
+		Title: "Distributors",
+		Type:  "array",
+	},
+	{
+		Name:  "rating",
+		Title: "Rating",
+		Type:  "string",
+	},
+	{
+		Name:  "released",
+		Title: "Released",
+		Type:  "string",
+	},
+	{
+		Name:  "network",
+		Title: "Network",
+		Type:  "company",
+	},
+	{
+		Name:  "creators",
+		Title: "Creators",
+		Type:  "array",
+	},
+	{
+		Name:  "authors",
+		Title: "Authors",
+		Type:  "array",
+	},
+	{
+		Name:  "developers",
+		Title: "Developers",
+		Type:  "array",
+	},
+	{
+		Name:  "screenplay",
+		Title: "Screenplay",
+		Type:  "array",
+	},
+	{
+		Name:  "story_by",
+		Title: "StoryBy",
+		Type:  "array",
+	},
+	{
+		Name:  "dialogues_by",
+		Title: "DialoguesBy",
+		Type:  "array",
+	},
+	{
+		Name:  "hosts",
+		Title: "Hosts",
+		Type:  "array",
+	},
+}
+
 // Content represents the content of a file.
 type Content struct {
 	ID                string        `yaml:"-"`                   // used by Search
@@ -583,14 +677,14 @@ type Episode struct {
 
 // AddMedia populates the Image field with a Media object.
 func (c *Content) AddMedia(getImage func(string) *Media) {
-	c.Image = getImage(c.ID)
+	c.Image = getImage(c.SourceNoExtention)
 	for _, character := range c.Characters {
-		character.Image = getImage(c.ID + "/Characters/" + character.Name)
+		character.Image = getImage(c.SourceNoExtention + "/Characters/" + character.Name)
 		character.ActorImage = getImage("People/" + character.Actor)
 	}
 	for _, episode := range c.Episodes {
 		for _, episodeCharacter := range episode.Characters {
-			episodeCharacter.Image = getImage(c.ID + "/Characters/" + episodeCharacter.Name)
+			episodeCharacter.Image = getImage(c.SourceNoExtention + "/Characters/" + episodeCharacter.Name)
 			episodeCharacter.ActorImage = getImage("People/" + episodeCharacter.Actor)
 		}
 	}
