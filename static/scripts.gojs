@@ -19,12 +19,40 @@ if (typeof hasRun === 'undefined') {
         return decodeURI(window.location.pathname).substr(1);
     }
 
-    function loadCharactersImages() {
+    function addContentThumb(thumb) {
+        var content = document.querySelector('.content');
+        if (!content) {
+            return;
+        }
+
+        content = content.firstElementChild; // .content-inner
+        content.insertBefore(thumb, content.firstChild);
+    }
+
+    function loadImagesFromIndexedDB() {
+        // get current main image
+        var key = path();
+        ldb.get(key, function(image) {
+            if (image) {
+                var img = document.createElement('img');
+                img.src = image;
+                img.classList.add('thumb', 'lock');
+                // todo: drop.classList.add('people');
+
+                var thumb = document.querySelector('.content .content-inner .thumb');
+                if (thumb) {
+                    thumb.replaceWith(img);
+                } else {
+                    addContentThumb(img);
+                }
+            }
+        });
+
         // scan for characters without images
         var drops = document.querySelectorAll('.characters .drop');
         drops.forEach(function(someDrop) {
             var name = someDrop.dataset.name;
-            var key = path() + (someDrop.dataset.suffix || "");
+            key = path() + (someDrop.dataset.suffix || "");
             if (someDrop.classList.contains('image')) {
                 ldb.delete(key);
             } else {
@@ -119,6 +147,7 @@ if (typeof hasRun === 'undefined') {
             setView(event.target.value);
         });
         viewSwitcher.querySelector(`input[value=${view}]`).checked = true;
+        loadImagesFromIndexedDB();
     });
 
     var xhr = null;
@@ -149,7 +178,7 @@ if (typeof hasRun === 'undefined') {
     });
 
     htmx.on('htmx:pushedIntoHistory', function(evt) {
-        loadCharactersImages();
+        loadImagesFromIndexedDB();
 
         // update link rel="edit"
         var editLink = document.querySelector('link[rel="edit"]');
@@ -471,7 +500,7 @@ if (typeof hasRun === 'undefined') {
 
     // on page load, restore the search query if there is one
     window.addEventListener('load', function(event) {
-        loadCharactersImages();
+        loadImagesFromIndexedDB();
         const url = new URL(window.location.href);
         const query = url.searchParams.get("q");
         if (query) {
