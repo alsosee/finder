@@ -174,7 +174,13 @@ func (r *Reference) UnmarshalYAML(value *yaml.Node) error {
 		return nil
 	}
 
-	return value.Decode(&r)
+	type alias Reference
+	var a alias
+	if err := value.Decode(&a); err != nil {
+		return err
+	}
+	*r = Reference(a)
+	return nil
 }
 
 // References represents a list of references.
@@ -182,9 +188,9 @@ type References []Reference
 
 // UnmarshalYAML is a custom unmarshaler for References,
 // allowing to unmarshal a single string as a reference.
-func (r *References) UnmarshalYAML(value *yaml.Node) error {
+func (rr *References) UnmarshalYAML(value *yaml.Node) error {
 	if value.Kind == yaml.ScalarNode {
-		*r = []Reference{{Path: value.Value}}
+		*rr = []Reference{{Path: value.Value}}
 		return nil
 	}
 
@@ -196,16 +202,72 @@ func (r *References) UnmarshalYAML(value *yaml.Node) error {
 		return nil
 	}
 
-	*r = make([]Reference, len(value.Content))
+	*rr = make([]Reference, len(value.Content))
 	for i, v := range value.Content {
 		if v.Kind == yaml.ScalarNode {
-			(*r)[i].Path = v.Value
+			(*rr)[i].Path = v.Value
 			continue
 		}
 
-		err := v.Decode(&(*r)[i])
+		err := v.Decode(&(*rr)[i])
 		if err != nil {
 			return fmt.Errorf("failed to decode reference: %w", err)
+		}
+	}
+
+	return nil
+}
+
+type Link struct {
+	Title string `yaml:"title"`
+	URL   string `yaml:"url"`
+}
+
+// UnmarshalYAML is a custom unmarshaler for Link.
+// It can be either a string or a map.
+func (l *Link) UnmarshalYAML(value *yaml.Node) error {
+	if value.Kind == yaml.ScalarNode {
+		*l = Link{URL: value.Value}
+		return nil
+	}
+
+	type alias Link
+	var a alias
+	if err := value.Decode(&a); err != nil {
+		return err
+	}
+	*l = Link(a)
+	return nil
+}
+
+type Links []Link
+
+// UnmarshalYAML is a custom unmarshaler for Links,
+// allowing to unmarshal a single string as a link.
+func (ll *Links) UnmarshalYAML(value *yaml.Node) error {
+	if value.Kind == yaml.ScalarNode {
+		*ll = []Link{{URL: value.Value}}
+		return nil
+	}
+
+	if value.Kind != yaml.SequenceNode {
+		return fmt.Errorf("expected a string or a sequence")
+	}
+
+	if len(value.Content) == 0 {
+		return nil
+	}
+
+	*ll = make([]Link, len(value.Content))
+	for i, v := range value.Content {
+		if v.Kind == yaml.ScalarNode {
+			(*ll)[i].URL = v.Value
+			continue
+		}
+
+		err := v.Decode(&(*ll)[i])
+		if err != nil {
+			return fmt.Errorf("failed to decode link: %w", err)
 		}
 	}
 

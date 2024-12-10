@@ -64,11 +64,11 @@ Inputs (same as for "index" template):
     <p>Released: {{ . }}</p>
     {{- end }}
 
-    {{- with .Website}}
-    <p><a class="website" href="{{ . }}">{{ . }}</a></p>
+    {{- with .Website }}
+    <p><a class="website" href="{{ .URL }}">{{ either .Title .URL }}</a></p>
     {{- end }}
     {{- with .Websites }}{{ range . }}
-        <p><a class="website" href="{{ . }}">{{ . }}</a></p>
+        <p><a class="website" href="{{ .URL }}">{{ either .Title .URL }}</a></p>
     {{- end }}{{ end }}
 
     {{- with .BasedOn }}

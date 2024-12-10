@@ -389,6 +389,8 @@ func (s *Schema) FieldType(property Property) string {
 	case "reference":
 		// Reference should be a pointer, so that we can check if it's nil in the templates
 		return "*Reference"
+	case "link":
+		return "*Link"
 	case "award", "media": // todo move to default case
 		return "*" + caser.String(property.Type)
 	case "array":
@@ -403,6 +405,10 @@ func (s *Schema) FieldType(property Property) string {
 
 		if property.Items.Type == "reference" {
 			return "References"
+		}
+
+		if property.Items.Type == "link" {
+			return "Links"
 		}
 
 		return "[]" + s.FieldType(*property.Items)
