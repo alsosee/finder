@@ -96,6 +96,18 @@ var ColumnsList = []Column{
 		AlwaysShow: false,
 	},
 	{
+		Name:       "developed_by",
+		Title:      "DevelopedBy",
+		Type:       "array",
+		AlwaysShow: false,
+	},
+	{
+		Name:       "showrunners",
+		Title:      "Showrunners",
+		Type:       "array",
+		AlwaysShow: false,
+	},
+	{
 		Name:       "authors",
 		Title:      "Authors",
 		Type:       "array",
@@ -155,8 +167,8 @@ type Content struct {
 	Parent            string        `yaml:"parent,omitempty" json:"parent,omitempty"`
 	Founded           string        `yaml:"founded,omitempty" json:"founded,omitempty"`
 	Founders          oneOrMany     `yaml:"founders,omitempty" json:"founders,omitempty"`
-	Website           string        `yaml:"website,omitempty" json:"website,omitempty"`
-	Websites          []string      `yaml:"websites,omitempty" json:"websites,omitempty"`
+	Website           *Link         `yaml:"website,omitempty" json:"website,omitempty"`
+	Websites          Links         `yaml:"websites,omitempty" json:"websites,omitempty"`
 	Wikipedia         string        `yaml:"wikipedia,omitempty" json:"wikipedia,omitempty"`
 	GoodReads         string        `yaml:"goodreads,omitempty" json:"goodreads,omitempty"`
 	Bookshop          string        `yaml:"bookshop,omitempty" json:"bookshop,omitempty"`
@@ -231,6 +243,8 @@ type Content struct {
 	Network           string        `yaml:"network,omitempty" json:"network,omitempty"`
 	Engine            string        `yaml:"engine,omitempty" json:"engine,omitempty"`
 	Creators          oneOrMany     `yaml:"creators,omitempty" json:"creators,omitempty"`
+	DevelopedBy       oneOrMany     `yaml:"developed_by,omitempty" json:"developed_by,omitempty"`
+	Showrunners       oneOrMany     `yaml:"showrunners,omitempty" json:"showrunners,omitempty"`
 	Authors           oneOrMany     `yaml:"authors,omitempty" json:"authors,omitempty"`
 	Developers        oneOrMany     `yaml:"developers,omitempty" json:"developers,omitempty"`
 	Trailer           string        `yaml:"trailer,omitempty" json:"trailer,omitempty"`
@@ -336,6 +350,8 @@ func (c Content) Columns() map[string]string {
 		"Released":     c.Released,
 		"Network":      c.Network,
 		"Creators":     strings.Join(c.Creators, ", "),
+		"DevelopedBy":  strings.Join(c.DevelopedBy, ", "),
+		"Showrunners":  strings.Join(c.Showrunners, ", "),
 		"Authors":      strings.Join(c.Authors, ", "),
 		"Developers":   strings.Join(c.Developers, ", "),
 		"Screenplay":   strings.Join(c.Screenplay, ", "),
@@ -445,6 +461,18 @@ func (c Content) Connections() []Connection {
 		connections = append(connections, Connection{
 			To:    "People/" + person,
 			Label: "Creator",
+		})
+	}
+	for _, person := range c.DevelopedBy {
+		connections = append(connections, Connection{
+			To:    "People/" + person,
+			Label: "Developer",
+		})
+	}
+	for _, person := range c.Showrunners {
+		connections = append(connections, Connection{
+			To:    "People/" + person,
+			Label: "Showrunner",
 		})
 	}
 	for _, person := range c.Authors {
