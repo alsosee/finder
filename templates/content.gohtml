@@ -65,10 +65,10 @@ Inputs (same as for "index" template):
     {{- end }}
 
     {{- with .Website }}
-    <p><a class="website" href="{{ .URL }}">{{ either .Title .URL }}</a></p>
+    <p><a class="website" href="{{ .URL }}">{{ fallback .Title .URL }}</a></p>
     {{- end }}
     {{- with .Websites }}{{ range . }}
-        <p><a class="website" href="{{ .URL }}">{{ either .Title .URL }}</a></p>
+        <p><a class="website" href="{{ .URL }}">{{ fallback .Title .URL }}</a></p>
     {{- end }}{{ end }}
 
     {{- with .BasedOn }}
