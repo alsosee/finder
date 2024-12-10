@@ -267,6 +267,10 @@ func (g *Generator) fm() template.FuncMap {
 			marginTop := (max - height) / 2
 			marginBottom := max - height - marginTop
 
+			// round down width to ceil number to avoid rounding errors
+			// that can cause image to have 1px of the next image on the right
+			width = float64(int(width))
+
 			style := fmt.Sprintf(
 				"%sbackground-size: %.2fpx %.2fpx; %swidth: %.2fpx; %sheight: %.2fpx",
 				p, backgroundWidth, backgroundHeight,
