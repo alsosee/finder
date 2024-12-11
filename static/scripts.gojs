@@ -82,7 +82,7 @@ if (typeof hasRun === 'undefined') {
 
     // if enter or space is pressed on a toolbar item, check the radio button
     viewSwitcher.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
+        if (event.key === 'Enter' || event.key === ' ') { // enter or space
             event.target.querySelector('input').checked = true;
             setView(event.target.querySelector('input').value);
         }
@@ -888,6 +888,11 @@ if (typeof hasRun === 'undefined') {
     });
 
     // menu
+    menu.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            toggleMenu();
+        }
+    });
     function toggleMenu() {
         menu.classList.toggle('open');
         menu.focus();
@@ -996,6 +1001,44 @@ if (typeof hasRun === 'undefined') {
                 }
             }
             return;
+        }
+
+        // handling menu with keyboard
+        // 1. If menu toggle button is focused, and Emter or space is pressed, open the menu
+        // 2. if menu is open, and focus is on the menu, and down is pressed, move focus to the first link
+        // 3. if focus is on any link in the menu, and down is pressed, move focus to the next link
+        // 3.1 If it is the first link, move focus to the menu toggle button
+        // 4. if focus is on any link in the menu, and up is pressed, move focus to the previous link
+        // 4.1 If it is the lsat link, do nothing
+        if (document.activeElement === menu) {
+            if (e.keyCode === 40 && menu.classList.contains('open')) { // down
+                document.querySelector('#menu_popup a').focus();
+                e.preventDefault();
+                return;
+            }
+        }
+        if (document.activeElement.tagName === "A" && document.activeElement.closest('#menu_popup')) {
+            if (e.keyCode === 40) { // down
+                var links = Array.from(document.querySelectorAll('#menu_popup a'));
+                var index = links.indexOf(document.activeElement);
+                if (index < links.length - 1) {
+                    links[index + 1].focus();
+                    e.preventDefault();
+                }
+                return;
+            }
+            if (e.keyCode === 38) { // up
+                var links = Array.from(document.querySelectorAll('#menu_popup a'));
+                var index = links.indexOf(document.activeElement);
+                if (index > 0) {
+                    links[index - 1].focus();
+                    e.preventDefault();
+                } else {
+                    menu.focus();
+                    e.preventDefault();
+                }
+                return;
+            }
         }
 
         if (e.altKey && e.keyCode === 38) { // alt + up

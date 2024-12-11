@@ -221,7 +221,6 @@ pre code {
   border-top-left-radius: 0;
   box-shadow: var(--shadow-big);
   z-index: 100;
-  overflow: hidden;
 }
 
 #menu_popup li * {
@@ -248,7 +247,8 @@ pre code {
   cursor: default;
 }
 
-#menu_popup a:hover {
+#menu_popup a:hover,
+#menu_popup a:focus {
   background-color: var(--color-background-selection);
   color: var(--color-text-selection);
 }
@@ -258,7 +258,8 @@ pre code {
   background-position: -44px var(--shift-y, 0);
 }
 
-#menu_popup a:hover::before {
+#menu_popup a:hover::before,
+#menu_popup a:focus::before {
   background-position: 0 var(--shift-y, 0);
 }
 
