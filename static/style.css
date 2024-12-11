@@ -337,8 +337,11 @@ fieldset.radio label:has(input:checked) {
 }
 
 fieldset.radio label:focus {
-  outline: none;
   z-index: 1;
+}
+
+fieldset.radio label:focus-visible {
+  outline: 2px solid var(--color-outline);
 }
 
 fieldset.radio label:first-of-type {
@@ -389,7 +392,7 @@ fieldset.radio label:last-of-type {
 }
 
 #search:focus {
-  outline: thin solid var(--color-outline);
+  outline: 2px solid #99c8ff;
   z-index: 1;
 }
 
@@ -1464,6 +1467,7 @@ p .award + .award {
     --color-text-muted: #989d9f;
     --color-border: #222222;
     --color-link: #a8c7fa;
+    --color-outline: #99c8ff;
     --background-radial: radial-gradient(
       82.57% 82.57% at 50% 17.43%,
       #696969 0%,
