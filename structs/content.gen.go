@@ -72,6 +72,12 @@ var ColumnsList = []Column{
 		AlwaysShow: false,
 	},
 	{
+		Name:       "manufacturers",
+		Title:      "Manufacturers",
+		Type:       "array",
+		AlwaysShow: false,
+	},
+	{
 		Name:       "rating",
 		Title:      "Rating",
 		Type:       "string",
@@ -222,6 +228,7 @@ type Content struct {
 	Redbox            string        `yaml:"redbox,omitempty" json:"redbox,omitempty"`
 	Vudu              string        `yaml:"vudu,omitempty" json:"vudu,omitempty"`
 	DarkHorse         string        `yaml:"darkhorse,omitempty" json:"darkhorse,omitempty"`
+	Kickstarter       string        `yaml:"kickstarter,omitempty" json:"kickstarter,omitempty"`
 	ISBN              string        `yaml:"isbn,omitempty" json:"isbn,omitempty"`
 	ISBN10            string        `yaml:"isbn10,omitempty" json:"isbn10,omitempty"`
 	ISBN13            string        `yaml:"isbn13,omitempty" json:"isbn13,omitempty"`
@@ -238,6 +245,7 @@ type Content struct {
 	Directors         oneOrMany     `yaml:"directors,omitempty" json:"directors,omitempty"`
 	Writers           oneOrMany     `yaml:"writers,omitempty" json:"writers,omitempty"`
 	Distributors      oneOrMany     `yaml:"distributors,omitempty" json:"distributors,omitempty"`
+	Manufacturers     oneOrMany     `yaml:"manufacturers,omitempty" json:"manufacturers,omitempty"`
 	Rating            string        `yaml:"rating,omitempty" json:"rating,omitempty"`
 	Released          string        `yaml:"released,omitempty" json:"released,omitempty"`
 	Network           string        `yaml:"network,omitempty" json:"network,omitempty"`
@@ -339,25 +347,26 @@ func (c Content) GetName() string {
 // Columns defines the columns to be displayed in the List view.
 func (c Content) Columns() map[string]string {
 	return map[string]string{
-		"Born":         c.DOB,
-		"Died":         c.DOD,
-		"Publishers":   strings.Join(c.Publishers, ", "),
-		"Length":       length(c.Length),
-		"Directors":    strings.Join(c.Directors, ", "),
-		"Writers":      strings.Join(c.Writers, ", "),
-		"Distributors": strings.Join(c.Distributors, ", "),
-		"Rating":       c.Rating,
-		"Released":     c.Released,
-		"Network":      c.Network,
-		"Creators":     strings.Join(c.Creators, ", "),
-		"DevelopedBy":  strings.Join(c.DevelopedBy, ", "),
-		"Showrunners":  strings.Join(c.Showrunners, ", "),
-		"Authors":      strings.Join(c.Authors, ", "),
-		"Developers":   strings.Join(c.Developers, ", "),
-		"Screenplay":   strings.Join(c.Screenplay, ", "),
-		"StoryBy":      strings.Join(c.StoryBy, ", "),
-		"DialoguesBy":  strings.Join(c.DialoguesBy, ", "),
-		"Hosts":        strings.Join(c.Hosts, ", "),
+		"Born":          c.DOB,
+		"Died":          c.DOD,
+		"Publishers":    strings.Join(c.Publishers, ", "),
+		"Length":        length(c.Length),
+		"Directors":     strings.Join(c.Directors, ", "),
+		"Writers":       strings.Join(c.Writers, ", "),
+		"Distributors":  strings.Join(c.Distributors, ", "),
+		"Manufacturers": strings.Join(c.Manufacturers, ", "),
+		"Rating":        c.Rating,
+		"Released":      c.Released,
+		"Network":       c.Network,
+		"Creators":      strings.Join(c.Creators, ", "),
+		"DevelopedBy":   strings.Join(c.DevelopedBy, ", "),
+		"Showrunners":   strings.Join(c.Showrunners, ", "),
+		"Authors":       strings.Join(c.Authors, ", "),
+		"Developers":    strings.Join(c.Developers, ", "),
+		"Screenplay":    strings.Join(c.Screenplay, ", "),
+		"StoryBy":       strings.Join(c.StoryBy, ", "),
+		"DialoguesBy":   strings.Join(c.DialoguesBy, ", "),
+		"Hosts":         strings.Join(c.Hosts, ", "),
 	}
 }
 
@@ -449,6 +458,12 @@ func (c Content) Connections() []Connection {
 		connections = append(connections, Connection{
 			To:    "Companies/" + company,
 			Label: "Distributor",
+		})
+	}
+	for _, company := range c.Manufacturers {
+		connections = append(connections, Connection{
+			To:    "Companies/" + company,
+			Label: "Manufacturer",
 		})
 	}
 	if c.Network != "" {
