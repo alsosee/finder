@@ -31,3 +31,13 @@ func (b *oneOrMany) UnmarshalYAML(value *yaml.Node) error {
 
 	return nil
 }
+
+func (b oneOrMany) MarshalYAML() (interface{}, error) {
+	if len(b) == 1 {
+		// If there is only one element, return it as a string
+		return b[0], nil
+	}
+
+	// Otherwise, Marshal it as a list
+	return []string(b), nil
+}
