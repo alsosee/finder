@@ -304,20 +304,37 @@ func (i *Indexer) getImageForPath(path string) *structs.Media {
 }
 
 func (i *Indexer) waitForTask(taskID int64, timeout time.Duration) error {
-	_, err := i.client.WaitForTask(taskID, timeout)
-	if err != nil {
-		return err
-	}
+	var (
+		task  *meilisearch.Task
+		err   error
+		delay = time.Second
+	)
 
-	// check task status
-	task, err := i.client.GetTask(taskID)
-	if err != nil {
-		return err
+	for {
+		task, err = i.client.GetTask(taskID)
+		if err != nil {
+			return err
+		}
+
+		if task.Status == "succeeded" || task.Status == "failed" {
+			break
+		}
+
+		time.Sleep(delay)
+
+		// check timeout
+		timeout -= delay
+		if timeout <= 0 {
+			return fmt.Errorf("task timeout")
+		}
+
+		log.Printf("Task %d status: %s", taskID, task.Status)
 	}
 
 	if task.Status == "failed" {
 		return fmt.Errorf("task failed: %s", task.Error)
 	}
+
 	return nil
 }
 
