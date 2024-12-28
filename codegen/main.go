@@ -423,7 +423,20 @@ func (s *Schema) FieldType(property Property) string {
 			return "*" + titleCase(property.Type)
 		}
 
-		log.Fatalf("unknown type %q for field %q (%s)", property.Type, property.Name, property.Description)
+		customTypes := []string{}
+		for _, rt := range s.RootTypes {
+			customTypes = append(customTypes, rt.Type)
+		}
+		for name := range s.Extra {
+			customTypes = append(customTypes, name)
+		}
+
+		log.Fatalf(
+			"unknown type %q for field %q, known custom types: %v",
+			property.Type,
+			property.Name,
+			customTypes,
+		)
 		return ""
 	}
 }
