@@ -6,13 +6,38 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+type (
+	ContentEncoding          string
+	EncodingCompressionLevel int
+)
+
 const (
 	DefaultLimit int64 = 20
 
 	contentTypeJSON   string = "application/json"
 	contentTypeNDJSON string = "application/x-ndjson"
 	contentTypeCSV    string = "text/csv"
+
+	GzipEncoding    ContentEncoding = "gzip"
+	DeflateEncoding ContentEncoding = "deflate"
+	BrotliEncoding  ContentEncoding = "br"
+
+	NoCompression          EncodingCompressionLevel = 0
+	BestSpeed              EncodingCompressionLevel = 1
+	BestCompression        EncodingCompressionLevel = 9
+	DefaultCompression     EncodingCompressionLevel = -1
+	HuffmanOnlyCompression EncodingCompressionLevel = -2
+	ConstantCompression    EncodingCompressionLevel = -2
+	StatelessCompression   EncodingCompressionLevel = -3
+
+	nullBody = "null"
 )
+
+func (c ContentEncoding) String() string { return string(c) }
+
+func (c ContentEncoding) IsZero() bool { return c == "" }
+
+func (c EncodingCompressionLevel) Int() int { return int(c) }
 
 type IndexConfig struct {
 	// Uid is the unique identifier of a given index.
@@ -57,10 +82,16 @@ type Settings struct {
 	Synonyms             map[string][]string    `json:"synonyms,omitempty"`
 	FilterableAttributes []string               `json:"filterableAttributes,omitempty"`
 	SortableAttributes   []string               `json:"sortableAttributes,omitempty"`
+	LocalizedAttributes  []*LocalizedAttributes `json:"localizedAttributes,omitempty"`
 	TypoTolerance        *TypoTolerance         `json:"typoTolerance,omitempty"`
 	Pagination           *Pagination            `json:"pagination,omitempty"`
 	Faceting             *Faceting              `json:"faceting,omitempty"`
 	Embedders            map[string]Embedder    `json:"embedders,omitempty"`
+}
+
+type LocalizedAttributes struct {
+	Locales           []string `json:"locales,omitempty"`
+	AttributePatterns []string `json:"attributePatterns,omitempty"`
 }
 
 // TypoTolerance is the type that represents the typo tolerance setting in meilisearch
@@ -89,12 +120,25 @@ type Faceting struct {
 	SortFacetValuesBy map[string]SortFacetType `json:"sortFacetValuesBy"`
 }
 
+// Embedder represents a unified configuration for various embedder types.
 type Embedder struct {
-	Source           string `json:"source"`
-	ApiKey           string `json:"apiKey,omitempty"`
-	Model            string `json:"model,omitempty"`
-	Dimensions       int    `json:"dimensions,omitempty"`
-	DocumentTemplate string `json:"documentTemplate,omitempty"`
+	Source           string                 `json:"source"`                     // The type of embedder: "openAi", "huggingFace", "userProvided", "rest", "ollama"
+	Model            string                 `json:"model,omitempty"`            // Optional for "openAi", "huggingFace", "ollama"
+	APIKey           string                 `json:"apiKey,omitempty"`           // Optional for "openAi", "rest", "ollama"
+	DocumentTemplate string                 `json:"documentTemplate,omitempty"` // Optional for most embedders
+	Dimensions       int                    `json:"dimensions,omitempty"`       // Optional for "openAi", "rest", "userProvided", "ollama"
+	Distribution     *Distribution          `json:"distribution,omitempty"`     // Optional for all embedders
+	URL              string                 `json:"url,omitempty"`              // Optional for "openAi", "rest", "ollama"
+	Revision         string                 `json:"revision,omitempty"`         // Optional for "huggingFace"
+	Request          map[string]interface{} `json:"request,omitempty"`          // Optional for "rest"
+	Response         map[string]interface{} `json:"response,omitempty"`         // Optional for "rest"
+	Headers          map[string]string      `json:"headers,omitempty"`          // Optional for "rest"
+}
+
+// Distribution represents a statistical distribution with mean and standard deviation (sigma).
+type Distribution struct {
+	Mean  float64 `json:"mean"`  // Mean of the distribution
+	Sigma float64 `json:"sigma"` // Sigma (standard deviation) of the distribution
 }
 
 // Version is the type that represents the versions in meilisearch
@@ -378,41 +422,53 @@ type CreateIndexRequest struct {
 //
 // Documentation: https://www.meilisearch.com/docs/reference/api/search#search-parameters
 type SearchRequest struct {
-	Offset                  int64                `json:"offset,omitempty"`
-	Limit                   int64                `json:"limit,omitempty"`
-	AttributesToRetrieve    []string             `json:"attributesToRetrieve,omitempty"`
-	AttributesToSearchOn    []string             `json:"attributesToSearchOn,omitempty"`
-	AttributesToCrop        []string             `json:"attributesToCrop,omitempty"`
-	CropLength              int64                `json:"cropLength,omitempty"`
-	CropMarker              string               `json:"cropMarker,omitempty"`
-	AttributesToHighlight   []string             `json:"attributesToHighlight,omitempty"`
-	HighlightPreTag         string               `json:"highlightPreTag,omitempty"`
-	HighlightPostTag        string               `json:"highlightPostTag,omitempty"`
-	MatchingStrategy        MatchingStrategy     `json:"matchingStrategy,omitempty"`
-	Filter                  interface{}          `json:"filter,omitempty"`
-	ShowMatchesPosition     bool                 `json:"showMatchesPosition,omitempty"`
-	ShowRankingScore        bool                 `json:"showRankingScore,omitempty"`
-	ShowRankingScoreDetails bool                 `json:"showRankingScoreDetails,omitempty"`
-	Facets                  []string             `json:"facets,omitempty"`
-	Sort                    []string             `json:"sort,omitempty"`
-	Vector                  []float32            `json:"vector,omitempty"`
-	HitsPerPage             int64                `json:"hitsPerPage,omitempty"`
-	Page                    int64                `json:"page,omitempty"`
-	IndexUID                string               `json:"indexUid,omitempty"`
-	Query                   string               `json:"q"`
-	Distinct                string               `json:"distinct,omitempty"`
-	Hybrid                  *SearchRequestHybrid `json:"hybrid,omitempty"`
-	RetrieveVectors         bool                 `json:"retrieveVectors,omitempty"`
-	RankingScoreThreshold   float64              `json:"rankingScoreThreshold,omitempty"`
+	Offset                  int64                    `json:"offset,omitempty"`
+	Limit                   int64                    `json:"limit,omitempty"`
+	AttributesToRetrieve    []string                 `json:"attributesToRetrieve,omitempty"`
+	AttributesToSearchOn    []string                 `json:"attributesToSearchOn,omitempty"`
+	AttributesToCrop        []string                 `json:"attributesToCrop,omitempty"`
+	CropLength              int64                    `json:"cropLength,omitempty"`
+	CropMarker              string                   `json:"cropMarker,omitempty"`
+	AttributesToHighlight   []string                 `json:"attributesToHighlight,omitempty"`
+	HighlightPreTag         string                   `json:"highlightPreTag,omitempty"`
+	HighlightPostTag        string                   `json:"highlightPostTag,omitempty"`
+	MatchingStrategy        MatchingStrategy         `json:"matchingStrategy,omitempty"`
+	Filter                  interface{}              `json:"filter,omitempty"`
+	ShowMatchesPosition     bool                     `json:"showMatchesPosition,omitempty"`
+	ShowRankingScore        bool                     `json:"showRankingScore,omitempty"`
+	ShowRankingScoreDetails bool                     `json:"showRankingScoreDetails,omitempty"`
+	Facets                  []string                 `json:"facets,omitempty"`
+	Sort                    []string                 `json:"sort,omitempty"`
+	Vector                  []float32                `json:"vector,omitempty"`
+	HitsPerPage             int64                    `json:"hitsPerPage,omitempty"`
+	Page                    int64                    `json:"page,omitempty"`
+	IndexUID                string                   `json:"indexUid,omitempty"`
+	Query                   string                   `json:"q"`
+	Distinct                string                   `json:"distinct,omitempty"`
+	Hybrid                  *SearchRequestHybrid     `json:"hybrid"`
+	RetrieveVectors         bool                     `json:"retrieveVectors,omitempty"`
+	RankingScoreThreshold   float64                  `json:"rankingScoreThreshold,omitempty"`
+	FederationOptions       *SearchFederationOptions `json:"federationOptions,omitempty"`
+	Locates                 []string                 `json:"locales,omitempty"`
+}
+
+type SearchFederationOptions struct {
+	Weight float64 `json:"weight"`
 }
 
 type SearchRequestHybrid struct {
 	SemanticRatio float64 `json:"semanticRatio,omitempty"`
-	Embedder      string  `json:"embedder,omitempty"`
+	Embedder      string  `json:"embedder"`
 }
 
 type MultiSearchRequest struct {
-	Queries []*SearchRequest `json:"queries"`
+	Federation *MultiSearchFederation `json:"federation,omitempty"`
+	Queries    []*SearchRequest       `json:"queries"`
+}
+
+type MultiSearchFederation struct {
+	Offset int64 `json:"offset,omitempty"`
+	Limit  int64 `json:"limit,omitempty"`
 }
 
 // SearchResponse is the response body for search method
@@ -433,7 +489,13 @@ type SearchResponse struct {
 }
 
 type MultiSearchResponse struct {
-	Results []SearchResponse `json:"results"`
+	Results            []SearchResponse `json:"results,omitempty"`
+	Hits               []interface{}    `json:"hits,omitempty"`
+	ProcessingTimeMs   int64            `json:"processingTimeMs,omitempty"`
+	Offset             int64            `json:"offset,omitempty"`
+	Limit              int64            `json:"limit,omitempty"`
+	EstimatedTotalHits int64            `json:"estimatedTotalHits,omitempty"`
+	SemanticHitCount   int64            `json:"semanticHitCount,omitempty"`
 }
 
 type FacetSearchRequest struct {
@@ -467,7 +529,7 @@ type DocumentsQuery struct {
 // SimilarDocumentQuery is query parameters of similar documents
 type SimilarDocumentQuery struct {
 	Id                      interface{} `json:"id,omitempty"`
-	Embedder                string      `json:"embedder,omitempty"`
+	Embedder                string      `json:"embedder"`
 	AttributesToRetrieve    []string    `json:"attributesToRetrieve,omitempty"`
 	Offset                  int64       `json:"offset,omitempty"`
 	Limit                   int64       `json:"limit,omitempty"`
@@ -497,6 +559,29 @@ type DocumentsResult struct {
 	Limit   int64                    `json:"limit"`
 	Offset  int64                    `json:"offset"`
 	Total   int64                    `json:"total"`
+}
+
+type UpdateDocumentByFunctionRequest struct {
+	Filter   string                 `json:"filter,omitempty"`
+	Function string                 `json:"function"`
+	Context  map[string]interface{} `json:"context,omitempty"`
+}
+
+// ExperimentalFeaturesResult represents the experimental features result from the API.
+type ExperimentalFeaturesBase struct {
+	VectorStore             *bool `json:"vectorStore,omitempty"`
+	LogsRoute               *bool `json:"logsRoute,omitempty"`
+	Metrics                 *bool `json:"metrics,omitempty"`
+	EditDocumentsByFunction *bool `json:"editDocumentsByFunction,omitempty"`
+	ContainsFilter          *bool `json:"containsFilter,omitempty"`
+}
+
+type ExperimentalFeaturesResult struct {
+	VectorStore             bool `json:"vectorStore"`
+	LogsRoute               bool `json:"logsRoute"`
+	Metrics                 bool `json:"metrics"`
+	EditDocumentsByFunction bool `json:"editDocumentsByFunction"`
+	ContainsFilter          bool `json:"containsFilter"`
 }
 
 type SwapIndexesParams struct {
@@ -531,9 +616,6 @@ func (b RawType) MarshalJSON() ([]byte, error) {
 }
 
 func (s *SearchRequest) validate() {
-	if s.Limit == 0 {
-		s.Limit = DefaultLimit
-	}
 	if s.Hybrid != nil && s.Hybrid.Embedder == "" {
 		s.Hybrid.Embedder = "default"
 	}
