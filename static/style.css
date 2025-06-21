@@ -221,6 +221,7 @@ pre code {
   border-top-left-radius: 0;
   box-shadow: var(--shadow-big);
   z-index: 100;
+  overflow: hidden;
 }
 
 #menu_popup li * {
