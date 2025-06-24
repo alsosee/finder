@@ -399,7 +399,7 @@ fieldset.radio label:last-of-type {
 }
 
 #search:focus {
-  outline: 2px solid #99c8ff;
+  outline: 2px solid var(--color-outline);
   z-index: 1;
 }
 
