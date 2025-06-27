@@ -1,0 +1,453 @@
+/* handle drag and drop */
+// Users may upload images as avatars (for characters, people)
+// or as main images for the content (posters, covers, etc.).
+// For avatars we use Croppie to crop the image to a circle.
+// For main images we use a regular image preview with pica to resize the image.
+// We use the same uploader modal for both cases.
+
+var backdrop = document.querySelector('#backdrop');
+var uploader = document.querySelector('#uploader');
+var uploader_title = document.querySelector('#uploader .title');
+var uploader_body = document.querySelector('#uploader .body');
+var uploader_preview = document.querySelector('#uploader .preview');
+var uploader_error = document.querySelector('#uploader .error');
+var uploader_args = document.querySelector('#uploader .args');
+var btn_uploader_upload = document.querySelector('#btn_uploader_upload');
+
+var uploader_max_width = 420;
+var uploader_max_height = 420;
+
+var c = null; /* croppie instance re-created every time */
+
+function extension(mime) {
+    switch (mime) {
+    case "image/jpeg":
+        return ".jpg";
+    case "image/png":
+        return ".png";
+    case "image/gif":
+        return ".gif";
+    default:
+        return "";
+    }
+}
+
+function download(binary, mime) {
+    const a = document.createElement('a');
+    a.href = 'data:' + mime + ';base64,' + btoa(binary);
+    a.download = uploader.dataset.target;
+    a.click();
+}
+
+function uploader_show(title, name, suffix) {
+    uploader_title.innerText = name;
+    uploader.dataset.target = name;
+    uploader.dataset.suffix = suffix;
+
+    uploader.classList.remove('error');
+    uploader.classList.add('loading');
+
+    uploader_body.style.height = "";
+    btn_uploader_upload.disabled = true;
+
+    backdrop.classList.add('open');
+    uploader.classList.add('open');
+
+}
+
+function uploader_show_error(message) {
+    uploader.classList.remove('loading');
+    uploader_error.innerText = message;
+    uploader.classList.add('error');
+}
+
+function uploader_resize(width, height, willHaveArgs, callback) {
+    if (dropStyle != "") {
+        dropStyle = `;aspect-ratio: ${width} / ${height}; background-size: 100%`;
+    }
+
+    // calculate uploader body height based on the image size
+    if (width > uploader_max_width || height > uploader_max_height) {
+        var ratio = Math.min(uploader_max_width / width, uploader_max_height / height);
+        height = Math.round(height * ratio);
+    }
+
+    if (willHaveArgs) {
+        height += 65; // 44 input height + 2*10px paddings + 1px border
+    } else {
+        height += 48; // 18 croppie size slider height + 15 margin
+    }
+
+    uploader_body.style.height = height + "px";
+    setTimeout(function() {
+        uploader.classList.remove('loading');
+        btn_uploader_upload.disabled = false;
+        if (callback) {
+            callback();
+        }
+    }, 600); // give some time for the browser to apply the styles
+}
+
+function uploader_cancel() {
+    backdrop.classList.remove('open');
+    uploader.classList.remove('open');
+    setTimeout(function() {
+        uploader_body.style.height = "";
+        uploader.classList.remove('error');
+    }, 500);
+    image_handler_destroy();
+}
+
+var useCroppie = false;
+var format = "jpg";
+var offScreenCanvas = null; // canvas for pica source image
+var resizer = null; // lazy init pica
+var canvas = null;
+
+function init_image_handler(viewport) {
+    // used to determine which image handler to use in all *_image_handler_* functions
+    useCroppie = viewport == "circle";
+
+    // default format is jpg
+    format = "jpg";
+
+    if (useCroppie) {
+        init_image_handler_croppie();
+        return;
+    }
+
+    init_image_handler_pica();
+}
+
+function init_image_handler_pica() {
+    uploader_preview.classList.remove("png"); // remove .png class if it was set
+    uploader_preview.innerHTML = '<canvas class="image-pica"></canvas>';
+    canvas = uploader_preview.querySelector("canvas");
+}
+
+function init_image_handler_croppie() {
+    uploader_preview.innerHTML = '';
+    c = new Croppie(uploader_preview, {
+        viewport: {
+            type: "circle",
+            width: 400,
+            height: 400
+        },
+        boundary: {
+            width: 420,
+            height: 420
+        },
+    });
+}
+
+function set_image_handler_image(image) {
+    if (useCroppie) {
+        set_image_handler_image_croppie(image);
+        return;
+    }
+
+    set_image_handler_image_pica(image);
+}
+
+function set_image_handler_image_croppie(image) {
+    uploader_resize(uploader_max_width, uploader_max_height, false, function() {
+        c.bind({url: image});
+    });
+}
+
+function set_image_handler_image_pica(image) {
+    offScreenCanvas = document.createElement('canvas');
+
+    var img = new Image();
+    img.onload = function() {
+        uploader_resize(img.width, img.height, true, function() {
+            offScreenCanvas.width = img.width;
+            offScreenCanvas.height = img.height;
+            offScreenCanvas.getContext('2d').drawImage(img, 0, 0);
+
+            // copy original image to visible canvas
+            canvas.width = img.width;
+            canvas.height = img.height;
+            canvas.getContext('2d').drawImage(img, 0, 0);
+        });
+    }
+    img.src = image;
+
+    if (image.substr(0, 15).indexOf("image/png") > -1) {
+        uploader_preview.classList.add("png");
+        format = "png";
+    }
+}
+
+function image_handler_promise() {
+    if (useCroppie) {
+        return image_handler_promise_croppie();
+    }
+
+    return image_handler_promise_pica();
+}
+
+function image_handler_promise_croppie() {
+    return c.result({
+        type: 'blob',
+        size: 'viewport',
+        format: 'jpeg',
+        circle: false
+    });
+}
+
+function image_handler_promise_pica() {
+    return new Promise(function(resolve, reject) {
+        if (!resizer) {
+            resizer = window.pica();
+        }
+        resizer.resize(offScreenCanvas, canvas).then(function(result) {
+            let mimeType = "image/jpeg";
+            if (format == "png") {
+                mimeType = 'image/png';
+            }
+            resolve(resizer.toBlob(result, mimeType, 0.90));
+        }).catch(function(error) {
+            reject(error);
+        });
+    });
+}
+
+function image_handler_destroy() {
+    if (useCroppie) {
+        c.destroy();
+        return;
+    }
+
+    offScreenCanvas = null;
+}
+
+const minWidth = 100;
+const maxWidth = 2084;
+const minHeight = 100;
+const maxHeight = 2084;
+
+function pica_resize_image(width, height) {
+    if (width < minWidth || height < minHeight ||
+        width > maxWidth || height > maxHeight) {
+        return;
+    }
+
+    if (!resizer) {
+        resizer = window.pica();
+    }
+
+    if (dropStyle != "") {
+        dropStyle = `;aspect-ratio: ${width} / ${height}; background-size: 100%`;
+    }
+
+    var tempOffScreenCanvas = document.createElement('canvas')
+    tempOffScreenCanvas.width  = width;
+    tempOffScreenCanvas.height = height;
+
+    resizer.resize(offScreenCanvas, tempOffScreenCanvas).then(function(result) {
+        var canvas = uploader_preview.querySelector("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(result, 0, 0);
+        tempOffScreenCanvas.remove();
+    });
+}
+
+function uploader_set_width(el) {
+    let width = parseInt(el.value);
+    if (width < minWidth || width > maxWidth) {
+        uploader_width.setCustomValidity(`Width must be between ${minWidth} and ${maxWidth} pixels`);
+        uploader_width.reportValidity();
+        return;
+    }
+    uploader_width.setCustomValidity("");
+    uploader_width.reportValidity();
+
+    let height = offScreenCanvas.height * width / offScreenCanvas.width;
+    uploader_height.value = Math.round(height);
+
+    pica_resize_image(width, height);
+}
+
+function uploader_set_height(el) {
+    let height = parseInt(el.value);
+    if (height < minHeight || height > maxHeight) {
+        uploader_height.setCustomValidity(`Height must be between ${minHeight} and ${maxHeight} pixels`);
+        uploader_height.reportValidity();
+        return;
+    }
+    uploader_height.setCustomValidity("");
+    uploader_height.reportValidity();
+
+    let width = offScreenCanvas.width * height / offScreenCanvas.height;
+    uploader_width.value = Math.round(width);
+
+    pica_resize_image(width, height);
+}
+
+function uploader_upload() {
+    // add animated stripes background to the button
+    btn_uploader_upload.classList.add('htmx-request');
+    btn_uploader_upload.disabled = true;
+
+    let suffix = uploader.dataset.suffix || "";
+
+    image_handler_promise().then(function(blob) {
+        // read converted JPEG image
+        const reader = new FileReader();
+        reader.onloadend = function() {
+            // put base64-encoded image into style attribute
+            drop.setAttribute('style', `background-image: url(${reader.result})${dropStyle}`);
+            if (format == "jpg") {
+                drop.classList.add('jpg');
+            }
+
+            // store the image in local storage to persist it across page reloads till it approved
+            ldb.set(path() + suffix, reader.result);
+        };
+        reader.readAsDataURL(blob);
+
+        fetch('/upload', {
+            method: 'PUT',
+            headers: {
+                'x-file-name': encodeURIComponent(path() + suffix + "." + format),
+            },
+            body: blob
+        }).then(function(response) {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Response was not ok: ' + response.statusText);
+        }).then(function(data) {
+            console.log(data);
+            uploader_cancel();
+        }).catch(function(error) {
+            console.log('Failed to upload image', error);
+        }).finally(function() {
+            // remove animated stripes background from the button
+            btn_uploader_upload.classList.remove('htmx-request');
+            btn_uploader_upload.disabled = false;
+        });
+    });
+}
+
+document.addEventListener('dragover', function (event) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+});
+
+var drop; // drop variable points DOM element that will be updated with the image
+var dropStyle; // dropStyle users to set additional style for the drop element
+document.addEventListener('drop', function (event) {
+    event.preventDefault();
+    if (event.dataTransfer === null) {
+        return;
+    }
+
+    drop = event.target;
+
+    if (!drop.classList.contains('drop')) {
+        // try parent elements, till the root element
+        drop = drop.parentElement;
+        while (drop && !drop.classList.contains('drop')) {
+            drop = drop.parentElement;
+        }
+        if (!parent) {
+            return;
+        }
+    }
+
+    dropStyle = "";
+
+    // name used as uploader modal title
+    var name = drop.dataset.name;
+    if (name === null || name === undefined || name === "") {
+        return;
+    }
+
+    var viewport = drop.dataset.viewport;
+    uploader_args.style.display = (viewport == "circle") ? "none" : "flex";
+
+    // suffix is part of URL that needs to be added to the current page URL.
+    // it's empty for images that uploaded to assign to current page,
+    // and it's "/Characters/{name}" for images that uploaded to assign to characters
+    var suffix = drop.dataset.suffix || "";
+
+    if (drop.classList.contains('content')) {
+        // create .thumb element
+        var thumb = document.createElement('div');
+        drop = drop.firstElementChild;
+        drop.insertBefore(thumb, drop.firstChild);
+        drop = thumb;
+
+        drop.classList.add('thumb');
+        if (viewport == "circle") {
+            drop.classList.add('people');
+        }
+        if (suffix == "") {
+            // this is main image for the content
+            dropStyle = ";height: 200px;width: 200px;background-size: 100%;";
+        }
+    }
+
+    uploader_show(name, name, suffix);
+
+    init_image_handler(viewport);
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        console.log("File read successfully", e.target.result);
+
+        set_image_handler_image(e.target.result);
+    }
+    reader.onerror = function(e) {
+        console.error("Error reading file", e);
+        uploader_show_error("Error reading file: " + e.target.error.message);
+    }
+
+    if (event.dataTransfer.files.length > 0) {
+        reader.readAsDataURL(event.dataTransfer.files[0]);
+    } else if (event.dataTransfer.items.length > 0) {
+        var link = event.dataTransfer.getData('text/x-moz-url').trim();
+        // if link contains newline, take the first line
+        if (link.indexOf('\n') > -1) {
+            link = link.split('\n')[0].trim();
+        }
+
+        if (link.match(/src="([^"]*)"/)) {
+            // parse <img src ...> from link
+            link = link.match(/src="([^"]*)"/)[1];
+        }
+
+        if (link) {
+            console.log("link", link);
+            // if link is a valid image URL, load it
+            if (link.match(/\.(jpg|jpeg|png|gif)$/i)) {
+                uploader.classList.add('loading');
+
+                fetch(
+                    link,
+                    {
+                        redirect: 'follow'
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        reader.readAsDataURL(blob);
+                        // Loading is handled by the reader.onload event
+                    })
+                    .catch(error => {
+                        uploader_show_error("Error fetching image: " + error.message);
+                    });
+            } else {
+                uploader_show_error("Invalid image URL: " + link);
+                return;
+            }
+        }
+    }
+});

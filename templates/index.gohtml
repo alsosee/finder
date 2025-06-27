@@ -58,11 +58,30 @@
 </div>
 <div id="backdrop" hx-preserve="true">
     <div id="uploader">
-        <h1 id="uploader_target"></h1>
-        <div id="uploader_preview"></div>
-        <div id="uploader_args">
-            <input type="number" min="100" max="2084" id="uploader_width" placeholder="Width" oninput="uploader_set_width(this)"> ×
-            <input type="number" min="100" max="2084" id="uploader_height" placeholder="Height" oninput="uploader_set_height(this)">
+        <h1 class="title"></h1>
+        <div class="body">
+            <div class="preview"></div>
+            <div class="loading">
+                <div class="spinner">
+                    <svg width="70" height="70" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="4" height="19" rx="2" transform="matrix(0 1 1 0 50 32.9999)" fill="black"/>
+                        <rect opacity="0.9" width="4" height="19" rx="2" transform="matrix(0.5 0.866025 0.866025 -0.5 46.9904 25.7679)" fill="black"/>
+                        <rect opacity="0.8" width="4" height="19" rx="2" transform="matrix(0.866025 0.5 0.5 -0.866025 40.7679 21.0096)" fill="black"/>
+                        <rect opacity="0.7" width="4" height="19" rx="2" transform="matrix(1 0 0 -1 33 19.9999)" fill="black"/>
+                        <rect opacity="0.6" width="4" height="19" rx="2" transform="matrix(0.866025 -0.5 -0.5 -0.866025 25.7679 23.0096)" fill="black"/>
+                        <rect opacity="0.5" width="4" height="19" rx="2" transform="matrix(0.5 -0.866025 -0.866025 -0.5 21.0096 29.232)" fill="black"/>
+                        <rect opacity="0.4" width="4" height="19" rx="2" transform="matrix(0 -1 -1 0 20 36.9999)" fill="black"/>
+                        <rect opacity="0.3" width="4" height="19" rx="2" transform="matrix(-0.5 -0.866025 -0.866025 0.5 23.0096 44.232)" fill="black"/>
+                        <rect opacity="0.2" width="4" height="19" rx="2" transform="matrix(-0.866025 -0.5 -0.5 0.866025 29.2321 48.9903)" fill="black"/>
+                        <rect opacity="0.1" width="4" height="19" rx="2" transform="matrix(-1 0 0 1 37 49.9999)" fill="black"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="error"></div>
+            <div class="args">
+                <input type="number" min="100" max="2084" id="uploader_width" placeholder="Width" oninput="uploader_set_width(this)"> ×
+                <input type="number" min="100" max="2084" id="uploader_height" placeholder="Height" oninput="uploader_set_height(this)">
+            </div>
         </div>
         <div class="buttons">
             <button class="dismiss" onclick="uploader_cancel()">{{ (config).LabelCancel }}</button>
@@ -72,6 +91,7 @@
 </div>
 <script src="/localdata.min.js?crc={{ crc32 "localdata.min.js" }}" hx-preserve="true"></script>
 <script src="/scripts.js?crc={{ crc32 "scripts.js" }}" hx-preserve="true"></script>
+<script src="/uploader.js?crc={{ crc32 "uploader.js" }}" hx-preserve="true"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js" hx-preserve="true"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pica/9.0.1/pica.min.js" hx-preserve="true"></script>
 </body>

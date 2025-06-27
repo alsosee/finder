@@ -28,6 +28,7 @@
   --color-text-muted: #838383;
   --color-border: #e6e6e6;
   --color-outline: #2962d9;
+  --color-error: #d32f2f;
 
   --background-radial: radial-gradient(
     82.57% 82.57% at 50% 17.43%,
@@ -1339,6 +1340,58 @@ p .award + .award {
   pointer-events: auto;
 }
 
+#uploader .body {
+    height: 200px;
+    transition: height 0.5s ease-in-out;
+}
+
+#uploader .loading,
+#uploader .error {
+    display: none;
+}
+
+#uploader.loading .loading,
+#uploader.error .error {
+    display: flex;
+    width: calc(100% - 20px);
+    height: calc(100% - 10px);
+    margin: 0 10px 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#uploader .loading .spinner {
+    width: 70px;
+    height: 70px;
+    transform-origin: 50% 50%;
+    animation: spin 1s steps(12, end) infinite;
+}
+
+#uploader .error {
+    padding: 10px;
+    text-align: center;
+    color: var(--color-error);
+    border: 1px solid var(--color-error);
+    background: var(--color-background);
+    border-radius: var(--border-radius-medium);
+}
+
+#uploader.loading .preview,
+#uploader.loading .args,
+#uploader.error .preview,
+#uploader.error .args {
+    display: none !important;
+}
+
 #uploader h1 {
   font-size: 16pt;
   font-weight: 500;
@@ -1384,7 +1437,7 @@ p .award + .award {
 
 #uploader .croppie-container .cr-slider-wrap {
   display: flex;
-  margin: 15px auto 10px;
+  margin: 15px auto;
 }
 
 #uploader .croppie-container .cr-viewport {
@@ -1407,24 +1460,26 @@ p .award + .award {
   box-shadow: var(--shadow-avatar);
 }
 
-#uploader_preview.png {
+#uploader .preview.png {
   background: repeating-conic-gradient(rgba(0,0,0,0.1) 0% 25%, transparent 0% 50%) 50% / 20px 20px;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-#uploader #uploader_args {
+#uploader .args {
   display: flex;
-  margin: 10px 10px 0;
   gap: 10px;
   line-height: 44px;
+  border-top: 1px solid var(--color-border);
+  padding: 10px;
 }
 
 #uploader .buttons {
   display: flex;
   flex-direction: row;
-  margin: 10px;
   gap: 10px;
+  padding: 10px;
+  border-top: 1px solid var(--color-border);
 }
 
 #uploader .buttons button {
@@ -1466,9 +1521,7 @@ p .award + .award {
 }
 
 #uploader .buttons button.primary:disabled {
-  background-color: var(--color-background-selection-lighter);
-  color: var(--color-text-selection);
-  text-shadow: none;
+  background-color: var(--color-background-selection-inactive);
 }
 
 #uploader .buttons button.htmx-request:disabled {
@@ -1493,6 +1546,7 @@ p .award + .award {
     --color-border: #222222;
     --color-link: #a8c7fa;
     --color-outline: #99c8ff;
+    --color-error: #ff4d4d;
     --background-radial: radial-gradient(
       82.57% 82.57% at 50% 17.43%,
       #696969 0%,
@@ -1667,6 +1721,11 @@ p .award + .award {
     box-shadow: 0 0 2000px 2000px rgba(72, 69, 69, 0.8);
   }
 
+  #uploader .args {
+    background: rgba(0,0,0,0.1);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+
   #uploader input[type="number"] {
     color: var(--color-text);
     background-color: var(--color-background);
@@ -1681,13 +1740,18 @@ p .award + .award {
     outline: thin solid var(--color-outline);
   }
 
+  #uploader .buttons {
+    background: rgba(0,0,0,0.1);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+
   #uploader .buttons button {
     background-color: var(--color-background-secondary);
     text-shadow: var(--shadow-text-dark);
   }
 
   #uploader .buttons button:active {
-    filter: brightness(0.9);
+    filter: brightness(0.75);
   }
 }
 
