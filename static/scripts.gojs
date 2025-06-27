@@ -511,8 +511,11 @@ if (typeof hasRun === 'undefined') {
         }
 
         content = document.querySelector('.content');
-
-        restoreFocus("load");
+        if (content) {
+            document.getElementById("_").scrollIntoView();
+        } else {
+            restoreFocus("load");
+        }
 
         if (sessionStorage.getItem('restoreSearchInputFocus')) {
             searchInput.focus();
