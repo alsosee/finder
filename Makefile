@@ -35,10 +35,15 @@ hash:
 .PHONY: serve
 ## serve: serve the static site
 serve: hash build
-	@wrangler pages dev --local-protocol=https output/ --compatibility-date=2024-02-25 --binding GHP_TOKEN=${GHP_TOKEN}
+	@wrangler pages dev --local-protocol=https output/ --compatibility-date=2024-02-25 --binding GHP_TOKEN=${GHP_TOKEN} --binding GITHUB_REPO=${GITHUB_REPO} --port=${WRANGLER_PORT}
 
 .PHONY: codegen
 ## codegen: generate code from the schema
 codegen:
 	@cd codegen && go build -o codegen . && ./codegen -in ${INPUT_INFO}/_finder/schema.yml -out ../structs/content.gen.go
 	@go fmt ./structs/content.gen.go
+
+.PHONY: caddy
+## caddy: run caddy server
+caddy:
+	@caddy run
