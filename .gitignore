@@ -1,5 +1,6 @@
 /output
 /.env
+/.env*
 /coverage.txt
 /.wrangler
 /package.json
@@ -9,4 +10,7 @@
 /.zed
 /.clj-kondo
 /generator
+/codegen/codegen
+/cpu.pprof
+/mem.pprof
 .dev.vars
