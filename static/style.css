@@ -27,6 +27,7 @@
   --color-text-selection: #ffffff;
   --color-text-muted: #838383;
   --color-border: #e6e6e6;
+  --color-border-button: #ccc;
   --color-outline: #2962d9;
   --color-error: #d32f2f;
 
@@ -682,10 +683,6 @@ fieldset.radio label:last-of-type {
 
 .content ul.flat li + li {
   margin-top: 0.33em;
-}
-
-.content a.has-image {
-  text-wrap: nowrap;
 }
 
 .content .connections .connections {
@@ -1522,10 +1519,7 @@ p .award + .award {
 
 #uploader .buttons button.primary:disabled {
   background-color: var(--color-background-selection-inactive);
-}
-
-#uploader .buttons button.htmx-request:disabled {
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--color-border-button);
 }
 
 /* dark mode */
@@ -1544,6 +1538,7 @@ p .award + .award {
     --color-text-selection: var(--color-text);
     --color-text-muted: #989d9f;
     --color-border: #222222;
+    --color-border-button: var(--color-border);
     --color-link: #a8c7fa;
     --color-outline: #99c8ff;
     --color-error: #ff4d4d;
