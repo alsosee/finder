@@ -173,6 +173,10 @@ if (typeof hasRun === 'undefined') {
             restoreFocus("afterSwap");
         }
         document.getElementById("_").scrollIntoView();
+
+        if (content) {
+            loadImagesFromIndexedDB();
+        }
     });
 
     htmx.on('htmx:pushedIntoHistory', function(evt) {
