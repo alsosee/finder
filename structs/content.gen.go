@@ -390,7 +390,6 @@ func (c Content) Connections() []Connection {
 		connections = append(connections, Connection{
 			To:    reference.Path,
 			Label: "Source",
-			Meta:  "",
 		})
 	}
 	if c.Series != "" {
@@ -410,12 +409,6 @@ func (c Content) Connections() []Connection {
 		connections = append(connections, Connection{
 			To:    "People/" + person,
 			Label: "Founder",
-		})
-	}
-	if c.AnimeNewsNetwork != "" {
-		connections = append(connections, Connection{
-			To:    "Companies/" + c.AnimeNewsNetwork,
-			Label: "AnimeNewsNetwork",
 		})
 	}
 	for _, company := range c.Publishers {
@@ -584,26 +577,21 @@ func (c Content) Connections() []Connection {
 		connections = append(connections, Connection{
 			To:    c.RemakeOf.Path,
 			Label: "Remake",
-			Meta:  "",
 		})
 	}
 	for _, character := range c.Characters {
 		if character.Actor != "" {
 			connections = append(connections, Connection{
 				To:    "People/" + character.Actor,
-				Label: "Actor",
-				Info: []string{
-					character.Name,
-				},
+				Label: "Played",
+				Info:  character.Name,
 			})
 		}
 		if character.Voice != "" {
 			connections = append(connections, Connection{
 				To:    "People/" + character.Voice,
-				Label: "Voice",
-				Info: []string{
-					character.Name,
-				},
+				Label: "Voiced",
+				Info:  character.Name,
 			})
 		}
 	}
@@ -617,94 +605,68 @@ func (c Content) Connections() []Connection {
 	for _, episode := range c.Episodes {
 		for _, episodePerson := range episode.Directors {
 			connections = append(connections, Connection{
-				To:    "People/" + episodePerson,
-				Label: "Director",
-				Info: []string{
-					"",
-					episode.Name,
-				},
+				To:     "People/" + episodePerson,
+				Label:  "Director",
+				Parent: episode.Name,
 			})
 		}
 		for _, episodePerson := range episode.Writers {
 			connections = append(connections, Connection{
-				To:    "People/" + episodePerson,
-				Label: "Writer",
-				Info: []string{
-					"",
-					episode.Name,
-				},
+				To:     "People/" + episodePerson,
+				Label:  "Writer",
+				Parent: episode.Name,
 			})
 		}
 		for _, episodePerson := range episode.Editors {
 			connections = append(connections, Connection{
-				To:    "People/" + episodePerson,
-				Label: "Editor",
-				Info: []string{
-					"",
-					episode.Name,
-				},
+				To:     "People/" + episodePerson,
+				Label:  "Editor",
+				Parent: episode.Name,
 			})
 		}
 		for _, episodePerson := range episode.Cinematography {
 			connections = append(connections, Connection{
-				To:    "People/" + episodePerson,
-				Label: "Cinematography",
-				Info: []string{
-					"",
-					episode.Name,
-				},
+				To:     "People/" + episodePerson,
+				Label:  "Cinematography",
+				Parent: episode.Name,
 			})
 		}
 		for _, episodePerson := range episode.Teleplay {
 			connections = append(connections, Connection{
-				To:    "People/" + episodePerson,
-				Label: "Teleplay",
-				Info: []string{
-					"",
-					episode.Name,
-				},
+				To:     "People/" + episodePerson,
+				Label:  "Teleplay",
+				Parent: episode.Name,
 			})
 		}
 		for _, episodePerson := range episode.Story {
 			connections = append(connections, Connection{
-				To:    "People/" + episodePerson,
-				Label: "Story",
-				Info: []string{
-					"",
-					episode.Name,
-				},
+				To:     "People/" + episodePerson,
+				Label:  "Story",
+				Parent: episode.Name,
 			})
 		}
 		if episode.Studio != "" {
 			connections = append(connections, Connection{
-				To:    "Companies/" + episode.Studio,
-				Label: "Studio",
-				Info: []string{
-					episode.Name,
-				},
+				To:     "Companies/" + episode.Studio,
+				Label:  "Studio",
+				Parent: episode.Name,
 			})
 		}
 		for _, episodeCharacter := range episode.Characters {
 			if episodeCharacter.Actor != "" {
 				connections = append(connections, Connection{
-					To:    "People/" + episodeCharacter.Actor,
-					Label: "Actor",
-					Info: []string{
-						episodeCharacter.Name,
-						"",
-						episode.Name,
-					},
+					To:     "People/" + episodeCharacter.Actor,
+					Label:  "Played",
+					Info:   episodeCharacter.Name,
+					Parent: episode.Name,
 				})
 			}
 			if episodeCharacter.Voice != "" {
 				connections = append(connections, Connection{
-					To:    "People/" + episodeCharacter.Voice,
-					Label: "Voice",
-					Info: []string{
-						episodeCharacter.Name,
-						"",
-						episode.Name,
-					},
+					To:     "People/" + episodeCharacter.Voice,
+					Label:  "Voiced",
+					Info:   episodeCharacter.Name,
+					Parent: episode.Name,
 				})
 			}
 		}

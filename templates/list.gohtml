@@ -9,13 +9,15 @@ Input:
 */ -}}
 {{- with .Field }}
     <p>{{ with $.Awards }}{{ template "awards" . }}{{ end }}{{ label $.Label . }}:
+    <span class="list">
     {{- range . }}
         {{- if eq $.Type "person" }}
-        <span class="list">{{ template "person" . }}</span>
+        <span>{{ template "person" . }}</span>
         {{- else if eq $.Type "company" }}
-        <span class="list">{{ template "company" . }}</span>
+        <span>{{ template "company" . }}</span>
         {{- end }}
     {{- end }}
+    </span>
     </p>
 {{- end }}
 {{- end }}

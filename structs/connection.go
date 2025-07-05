@@ -14,8 +14,21 @@ const (
 
 // Connection represents a connection to another content.
 type Connection struct {
-	To    string
-	Label string
-	Meta  string
-	Info  []string
+	To     string
+	Label  string
+	Meta   string `yaml:"meta,omitempty"`
+	Info   string `yaml:"info,omitempty"`
+	Parent string `yaml:"parent,omitempty"`
+}
+
+type ConnectionLineItem struct {
+	Label string   `yaml:"label,omitempty"`
+	Info  []string `yaml:"info_grouped,omitempty"`
+}
+
+// ConnectionGroup is populated by `groupConnections` template function
+type ConnectionLine struct {
+	From    string               `yaml:"from,omitempty"`
+	Groups  []ConnectionLineItem `yaml:"groups,omitempty"`
+	Parents []string             `yaml:"parents,omitempty"`
 }

@@ -53,7 +53,7 @@ type Contents map[string]Content
 //			],
 //		}
 //	}
-type Connections map[string]map[string][]string
+type Connections map[string]map[string][]Connection
 
 type Columns map[string]string
 
@@ -278,12 +278,6 @@ func (ll *Links) UnmarshalYAML(value *yaml.Node) error {
 // Used in "missing" template function to render Missing.gomd file.
 type Missing struct {
 	To     string
-	From   map[string][]string
+	From   map[string][]Connection
 	Awards []Award
-}
-
-// Extra usind in "splitExtra" template function to separate episode titles from the rest of the data.
-type Extra struct {
-	Addon   string
-	Primary []string
 }

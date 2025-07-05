@@ -153,7 +153,8 @@ func (c Content) Connections() []Connection {
 	var connections []Connection
 	{{ template "connections" dict
 		"Content" .Content
-		"Prefix" "c" }}
+		"Prefix" "c"
+		"Depth" 0 }}
 	return connections
 }
 {{- range $key, $content := .Extra }}

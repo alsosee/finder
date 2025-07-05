@@ -73,9 +73,11 @@ Inputs (same as for "index" template):
 
     {{- with .BasedOn }}
     <p>Based on
+    <span class="list">
     {{- range . }}
-        <span class="list">{{ template "reference" dict "Path" .Path "HideType" true}}</span>
+        <span>{{ template "reference" dict "Path" .Path "HideType" true}}</span>
     {{- end }}
+    </span>
     </p>
     {{- end }}
 
@@ -95,6 +97,7 @@ Inputs (same as for "index" template):
     {{- template "list"   dict "Type" "person"  "Label" "Developed by"   "Field" .DevelopedBy }}
     {{- template "list"   dict "Type" "person"  "Label" "Showrunners"    "Field" .Showrunners }}
     {{- template "list"   dict "Type" "person"  "Label" "Producers"      "Field" .Producers }}
+    {{- template "list"   dict "Type" "person"  "Label" "Manufacturers"  "Field" .Manufacturers }}
     {{- template "list"   dict "Type" "person"  "Label" "Writers"        "Field" .Writers "Awards" $.Content.WritersAwards }}
     {{- template "list"   dict "Type" "person"  "Label" "Editors"        "Field" .Editors "Awards" $.Content.EditorsAwards }}
     {{- template "list"   dict "Type" "person"  "Label" "Cinematography" "Field" .Cinematography "Awards" $.Content.CinematographyAwards }}
@@ -174,6 +177,7 @@ Inputs (same as for "index" template):
         {{- template "link" dict "Label" "Redbox" "URL" .Redbox }}
         {{- template "link" dict "Label" "Vudu" "URL" .Vudu }}
         {{- template "link" dict "Label" "Dark Horse" "URL" .DarkHorse }}
+        {{- template "link" dict "Label" "Kickstarter" "URL" .Kickstarter }}
     </p>
 
     {{- if not .Source }}
@@ -208,34 +212,34 @@ Inputs (same as for "index" template):
         in {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
         {{- end }}
     {{- else if .Winner.Cinematography }}
-        <span>
+        <span class="list">
         {{- range .Winner.Cinematography }}
-            <span class="list">{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
+            <span>{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
         {{- end }}
         </span>
         {{- if either .Winner.Reference .Winner.Fallback }}
         in {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
         {{- end }}
     {{- else if .Winner.Music }}
-        <span>
+        <span class="list">
         {{- range .Winner.Music }}
-            <span class="list">{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
+            <span>{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
         {{- end }}
         </span>
         {{- if either .Winner.Reference .Winner.Fallback }}
         in {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
         {{- end }}
     {{- else if .Winner.Directors }}
-        <span>
+        <span class="list">
         {{- range .Winner.Directors }}
-            <span class="list">{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
+            <span>{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
         {{- end }}
         </span> in
         {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}
     {{- else if .Winner.Writers }}
-        <span>
+        <span class="list">
         {{- range .Winner.Writers }}
-            <span class="list">{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
+            <span>{{ template "reference" dict "Path" . "Prefix" "People" "HideType" true }}</span>
         {{- end }}
         </span> in
         {{ template "reference" dict "Path" .Winner.Reference "Fallback" .Winner.Fallback "HideType" true }}

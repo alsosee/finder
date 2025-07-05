@@ -164,8 +164,16 @@ func (g *Generator) fm() template.FuncMap {
 		"base":         filepath.Base,
 		"hasPrefix":    strings.HasPrefix,
 		"strjoin":      strings.Join,
+		"lower":        strings.ToLower,
 		"isPerson":     structs.IsPerson,
 		"personPrefix": structs.PersonPrefix,
+		"debugPrint": func(v interface{}) string {
+			var buf bytes.Buffer
+			if err := yaml.NewEncoder(&buf).Encode(v); err != nil {
+				return fmt.Sprintf("error encoding: %v", err)
+			}
+			return buf.String()
+		},
 		"sum": func(ints ...int) int {
 			var sum int
 			for _, i := range ints {
@@ -186,13 +194,14 @@ func (g *Generator) fm() template.FuncMap {
 			return nil
 		},
 		// "connections" returns a list of connections for a given file path (no extension).
-		"connections": func(path string) map[string][]string {
+		"connections": func(path string) map[string][]structs.Connection {
 			g.muConnections.Lock()
 			defer g.muConnections.Unlock()
 
 			if m, ok := g.connections[path]; ok {
 				return m
 			}
+
 			return nil
 		},
 		"prev": func(id string) string {
@@ -497,54 +506,73 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return ""
 		},
-		"splitExtra": func(extra []string, content structs.Content) structs.Extra {
-			// turn list like
-			// ["a", "", "c", "a", "", "d"]
-			// into
-			// ["a"] and "c, d"
-			var (
-				roles        = map[string]interface{}{}
-				addon        []string
-				i            int
-				collectAddon bool
-			)
+		"groupConnections": func(connections map[string][]structs.Connection) []structs.ConnectionLine {
+			result := []structs.ConnectionLine{}
 
-			for i < len(extra) {
-				if extra[i] == "" {
-					collectAddon = true
-					i++
-					continue
+			// - Groups:
+			//   - Label1: Director
+			// 	 - Label2: Actor
+			//     InfoGroup:
+			//     - Role1
+			//     - Role2
+			//   Parents:
+			//   - Parent1
+			//   - Parent2
+
+			for from, conns := range connections {
+				line := structs.ConnectionLine{
+					From:    from,
+					Groups:  []structs.ConnectionLineItem{},
+					Parents: []string{},
 				}
 
-				if collectAddon {
-					addon = append(addon, extra[i])
-					collectAddon = false
-					i++
-					continue
+				labelGroups := map[string]structs.ConnectionLineItem{}
+
+				// group by label, combine info
+				for _, conn := range conns {
+					group, exists := labelGroups[conn.Label]
+					if !exists {
+						group = structs.ConnectionLineItem{
+							Label: conn.Label,
+						}
+					}
+
+					if conn.Info != "" && !slices.Contains(group.Info, conn.Info) {
+						group.Info = append(group.Info, conn.Info)
+					}
+					if conn.Parent != "" {
+						line.Parents = append(line.Parents, conn.Parent)
+					}
+
+					labelGroups[conn.Label] = group
 				}
 
-				if _, ok := roles[extra[i]]; ok {
-					i++
-					continue
+				// flatten the map to a slice
+				list := make([]structs.ConnectionLineItem, 0, len(labelGroups))
+				for _, conn := range labelGroups {
+					list = append(list, conn)
 				}
 
-				roles[extra[i]] = nil
-				i++
+				// sort by length of info, or alphabetically if lengths are equal
+				sort.Slice(list, func(i, j int) bool {
+					if len(list[i].Info) != len(list[j].Info) {
+						return len(list[i].Info) < len(list[j].Info)
+					}
+
+					return list[i].Label < list[j].Label
+				})
+
+				// lowercase all labels except first one
+				for i := 1; i < len(list); i++ {
+					list[i].Label = strings.ToLower(list[i].Label)
+				}
+
+				line.Groups = list
+
+				result = append(result, line)
 			}
 
-			var primary []string
-			for role := range roles {
-				primary = append(primary, role)
-			}
-
-			if len(addon) > 0 && len(content.Episodes) == len(addon) {
-				addon = nil
-			}
-
-			return structs.Extra{
-				Primary: primary,
-				Addon:   strings.Join(addon, ", "),
-			}
+			return result
 		},
 	}
 }
@@ -970,11 +998,11 @@ func (g *Generator) addConnections(content structs.Content) {
 		case structs.ConnectionPrevious:
 			g.addPrevious(from, conn.To)
 		case structs.ConnectionSeries:
-			g.addConnection(from, series(content), "Series")
+			g.addConnection(from, series(content), conn)
 		case structs.ConnectionNone:
-			g.addConnection(from, conn.To, conn.Info...)
+			g.addConnection(from, conn.To, conn)
 		default:
-			g.addConnection(from, conn.To, append([]string{conn.Label}, conn.Info...)...)
+			g.addConnection(from, conn.To, conn)
 		}
 	}
 
@@ -984,20 +1012,19 @@ func (g *Generator) addConnections(content structs.Content) {
 	}
 }
 
-func (g *Generator) addConnection(from, to string, info ...string) {
+func (g *Generator) addConnection(from, to string, connection structs.Connection) {
 	g.muConnections.Lock()
 	defer g.muConnections.Unlock()
 
 	if _, ok := g.connections[to]; !ok {
-		g.connections[to] = map[string][]string{}
+		g.connections[to] = map[string][]structs.Connection{}
 	}
 
 	if _, ok := g.connections[to][from]; !ok {
-		g.connections[to][from] = info
-		return
+		g.connections[to][from] = []structs.Connection{}
 	}
 
-	g.connections[to][from] = append(g.connections[to][from], info...)
+	g.connections[to][from] = append(g.connections[to][from], connection)
 }
 
 func (g *Generator) addPrevious(from, to string) {
@@ -1409,7 +1436,7 @@ func (g *Generator) processPanels() {
 }
 
 func (g *Generator) missing() []structs.Missing {
-	missing := map[string]map[string][]string{}
+	missing := map[string]map[string][]structs.Connection{}
 
 	// add missing content referenced by other files
 

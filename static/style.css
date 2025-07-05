@@ -705,12 +705,17 @@ fieldset.radio label:last-of-type {
   margin-right: 0.33em;
 }
 
-.content .list:not(:last-child) {
+.content .list > span {
   display: inline-block;
 }
 
-.content .list:not(:last-child)::after {
+.content .list > span:not(:last-child)::after {
   content: ",";
+}
+
+.content .list > span:nth-last-child(2)::after {
+  content: "and";
+  margin-left: 0.33em;
 }
 
 .content a.website {

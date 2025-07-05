@@ -231,6 +231,9 @@ func generateCode(schema *Schema, out string) error {
 }
 
 var fm = template.FuncMap{
+	"add": func(a, b int) int {
+		return a + b
+	},
 	"titleCase": titleCase,
 	"fieldType": func(property Property) string {
 		return schema.FieldType(property)
