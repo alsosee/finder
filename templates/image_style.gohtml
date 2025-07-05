@@ -1,0 +1,9 @@
+{{ define "image_style" }}
+{{- /*
+image_style used to define style attribute of the link to other content that has image
+Inputs:
+- .Path (string): path to image
+- .Image (Image): image to use for the style
+*/ -}}
+{{- if .Image }} style="--background-image: url('{{ (config).MediaHost }}/{{ .Path }}/{{ .Image.ThumbPath }}'); {{ thumbStylePx .Image 24 "--" }}"{{ end }}
+{{- end }}
