@@ -7,7 +7,7 @@ Inputs (same as for "index" template):
 - .Dir: content directory, used to build image URLs
 */ -}}
 {{- with .Content }}
-<div class="content drop" data-name="{{ .GetName }}"{{ if isPerson $.CurrentPath }} data-viewport="circle"{{ end }} data-dir="{{ $.Dir }}"{{ if .Source }} data-source="{{ .Source }}"{{ end }} tabindex="0">
+<div class="content drop" data-name="{{ .GetName }}"{{ if isPerson $.CurrentPath }} data-viewport="circle"{{ end }} data-dir="{{ $.Dir }}"{{ if .Source }} data-source="{{ .Source }}"{{ end }} tabindex="0" style="--and-label: '{{ (config).AndLabel }}'">
 <div class="content-inner">
     {{- with .HTML }}{{ . }}{{ end }}
     {{- with .Image }}

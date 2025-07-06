@@ -37,4 +37,5 @@ type Config struct {
 	ColumnName     string `yaml:"column_name"`
 	ColumnKind     string `yaml:"column_kind"`
 	OfLabel        string `yaml:"of_label"`
+	AndLabel       string `yaml:"and_label"`
 }

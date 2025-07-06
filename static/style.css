@@ -714,7 +714,7 @@ fieldset.radio label:last-of-type {
 }
 
 .content .list > span:nth-last-child(2)::after {
-  content: "and";
+  content: var(--and-label);
   margin-left: 0.33em;
 }
 
