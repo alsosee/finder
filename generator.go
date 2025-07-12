@@ -506,74 +506,7 @@ func (g *Generator) fm() template.FuncMap {
 			}
 			return ""
 		},
-		"groupConnections": func(connections map[string][]structs.Connection) []structs.ConnectionLine {
-			result := []structs.ConnectionLine{}
-
-			// - Groups:
-			//   - Label1: Director
-			// 	 - Label2: Actor
-			//     InfoGroup:
-			//     - Role1
-			//     - Role2
-			//   Parents:
-			//   - Parent1
-			//   - Parent2
-
-			for from, conns := range connections {
-				line := structs.ConnectionLine{
-					From:    from,
-					Groups:  []structs.ConnectionLineItem{},
-					Parents: []string{},
-				}
-
-				labelGroups := map[string]structs.ConnectionLineItem{}
-
-				// group by label, combine info
-				for _, conn := range conns {
-					group, exists := labelGroups[conn.Label]
-					if !exists {
-						group = structs.ConnectionLineItem{
-							Label: conn.Label,
-						}
-					}
-
-					if conn.Info != "" && !slices.Contains(group.Info, conn.Info) {
-						group.Info = append(group.Info, conn.Info)
-					}
-					if conn.Parent != "" {
-						line.Parents = append(line.Parents, conn.Parent)
-					}
-
-					labelGroups[conn.Label] = group
-				}
-
-				// flatten the map to a slice
-				list := make([]structs.ConnectionLineItem, 0, len(labelGroups))
-				for _, conn := range labelGroups {
-					list = append(list, conn)
-				}
-
-				// sort by length of info, or alphabetically if lengths are equal
-				sort.Slice(list, func(i, j int) bool {
-					if len(list[i].Info) != len(list[j].Info) {
-						return len(list[i].Info) < len(list[j].Info)
-					}
-
-					return list[i].Label < list[j].Label
-				})
-
-				// lowercase all labels except first one
-				for i := 1; i < len(list); i++ {
-					list[i].Label = strings.ToLower(list[i].Label)
-				}
-
-				line.Groups = list
-
-				result = append(result, line)
-			}
-
-			return result
-		},
+		"groupConnections": groupConnections,
 	}
 }
 
@@ -1829,6 +1762,80 @@ func lookupColumnInfo(columnTitle string) *structs.Column {
 
 func column(file structs.File, column string) string {
 	return file.Columns.Get(column)
+}
+
+func groupConnections(connections map[string][]structs.Connection) []structs.ConnectionLine {
+	result := []structs.ConnectionLine{}
+
+	// - Groups:
+	//   - Label1: Director
+	// 	 - Label2: Actor
+	//     InfoGroup:
+	//     - Role1
+	//     - Role2
+	//   Parents:
+	//   - Parent1
+	//   - Parent2
+
+	for from, conns := range connections {
+		line := structs.ConnectionLine{
+			From:    from,
+			Groups:  []structs.ConnectionLineItem{},
+			Parents: []string{},
+		}
+
+		labelGroups := map[string]structs.ConnectionLineItem{}
+
+		// group by label, combine info
+		for _, conn := range conns {
+			group, exists := labelGroups[conn.Label]
+			if !exists {
+				group = structs.ConnectionLineItem{
+					Label: conn.Label,
+				}
+			}
+
+			if conn.Info != "" && !slices.Contains(group.Info, conn.Info) {
+				group.Info = append(group.Info, conn.Info)
+			}
+			if conn.Parent != "" && !slices.Contains(line.Parents, conn.Parent) {
+				line.Parents = append(line.Parents, conn.Parent)
+			}
+
+			labelGroups[conn.Label] = group
+		}
+
+		// flatten the map to a slice
+		list := make([]structs.ConnectionLineItem, 0, len(labelGroups))
+		for _, conn := range labelGroups {
+			list = append(list, conn)
+		}
+
+		// sort by length of info, or alphabetically if lengths are equal
+		sort.Slice(list, func(i, j int) bool {
+			if len(list[i].Info) != len(list[j].Info) {
+				return len(list[i].Info) < len(list[j].Info)
+			}
+
+			return list[i].Label < list[j].Label
+		})
+
+		// lowercase all labels except first one
+		for i := 1; i < len(list); i++ {
+			list[i].Label = strings.ToLower(list[i].Label)
+		}
+
+		line.Groups = list
+
+		result = append(result, line)
+	}
+
+	// sort by "From" field
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].From < result[j].From
+	})
+
+	return result
 }
 
 func newFileValue(content structs.Content, dir string) string {

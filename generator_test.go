@@ -107,3 +107,79 @@ func TestRemoveFileExtention(t *testing.T) {
 		}
 	}
 }
+
+func TestGroupConnections(t *testing.T) {
+	connections := map[string][]structs.Connection{}
+	connections["Movies/2025/A"] = []structs.Connection{
+		{To: "People/Alice", Label: "Played", Info: "Villian"},
+	}
+	connections["Movies/2024/B"] = []structs.Connection{
+		{To: "People/Alice", Label: "Played", Info: "Hero"},
+		{To: "People/Alice", Label: "Director"},
+	}
+	connections["Movies/2024/C"] = []structs.Connection{
+		{To: "People/Alice", Label: "Played", Info: "Civilian", Parent: "Episode 1"},
+		{To: "People/Alice", Label: "Played", Info: "Judge", Parent: "Episode 1"},
+		{To: "People/Alice", Label: "Writer", Parent: "Episode 2"},
+	}
+
+	expected := []structs.ConnectionLine{
+		{
+			From: "Movies/2024/B",
+			Groups: []structs.ConnectionLineItem{
+				{Label: "Director", Info: []string{}},
+				{Label: "played", Info: []string{"Hero"}},
+			},
+		},
+		{
+			From: "Movies/2024/C",
+			Groups: []structs.ConnectionLineItem{
+				{Label: "Writer"},
+				{Label: "played", Info: []string{"Civilian", "Judge"}},
+			},
+			Parents: []string{"Episode 1", "Episode 2"},
+		},
+		{
+			From: "Movies/2025/A",
+			Groups: []structs.ConnectionLineItem{
+				{Label: "Played", Info: []string{"Villian"}},
+			},
+		},
+	}
+
+	actual := groupConnections(connections)
+	if len(actual) != len(expected) {
+		t.Fatalf("expected %d connection lines, got %d", len(expected), len(actual))
+	}
+
+	for i := range actual {
+		if actual[i].From != expected[i].From {
+			t.Errorf("expected From %s, got %s", expected[i].From, actual[i].From)
+			continue
+		}
+		if len(actual[i].Groups) != len(expected[i].Groups) {
+			t.Errorf("expected %d groups, got %d", len(expected[i].Groups), len(actual[i].Groups))
+		}
+		for j := range actual[i].Groups {
+			if actual[i].Groups[j].Label != expected[i].Groups[j].Label {
+				t.Errorf("expected group label %s, got %s", expected[i].Groups[j].Label, actual[i].Groups[j].Label)
+			}
+			if len(actual[i].Groups[j].Info) != len(expected[i].Groups[j].Info) {
+				t.Errorf("expected %d info items, got %d", len(expected[i].Groups[j].Info), len(actual[i].Groups[j].Info))
+			}
+			for k := range actual[i].Groups[j].Info {
+				if actual[i].Groups[j].Info[k] != expected[i].Groups[j].Info[k] {
+					t.Errorf("expected info item %s, got %s", expected[i].Groups[j].Info[k], actual[i].Groups[j].Info[k])
+				}
+			}
+		}
+		if len(actual[i].Parents) != len(expected[i].Parents) {
+			t.Errorf("%s expected %d parents, got %d", actual[i].From, len(expected[i].Parents), len(actual[i].Parents))
+		}
+		for j := range actual[i].Parents {
+			if actual[i].Parents[j] != expected[i].Parents[j] {
+				t.Errorf("%s expected parent %s, got %s", actual[i].From, expected[i].Parents[j], actual[i].Parents[j])
+			}
+		}
+	}
+}
