@@ -51,7 +51,7 @@ type Content struct {
 	HTML              string `yaml:"-" json:",omitempty"` // for Markdown files
 
 	{{- range .Content.Properties }}
-	{{ if eq .Meta "name" }}Name{{ else }}{{ titleCase .Name }}{{ end }} {{ fieldType . }} `yaml:"{{ .Name }},omitempty" json:"{{ .Name }},omitempty"`
+	{{ if eq .Meta "name" }}Name{{ else }}{{ titleCase .Name }}{{ end }} {{ fieldType . }} `yaml:"{{ if eq .Type "media" }}-{{ else }}{{ .Name }},omitempty{{ end }}" json:"{{ .Name }},omitempty"`
 	{{- end }}
 
 	// unknown fields are stored in the Extra map

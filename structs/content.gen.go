@@ -159,7 +159,7 @@ type Content struct {
 	HTML              string        `yaml:"-" json:",omitempty"` // for Markdown files
 	Name              string        `yaml:"name,omitempty" json:"name,omitempty"`
 	Title             string        `yaml:"title,omitempty" json:"title,omitempty"`
-	Image             *Media        `yaml:"image,omitempty" json:"image,omitempty"`
+	Image             *Media        `yaml:"-" json:"image,omitempty"`
 	Subtitle          string        `yaml:"subtitle,omitempty" json:"subtitle,omitempty"`
 	Description       string        `yaml:"description,omitempty" json:"description,omitempty"`
 	CoverArtist       string        `yaml:"cover_artist,omitempty" json:"cover_artist,omitempty"`

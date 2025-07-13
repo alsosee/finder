@@ -27,7 +27,8 @@ type Indexer struct {
 	client meilisearch.ServiceManager
 	ignore *gitignore.GitIgnore
 
-	state map[string]string
+	state          map[string]string
+	missingContent map[string]*structs.Content
 
 	// toUpdateThumb is a map of paths that need to be updated additionally.
 	// Processing a single document can trigger processing of another
@@ -45,6 +46,7 @@ func NewIndexer(
 	infoDir string,
 	mediaDir string,
 	state map[string]string,
+	missingContent map[string]*structs.Content,
 ) (*Indexer, error) {
 	mediaAbsPath, err := filepath.Abs(mediaDir)
 	if err != nil {
@@ -52,12 +54,13 @@ func NewIndexer(
 	}
 
 	return &Indexer{
-		client:        client,
-		ignore:        ignore,
-		state:         state,
-		toUpdateThumb: make(map[string]interface{}),
-		infoDir:       infoDir,
-		mediaAbsPath:  mediaAbsPath,
+		client:         client,
+		ignore:         ignore,
+		state:          state,
+		toUpdateThumb:  make(map[string]interface{}),
+		infoDir:        infoDir,
+		mediaAbsPath:   mediaAbsPath,
+		missingContent: missingContent,
 	}, nil
 }
 
@@ -219,6 +222,11 @@ func (i *Indexer) addDocumentsToIndex(documents []*structs.Content, index string
 }
 
 func (i *Indexer) processFile(path string) (*structs.Content, error) {
+	// Handle virtual paths for missing content
+	if strings.HasPrefix(path, "missing/") {
+		return i.processMissingContent(path)
+	}
+
 	switch filepath.Ext(path) {
 	case ".yml", ".yaml":
 		return i.processYAMLFile(path)
@@ -249,6 +257,18 @@ func (i *Indexer) processYAMLFile(path string) (*structs.Content, error) {
 	content.AddMedia(i.getImageForPath)
 
 	return &content, nil
+}
+
+func (i *Indexer) processMissingContent(path string) (*structs.Content, error) {
+	if content, ok := i.missingContent[path]; ok {
+		content.Source = strings.TrimPrefix(path, "missing/")
+		content.SourceNoExtention = removeFileExtention(content.Source)
+		content.GenerateID()
+		content.AddMedia(i.getImageForPath)
+		return content, nil
+	}
+
+	return nil, fmt.Errorf("missing content for path %q", path)
 }
 
 func (i *Indexer) getImageForPath(path string) *structs.Media {

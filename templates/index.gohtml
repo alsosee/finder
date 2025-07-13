@@ -20,7 +20,7 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <script src="/meilisearch.umd.js"></script>
     {{- if .Content }}
-        {{- if not .Content.Source }}
+        {{- if hasPrefix .Content.Source "missing/" }}
     <link rel="edit" href="{{ (config).Repo }}/new/main/{{ .CurrentPath }}/?filename={{ htmlEscape .Content.GetName }}.yml&value={{ value .Content .CurrentPath }}">
         {{- else }}
     <link rel="edit" href="{{ (config).Repo }}/edit/main/{{ .Content.Source }}">

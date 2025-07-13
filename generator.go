@@ -78,6 +78,8 @@ type Generator struct {
 
 	awardPages []string
 
+	missingContent map[string]*structs.Content // map of the virtual paths to generated Content structs, used by Indexer
+
 	muContents             sync.Mutex // protects writes to contents
 	muDir                  sync.Mutex // protects writes to dirContents
 	muConnections          sync.Mutex // protects writes to connections
@@ -109,6 +111,7 @@ func NewGenerator(ignore *gitignore.GitIgnore) (*Generator, error) {
 		awardsMissingContent: map[string][]structs.Award{},
 		renderedPanelsCache:  map[string]string{},
 		hashes:               map[string]string{},
+		missingContent:       map[string]*structs.Content{},
 	}, nil
 }
 
@@ -163,6 +166,7 @@ func (g *Generator) fm() template.FuncMap {
 		"dir":          filepath.Dir,
 		"base":         filepath.Base,
 		"hasPrefix":    strings.HasPrefix,
+		"trimPrefix":   strings.TrimPrefix,
 		"strjoin":      strings.Join,
 		"lower":        strings.ToLower,
 		"isPerson":     structs.IsPerson,
@@ -1017,6 +1021,15 @@ func (g *Generator) addHash(path string, b []byte) {
 	g.hashes[path] = fmt.Sprintf("%x", crc32.ChecksumIEEE(b))
 }
 
+func (g *Generator) addMissingContentHash(content *structs.Content) {
+	g.muHashes.Lock()
+	defer g.muHashes.Unlock()
+
+	contentHash := g.generateMissingContentHash(content)
+	g.hashes[content.Source] = contentHash
+	g.missingContent[content.Source] = content
+}
+
 func (g *Generator) addDir(path string) {
 	dir := filepath.Dir(path)
 	if dir == "." {
@@ -1300,6 +1313,10 @@ func (g *Generator) generateMissing(missing []structs.Missing) error {
 
 		id := m.To
 		panels, breadcrumbs := g.buildPanels(id, true)
+		content := g.generateContentForMissing(m)
+
+		// Add hash for missing content to enable indexing
+		g.addMissingContentHash(content)
 
 		pagesDataChan <- structs.PageData{
 			OutputPath:  filepath.Join(cfg.OutputDirectory, id+".html"),
@@ -1307,7 +1324,7 @@ func (g *Generator) generateMissing(missing []structs.Missing) error {
 			Dir:         filepath.Dir(id),
 			Breadcrumbs: breadcrumbs,
 			Panels:      panels,
-			Content:     g.generateConntentForMissing(m),
+			Content:     content,
 			Timestamp:   time.Now().Unix(),
 		}
 	}
@@ -1318,15 +1335,46 @@ func (g *Generator) generateMissing(missing []structs.Missing) error {
 	return nil
 }
 
-func (g *Generator) generateConntentForMissing(m structs.Missing) *structs.Content {
+func (g *Generator) generateContentForMissing(m structs.Missing) *structs.Content {
 	content := &structs.Content{
+		Source: "missing/" + m.To + ".yml",
 		Image:  g.getImageForPath(m.To),
 		Awards: m.Awards,
 	}
 
+	content.GenerateID()
 	content.SetName(filepath.Base(m.To))
 
 	return content
+}
+
+func (g *Generator) generateMissingContentHash(content *structs.Content) string {
+	parts := []string{content.Source}
+
+	// Add name
+	if content.Name != "" {
+		parts = append(parts, content.Name)
+	}
+
+	// Add all Media fields if Image exists
+	if content.Image != nil {
+		parts = append(parts,
+			content.Image.Path,
+			content.Image.ThumbPath,
+			fmt.Sprintf("%d", content.Image.Width),
+			fmt.Sprintf("%d", content.Image.Height),
+			fmt.Sprintf("%d", content.Image.ThumbXOffset),
+			fmt.Sprintf("%d", content.Image.ThumbYOffset),
+			fmt.Sprintf("%d", content.Image.ThumbWidth),
+			fmt.Sprintf("%d", content.Image.ThumbHeight),
+			fmt.Sprintf("%d", content.Image.ThumbTotalWidth),
+			fmt.Sprintf("%d", content.Image.ThumbTotalHeight),
+		)
+	}
+
+	hashData := strings.Join(parts, "|")
+	hash := crc32.ChecksumIEEE([]byte(hashData))
+	return fmt.Sprintf("%x", hash)
 }
 
 // func (g *Generator) generate404() error {

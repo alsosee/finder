@@ -9,6 +9,7 @@ import (
 	"runtime/pprof"
 	"time"
 
+	"github.com/alsosee/finder/structs"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/meilisearch/meilisearch-go"
 	gitignore "github.com/sabhiram/go-gitignore"
@@ -70,7 +71,7 @@ func run() error {
 	}
 
 	if cfg.SearchMasterKey != "" {
-		if err := indexSite(ignore, generator.hashes); err != nil {
+		if err := indexSite(ignore, generator.hashes, generator.missingContent); err != nil {
 			return fmt.Errorf("indexing site: %v", err)
 		}
 	}
@@ -78,7 +79,11 @@ func run() error {
 	return nil
 }
 
-func indexSite(ignore *gitignore.GitIgnore, state map[string]string) error {
+func indexSite(
+	ignore *gitignore.GitIgnore,
+	state map[string]string,
+	missingContent map[string]*structs.Content,
+) error {
 	log.Printf("Current state contains %d entries", len(state))
 
 	client := meilisearch.New(
@@ -95,6 +100,7 @@ func indexSite(ignore *gitignore.GitIgnore, state map[string]string) error {
 		cfg.InfoDirectory,
 		cfg.MediaDirectory,
 		state,
+		missingContent,
 	)
 	if err != nil {
 		return fmt.Errorf("creating indexer: %v", err)

@@ -180,7 +180,7 @@ Inputs (same as for "index" template):
         {{- template "link" dict "Label" "Kickstarter" "URL" .Kickstarter }}
     </p>
 
-    {{- if not .Source }}
+    {{- if hasPrefix .Source "missing/" }}
     <div class="missing">
         <p>This page is a stub. You can help by <a href="{{ (config).Repo }}/new/main/{{ $.Dir }}/?filename={{ htmlEscape .GetName }}.yml&value={{ value . $.Dir }}">contributing</a>.</p>
     </div>
