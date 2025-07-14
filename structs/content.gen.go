@@ -157,6 +157,7 @@ type Content struct {
 	Source            string        `yaml:"-"`                   // path to the file
 	SourceNoExtention string        `yaml:"-"`                   // path to the file without extention
 	HTML              string        `yaml:"-" json:",omitempty"` // for Markdown files
+	IsMissing         bool          `yaml:"-" json:",omitempty"` // true if the content is missing
 	Name              string        `yaml:"name,omitempty" json:"name,omitempty"`
 	Title             string        `yaml:"title,omitempty" json:"title,omitempty"`
 	Image             *Media        `yaml:"-" json:"image,omitempty"`

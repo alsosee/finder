@@ -49,6 +49,7 @@ type Content struct {
 	Source            string `yaml:"-"`                   // path to the file
 	SourceNoExtention string `yaml:"-"`                   // path to the file without extention
 	HTML              string `yaml:"-" json:",omitempty"` // for Markdown files
+	IsMissing         bool   `yaml:"-" json:",omitempty"` // true if the content is missing
 
 	{{- range .Content.Properties }}
 	{{ if eq .Meta "name" }}Name{{ else }}{{ titleCase .Name }}{{ end }} {{ fieldType . }} `yaml:"{{ if eq .Type "media" }}-{{ else }}{{ .Name }},omitempty{{ end }}" json:"{{ .Name }},omitempty"`

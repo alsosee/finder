@@ -1337,9 +1337,10 @@ func (g *Generator) generateMissing(missing []structs.Missing) error {
 
 func (g *Generator) generateContentForMissing(m structs.Missing) *structs.Content {
 	content := &structs.Content{
-		Source: "missing/" + m.To + ".yml",
-		Image:  g.getImageForPath(m.To),
-		Awards: m.Awards,
+		IsMissing: true,
+		Source:    m.To + ".yml",
+		Image:     g.getImageForPath(m.To),
+		Awards:    m.Awards,
 	}
 
 	content.GenerateID()

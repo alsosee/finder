@@ -241,7 +241,7 @@ func (i *Indexer) processYAMLFile(path string) (*structs.Content, error) {
 	file, err := os.Open(filepath.Join(i.infoDir, path))
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil, errNotFound
+			return i.processMissingContent(path)
 		}
 		return nil, fmt.Errorf("opening file: %w", err)
 	}
@@ -261,7 +261,8 @@ func (i *Indexer) processYAMLFile(path string) (*structs.Content, error) {
 
 func (i *Indexer) processMissingContent(path string) (*structs.Content, error) {
 	if content, ok := i.missingContent[path]; ok {
-		content.Source = strings.TrimPrefix(path, "missing/")
+		content.IsMissing = true
+		content.Source = path
 		content.SourceNoExtention = removeFileExtention(content.Source)
 		content.GenerateID()
 		content.AddMedia(i.getImageForPath)
