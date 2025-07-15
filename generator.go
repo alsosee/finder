@@ -1353,8 +1353,9 @@ func (g *Generator) generateMissingContentHash(content *structs.Content) string 
 	parts := []string{content.Source}
 
 	// Add name
-	if content.Name != "" {
-		parts = append(parts, content.Name)
+	name := content.GetName()
+	if name != "" {
+		parts = append(parts, name)
 	}
 
 	// Add all Media fields if Image exists
