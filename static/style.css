@@ -206,8 +206,8 @@ pre code {
   background-position: -44px var(--shift-y, 0);
 }
 
-#logo:focus {
-  outline: thin solid var(--color-outline);
+#menu:focus {
+  outline: 2px solid var(--color-outline);
 }
 
 #menu_popup {
@@ -223,7 +223,6 @@ pre code {
   border-top-left-radius: 0;
   box-shadow: var(--shadow-big);
   z-index: 100;
-  overflow: hidden;
 }
 
 #menu_popup li * {
@@ -254,6 +253,21 @@ pre code {
 #menu_popup a:focus {
   background-color: var(--color-background-selection);
   color: var(--color-text-selection);
+  outline: none;
+}
+
+#menu_popup li:first-child a {
+  border-top-right-radius: 8px;
+}
+
+#menu_popup li:last-child a {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+
+#menu_popup a:focus-visible {
+  outline: 2px solid var(--color-outline);
 }
 
 #menu_popup span::before,

@@ -667,6 +667,12 @@ if (typeof hasRun === 'undefined') {
                 e.preventDefault();
                 return;
             }
+
+            if (e.keyCode === 27 && menu.classList.contains('open')) { // esc
+                menu.classList.remove('open');
+                e.preventDefault();
+                return;
+            }
         }
         if (document.activeElement.tagName === "A" && document.activeElement.closest('#menu_popup')) {
             if (e.keyCode === 40) { // down
@@ -688,6 +694,12 @@ if (typeof hasRun === 'undefined') {
                     menu.focus();
                     e.preventDefault();
                 }
+                return;
+            }
+            if (e.keyCode === 27 && menu.classList.contains('open')) { // esc
+                menu.classList.remove('open');
+                e.preventDefault();
+                menu.focus();
                 return;
             }
         }
