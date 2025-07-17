@@ -35,7 +35,12 @@ if (typeof hasRun === 'undefined') {
                 var img = document.createElement('img');
                 img.src = image;
                 img.classList.add('thumb', 'lock');
-                // todo: drop.classList.add('people');
+                // detect if image is jpg or png based on image value prefix (data:image/jpeg;...)
+                if (image.startsWith("data:image/jpeg;")) {
+                    img.classList.add('jpg');
+                } else if (image.startsWith("data:image/png;")) {
+                    img.classList.add('png');
+                }
 
                 var thumb = document.querySelector('.content .content-inner .thumb');
                 if (thumb) {
