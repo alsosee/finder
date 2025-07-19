@@ -1830,14 +1830,16 @@ p .award + .award {
     color: transparent;
   }
 
-  #search:focus {
+  #search:focus,
+  #search:not(:placeholder-shown) {
     width: 100%;
     padding: 0 15px 0 40px;
     color: inherit;
     text-indent: 0;
   }
 
-  #searchWrapper:has(#search:focus) {
+  #searchWrapper:has(#search:focus),
+  #searchWrapper:has(#search:not(:placeholder-shown)) {
     width: calc(
       100% - 20px /* body padding */ - 78px /* logo width */ - 10px /* additional margin */
     );
