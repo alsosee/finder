@@ -179,6 +179,9 @@ func (r *Reference) UnmarshalYAML(value *yaml.Node) error {
 	if err := value.Decode(&a); err != nil {
 		return err
 	}
+	if a.Path == "" && a.Name == "" {
+		return fmt.Errorf("reference must have either path or name")
+	}
 	*r = Reference(a)
 	return nil
 }
