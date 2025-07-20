@@ -1001,18 +1001,22 @@ func (g *Generator) addMedia(path string, media []structs.Media) {
 	g.muMedia.Unlock()
 }
 
-func (g *Generator) addFile(path string) {
+func (g *Generator) addDirContents(path string, file structs.File) {
 	dir := filepath.Dir(path)
 	if dir == "." {
 		dir = ""
 	}
 
 	g.muDir.Lock()
-	g.dirContents[dir] = append(g.dirContents[dir], structs.File{
+	g.dirContents[dir] = append(g.dirContents[dir], file)
+	g.muDir.Unlock()
+}
+
+func (g *Generator) addFile(path string) {
+	g.addDirContents(path, structs.File{
 		Name:  removeFileExtention(filepath.Base(path)),
 		Image: g.getImageForPath(removeFileExtention(path)),
 	})
-	g.muDir.Unlock()
 }
 
 func (g *Generator) addHash(path string, b []byte) {
@@ -1032,22 +1036,15 @@ func (g *Generator) addMissingContentHash(content *structs.Content) {
 }
 
 func (g *Generator) addDir(path string) {
-	dir := filepath.Dir(path)
-	if dir == "." {
-		dir = ""
-	}
-
 	name := filepath.Base(path)
 	if name == "." {
 		return
 	}
 
-	g.muDir.Lock()
-	g.dirContents[dir] = append(g.dirContents[dir], structs.File{
+	g.addDirContents(path, structs.File{
 		Name:     name,
 		IsFolder: true,
 	})
-	g.muDir.Unlock()
 }
 
 func (g *Generator) getFilesForPath(path string) []structs.File {
@@ -1257,33 +1254,27 @@ func (g *Generator) addMissingFilesToPanels(missing []structs.Missing) {
 			IsMissing: true,
 		}
 
-		dir := filepath.Dir(id)
-
-		g.muDir.Lock()
-		g.dirContents[dir] = append(g.dirContents[dir], file)
+		g.addDirContents(id, file)
 
 		// check if parent directory exists, usually a year
+		dir := filepath.Dir(id)
 		parentDir := filepath.Dir(dir)
+		name := filepath.Base(dir)
 		if parentDirContents, ok := g.dirContents[parentDir]; ok {
 			found := false
 			for _, f := range parentDirContents {
-				if f.Name == filepath.Base(dir) {
+				if f.Name == name {
 					found = true
 				}
 			}
 			if !found {
-				g.dirContents[parentDir] = append(
-					g.dirContents[parentDir],
-					structs.File{
-						Name:      filepath.Base(dir),
-						IsFolder:  true,
-						IsMissing: true,
-					},
-				)
+				g.addDirContents(dir, structs.File{
+					Name:      name,
+					IsFolder:  true,
+					IsMissing: true,
+				})
 			}
 		}
-
-		g.muDir.Unlock()
 	}
 }
 
