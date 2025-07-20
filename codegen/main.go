@@ -324,7 +324,7 @@ var (
 	structRefRegexp = regexp.MustCompile(`(\$[a-zA-Z0-9_$]+)`)
 )
 
-func structRef(ref, prefix string) string {
+func structRef(ref, prefix string, escapeFileName bool) string {
 	// replace "$" with prefix and convert to camel case
 	// e.g. "$name" -> prefix.Name
 	// "$ID" is a special case, it's used to reference the ID field of the content
@@ -354,7 +354,12 @@ func structRef(ref, prefix string) string {
 		case "$$":
 			result.WriteString("c.SourceNoExtention")
 		default:
-			result.WriteString(prefix + "." + caser.String(ref[match[0]+1:match[1]]))
+			field := prefix + "." + caser.String(ref[match[0]+1:match[1]])
+			if escapeFileName {
+				result.WriteString("EscapeFileName(" + field + ")")
+			} else {
+				result.WriteString(field)
+			}
 		}
 
 		if i < len(matches)-1 {

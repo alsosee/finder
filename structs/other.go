@@ -2,6 +2,7 @@ package structs
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -283,4 +284,8 @@ type Missing struct {
 	To     string
 	From   map[string][]Connection
 	Awards []Award
+}
+
+func EscapeFileName(name string) string {
+	return strings.ReplaceAll(name, "/", "_")
 }

@@ -27,10 +27,10 @@ if {{ $.Prefix }}.{{ titleCase .Name }} != "" {
         To: "{{ $path }}/" + {{ $.Prefix }}.{{ titleCase .Name }},
         Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
         {{- if eq $.Meta "parent" }}
-        {{ with .Info }}Parent: {{ structRef . $.Prefix }},{{ end }}
+        {{ with .Info }}Parent: {{ structRef . $.Prefix false }},{{ end }}
         {{- else }}
-        {{ with .Info }}Info: {{ structRef . $.Prefix }},{{ end }}
-        {{ with $.Parent }}Parent: {{ structRef . $.Prefix }},{{ end }}
+        {{ with .Info }}Info: {{ structRef . $.Prefix false }},{{ end }}
+        {{ with $.Parent }}Parent: {{ structRef . $.Prefix false }},{{ end }}
         {{- end }}
     })
 }
@@ -47,7 +47,7 @@ for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ tit
     connections = append(connections, Connection{
         To: "{{ rootTypePath .Items.Type}}/" + {{ camelCaseConcat $.Prefix .Items.Type }},
         Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
-        {{ with .Info }}Parent: {{ structRef . $.Prefix }},{{ end }}
+        {{ with .Info }}Parent: {{ structRef . $.Prefix false }},{{ end }}
     })
 }
 {{- else if and (eq .Type "array") (extraType .Items.Type) }}
@@ -55,7 +55,7 @@ for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ tit
     {{- template "connections" dict
         "Content" (lookupExtraType .Items.Type)
         "Prefix" (camelCaseConcat $.Prefix .Items.Type)
-        "Parent" (structRef .Info $.Prefix)
+        "Parent" (structRef .Info $.Prefix false)
         "Meta" .Meta
         "Depth" (add $.Depth 1)
     }}

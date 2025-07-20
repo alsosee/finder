@@ -714,13 +714,13 @@ type Episode struct {
 func (c *Content) AddMedia(getImage func(string) *Media) {
 	c.Image = getImage(c.SourceNoExtention)
 	for _, character := range c.Characters {
-		character.Image = getImage(c.SourceNoExtention + "/Characters/" + character.Name)
-		character.ActorImage = getImage("People/" + character.Actor)
+		character.Image = getImage(c.SourceNoExtention + "/Characters/" + EscapeFileName(character.Name))
+		character.ActorImage = getImage("People/" + EscapeFileName(character.Actor))
 	}
 	for _, episode := range c.Episodes {
 		for _, episodeCharacter := range episode.Characters {
-			episodeCharacter.Image = getImage(c.SourceNoExtention + "/Characters/" + episodeCharacter.Name)
-			episodeCharacter.ActorImage = getImage("People/" + episodeCharacter.Actor)
+			episodeCharacter.Image = getImage(c.SourceNoExtention + "/Characters/" + EscapeFileName(episodeCharacter.Name))
+			episodeCharacter.ActorImage = getImage("People/" + EscapeFileName(episodeCharacter.Actor))
 		}
 	}
 }

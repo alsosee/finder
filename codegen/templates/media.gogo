@@ -6,7 +6,7 @@ f
 */ -}}
 {{- range .Content.Properties }}
 {{- if eq .Type "media" }}
-{{ $.Prefix }}.{{ titleCase .Name }} = getImage({{ structRef .Path $.Prefix }})
+{{ $.Prefix }}.{{ titleCase .Name }} = getImage({{ structRef .Path $.Prefix true }})
 {{- else if and (eq .Type "array") (extraType .Items.Type) }}
 for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ titleCase .Name }} {
     {{- template "media" dict
