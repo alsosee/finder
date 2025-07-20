@@ -54,7 +54,6 @@ if (typeof hasRun === 'undefined') {
         // scan for characters without images
         var drops = document.querySelectorAll('.characters .drop');
         drops.forEach(function(someDrop) {
-            var name = someDrop.dataset.name;
             key = path() + (someDrop.dataset.suffix || "");
             if (someDrop.classList.contains('image')) {
                 ldb.delete(key);

@@ -6,9 +6,9 @@ Inputs:
 - .CurrentPath (string): current path
 */ -}}
 {{- if .Character.Image }}
-    <span class="image drop" data-viewport="circle" data-name="{{ htmlEscape .Character.Name }}" data-suffix="/Characters/{{ htmlEscape .Character.Name }}" style="background-image: url('{{ (config).MediaHost }}/{{ escape .CurrentPath }}/Characters/{{ .Character.Image.ThumbPath }}'); {{ thumbStylePct .Character.Image }}"></span>
+    <span class="image drop" data-viewport="circle" data-name="{{ htmlEscape .Character.Name }}" data-suffix="/Characters/{{ htmlEscape (escapeFileName .Character.Name) }}" style="background-image: url('{{ (config).MediaHost }}/{{ escape .CurrentPath }}/Characters/{{ .Character.Image.ThumbPath }}'); {{ thumbStylePct .Character.Image }}"></span>
 {{- else }}
-    <span class="no-image drop" data-viewport="circle" data-name="{{ htmlEscape .Character.Name }}" data-suffix="/Characters/{{ htmlEscape .Character.Name }}"></span>
+    <span class="no-image drop" data-viewport="circle" data-name="{{ htmlEscape .Character.Name }}" data-suffix="/Characters/{{ htmlEscape (escapeFileName .Character.Name) }}"></span>
 {{- end }}
     <span class="name">{{ .Character.Name }}</span>
 {{- if .Character.Actor }}

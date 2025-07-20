@@ -511,6 +511,7 @@ func (g *Generator) fm() template.FuncMap {
 			return ""
 		},
 		"groupConnections": groupConnections,
+		"escapeFileName":   escapeFileName,
 	}
 }
 
@@ -1187,7 +1188,7 @@ func (g *Generator) getImageForPath(path string) *structs.Media {
 		dir = ""
 	}
 
-	base := filepath.Base(path)
+	base := escapeFileName(filepath.Base(path))
 
 	dirContent, ok := g.mediaDirContents[dir]
 	if !ok {
@@ -1758,6 +1759,10 @@ func awardYear(c structs.Content) string {
 	}
 
 	return yearSt
+}
+
+func escapeFileName(name string) string {
+	return strings.ReplaceAll(name, "/", "_")
 }
 
 // prefix returns a path prefix to a content referenced by the given content.
