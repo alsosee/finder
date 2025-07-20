@@ -160,6 +160,9 @@ function set_image_handler_image_pica(image) {
 
     var img = new Image();
     img.onload = function() {
+        uploader_width.value = img.width;
+        uploader_height.value = img.height;
+
         uploader_resize(img.width, img.height, true, function() {
             offScreenCanvas.width = img.width;
             offScreenCanvas.height = img.height;
