@@ -269,7 +269,7 @@ func (i *Indexer) processMissingContent(path string) (*structs.Content, error) {
 		return content, nil
 	}
 
-	return nil, fmt.Errorf("missing content for path %q", path)
+	return nil, errNotFound
 }
 
 func (i *Indexer) getImageForPath(path string) *structs.Media {
