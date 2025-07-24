@@ -523,6 +523,9 @@ fieldset.radio label:last-of-type {
 /* container is a "view" that can show "files" as icons, list, or columns */
 /* container has a list of panels, used in "columns" view to show hierachy */
 #panels {
+  position: absolute;
+  top: 0;
+  bottom: 0;
   flex-grow: 1;
   display: flex;
   flex-direction: row;
