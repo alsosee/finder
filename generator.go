@@ -581,6 +581,11 @@ FILE_PROCESSING:
 		return fmt.Errorf("generating indexes: %w", err)
 	}
 
+	// Generate 404 page
+	if err := g.generate404(); err != nil {
+		return fmt.Errorf("generating 404 page: %w", err)
+	}
+
 	return nil
 }
 
@@ -1371,20 +1376,19 @@ func (g *Generator) generateMissingContentHash(content *structs.Content) string 
 	return fmt.Sprintf("%x", hash)
 }
 
-// func (g *Generator) generate404() error {
-// 	outputPath := filepath.Join(cfg.OutputDirectory, "404.html")
+func (g *Generator) generate404() error {
+	outputPath := filepath.Join(cfg.OutputDirectory, "404.html")
 
-// 	return g.executeTemplate(outputPath, structs.PageData{
-// 		CurrentPath: "404",
-// 		Dir:         "",
-// 		Breadcrumbs: structs.Breadcrumbs{
-// 			{Name: "Home", Path: "/"},
-// 			{Name: "404", Path: "/404"},
-// 		},
-// 		Panels:    nil, // no panels on 404 page
-// 		Timestamp: time.Now().Unix(),
-// 	}, "404.gohtml")
-// }
+	return g.executeTemplate(outputPath, structs.PageData{
+		CurrentPath: "404",
+		Dir:         "",
+		Breadcrumbs: structs.Breadcrumbs{
+			{Name: g.config.HomeLabel, Path: "/"},
+		},
+		Panels:    nil, // no panels on 404 page
+		Timestamp: time.Now().Unix(),
+	}, "404.gohtml")
+}
 
 func (g *Generator) processPanels() {
 	g.muDir.Lock()

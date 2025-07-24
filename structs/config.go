@@ -18,9 +18,14 @@ type Config struct {
 		Height       int    `yaml:"height"`
 		TwitterImage string `yaml:"twitter_image"`
 	} `yaml:"opengraph"`
-	LogoShiftY   string `yaml:"logo_shift_y"`
-	HomeLabel    string `yaml:"home_label"`
-	SearchLabel  string `yaml:"search_label"`
+	LogoShiftY  string `yaml:"logo_shift_y"`
+	HomeLabel   string `yaml:"home_label"`
+	SearchLabel string `yaml:"search_label"`
+
+	NotFoundHeader         string `yaml:"not_found_header"`
+	NotFoundDEscription    string `yaml:"not_found_description"`
+	NotFoundButDescription string `yaml:"not_found_but_description"`
+
 	ViewsLabel   string `yaml:"views_label"`
 	ViewsTooltip string `yaml:"views_tooltip"`
 	ViewIcons    string `yaml:"view_icons"`

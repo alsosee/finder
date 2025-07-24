@@ -415,74 +415,81 @@ if (typeof hasRun === 'undefined') {
                 return;
             }
 
-            var columnsCounts = {};
+            displaySearchResults(response.hits, null);
+        });
+    }
 
-            const results = response.hits.map(function(hit) {
-                const path = hit.Source.substring(0, hit.Source.lastIndexOf('.'))
-                const dir = path.substring(0, path.lastIndexOf('/'));
-                var attr = "";
-                if (hit.image) {
-                    const ext = hit.image.Path.substring(hit.image.Path.lastIndexOf('.') + 1)
-                    var linkClass = "has-image";
-                    if (ext == "jpg" || ext == "jpeg") {
-                        linkClass += " jpg";
-                    }
-
-                    attr = `style="--background-image: url('{{ (config).MediaHost }}/${dir}/${hit.image.thumb}'); ${thumbStylePx(hit.image, 100, "--")}; ${thumbStylePx(hit.image, 24, "--small-")}"`;
+    function displaySearchResults(hits, callback) {
+        var columnsCounts = {};
+        const results = hits.map(function(hit) {
+            const path = hit.Source.substring(0, hit.Source.lastIndexOf('.'))
+            const dir = path.substring(0, path.lastIndexOf('/'));
+            var attr = "";
+            if (hit.image) {
+                const ext = hit.image.Path.substring(hit.image.Path.lastIndexOf('.') + 1)
+                var linkClass = "has-image";
+                if (ext == "jpg" || ext == "jpeg") {
+                    linkClass += " jpg";
                 }
 
-                // if path starts with "People", it's a person
-                if (path.startsWith("{{ personPrefix }}")) {
-                    linkClass += " people";
-                }
-                attr += ` class="${linkClass}"`;
+                attr = `style="--background-image: url('{{ (config).MediaHost }}/${dir}/${hit.image.thumb}'); ${thumbStylePx(hit.image, 100, "--")}; ${thumbStylePx(hit.image, 24, "--small-")}"`;
+            }
 
-                var columns = collectColumns(hit);
-                for (var key in columns) {
-                    columnsCounts[key] = columnsCounts[key] || 0;
-                    columnsCounts[key]++;
-                }
+            // if path starts with "People", it's a person
+            if (path.startsWith("{{ personPrefix }}")) {
+                linkClass += " people";
+            }
+            attr += ` class="${linkClass}"`;
 
-                return {
-                    name: hit.{{ contentFieldName "name" }} || hit.{{ contentFieldName "title" }} || "?",
-                    href: path,
-                    attr: attr,
-                    columns: columns
-                };
-            });
+            var columns = collectColumns(hit);
+            for (var key in columns) {
+                columnsCounts[key] = columnsCounts[key] || 0;
+                columnsCounts[key]++;
+            }
 
-            chosenColumns = chooseColumns(columnsCounts, results.length);
+            return {
+                name: hit.{{ contentFieldName "name" }} || hit.{{ contentFieldName "title" }} || "?",
+                href: path,
+                attr: attr,
+                columns: columns
+            };
+        });
 
-            // for each result item, add "columns" dictionary with fields they may be shown in list view
-            var resultsHeader = `<li role="none" class="header">
-                    <span class="icon"></span>
-                    <span>{{ (config).ColumnName }}</span>
-                    <span class="column">{{ (config).ColumnKind }}</span>`;
+        chosenColumns = chooseColumns(columnsCounts, results.length);
+
+        // for each result item, add "columns" dictionary with fields they may be shown in list view
+        var resultsHeader = `<li role="none" class="header">
+                <span class="icon"></span>
+                <span>{{ (config).ColumnName }}</span>
+                <span class="column">{{ (config).ColumnKind }}</span>`;
+        for (var ci in chosenColumns) {
+            var column = chosenColumns[ci];
+            var title = columnsTitles[column]
+            resultsHeader += `<span class="column" data-label="${column}">${title}</span>`;
+        }
+        resultsHeader += `<span class="column expand"></span></li>`;
+
+        const resultsHTML = results.map(function(result) {
+            var columns = `<span class="column" data-label="{{ (config).ColumnKind }}">${kind(result.href)}</span>`;
             for (var ci in chosenColumns) {
                 var column = chosenColumns[ci];
-                var title = columnsTitles[column]
-                resultsHeader += `<span class="column" data-label="${column}">${title}</span>`;
+                columns += `<span class="column" data-label="${column}">${result.columns[column] || ""}</span>`;
             }
-            resultsHeader += `<span class="column expand"></span></li>`;
 
-            const resultsHTML = results.map(function(result) {
-                var columns = `<span class="column" data-label="{{ (config).ColumnKind }}">${kind(result.href)}</span>`;
-                for (var ci in chosenColumns) {
-                    var column = chosenColumns[ci];
-                    columns += `<span class="column" data-label="${column}">${result.columns[column] || ""}</span>`;
-                }
+            return `<li role="none">
+                <a role="menuitem" ${result.attr} href="/${result.href}">
+                    <span>${result.name}</span>
+                    ${columns}
+                    <span class="column expand"></span>
+                </a>
+            </li>`;
+        }).join("");
 
-                return `<li role="none">
-                    <a role="menuitem" ${result.attr} href="/${result.href}">
-                        <span>${result.name}</span>
-                        ${columns}
-                        <span class="column expand"></span>
-                    </a>
-                </li>`;
-            }).join("");
+        if (callback) {
+            callback();
+        }
 
-            panels.innerHTML = `<ul class="panel menubar-navigation" role="menu" data-level="0" id="_">${resultsHeader}${resultsHTML}</ul>`;
-        });
+        panels.innerHTML = `<ul class="panel menubar-navigation" role="menu" data-level="0" id="_">${resultsHeader}${resultsHTML}</ul>`;
     }
 
     // restore the search query if the user navigates back
@@ -764,7 +771,7 @@ if (typeof hasRun === 'undefined') {
         }
 
         if (e.keyCode === 40) { // down
-            if (uploader.classList.contains('open')) {
+            if (typeof uploader !== "undefined" && uploader.classList.contains('open')) {
                 return;
             }
 

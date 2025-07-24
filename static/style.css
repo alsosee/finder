@@ -510,12 +510,19 @@ fieldset.radio label:last-of-type {
   filter: none;
 }
 
+.banner {
+  padding: 10px;
+  background: var(--color-background-higher);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.banner h1 {
+  font-size: 16px;
+}
+
 /* container is a "view" that can show "files" as icons, list, or columns */
 /* container has a list of panels, used in "columns" view to show hierachy */
 #panels {
-  position: absolute;
-  bottom: 0;
-  top: 0;
   flex-grow: 1;
   display: flex;
   flex-direction: row;
@@ -1079,6 +1086,7 @@ fieldset.radio label:last-of-type {
 
 [data-view="list"] .panel a {
   display: table-row;
+  scroll-margin-top: 28px; /* to align with the header: 23px line-height + 1px border + 2*2px paddings */
 }
 
 [data-view="list"] .panel a span {

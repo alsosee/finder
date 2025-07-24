@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-title" content="{{ (config).Title }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#333030" media="(prefers-color-scheme: dark)">
+    <title>Not Found \ {{ formatTitle .Breadcrumbs }}</title>
+    <link rel="stylesheet" href="/style.css?crc={{ crc32 "style.css" }}">
+    <link rel="stylesheet" href="/print.css?crc={{ crc32 "print.css" }}" media="print">
+    <script src="https://unpkg.com/htmx.org@2.0.0" integrity="sha384-wS5l5IKJBvK6sPTKa2WZ1js3d947pvWXbPJ1OmWfEuxLgeHcEbjUUA5i9V5ZkpCw" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.css">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon_192r.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon_512r.png">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <script src="/meilisearch.umd.js"></script>
+</head>
+<body data-view="columns">
+{{ template "toolbar" (config) }}
+{{ template "breadcrumbs" . }}
+<div class="banner">
+    <h1>{{ (config).NotFoundHeader }}</h1>
+    <p>{{ (config).NotFoundDEscription }}</p>
+</div>
+<div id="container" hx-boost="true">
+    <nav id="panels">
+        <ul id="_" class="panel menubar-navigation" role="menu" data-level="0" onclick="panelClick(event)">
+        </ul>
+    </nav>
+</div>
+<script src="/localdata.min.js?crc={{ crc32 "localdata.min.js" }}" hx-preserve="true"></script>
+<script src="/scripts.js?crc={{ crc32 "scripts.js" }}" hx-preserve="true"></script>
+<script>
+var query = window.location.pathname.substring(1);
+client.index("{{ (config).SearchIndexName }}").search(query, {limit: 100}).then((response) => {
+    if (response.hits.length == 0) {
+        console.log("No results found for query:", query);
+        return;
+    }
+
+    displaySearchResults(response.hits, function() {
+        document.querySelector('.banner p').textContent = "{{ (config).NotFoundButDescription }}";
+    });
+});
+</script>
+</body>
+</html>
