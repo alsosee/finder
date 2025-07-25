@@ -807,7 +807,9 @@ if (typeof hasRun === 'undefined') {
                 if (nextRow < panel.children.length / columns) {
                     var next = panel.children[nextRow * columns + index % columns];
                     if (next) {
-                        next.querySelector("a").focus();
+                        let link = next.querySelector("a");
+                        scrollToIfNotVisible(link);
+                        link.focus();
                     }
                 }
                 return
@@ -865,7 +867,9 @@ if (typeof hasRun === 'undefined') {
                 var prevRow = row - 1;
                 if (prevRow >= 0) {
                     var prev = panel.children[prevRow * columns + index % columns];
-                    prev.querySelector("a").focus();
+                    var link = prev.querySelector("a");
+                    scrollToIfNotVisible(link);
+                    link.focus();
                 }
                 return;
             }
@@ -916,6 +920,7 @@ if (typeof hasRun === 'undefined') {
                 var prev = document.activeElement.parentNode.previousElementSibling;
                 if (prev) {
                     prev.querySelector("a").focus();
+                    saveFocus();
                 }
                 return;
             }
@@ -926,7 +931,7 @@ if (typeof hasRun === 'undefined') {
             if (e.metaKey || e.ctrlKey) {
                 return;
             }
-            if (uploader.classList.contains('open')) {
+            if (typeof uploader !== "undefined" && uploader.classList.contains('open')) {
                 return;
             }
 
@@ -966,7 +971,6 @@ if (typeof hasRun === 'undefined') {
                 if (next) {
                     next.querySelector("a").focus();
                     saveFocus();
-                    return;
                 }
                 return;
             }
@@ -987,9 +991,12 @@ if (typeof hasRun === 'undefined') {
 }
 
 function isElementInViewport(el) {
+    container = document.getElementById("container");
+    var containerRect = container.getBoundingClientRect();
     var rect = el.getBoundingClientRect();
+
     return (
-        rect.top >= 0 &&
+        rect.top - containerRect.top >= 0 &&
         rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
     );
 }
