@@ -35,15 +35,22 @@
 <script src="/localdata.min.js?crc={{ crc32 "localdata.min.js" }}" hx-preserve="true"></script>
 <script src="/scripts.js?crc={{ crc32 "scripts.js" }}" hx-preserve="true"></script>
 <script>
-var query = window.location.pathname.substring(1);
-client.index("{{ (config).SearchIndexName }}").search(query, {limit: 100}).then((response) => {
-    if (response.hits.length == 0) {
-        console.log("No results found for query:", query);
+window.addEventListener('DOMContentLoaded', function() {
+    if (window.location.pathname.startsWith("/search")) {
+        var bannar = document.querySelector('.banner');
+        bannar.parentNode.removeChild(bannar);
         return;
     }
+    var query = window.location.pathname.substring(1);
+    client.index("{{ (config).SearchIndexName }}").search(query, {limit: 100}).then((response) => {
+        if (response.hits.length == 0) {
+            console.log("No results found for query:", query);
+            return;
+        }
 
-    displaySearchResults(response.hits, function() {
-        document.querySelector('.banner p').textContent = "{{ (config).NotFoundButDescription }}";
+        displaySearchResults(response.hits, function() {
+            document.querySelector('.banner p').textContent = "{{ (config).NotFoundButDescription }}";
+        });
     });
 });
 </script>

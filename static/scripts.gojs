@@ -411,8 +411,20 @@ if (typeof hasRun === 'undefined') {
 
             // if there are no results, show a message
             if (response.hits.length == 0) {
-                panels.innerHTML = `<div class="noSearchResults">{{ (config).NoResultsLabel }}</div>`;
+                // add banner before #container
+                var banner = document.createElement('div');
+                banner.className = 'banner noSearchResults';
+                banner.innerHTML = `<p>{{ (config).NoResultsLabel }}</p>`;
+                document.body.insertBefore(banner, document.querySelector('#container'));
+
+                panels.innerHTML = '';
                 return;
+            } else {
+                // remove banner if it exists
+                var banner = document.querySelector('.banner');
+                if (banner) {
+                    banner.parentNode.removeChild(banner);
+                }
             }
 
             displaySearchResults(response.hits, null);
