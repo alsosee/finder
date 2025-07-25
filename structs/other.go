@@ -147,8 +147,9 @@ type Panel struct {
 
 // Dir represents a directory in the breadcrumbs.
 type Dir struct {
-	Name string
-	Path string
+	Name      string
+	Path      string
+	IsCurrent bool // used to override the current directory in the breadcrumbs (for 404 pages, for example)
 }
 
 // FileLists is a map, where key is a directory path, and value is a Panel that corresponds to that directory.

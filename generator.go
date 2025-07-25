@@ -1383,7 +1383,8 @@ func (g *Generator) generate404() error {
 		CurrentPath: "404",
 		Dir:         "",
 		Breadcrumbs: structs.Breadcrumbs{
-			{Name: g.config.HomeLabel, Path: "/"},
+			{Name: g.config.HomeLabel},
+			{Name: g.config.NotFoundHeader, IsCurrent: true},
 		},
 		Panels:    nil, // no panels on 404 page
 		Timestamp: time.Now().Unix(),

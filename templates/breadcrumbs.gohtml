@@ -6,7 +6,7 @@
         {{- if eq .Path "" }}
         {{- $slash = "" }}
         {{- end }}
-        {{- $isCurrent := eq $.CurrentPath .Path }}
+        {{- $isCurrent := or .IsCurrent (eq $.CurrentPath .Path) }}
         {{- if $isCurrent }}
         <li role="none"><span>
             {{- if and $.Content $.Content.GetName }}
