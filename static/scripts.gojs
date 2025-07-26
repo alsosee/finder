@@ -190,10 +190,6 @@ if (typeof hasRun === 'undefined') {
         if (content) {
             loadImagesFromIndexedDB();
         }
-    });
-
-    htmx.on('htmx:pushedIntoHistory', function(evt) {
-        loadImagesFromIndexedDB();
 
         // update link rel="edit"
         var editLink = document.querySelector('link[rel="edit"]');
