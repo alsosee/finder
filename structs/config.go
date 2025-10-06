@@ -12,6 +12,7 @@ type Config struct {
 	SearchHost      string `yaml:"search_host"`
 	SearchAPIKey    string `yaml:"search_api_key"`
 	SearchIndexName string `yaml:"search_index"`
+	IgnoreFile      string `yaml:"ignore_file"`
 	OpenGraph       struct {
 		Image        string `yaml:"image"`
 		Width        int    `yaml:"width"`

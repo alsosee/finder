@@ -4,13 +4,15 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
+	"net/http"
 	"time"
 
 	flags "github.com/jessevdk/go-flags"
-	"gopkg.in/yaml.v3"
+	"github.com/meilisearch/meilisearch-go"
+	gitignore "github.com/sabhiram/go-gitignore"
 
 	"github.com/alsosee/finder/app"
+	"github.com/alsosee/finder/processors"
 	"github.com/alsosee/finder/structs"
 )
 
@@ -40,68 +42,99 @@ type Config struct {
 var cfg Config // global env config
 
 func main() {
-	if err := run(); err != nil {
-		log.Fatalf("Error: %v", err)
+	if _, err := flags.Parse(&cfg); err != nil {
+		log.Fatalf("Error parsing flags: %v", err)
+	}
+
+	a := app.NewApp(
+		cfg.ConfigFile,
+		cfg.IgnoreFile,
+		cfg.InfoDirectory,
+		cfg.MediaDirectory,
+	)
+
+	if cfg.Profile {
+		a.AddProcessor(&processors.Profile{
+			CPUProfile: cfg.OutputDirectory + "/cpu.pprof",
+			MemProfile: cfg.OutputDirectory + "/mem.pprof",
+		})
+	}
+
+	a.AddProcessor(&processors.HTMLGenerator{
+		TemplatesDirectory: cfg.TemplatesDirectory,
+	})
+
+	if cfg.SearchMasterKey != "" {
+		a.AddProcessor(&processors.SearchIndexer{
+			Host:      cfg.SearchHost,
+			APIKey:    cfg.SearchAPIKey,
+			MasterKey: cfg.SearchMasterKey,
+			IndexName: cfg.SearchIndexName,
+			StateFile: cfg.StateFile,
+			Force:     cfg.Force,
+			Timeout:   cfg.Timeout,
+		})
+	}
+
+	if err := a.Run(); err != nil {
+		log.Fatalf("Error %v", err)
 	}
 }
 
 func run() error {
-	if _, err := flags.Parse(&cfg); err != nil {
-		return fmt.Errorf("parsing flags: %w", err)
-	}
-
-	appConfig, err := parseConfig(cfg.ConfigFile)
+	ignore, err := processIgnoreFile(cfg.IgnoreFile)
 	if err != nil {
-		return fmt.Errorf("parsing config file: %w", err)
+		return fmt.Errorf("processing ignore file: %w", err)
 	}
 
-	// convert part to Info directory to fs.FS
-
-	a, err := app.NewApp(
-		appConfig,
-		os.DirFS(cfg.InfoDirectory),
-		// cfg.MediaDirectory,
-	)
+	generator, err := NewGenerator(ignore)
 	if err != nil {
-		return fmt.Errorf("creating app: %w", err)
+		return fmt.Errorf("creating generator: %v", err)
 	}
 
-	// if cfg.Profile {
-	// 	a.AddProcessor(&processors.Profile{
-	// 		CPUProfile: cfg.OutputDirectory + "/cpu.pprof",
-	// 		MemProfile: cfg.OutputDirectory + "/mem.pprof",
-	// 	})
-	// }
+	if err := generator.Run(); err != nil {
+		return fmt.Errorf("running generator: %v", err)
+	}
 
-	// a.AddProcessor(&processors.HTMLGenerator{
-	// 	TemplatesDirectory: cfg.TemplatesDirectory,
-	// })
+	if cfg.SearchMasterKey != "" {
+		if err := indexSite(ignore, generator.hashes, generator.missingContent); err != nil {
+			return fmt.Errorf("indexing site: %v", err)
+		}
+	}
 
-	// if cfg.SearchMasterKey != "" {
-	// 	a.AddProcessor(&processors.SearchIndexer{
-	// 		Host:      cfg.SearchHost,
-	// 		APIKey:    cfg.SearchAPIKey,
-	// 		MasterKey: cfg.SearchMasterKey,
-	// 		IndexName: cfg.SearchIndexName,
-	// 		StateFile: cfg.StateFile,
-	// 		Force:     cfg.Force,
-	// 		Timeout:   cfg.Timeout,
-	// 	})
-	// }
-
-	return a.Run()
+	return nil
 }
 
-func parseConfig(filepath string) (structs.Config, error) {
-	b, err := os.ReadFile(filepath)
+func indexSite(
+	ignore *gitignore.GitIgnore,
+	state map[string]string,
+	missingContent map[string]*structs.Content,
+) error {
+	log.Printf("Current state contains %d entries", len(state))
+
+	client := meilisearch.New(
+		cfg.SearchHost,
+		meilisearch.WithAPIKey(cfg.SearchMasterKey),
+		meilisearch.WithCustomClient(&http.Client{
+			Timeout: cfg.Timeout,
+		}),
+	)
+
+	indexer, err := NewIndexer(
+		client,
+		ignore,
+		cfg.InfoDirectory,
+		cfg.MediaDirectory,
+		state,
+		missingContent,
+	)
 	if err != nil {
-		return structs.Config{}, fmt.Errorf("reading config file: %w", err)
+		return fmt.Errorf("creating indexer: %v", err)
 	}
 
-	var config structs.Config
-	if err = yaml.Unmarshal(b, &config); err != nil {
-		return structs.Config{}, fmt.Errorf("unmarshaling config: %w", err)
-	}
-
-	return config, nil
+	return indexer.Index(
+		cfg.StateFile,
+		cfg.SearchIndexName,
+		cfg.Force,
+	)
 }
