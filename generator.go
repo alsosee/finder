@@ -47,53 +47,10 @@ type Generator struct {
 	// which is used to store command line flags.
 	config structs.Config
 
-	contents structs.Contents
-
-	// dirContents is a map where
-	// key is a directory path,
-	// value is a list of files and directories;
-	// used to build Panels
-	dirContents map[string][]structs.File
-
-	// Connections keep track of references from one file to another.
-	// key is a file path, where reference is pointing to.
-	// value is a list of files that are pointing to the key.
-	connections structs.Connections
-
-	mediaDirContents map[string][]structs.Media
-
-	// awardsMissingContent used to temporary hold awards
-	// that are for content that is not yet added.
-	awardsMissingContent map[string][]structs.Award
-
-	// chainPages used to keep track of next/prev pages in a series.
-	chainPages map[string]map[bool]string // from -> true(next)/false(prev) -> reference
-
 	renderedPanelsCache map[string]string
+	graph               *BuildGraph
 
-	// hashes is map of CRC32 hashes for each file.
-	// key is a file path, value is a hash.
-	// Used by indexer to check if file was changed.
-	hashes map[string]string
-
-	awardPages []string
-
-	missingContent map[string]*structs.Content // map of the virtual paths to generated Content structs, used by Indexer
-	graph          *BuildGraph
-	schema         *SchemaMetadata
-	parser         *Parser
-	diagnostics    []Diagnostic
-
-	muContents             sync.Mutex // protects writes to contents
-	muDir                  sync.Mutex // protects writes to dirContents
-	muConnections          sync.Mutex // protects writes to connections
-	muMedia                sync.Mutex // protects writes to mediaDirContents
-	muAwardPages           sync.Mutex // protects writes to awardPages
-	muAwardsMissingContent sync.Mutex // protects writes to awardsMissingContent
-	muChainPages           sync.Mutex // protects writes to chainPages
-	muRenderedPanels       sync.Mutex // protects writes to renderedPanelsCache
-	muHashes               sync.Mutex // protects writes to hashes
-	muDiagnostics          sync.Mutex // protects writes to diagnostics
+	muRenderedPanels sync.Mutex // protects writes to renderedPanelsCache
 }
 
 // NewGenerator creates a new Generator.
@@ -106,18 +63,9 @@ func NewGenerator(ignore *gitignore.GitIgnore) (*Generator, error) {
 	overrideConfig(&config)
 
 	return &Generator{
-		config:               config,
-		ignore:               ignore,
-		contents:             structs.Contents{},
-		dirContents:          map[string][]structs.File{},
-		connections:          structs.Connections{},
-		mediaDirContents:     map[string][]structs.Media{},
-		chainPages:           map[string]map[bool]string{},
-		awardsMissingContent: map[string][]structs.Award{},
-		renderedPanelsCache:  map[string]string{},
-		hashes:               map[string]string{},
-		missingContent:       map[string]*structs.Content{},
-		diagnostics:          []Diagnostic{},
+		config:              config,
+		ignore:              ignore,
+		renderedPanelsCache: map[string]string{},
 	}, nil
 }
 
@@ -198,30 +146,30 @@ func (g *Generator) fm() template.FuncMap {
 		// "content" returns a Content struct for a given file path (without extension)
 		// It is used to render references.
 		"content": func(path, caller string) *structs.Content {
-			g.muContents.Lock()
-			defer g.muContents.Unlock()
-
-			if c, ok := g.contents[path]; ok {
+			if g.graph == nil {
+				return nil
+			}
+			if c, ok := g.graph.Contents[path]; ok {
 				return &c
 			}
 			return nil
 		},
 		// "connections" returns a list of connections for a given file path (no extension).
 		"connections": func(path string) map[string][]structs.Connection {
-			g.muConnections.Lock()
-			defer g.muConnections.Unlock()
-
-			if m, ok := g.connections[path]; ok {
+			if g.graph == nil {
+				return nil
+			}
+			if m, ok := g.graph.Connections[path]; ok {
 				return m
 			}
 
 			return nil
 		},
 		"prev": func(id string) string {
-			g.muChainPages.Lock()
-			defer g.muChainPages.Unlock()
-
-			if m, ok := g.chainPages[id]; ok {
+			if g.graph == nil {
+				return ""
+			}
+			if m, ok := g.graph.ChainPages[id]; ok {
 				if prev, ok := m[false]; ok {
 					return prev
 				}
@@ -229,10 +177,10 @@ func (g *Generator) fm() template.FuncMap {
 			return ""
 		},
 		"next": func(id string) string {
-			g.muChainPages.Lock()
-			defer g.muChainPages.Unlock()
-
-			if m, ok := g.chainPages[id]; ok {
+			if g.graph == nil {
+				return ""
+			}
+			if m, ok := g.graph.ChainPages[id]; ok {
 				if next, ok := m[true]; ok {
 					return next
 				}
@@ -487,11 +435,17 @@ func (g *Generator) fm() template.FuncMap {
 		},
 		"htmlEscape": html.EscapeString,
 		"value":      newFileValue,
-		"missing":    g.missing,
+		"missing": func() []structs.Missing {
+			if g.graph == nil {
+				return nil
+			}
+			return g.graph.Missing
+		},
 		"missingAwardsLen": func(id string) int {
-			g.muAwardsMissingContent.Lock()
-			defer g.muAwardsMissingContent.Unlock()
-			return len(g.awardsMissingContent[id])
+			if g.graph == nil {
+				return 0
+			}
+			return len(g.graph.AwardsMissingContent[id])
 		},
 		"image":       g.getImageForPath,
 		"formatTitle": g.formatTitle,
@@ -531,11 +485,12 @@ func (g *Generator) Run() error {
 		return fmt.Errorf("parsing templates: %w", err)
 	}
 	g.templates = t
-	g.schema, err = LoadSchemaMetadata(cfg.InfoDirectory)
+
+	schema, err := LoadSchemaMetadata(cfg.InfoDirectory)
 	if err != nil {
 		return fmt.Errorf("loading schema metadata: %w", err)
 	}
-	g.parser = NewParser(g.schema)
+	parser := NewParser(schema)
 
 	defer measureTime()()
 
@@ -543,61 +498,28 @@ func (g *Generator) Run() error {
 	if err != nil {
 		return fmt.Errorf("scanning inputs: %w", err)
 	}
-	for _, dir := range scan.InfoDirs {
-		g.addDir(dir)
-	}
-	for dir, media := range scan.Media {
-		thumbsPath := filepath.Join(dir, ".thumbs.yml")
-		g.addMedia(thumbsPath, media)
-	}
 
-	// Go through all the files in the info directory
-	var (
-		files      = make(chan string)
-		errorsChan = make(chan error)
-		done       = make(chan struct{}, 1)
-	)
-	defer close(errorsChan)
+	outputs := selectedOutputs()
+	graph, err := NewGraphBuilder(g.config, scan, parser, cfg.InfoDirectory, outputs["opengraph"]).Build()
+	if err != nil {
+		return fmt.Errorf("building graph: %w", err)
+	}
+	g.graph = graph
 
 	g.copyStaticFiles()
 	g.copyFunctionsFiles()
-
-	go func() {
-		defer close(files)
-		for _, file := range scan.InfoFiles {
-			files <- file.Path
-		}
-	}()
-	go g.processFiles(files, errorsChan, done)
-
-FILE_PROCESSING:
-	for {
-		select {
-		case err := <-errorsChan:
-			close(done)
-			return fmt.Errorf("walking info directory: %w", err)
-
-		case <-done:
-			log.Printf("Done processing files")
-			close(done)
-			break FILE_PROCESSING
+	for _, file := range graph.PassthroughFiles {
+		if err := g.copyFileAsIs(file); err != nil {
+			return fmt.Errorf("copying passthrough file %q: %w", file, err)
 		}
 	}
-
-	g.addAwards()
-
-	// Generate missing files
-	m := g.missing()
-	g.addMissingFilesToPanels(m)
 
 	// Render Go templates
 	if err := g.generateGoTemplates(); err != nil {
 		return fmt.Errorf("generating go templates: %w", err)
 	}
 
-	g.processPanels()
-
-	if err := g.generateMissing(m); err != nil {
+	if err := g.generateMissing(); err != nil {
 		return fmt.Errorf("rendering missing: %w", err)
 	}
 
@@ -615,8 +537,6 @@ FILE_PROCESSING:
 	if err := g.generate404(); err != nil {
 		return fmt.Errorf("generating 404 page: %w", err)
 	}
-
-	g.graph = NewBuildGraph(g)
 
 	return nil
 }
@@ -712,125 +632,6 @@ func (g *Generator) copyFunctionsFiles() {
 	}
 }
 
-func (g *Generator) processFiles(files <-chan string, errorsChan chan<- error, done chan<- struct{}) {
-	wg := sync.WaitGroup{}
-
-	for i := 0; i < cfg.NumWorkers; i++ {
-		for path := range files {
-			wg.Add(1)
-			go func(path string) {
-				defer wg.Done()
-
-				if err := g.processFile(path); err != nil {
-					errorsChan <- fmt.Errorf("processing file %q: %w", path, err)
-				}
-			}(path)
-		}
-	}
-
-	wg.Wait()
-
-	done <- struct{}{}
-}
-
-// processFile processes a single file.
-// For content files, like YAML and Markdown, it adds Content struct to g.contents.
-func (g *Generator) processFile(file string) error {
-	if filepath.Base(file) == ".thumbs.yml" {
-		return nil
-	}
-
-	switch filepath.Ext(file) {
-	case ".yml", ".yaml":
-		g.addFile(file)
-		return g.processYAMLFile(file)
-	case ".gomd":
-		g.addFile(file)
-		return g.processGoMarkdownFile(file)
-	case ".md":
-		g.addFile(file)
-		return g.processMarkdownFile(file)
-	case ".jpeg", ".jpg", ".png":
-		g.addFile(file)
-		return g.processImageFile(file)
-	case ".mp4":
-		g.addFile(file)
-		return g.processVideoFile(file)
-	default:
-		if file == "_redirects" {
-			return g.copyFileAsIs(file)
-		}
-		return fmt.Errorf("unknown file type: %q", file)
-	}
-}
-
-func (g *Generator) processYAMLFile(file string) error {
-	b, err := os.ReadFile(filepath.Join(cfg.InfoDirectory, file))
-	if err != nil {
-		return fmt.Errorf("reading file: %w", err)
-	}
-
-	g.addHash(file, b)
-
-	content, diagnostics, err := g.parser.ParseContentYAML(file, b)
-	if err != nil {
-		return err
-	}
-	for _, diagnostic := range diagnostics {
-		diagnostic.Log()
-		g.muDiagnostics.Lock()
-		g.diagnostics = append(g.diagnostics, diagnostic)
-		g.muDiagnostics.Unlock()
-	}
-
-	content.Source = file
-	content.GenerateID()
-	content.AddMedia(g.getImageForPath)
-
-	g.addContent(content)
-	g.addConnections(content)
-
-	return nil
-}
-
-func (g *Generator) processMarkdownFile(file string) error {
-	b, err := os.ReadFile(filepath.Join(cfg.InfoDirectory, file))
-	if err != nil {
-		return fmt.Errorf("reading file: %w", err)
-	}
-
-	htmlBody := markdown.ToHTML(b, nil, nil)
-
-	// replace [ ] and [x] with checkboxes and break lines with <br> at the end of the line with checkbox
-	// except for the first line
-	htmlBody = bytes.ReplaceAll(htmlBody, []byte("[ ] "), []byte(`<br><input type="checkbox" disabled> `))
-	htmlBody = bytes.ReplaceAll(htmlBody, []byte("[x] "), []byte(`<br><input type="checkbox" disabled checked> `))
-	htmlBody = bytes.ReplaceAll(htmlBody, []byte("<p><br>"), []byte("<p>"))
-
-	g.addContent(structs.Content{
-		Source: file,
-		HTML:   string(htmlBody),
-	})
-	return nil
-}
-
-func (g *Generator) processGoMarkdownFile(file string) error {
-	b, err := os.ReadFile(filepath.Join(cfg.InfoDirectory, file))
-	if err != nil {
-		return fmt.Errorf("reading file: %w", err)
-	}
-
-	g.addContent(structs.Content{
-		Source: file,
-		HTML:   string(b),
-	})
-
-	// conversion to HTML is done in generateGoTemplates()
-	// after all the files are processed
-
-	return nil
-}
-
 func (g *Generator) processGoJSFile(src, out string) error {
 	// treat file as a Go template
 	b, err := os.ReadFile(src)
@@ -856,158 +657,11 @@ func (g *Generator) processGoJSFile(src, out string) error {
 	return nil
 }
 
-func (g *Generator) processImageFile(_ string) error {
-	return nil
-}
-
-func (g *Generator) processVideoFile(_ string) error {
-	return nil
-}
-
 func (g *Generator) copyFileAsIs(file string) error {
 	return copyFile(
 		filepath.Join(cfg.InfoDirectory, file),
 		filepath.Join(cfg.OutputDirectory, file),
 	)
-}
-
-func (g *Generator) addContent(content structs.Content) {
-	content.GenerateID()
-
-	g.muContents.Lock()
-	g.contents[content.SourceNoExtention] = content
-	g.muContents.Unlock()
-}
-
-// addConnections adds a "connection" for a given content file.
-func (g *Generator) addConnections(content structs.Content) {
-	content.GenerateID()
-	from := content.SourceNoExtention
-
-	connections := content.Connections()
-	for _, conn := range connections {
-		switch conn.Meta {
-		case structs.ConnectionPrevious:
-			g.addPrevious(from, conn.To)
-		case structs.ConnectionSeries:
-			g.addConnection(from, series(content), conn)
-		case structs.ConnectionNone:
-			g.addConnection(from, conn.To, conn)
-		default:
-			g.addConnection(from, conn.To, conn)
-		}
-	}
-
-	// Prepare for adding Awards
-	if len(content.Categories) > 0 {
-		g.addAwardPage(from)
-	}
-}
-
-func (g *Generator) addConnection(from, to string, connection structs.Connection) {
-	g.muConnections.Lock()
-	defer g.muConnections.Unlock()
-
-	if _, ok := g.connections[to]; !ok {
-		g.connections[to] = map[string][]structs.Connection{}
-	}
-
-	if _, ok := g.connections[to][from]; !ok {
-		g.connections[to][from] = []structs.Connection{}
-	}
-
-	g.connections[to][from] = append(g.connections[to][from], connection)
-}
-
-func (g *Generator) addPrevious(from, to string) {
-	g.muChainPages.Lock()
-	defer g.muChainPages.Unlock()
-
-	if _, ok := g.chainPages[from]; !ok {
-		g.chainPages[from] = map[bool]string{}
-	}
-
-	if _, ok := g.chainPages[to]; !ok {
-		g.chainPages[to] = map[bool]string{}
-	}
-
-	g.chainPages[from][false] = to
-	g.chainPages[to][true] = from
-}
-
-func (g *Generator) addAwardPage(id string) {
-	g.muAwardPages.Lock()
-	defer g.muAwardPages.Unlock()
-
-	// track all pages that have awards
-	// will be used to add Awards to content after all files are processed
-	g.awardPages = append(g.awardPages, id)
-}
-
-func (g *Generator) addMedia(path string, media []structs.Media) {
-	dir := filepath.Dir(path)
-	if dir == "." {
-		dir = ""
-	}
-
-	g.muMedia.Lock()
-	g.mediaDirContents[dir] = media
-	g.muMedia.Unlock()
-}
-
-func (g *Generator) addDirContents(path string, file structs.File) {
-	dir := filepath.Dir(path)
-	if dir == "." {
-		dir = ""
-	}
-
-	g.muDir.Lock()
-	g.dirContents[dir] = append(g.dirContents[dir], file)
-	g.muDir.Unlock()
-}
-
-func (g *Generator) addFile(path string) {
-	g.addDirContents(path, structs.File{
-		Name:  removeFileExtention(filepath.Base(path)),
-		Image: g.getImageForPath(removeFileExtention(path)),
-	})
-}
-
-func (g *Generator) addHash(path string, b []byte) {
-	g.muHashes.Lock()
-	defer g.muHashes.Unlock()
-
-	g.hashes[path] = fmt.Sprintf("%x", crc32.ChecksumIEEE(b))
-}
-
-func (g *Generator) addMissingContentHash(content *structs.Content) {
-	g.muHashes.Lock()
-	defer g.muHashes.Unlock()
-
-	contentHash := g.generateMissingContentHash(content)
-	g.hashes[content.Source] = contentHash
-	g.missingContent[content.Source] = content
-}
-
-func (g *Generator) addDir(path string) {
-	name := filepath.Base(path)
-	if name == "." {
-		return
-	}
-
-	g.addDirContents(path, structs.File{
-		Name:     name,
-		IsFolder: true,
-	})
-}
-
-func (g *Generator) getFilesForPath(path string) []structs.File {
-	files, ok := g.dirContents[path]
-	if !ok {
-		return nil
-	}
-
-	return files
 }
 
 // renderPanel renders a panel and caches the result
@@ -1086,9 +740,9 @@ func markInPathLinks(s string, panel structs.Panel, path string, isLast bool) st
 }
 
 func (g *Generator) generateContentTemplates() error {
-	for id, content := range g.contents {
+	for id, content := range g.graph.Contents {
 		path := filepath.Join(cfg.OutputDirectory, id+".html")
-		panels, breadcrumbs := g.buildPanels(id, true)
+		panels, breadcrumbs := g.graph.Panels(id, true)
 		cnt := content
 
 		err := g.executeTemplate(path, structs.PageData{
@@ -1098,7 +752,7 @@ func (g *Generator) generateContentTemplates() error {
 			Panels:         panels,
 			Content:        &cnt,
 			Timestamp:      time.Now().Unix(),
-			OpenGraphImage: g.openGraphImage(id),
+			OpenGraphImage: g.graph.OpenGraphImage(id),
 		}, "index.gohtml")
 		if err != nil {
 			return fmt.Errorf("%w for %q: %w", errExecutingTemplate, id, err)
@@ -1109,7 +763,7 @@ func (g *Generator) generateContentTemplates() error {
 }
 
 func (g *Generator) generateGoTemplates() error {
-	for path, content := range g.contents {
+	for path, content := range g.graph.Contents {
 		if filepath.Ext(content.Source) != ".gomd" {
 			continue
 		}
@@ -1128,32 +782,17 @@ func (g *Generator) generateGoTemplates() error {
 		htmlBody := markdown.ToHTML(buf.Bytes(), nil, nil)
 		content.HTML = string(htmlBody)
 
-		g.contents[path] = content
+		g.graph.Contents[path] = content
 	}
 
 	return nil
 }
 
 func (g *Generator) getImageForPath(path string) *structs.Media {
-	dir := filepath.Dir(path)
-	if dir == "." {
-		dir = ""
-	}
-
-	base := structs.EscapeFileName(filepath.Base(path))
-
-	dirContent, ok := g.mediaDirContents[dir]
-	if !ok {
+	if g.graph == nil {
 		return nil
 	}
-
-	for _, media := range dirContent {
-		if removeFileExtention(media.Path) == base {
-			return &media
-		}
-	}
-
-	return nil
+	return g.graph.Media.ImageForPath(path)
 }
 
 func (g *Generator) formatTitle(b structs.Breadcrumbs) string {
@@ -1173,9 +812,9 @@ func (g *Generator) formatTitle(b structs.Breadcrumbs) string {
 }
 
 func (g *Generator) generateIndexes() error {
-	for dir := range g.dirContents {
+	for dir := range g.graph.DirContents {
 		path := filepath.Join(cfg.OutputDirectory, dir, "index.html")
-		panels, breadcrumbs := g.buildPanels(dir, false)
+		panels, breadcrumbs := g.graph.Panels(dir, false)
 
 		err := g.executeTemplate(path, structs.PageData{
 			CurrentPath: dir,
@@ -1193,47 +832,7 @@ func (g *Generator) generateIndexes() error {
 	return nil
 }
 
-func (g *Generator) addMissingFilesToPanels(missing []structs.Missing) {
-	// add files to all panels
-	for _, m := range missing {
-		if len(m.From)+len(m.Awards) < 2 {
-			continue
-		}
-
-		id := m.To
-
-		file := structs.File{
-			Name:      filepath.Base(id),
-			Title:     filepath.Base(id),
-			Image:     g.getImageForPath(id),
-			IsMissing: true,
-		}
-
-		g.addDirContents(id, file)
-
-		// check if parent directory exists, usually a year
-		dir := filepath.Dir(id)
-		parentDir := filepath.Dir(dir)
-		name := filepath.Base(dir)
-		if parentDirContents, ok := g.dirContents[parentDir]; ok {
-			found := false
-			for _, f := range parentDirContents {
-				if f.Name == name {
-					found = true
-				}
-			}
-			if !found {
-				g.addDirContents(dir, structs.File{
-					Name:      name,
-					IsFolder:  true,
-					IsMissing: true,
-				})
-			}
-		}
-	}
-}
-
-func (g *Generator) generateMissing(missing []structs.Missing) error {
+func (g *Generator) generateMissing() error {
 	// create channel with PageData to render
 	pagesDataChan := make(chan structs.PageData)
 
@@ -1253,27 +852,18 @@ func (g *Generator) generateMissing(missing []structs.Missing) error {
 	}
 
 	// render all missing files
-	for _, m := range missing {
-		if len(m.From)+len(m.Awards) < 2 {
-			continue
-		}
-
-		id := m.To
-		panels, breadcrumbs := g.buildPanels(id, true)
-		content := g.generateContentForMissing(m)
-
-		// Add hash for missing content to enable indexing
-		g.addMissingContentHash(content)
-
+	for _, missingPage := range g.graph.MissingPages {
+		id := missingPage.ID
+		panels, breadcrumbs := g.graph.Panels(id, true)
 		pagesDataChan <- structs.PageData{
 			OutputPath:     filepath.Join(cfg.OutputDirectory, id+".html"),
 			CurrentPath:    id,
 			Dir:            filepath.Dir(id),
 			Breadcrumbs:    breadcrumbs,
 			Panels:         panels,
-			Content:        content,
+			Content:        missingPage.Content,
 			Timestamp:      time.Now().Unix(),
-			OpenGraphImage: g.openGraphImage(id),
+			OpenGraphImage: g.graph.OpenGraphImage(id),
 		}
 	}
 
@@ -1281,57 +871,6 @@ func (g *Generator) generateMissing(missing []structs.Missing) error {
 
 	wg.Wait()
 	return nil
-}
-
-func (g *Generator) generateContentForMissing(m structs.Missing) *structs.Content {
-	content := &structs.Content{
-		IsMissing: true,
-		Source:    m.To + ".yml",
-		Image:     g.getImageForPath(m.To),
-		Awards:    m.Awards,
-	}
-
-	content.GenerateID()
-	content.SetName(filepath.Base(m.To))
-
-	return content
-}
-
-func (g *Generator) openGraphImage(id string) string {
-	if !selectedOutputs()["opengraph"] {
-		return ""
-	}
-	return openGraphURL(g.config.OpenGraphHost, id)
-}
-
-func (g *Generator) generateMissingContentHash(content *structs.Content) string {
-	parts := []string{content.Source}
-
-	// Add name
-	name := content.GetName()
-	if name != "" {
-		parts = append(parts, name)
-	}
-
-	// Add all Media fields if Image exists
-	if content.Image != nil {
-		parts = append(parts,
-			content.Image.Path,
-			content.Image.ThumbPath,
-			fmt.Sprintf("%d", content.Image.Width),
-			fmt.Sprintf("%d", content.Image.Height),
-			fmt.Sprintf("%d", content.Image.ThumbXOffset),
-			fmt.Sprintf("%d", content.Image.ThumbYOffset),
-			fmt.Sprintf("%d", content.Image.ThumbWidth),
-			fmt.Sprintf("%d", content.Image.ThumbHeight),
-			fmt.Sprintf("%d", content.Image.ThumbTotalWidth),
-			fmt.Sprintf("%d", content.Image.ThumbTotalHeight),
-		)
-	}
-
-	hashData := strings.Join(parts, "|")
-	hash := crc32.ChecksumIEEE([]byte(hashData))
-	return fmt.Sprintf("%x", hash)
 }
 
 func (g *Generator) generate404() error {
@@ -1347,90 +886,6 @@ func (g *Generator) generate404() error {
 		Panels:    nil, // no panels on 404 page
 		Timestamp: time.Now().Unix(),
 	}, "404.gohtml")
-}
-
-func (g *Generator) processPanels() {
-	g.muDir.Lock()
-	defer g.muDir.Unlock()
-
-	for path, files := range g.dirContents {
-		sort.Sort(structs.ByYearDesk(files))
-
-		// update Title if content has it
-		for i, file := range files {
-			if content := g.contents[filepath.Join(path, file.Name)]; content.GetName() != "" {
-				files[i].Title = content.GetName()
-
-				for key, value := range content.Columns() {
-					files[i].Columns.Add(key, value)
-				}
-			} else {
-				files[i].Title = file.Name
-			}
-		}
-
-		g.dirContents[path] = files
-	}
-}
-
-func (g *Generator) missing() []structs.Missing {
-	missing := map[string]map[string][]structs.Connection{}
-
-	// add missing content referenced by other files
-
-	g.muConnections.Lock()
-	g.muContents.Lock()
-
-	for to, from := range g.connections {
-		if _, ok := g.contents[to]; !ok && len(from) > 1 {
-			missing[to] = from
-		}
-	}
-	g.muContents.Unlock()
-	g.muConnections.Unlock()
-
-	result := []structs.Missing{}
-	for to, from := range missing {
-		result = append(
-			result,
-			structs.Missing{
-				To:     to,
-				From:   from,
-				Awards: g.awardsMissingContent[to],
-			},
-		)
-	}
-
-	// add missing content that got awards
-
-	g.muAwardPages.Lock()
-	for to, awards := range g.awardsMissingContent {
-		if _, ok := g.contents[to]; !ok && len(awards) > 1 {
-			result = append(
-				result,
-				structs.Missing{
-					To:     to,
-					From:   nil,
-					Awards: awards,
-				},
-			)
-		}
-	}
-	g.muAwardPages.Unlock()
-
-	// Sort by number of references (descending),
-	// so that the most referenced files are on top.
-	// If the number of references is the same, sort by name.
-	sort.Slice(result, func(i, j int) bool {
-		ilen := len(result[i].From) + len(result[i].Awards)
-		jlen := len(result[j].From) + len(result[j].Awards)
-		if ilen == jlen {
-			return result[i].To < result[j].To
-		}
-		return ilen > jlen
-	})
-
-	return result
 }
 
 func (g *Generator) executeTemplate(path string, pageData structs.PageData, templateName string) error {
@@ -1456,144 +911,6 @@ func (g *Generator) executeTemplate(path string, pageData structs.PageData, temp
 	}
 
 	return nil
-}
-
-func (g *Generator) addAwards() {
-	for _, awardPage := range g.awardPages {
-		content := g.contents[awardPage]
-
-		year := awardYear(content)
-		p := prefix(content, year)
-
-		for i, category := range content.Categories {
-			switch {
-			case category.Winner.Reference != "":
-				// reference is already set
-			case category.Winner.Movie != "":
-				category.Winner.Reference = p + "/" + category.Winner.Movie
-				category.Winner.Fallback = category.Winner.Movie
-			case category.Winner.Game != "":
-				category.Winner.Reference = p + "/" + category.Winner.Game
-				category.Winner.Fallback = category.Winner.Game
-			case category.Winner.Series != "":
-				category.Winner.Reference = "Series/" + year + "/" + category.Winner.Series
-				category.Winner.Fallback = category.Winner.Series
-			case category.Winner.Person != "":
-				category.Winner.Reference = filepath.Join("People", category.Winner.Person)
-				category.Winner.Fallback = category.Winner.Person
-			}
-			category.Winner.Reference = g.canonicalContentPath(category.Winner.Reference)
-			content.Categories[i] = category
-
-			path := category.Winner.Reference
-			if path == "" {
-				log.Printf("Unknown winner reference in %q for %q", awardPage, category.Name)
-				continue
-			}
-
-			award := structs.Award{
-				Category:  category.Name,
-				Reference: awardPage,
-			}
-
-			var (
-				awadredContent structs.Content
-				ok             bool
-			)
-			if awadredContent, ok = g.contents[path]; !ok {
-				g.muAwardsMissingContent.Lock()
-				g.awardsMissingContent[path] = append(g.awardsMissingContent[path], award)
-				g.muAwardsMissingContent.Unlock()
-				continue
-			}
-
-			switch true {
-			case category.Winner.Actor != "":
-				// loop through all characters and find actor with the same name
-				var found bool
-				for _, character := range awadredContent.Characters {
-					if character.Actor == category.Winner.Actor {
-						character.Awards = append(character.Awards, &award)
-						found = true
-						break
-					}
-				}
-				if !found {
-					log.Printf("No character found for %q", category.Winner.Actor)
-				}
-			case len(category.Winner.Cinematography) > 0:
-				awadredContent.CinematographyAwards = append(awadredContent.CinematographyAwards, award)
-			case len(category.Winner.Music) > 0:
-				awadredContent.MusicAwards = append(awadredContent.MusicAwards, award)
-			case len(category.Winner.Editors) > 0:
-				awadredContent.EditorsAwards = append(awadredContent.EditorsAwards, award)
-			case len(category.Winner.Writers) > 0:
-				awadredContent.WritersAwards = append(awadredContent.WritersAwards, award)
-			case len(category.Winner.Directors) > 0:
-				awadredContent.DirectorsAwards = append(awadredContent.DirectorsAwards, award)
-			case len(category.Winner.Screenplay) > 0:
-				awadredContent.ScreenplayAwards = append(awadredContent.ScreenplayAwards, award)
-			default:
-				awadredContent.Awards = append(awadredContent.Awards, award)
-			}
-
-			g.contents[path] = awadredContent
-		}
-
-		g.contents[awardPage] = content
-	}
-}
-
-func (g *Generator) canonicalContentPath(path string) string {
-	if _, ok := g.contents[path]; ok {
-		return path
-	}
-
-	withoutColons := strings.ReplaceAll(path, ":", "")
-	if withoutColons != path {
-		if _, ok := g.contents[withoutColons]; ok {
-			return withoutColons
-		}
-	}
-
-	return path
-}
-
-func (g *Generator) buildPanels(path string, isFile bool) (structs.Panels, structs.Breadcrumbs) {
-	panels := structs.Panels{}
-	breadcrumbs := structs.Breadcrumbs{}
-
-	dirs := strings.Split(path, string(filepath.Separator))
-	if path != "" {
-		dirs = append([]string{""}, dirs...)
-	}
-
-	cumulativePath := ""
-	for _, dir := range dirs {
-		cumulativePath = filepath.Join(cumulativePath, dir)
-
-		if dir == "" {
-			dir = g.config.HomeLabel
-		}
-
-		breadcrumbs = append(breadcrumbs, structs.Dir{
-			Name: dir,
-			Path: cumulativePath,
-		})
-
-		// if it's a file, don't add last panel
-		// (it is the file itself, which will be rendered)
-		if isFile && cumulativePath == path {
-			break
-		}
-
-		panels = append(panels, structs.Panel{
-			Dir:   cumulativePath,
-			Files: g.getFilesForPath(cumulativePath),
-		})
-	}
-
-	return panels, breadcrumbs
 }
 
 var (

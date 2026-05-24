@@ -3,27 +3,19 @@ package main
 import (
 	"testing"
 
-	gitignore "github.com/sabhiram/go-gitignore"
-
 	"github.com/alsosee/finder/structs"
 )
 
 func TestGetFilesForPathSimple(t *testing.T) {
-	cfg = Config{TemplatesDirectory: "templates", ConfigFile: "config.test.yml"}
-	g, err := NewGenerator(&gitignore.GitIgnore{})
-	if err != nil {
-		t.Fatalf("error creating generator: %v", err)
-	}
-
 	tt := []struct {
-		operations func(g *Generator)
+		operations func(b *GraphBuilder)
 		path       string
 		expected   []structs.File
 	}{
 		{
-			operations: func(g *Generator) {
-				g.addFile("test1.yml")
-				g.addFile("test2.md")
+			operations: func(b *GraphBuilder) {
+				b.addFile("test1.yml")
+				b.addFile("test2.md")
 			},
 			path: "",
 			expected: []structs.File{
@@ -32,13 +24,13 @@ func TestGetFilesForPathSimple(t *testing.T) {
 			},
 		},
 		{
-			operations: func(g *Generator) {
-				g.addFile("test1")
-				g.addFile("test2")
-				g.addDir("dir1")
-				g.addDir("dir2")
-				g.addFile("dir1/test3")
-				g.addFile("dir2/test4")
+			operations: func(b *GraphBuilder) {
+				b.addFile("test1")
+				b.addFile("test2")
+				b.addDir("dir1")
+				b.addDir("dir2")
+				b.addFile("dir1/test3")
+				b.addFile("dir2/test4")
 			},
 			path: "dir1",
 			expected: []structs.File{
@@ -46,12 +38,12 @@ func TestGetFilesForPathSimple(t *testing.T) {
 			},
 		},
 		{
-			operations: func(g *Generator) {
-				g.addFile("dir1/test1")
-				g.addDir("dir1/dir2")
-				g.addFile("dir1/dir2/test2")
-				g.addDir("dir1/dir2/dir3")
-				g.addFile("dir1/dir2/dir3/test3")
+			operations: func(b *GraphBuilder) {
+				b.addFile("dir1/test1")
+				b.addDir("dir1/dir2")
+				b.addFile("dir1/dir2/test2")
+				b.addDir("dir1/dir2/dir3")
+				b.addFile("dir1/dir2/dir3/test3")
 			},
 			path: "dir1/dir2",
 			expected: []structs.File{
@@ -61,14 +53,13 @@ func TestGetFilesForPathSimple(t *testing.T) {
 		},
 	}
 	for _, tc := range tt {
-		g.contents = structs.Contents{}
-		g.dirContents = map[string][]structs.File{}
+		b := NewGraphBuilder(structs.Config{}, &ScanResult{}, nil, "", false)
 
-		tc.operations(g)
+		tc.operations(b)
 
-		g.processPanels()
+		b.processPanels()
 
-		got := g.getFilesForPath(tc.path)
+		got := b.dirContents[tc.path]
 		if len(got) != len(tc.expected) {
 			t.Fatalf("got %#v, expected %#v", got, tc.expected)
 		}
@@ -185,16 +176,13 @@ func TestGroupConnections(t *testing.T) {
 }
 
 func TestAddAwardsCanonicalizesColonReferences(t *testing.T) {
-	g := &Generator{
-		contents:             structs.Contents{},
-		awardsMissingContent: map[string][]structs.Award{},
-	}
+	b := NewGraphBuilder(structs.Config{}, &ScanResult{}, nil, "", false)
 
-	g.contents["Movies/2024/Dune Part Two"] = structs.Content{
+	b.contents["Movies/2024/Dune Part Two"] = structs.Content{
 		Source: "Movies/2024/Dune Part Two.yml",
 		Name:   "Dune: Part Two",
 	}
-	g.contents["Movies/Awards/Test/2024"] = structs.Content{
+	b.contents["Movies/Awards/Test/2024"] = structs.Content{
 		Source: "Movies/Awards/Test/2024.yml",
 		Categories: []structs.Category{
 			{
@@ -205,22 +193,22 @@ func TestAddAwardsCanonicalizesColonReferences(t *testing.T) {
 			},
 		},
 	}
-	g.awardPages = []string{"Movies/Awards/Test/2024"}
+	b.awardPages = []string{"Movies/Awards/Test/2024"}
 
-	g.addAwards()
+	b.addAwards()
 
-	awardPage := g.contents["Movies/Awards/Test/2024"]
+	awardPage := b.contents["Movies/Awards/Test/2024"]
 	gotReference := awardPage.Categories[0].Winner.Reference
 	if gotReference != "Movies/2024/Dune Part Two" {
 		t.Fatalf("got reference %q, expected %q", gotReference, "Movies/2024/Dune Part Two")
 	}
 
-	awarded := g.contents["Movies/2024/Dune Part Two"]
+	awarded := b.contents["Movies/2024/Dune Part Two"]
 	if len(awarded.Awards) != 1 {
 		t.Fatalf("got %d awards, expected 1", len(awarded.Awards))
 	}
 
-	if len(g.awardsMissingContent) != 0 {
-		t.Fatalf("got missing award content %#v, expected none", g.awardsMissingContent)
+	if len(b.awardsMissingContent) != 0 {
+		t.Fatalf("got missing award content %#v, expected none", b.awardsMissingContent)
 	}
 }
