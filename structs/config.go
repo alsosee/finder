@@ -9,6 +9,7 @@ type Config struct {
 	Repo            string `yaml:"repo"`
 	URL             string `yaml:"url"`
 	MediaHost       string `yaml:"media_host"`
+	OpenGraphHost   string `yaml:"opengraph_host"`
 	SearchHost      string `yaml:"search_host"`
 	SearchAPIKey    string `yaml:"search_api_key"`
 	SearchIndexName string `yaml:"search_index"`

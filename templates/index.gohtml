@@ -28,6 +28,18 @@
     {{- else }}
     <link rel="edit" href="{{ (config).Repo }}/tree/main/{{ .CurrentPath }}">
     {{- end }}
+    {{- if .OpenGraphImage }}
+    <meta property="og:image" content="{{ .OpenGraphImage }}">
+    <meta property="og:image:width" content="{{ (config).OpenGraph.Width }}">
+    <meta property="og:image:height" content="{{ (config).OpenGraph.Height }}">
+    <meta property="og:title" content="{{ formatTitle .Breadcrumbs }}">
+    <meta property="og:description" content="{{ fallback .Content.Description (config).Description }}">
+    <meta property="og:url" content="{{ (config).URL }}/{{ .CurrentPath }}">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ formatTitle .Breadcrumbs }}">
+    <meta name="twitter:image" content="{{ .OpenGraphImage }}">
+    {{- else }}
     {{- if eq (len .Breadcrumbs) 1 }}
     <meta property="og:image" content="{{ (config).OpenGraph.Image }}">
     <meta property="og:image:width" content="{{ (config).OpenGraph.Width }}">
@@ -39,6 +51,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ (config).Title }}">
     <meta name="twitter:image" content="{{ (config).OpenGraph.TwitterImage}}">
+    {{- end }}
     {{- end }}
 </head>
 <body data-view="columns">

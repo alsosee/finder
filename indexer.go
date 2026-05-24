@@ -29,6 +29,7 @@ type Indexer struct {
 
 	state          map[string]string
 	missingContent map[string]*structs.Content
+	graph          *BuildGraph
 
 	// toUpdateThumb is a map of paths that need to be updated additionally.
 	// Processing a single document can trigger processing of another
@@ -45,8 +46,7 @@ func NewIndexer(
 	ignore *gitignore.GitIgnore,
 	infoDir string,
 	mediaDir string,
-	state map[string]string,
-	missingContent map[string]*structs.Content,
+	graph *BuildGraph,
 ) (*Indexer, error) {
 	mediaAbsPath, err := filepath.Abs(mediaDir)
 	if err != nil {
@@ -56,11 +56,12 @@ func NewIndexer(
 	return &Indexer{
 		client:         client,
 		ignore:         ignore,
-		state:          state,
+		state:          graph.Hashes,
 		toUpdateThumb:  make(map[string]interface{}),
 		infoDir:        infoDir,
 		mediaAbsPath:   mediaAbsPath,
-		missingContent: missingContent,
+		missingContent: graph.MissingContent,
+		graph:          graph,
 	}, nil
 }
 
@@ -222,6 +223,17 @@ func (i *Indexer) addDocumentsToIndex(documents []*structs.Content, index string
 }
 
 func (i *Indexer) processFile(path string) (*structs.Content, error) {
+	if i.graph != nil {
+		if document, ok := i.graph.Document(path); ok {
+			for _, sharedPath := range i.graph.Media.PathsSharingThumb(path) {
+				if _, exists := i.graph.Hashes[sharedPath]; exists {
+					i.toUpdateThumb[sharedPath] = nil
+				}
+			}
+			return document, nil
+		}
+	}
+
 	// Handle virtual paths for missing content
 	if strings.HasPrefix(path, "missing/") {
 		return i.processMissingContent(path)

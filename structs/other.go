@@ -9,14 +9,15 @@ import (
 )
 
 type PageData struct {
-	Content     *Content
-	Connections Connections
-	OutputPath  string
-	CurrentPath string
-	Dir         string
-	Breadcrumbs []Dir
-	Panels      Panels
-	Timestamp   int64
+	Content        *Content
+	Connections    Connections
+	OutputPath     string
+	CurrentPath    string
+	Dir            string
+	Breadcrumbs    []Dir
+	Panels         Panels
+	Timestamp      int64
+	OpenGraphImage string
 }
 
 // Contents represents a list of contents, where key is a file path.

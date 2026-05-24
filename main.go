@@ -9,7 +9,6 @@ import (
 	"runtime/pprof"
 	"time"
 
-	"github.com/alsosee/finder/structs"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/meilisearch/meilisearch-go"
 	gitignore "github.com/sabhiram/go-gitignore"
@@ -25,13 +24,20 @@ type Config struct {
 	TemplatesDirectory string `env:"INPUT_TEMPLATES" short:"t" long:"templates" description:"Directory that contains templates" default:"templates"`
 	OutputDirectory    string `env:"INPUT_OUTPUT" short:"o" long:"output" description:"Directory to output static site" default:"output"`
 	MediaHost          string `env:"INPUT_MEDIA_HOST" short:"M" long:"media-host" description:"Host for media" default:""`
+	OpenGraphHost      string `env:"INPUT_OPENGRAPH_HOST" long:"opengraph-host" description:"Host for generated OpenGraph images" default:""`
+	OpenGraphR2Account string `env:"INPUT_OPENGRAPH_R2_ACCOUNT_ID" long:"opengraph-r2-account-id" description:"Cloudflare account ID for OpenGraph R2 uploads" default:""`
+	OpenGraphR2KeyID   string `env:"INPUT_OPENGRAPH_R2_ACCESS_KEY_ID" long:"opengraph-r2-access-key-id" description:"Cloudflare R2 access key ID for OpenGraph uploads" default:""`
+	OpenGraphR2Secret  string `env:"INPUT_OPENGRAPH_R2_ACCESS_KEY_SECRET" long:"opengraph-r2-access-key-secret" description:"Cloudflare R2 access key secret for OpenGraph uploads" default:""`
+	OpenGraphR2Bucket  string `env:"INPUT_OPENGRAPH_R2_BUCKET" long:"opengraph-r2-bucket" description:"Cloudflare R2 bucket for OpenGraph uploads" default:""`
 	SearchHost         string `env:"INPUT_SEARCH_HOST" short:"h" long:"search-host" description:"Host for search" default:""`
 	SearchAPIKey       string `env:"INPUT_SEARCH_API_KEY" short:"k" long:"search-api-key" description:"API key for search" default:""`
+	Outputs            string `env:"INPUT_OUTPUTS" long:"outputs" description:"comma-separated projectors to run: html,search,opengraph,json,markdown" default:""`
 	NumWorkers         int    `env:"INPUT_NUMWORKERS" short:"w" long:"workers" description:"Number of workers to use" default:"4"`
 
 	SearchMasterKey string        `env:"INPUT_SEARCH_MASTER_KEY" long:"master-key" description:"search master key"`
 	SearchIndexName string        `env:"INPUT_SEARCH_INDEX" long:"index" description:"search index name" default:"info"`
 	StateFile       string        `env:"INPUT_SEARCH_STATE" long:"state-file" description:"path to state file" default:".state"`
+	OpenGraphState  string        `env:"INPUT_OPENGRAPH_STATE" long:"opengraph-state" description:"path to OpenGraph image state file" default:".opengraph-state"`
 	Force           string        `env:"INPUT_FORCE" long:"force" description:"force reindexing specified path (\"all\" will reindex everything)" default:""`
 	Timeout         time.Duration `env:"INPUT_TIMEOUT" long:"timeout" description:"search timeout" default:"5s"`
 
@@ -70,10 +76,42 @@ func run() error {
 		return fmt.Errorf("running generator: %v", err)
 	}
 
-	if cfg.SearchMasterKey != "" {
-		if err := indexSite(ignore, generator.hashes, generator.missingContent); err != nil {
+	outputs := selectedOutputs()
+	if outputs["search"] && cfg.SearchMasterKey != "" {
+		if err := indexSite(ignore, generator.graph); err != nil {
 			return fmt.Errorf("indexing site: %v", err)
 		}
+	}
+	if outputs["opengraph"] {
+		ogUploader := OpenGraphUploader(NoopOpenGraphUploader{})
+		if cfg.OpenGraphR2Account != "" && cfg.OpenGraphR2KeyID != "" && cfg.OpenGraphR2Secret != "" && cfg.OpenGraphR2Bucket != "" {
+			ogUploader = R2OpenGraphUploader{
+				accountID:       cfg.OpenGraphR2Account,
+				accessKeyID:     cfg.OpenGraphR2KeyID,
+				accessKeySecret: cfg.OpenGraphR2Secret,
+				bucket:          cfg.OpenGraphR2Bucket,
+				client:          &http.Client{Timeout: cfg.Timeout},
+			}
+		}
+		if err := RunProjectors(generator.graph, OpenGraphProjector{
+			outputDir: cfg.OutputDirectory,
+			stateFile: cfg.OpenGraphState,
+			force:     cfg.Force,
+			host:      generator.graph.Config.OpenGraphHost,
+			uploader:  ogUploader,
+		}); err != nil {
+			return err
+		}
+	}
+	var projectors []Projector
+	if outputs["json"] {
+		projectors = append(projectors, JSONProjector{outputDir: cfg.OutputDirectory})
+	}
+	if outputs["markdown"] {
+		projectors = append(projectors, MarkdownProjector{outputDir: cfg.OutputDirectory})
+	}
+	if err := RunProjectors(generator.graph, projectors...); err != nil {
+		return err
 	}
 
 	return nil
@@ -81,10 +119,9 @@ func run() error {
 
 func indexSite(
 	ignore *gitignore.GitIgnore,
-	state map[string]string,
-	missingContent map[string]*structs.Content,
+	graph *BuildGraph,
 ) error {
-	log.Printf("Current state contains %d entries", len(state))
+	log.Printf("Current state contains %d entries", len(graph.Hashes))
 
 	client := meilisearch.New(
 		cfg.SearchHost,
@@ -99,8 +136,7 @@ func indexSite(
 		ignore,
 		cfg.InfoDirectory,
 		cfg.MediaDirectory,
-		state,
-		missingContent,
+		graph,
 	)
 	if err != nil {
 		return fmt.Errorf("creating indexer: %v", err)

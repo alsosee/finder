@@ -20,6 +20,24 @@ inputs:
   media_host:
     description: Host of media files
     required: false
+  opengraph_host:
+    description: Host of generated OpenGraph images
+    required: false
+  opengraph_r2_account_id:
+    description: Cloudflare account ID for generated OpenGraph image uploads
+    required: false
+  opengraph_r2_access_key_id:
+    description: Cloudflare R2 access key ID for generated OpenGraph image uploads
+    required: false
+  opengraph_r2_access_key_secret:
+    description: Cloudflare R2 access key secret for generated OpenGraph image uploads
+    required: false
+  opengraph_r2_bucket:
+    description: Cloudflare R2 bucket for generated OpenGraph image uploads
+    required: false
+  outputs:
+    description: Comma-separated projectors to run
+    required: false
   search_host:
     description: Host of MeiliSearch
     required: false
@@ -34,6 +52,12 @@ inputs:
     required: false
   search_state:
     description: File to store search state
+    required: false
+  opengraph_state:
+    description: File to store OpenGraph image state
+    required: false
+  force:
+    description: Force selected projectors for a path, comma-separated paths, JSON list, or all
     required: false
   num_workers:
     description: Number of workers to use

@@ -183,3 +183,44 @@ func TestGroupConnections(t *testing.T) {
 		}
 	}
 }
+
+func TestAddAwardsCanonicalizesColonReferences(t *testing.T) {
+	g := &Generator{
+		contents:             structs.Contents{},
+		awardsMissingContent: map[string][]structs.Award{},
+	}
+
+	g.contents["Movies/2024/Dune Part Two"] = structs.Content{
+		Source: "Movies/2024/Dune Part Two.yml",
+		Name:   "Dune: Part Two",
+	}
+	g.contents["Movies/Awards/Test/2024"] = structs.Content{
+		Source: "Movies/Awards/Test/2024.yml",
+		Categories: []structs.Category{
+			{
+				Name: "Best Picture",
+				Winner: structs.Winner{
+					Movie: "Dune: Part Two",
+				},
+			},
+		},
+	}
+	g.awardPages = []string{"Movies/Awards/Test/2024"}
+
+	g.addAwards()
+
+	awardPage := g.contents["Movies/Awards/Test/2024"]
+	gotReference := awardPage.Categories[0].Winner.Reference
+	if gotReference != "Movies/2024/Dune Part Two" {
+		t.Fatalf("got reference %q, expected %q", gotReference, "Movies/2024/Dune Part Two")
+	}
+
+	awarded := g.contents["Movies/2024/Dune Part Two"]
+	if len(awarded.Awards) != 1 {
+		t.Fatalf("got %d awards, expected 1", len(awarded.Awards))
+	}
+
+	if len(g.awardsMissingContent) != 0 {
+		t.Fatalf("got missing award content %#v, expected none", g.awardsMissingContent)
+	}
+}

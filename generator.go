@@ -79,6 +79,10 @@ type Generator struct {
 	awardPages []string
 
 	missingContent map[string]*structs.Content // map of the virtual paths to generated Content structs, used by Indexer
+	graph          *BuildGraph
+	schema         *SchemaMetadata
+	parser         *Parser
+	diagnostics    []Diagnostic
 
 	muContents             sync.Mutex // protects writes to contents
 	muDir                  sync.Mutex // protects writes to dirContents
@@ -89,6 +93,7 @@ type Generator struct {
 	muChainPages           sync.Mutex // protects writes to chainPages
 	muRenderedPanels       sync.Mutex // protects writes to renderedPanelsCache
 	muHashes               sync.Mutex // protects writes to hashes
+	muDiagnostics          sync.Mutex // protects writes to diagnostics
 }
 
 // NewGenerator creates a new Generator.
@@ -112,6 +117,7 @@ func NewGenerator(ignore *gitignore.GitIgnore) (*Generator, error) {
 		renderedPanelsCache:  map[string]string{},
 		hashes:               map[string]string{},
 		missingContent:       map[string]*structs.Content{},
+		diagnostics:          []Diagnostic{},
 	}, nil
 }
 
@@ -147,6 +153,9 @@ func parseConfig(configFile string) (structs.Config, error) {
 func overrideConfig(config *structs.Config) {
 	if cfg.MediaHost != "" {
 		config.MediaHost = cfg.MediaHost
+	}
+	if cfg.OpenGraphHost != "" {
+		config.OpenGraphHost = cfg.OpenGraphHost
 	}
 	if cfg.SearchHost != "" {
 		config.SearchHost = cfg.SearchHost
@@ -522,8 +531,25 @@ func (g *Generator) Run() error {
 		return fmt.Errorf("parsing templates: %w", err)
 	}
 	g.templates = t
+	g.schema, err = LoadSchemaMetadata(cfg.InfoDirectory)
+	if err != nil {
+		return fmt.Errorf("loading schema metadata: %w", err)
+	}
+	g.parser = NewParser(g.schema)
 
 	defer measureTime()()
+
+	scan, err := NewScanner(cfg.InfoDirectory, cfg.MediaDirectory, g.ignore).Scan()
+	if err != nil {
+		return fmt.Errorf("scanning inputs: %w", err)
+	}
+	for _, dir := range scan.InfoDirs {
+		g.addDir(dir)
+	}
+	for dir, media := range scan.Media {
+		thumbsPath := filepath.Join(dir, ".thumbs.yml")
+		g.addMedia(thumbsPath, media)
+	}
 
 	// Go through all the files in the info directory
 	var (
@@ -535,9 +561,13 @@ func (g *Generator) Run() error {
 
 	g.copyStaticFiles()
 	g.copyFunctionsFiles()
-	go g.walkInfoDirectory(files, errorsChan)
 
-	g.walkMediaDirectory()
+	go func() {
+		defer close(files)
+		for _, file := range scan.InfoFiles {
+			files <- file.Path
+		}
+	}()
 	go g.processFiles(files, errorsChan, done)
 
 FILE_PROCESSING:
@@ -585,6 +615,8 @@ FILE_PROCESSING:
 	if err := g.generate404(); err != nil {
 		return fmt.Errorf("generating 404 page: %w", err)
 	}
+
+	g.graph = NewBuildGraph(g)
 
 	return nil
 }
@@ -680,99 +712,6 @@ func (g *Generator) copyFunctionsFiles() {
 	}
 }
 
-func (g *Generator) walkInfoDirectory(files chan<- string, errorsChan chan<- error) {
-	defer close(files)
-
-	infoDir, err := filepath.Abs(cfg.InfoDirectory)
-	if err != nil {
-		errorsChan <- fmt.Errorf("getting absolute path for %q: %w", cfg.InfoDirectory, err)
-		return
-	}
-
-	log.Printf("Walking info directory %q", infoDir)
-
-	err = filepath.Walk(
-		infoDir,
-		func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-
-			relPath := strings.TrimPrefix(path, infoDir+string(filepath.Separator))
-
-			if g.ignore.MatchesPath(relPath) {
-				return nil
-			}
-
-			if info.IsDir() {
-				g.addDir(relPath)
-				return nil
-			}
-
-			files <- relPath
-			return nil
-		},
-	)
-
-	if err != nil {
-		errorsChan <- err
-	} else {
-		log.Printf("Done walking info directory %q", cfg.InfoDirectory)
-	}
-}
-
-// walkMediaDirectory scans the media directory for .thumbs.yml files,
-// parses them and adds to g.mediaDirContents.
-// mediaDirContents is a map where key is a directory path, and value is a list of media files in that directory.
-// Information from .thumbs.yml used later in template to build links to thumbnails.
-func (g *Generator) walkMediaDirectory() {
-	if cfg.MediaDirectory == "" {
-		log.Printf("No media files directory specified, skipping")
-		return
-	}
-
-	mediaDir, err := filepath.Abs(cfg.MediaDirectory)
-	if err != nil {
-		log.Fatalf("Error getting absolute path for %q: %v", cfg.MediaDirectory, err)
-	}
-
-	log.Printf("Walking media directory %q", mediaDir)
-
-	err = filepath.Walk(
-		mediaDir,
-		func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-
-			relPath := strings.TrimPrefix(path, mediaDir+string(filepath.Separator))
-
-			if info.IsDir() {
-				return nil
-			}
-
-			if info.Name() != ".thumbs.yml" {
-				return nil
-			}
-
-			media, err := structs.ParseMediaFile(path)
-			if err != nil {
-				return fmt.Errorf("parsing media file %q: %w", path, err)
-			}
-
-			g.addMedia(relPath, media)
-
-			return nil
-		},
-	)
-
-	if err != nil {
-		log.Fatalf("Error walking media directory %q: %v", cfg.MediaDirectory, err)
-	}
-
-	log.Printf("Done walking media directory %q", cfg.MediaDirectory)
-}
-
 func (g *Generator) processFiles(files <-chan string, errorsChan chan<- error, done chan<- struct{}) {
 	wg := sync.WaitGroup{}
 
@@ -797,6 +736,10 @@ func (g *Generator) processFiles(files <-chan string, errorsChan chan<- error, d
 // processFile processes a single file.
 // For content files, like YAML and Markdown, it adds Content struct to g.contents.
 func (g *Generator) processFile(file string) error {
+	if filepath.Base(file) == ".thumbs.yml" {
+		return nil
+	}
+
 	switch filepath.Ext(file) {
 	case ".yml", ".yaml":
 		g.addFile(file)
@@ -829,9 +772,15 @@ func (g *Generator) processYAMLFile(file string) error {
 
 	g.addHash(file, b)
 
-	var content structs.Content
-	if err = yaml.Unmarshal(b, &content); err != nil {
-		return fmt.Errorf("unmarshaling yaml: %w", err)
+	content, diagnostics, err := g.parser.ParseContentYAML(file, b)
+	if err != nil {
+		return err
+	}
+	for _, diagnostic := range diagnostics {
+		diagnostic.Log()
+		g.muDiagnostics.Lock()
+		g.diagnostics = append(g.diagnostics, diagnostic)
+		g.muDiagnostics.Unlock()
 	}
 
 	content.Source = file
@@ -1143,12 +1092,13 @@ func (g *Generator) generateContentTemplates() error {
 		cnt := content
 
 		err := g.executeTemplate(path, structs.PageData{
-			CurrentPath: id,
-			Dir:         filepath.Dir(id),
-			Breadcrumbs: breadcrumbs,
-			Panels:      panels,
-			Content:     &cnt,
-			Timestamp:   time.Now().Unix(),
+			CurrentPath:    id,
+			Dir:            filepath.Dir(id),
+			Breadcrumbs:    breadcrumbs,
+			Panels:         panels,
+			Content:        &cnt,
+			Timestamp:      time.Now().Unix(),
+			OpenGraphImage: g.openGraphImage(id),
 		}, "index.gohtml")
 		if err != nil {
 			return fmt.Errorf("%w for %q: %w", errExecutingTemplate, id, err)
@@ -1316,13 +1266,14 @@ func (g *Generator) generateMissing(missing []structs.Missing) error {
 		g.addMissingContentHash(content)
 
 		pagesDataChan <- structs.PageData{
-			OutputPath:  filepath.Join(cfg.OutputDirectory, id+".html"),
-			CurrentPath: id,
-			Dir:         filepath.Dir(id),
-			Breadcrumbs: breadcrumbs,
-			Panels:      panels,
-			Content:     content,
-			Timestamp:   time.Now().Unix(),
+			OutputPath:     filepath.Join(cfg.OutputDirectory, id+".html"),
+			CurrentPath:    id,
+			Dir:            filepath.Dir(id),
+			Breadcrumbs:    breadcrumbs,
+			Panels:         panels,
+			Content:        content,
+			Timestamp:      time.Now().Unix(),
+			OpenGraphImage: g.openGraphImage(id),
 		}
 	}
 
@@ -1344,6 +1295,13 @@ func (g *Generator) generateContentForMissing(m structs.Missing) *structs.Conten
 	content.SetName(filepath.Base(m.To))
 
 	return content
+}
+
+func (g *Generator) openGraphImage(id string) string {
+	if !selectedOutputs()["opengraph"] {
+		return ""
+	}
+	return openGraphURL(g.config.OpenGraphHost, id)
 }
 
 func (g *Generator) generateMissingContentHash(content *structs.Content) string {
@@ -1524,6 +1482,7 @@ func (g *Generator) addAwards() {
 				category.Winner.Reference = filepath.Join("People", category.Winner.Person)
 				category.Winner.Fallback = category.Winner.Person
 			}
+			category.Winner.Reference = g.canonicalContentPath(category.Winner.Reference)
 			content.Categories[i] = category
 
 			path := category.Winner.Reference
@@ -1583,6 +1542,21 @@ func (g *Generator) addAwards() {
 
 		g.contents[awardPage] = content
 	}
+}
+
+func (g *Generator) canonicalContentPath(path string) string {
+	if _, ok := g.contents[path]; ok {
+		return path
+	}
+
+	withoutColons := strings.ReplaceAll(path, ":", "")
+	if withoutColons != path {
+		if _, ok := g.contents[withoutColons]; ok {
+			return withoutColons
+		}
+	}
+
+	return path
 }
 
 func (g *Generator) buildPanels(path string, isFile bool) (structs.Panels, structs.Breadcrumbs) {
