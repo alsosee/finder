@@ -5,7 +5,6 @@ import (
 	"embed"
 	"errors"
 	"fmt"
-	"hash/crc32"
 	"html"
 	"io"
 	"io/fs"
@@ -22,7 +21,6 @@ import (
 	"time"
 
 	"github.com/gomarkdown/markdown"
-	gitignore "github.com/sabhiram/go-gitignore"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"gopkg.in/yaml.v3"
@@ -51,6 +49,8 @@ type HTMLProjector struct {
 	graph               *BuildGraph
 
 	muRenderedPanels sync.Mutex // protects writes to renderedPanelsCache
+	crc32cache       map[string]string
+	crc32mu          sync.Mutex
 }
 
 func NewHTMLProjector(config structs.Config, infoDir, staticDir, templatesDir, outputDir string) *HTMLProjector {
@@ -61,53 +61,7 @@ func NewHTMLProjector(config structs.Config, infoDir, staticDir, templatesDir, o
 		templatesDir:        templatesDir,
 		outputDir:           outputDir,
 		renderedPanelsCache: map[string]string{},
-	}
-}
-
-func processIgnoreFile(ignoreFile string) (*gitignore.GitIgnore, error) {
-	ignore := &gitignore.GitIgnore{}
-	ignoreFilepath := filepath.Join(cfg.InfoDirectory, ignoreFile)
-	if _, err := os.Stat(ignoreFilepath); err == nil {
-		ignore, err = gitignore.CompileIgnoreFile(ignoreFilepath)
-		if err != nil {
-			return nil, fmt.Errorf("compiling ignore file: %w", err)
-		}
-	} else {
-		log.Printf("Ignore file %q not found, ignoring", ignoreFilepath)
-	}
-
-	return ignore, nil
-}
-
-func parseConfig(configFile string) (structs.Config, error) {
-	b, err := os.ReadFile(filepath.Join(cfg.InfoDirectory, configFile))
-	if err != nil {
-		return structs.Config{}, fmt.Errorf("reading config file: %w", err)
-	}
-
-	var config structs.Config
-	if err = yaml.Unmarshal(b, &config); err != nil {
-		return structs.Config{}, fmt.Errorf("unmarshaling config: %w", err)
-	}
-
-	return config, nil
-}
-
-func overrideConfig(config *structs.Config) {
-	if cfg.MediaHost != "" {
-		config.MediaHost = cfg.MediaHost
-	}
-	if cfg.OpenGraphHost != "" {
-		config.OpenGraphHost = cfg.OpenGraphHost
-	}
-	if cfg.SearchHost != "" {
-		config.SearchHost = cfg.SearchHost
-	}
-	if cfg.SearchIndexName != "" {
-		config.SearchIndexName = cfg.SearchIndexName
-	}
-	if cfg.SearchAPIKey != "" {
-		config.SearchAPIKey = cfg.SearchAPIKey
+		crc32cache:          map[string]string{},
 	}
 }
 
@@ -182,7 +136,7 @@ func (g *HTMLProjector) fm() template.FuncMap {
 			}
 			return ""
 		},
-		"crc32": crc32sum,
+		"crc32": g.crc32sum,
 		"div": func(a, b int) int {
 			return a / b
 		},
@@ -572,8 +526,8 @@ func (g *HTMLProjector) copyFunctionsFiles() {
 		return
 	}
 
-	// unline static files, functions directory has to the directory where app is running
-	// so we can't use cfg.OutputDirectory
+	// unlike static files, functions directory has to be the directory where app is running
+	// so it is not written to the HTML output directory
 	if err := os.MkdirAll("functions", 0o755); err != nil {
 		log.Fatalf("Error creating functions directory: %v", err)
 	}
@@ -891,86 +845,6 @@ func (g *HTMLProjector) executeTemplate(path string, pageData structs.PageData, 
 	}
 
 	return nil
-}
-
-var (
-	crc32cache = map[string]string{}
-	crc32mu    = sync.Mutex{}
-)
-
-// crc32 calculates CRC32 checksum for a file.
-// It's used to add a get parameter to a static file URL,
-// so that when the file is updated, the browser will download the new version.
-func crc32sum(path string) string {
-	crc32mu.Lock()
-	defer crc32mu.Unlock()
-
-	if crc, ok := crc32cache[path]; ok {
-		return crc
-	}
-
-	// calculate CRC32 checksum for a file
-	file, err := os.Open(filepath.Join(cfg.OutputDirectory, path))
-	if err != nil {
-		log.Printf("Error opening file %q: %v", path, err)
-		return ""
-	}
-	defer file.Close()
-
-	hash := crc32.NewIEEE()
-	if _, err := io.Copy(hash, file); err != nil {
-		log.Printf("Error calculating CRC32 checksum for file %q: %v", path, err)
-		return ""
-	}
-
-	crc32cache[path] = fmt.Sprintf("%x", hash.Sum32())
-
-	return crc32cache[path]
-}
-
-func measureTime() func() {
-	start := time.Now()
-	return func() {
-		log.Printf("Elapsed: %v", time.Since(start))
-	}
-}
-
-func removeFileExtention(path string) string {
-	withoutExt := path[:len(path)-len(filepath.Ext(path))]
-	if withoutExt != "" {
-		return withoutExt
-	}
-	return path
-}
-
-func copyFile(src, dst string) error {
-	log.Printf("Copying file %q to %q", src, dst)
-	dir := filepath.Dir(dst)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return err
-	}
-
-	in, err := os.Open(src)
-	if err != nil {
-		return err
-	}
-	defer in.Close()
-
-	out, err := os.Create(dst)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	if _, err := io.Copy(out, in); err != nil {
-		return err
-	}
-
-	return out.Sync()
-}
-
-func pathType(path string) string {
-	return strings.Split(path, string(filepath.Separator))[0]
 }
 
 // series generates path to a series page

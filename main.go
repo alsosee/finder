@@ -59,16 +59,16 @@ func main() {
 }
 
 func run() error {
-	ignore, err := processIgnoreFile(cfg.IgnoreFile)
+	ignore, err := processIgnoreFile(cfg.InfoDirectory, cfg.IgnoreFile)
 	if err != nil {
 		return fmt.Errorf("processing ignore file: %w", err)
 	}
 
-	config, err := parseConfig(cfg.ConfigFile)
+	config, err := parseConfig(cfg.InfoDirectory, cfg.ConfigFile)
 	if err != nil {
 		return fmt.Errorf("parsing site config: %w", err)
 	}
-	overrideConfig(&config)
+	overrideConfig(&config, cfg)
 
 	schema, err := LoadSchemaMetadata(cfg.InfoDirectory)
 	if err != nil {
@@ -76,7 +76,7 @@ func run() error {
 	}
 	parser := NewParser(schema)
 
-	outputs := selectedOutputs()
+	outputs := selectedOutputs(cfg)
 	scan, err := NewScanner(cfg.InfoDirectory, cfg.MediaDirectory, ignore).Scan()
 	if err != nil {
 		return fmt.Errorf("scanning inputs: %w", err)
@@ -89,7 +89,7 @@ func run() error {
 		return fmt.Errorf("building graph: %w", err)
 	}
 
-	projectors := buildProjectors(config, outputs, graph.Config.OpenGraphHost)
+	projectors := buildProjectors(cfg, config, outputs, graph.Config.OpenGraphHost)
 	if err := RunProjectors(graph, projectors...); err != nil {
 		return err
 	}

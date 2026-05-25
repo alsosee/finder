@@ -8,8 +8,7 @@ import (
 )
 
 func TestBuildProjectorsKeepsExplicitOrder(t *testing.T) {
-	oldCfg := cfg
-	cfg = Config{
+	runtime := Config{
 		InfoDirectory:      "info",
 		StaticDirectory:    "static",
 		TemplatesDirectory: "templates",
@@ -19,11 +18,8 @@ func TestBuildProjectorsKeepsExplicitOrder(t *testing.T) {
 		StateFile:          ".state",
 		OpenGraphState:     ".opengraph-state",
 	}
-	defer func() {
-		cfg = oldCfg
-	}()
 
-	projectors := buildProjectors(structs.Config{}, map[string]bool{
+	projectors := buildProjectors(runtime, structs.Config{}, map[string]bool{
 		"html":      true,
 		"search":    true,
 		"opengraph": true,
@@ -43,18 +39,14 @@ func TestBuildProjectorsKeepsExplicitOrder(t *testing.T) {
 }
 
 func TestBuildProjectorsSkipsSearchWithoutMasterKey(t *testing.T) {
-	oldCfg := cfg
-	cfg = Config{
+	runtime := Config{
 		InfoDirectory:      "info",
 		StaticDirectory:    "static",
 		TemplatesDirectory: "templates",
 		OutputDirectory:    "output",
 	}
-	defer func() {
-		cfg = oldCfg
-	}()
 
-	projectors := buildProjectors(structs.Config{}, map[string]bool{
+	projectors := buildProjectors(runtime, structs.Config{}, map[string]bool{
 		"html":   true,
 		"search": true,
 	}, "")

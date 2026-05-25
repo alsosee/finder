@@ -15,72 +15,72 @@ import (
 	"github.com/meilisearch/meilisearch-go"
 )
 
-func buildProjectors(config structs.Config, outputs map[string]bool, openGraphHost string) []Projector {
+func buildProjectors(runtime Config, config structs.Config, outputs map[string]bool, openGraphHost string) []Projector {
 	var projectors []Projector
 
 	if outputs["html"] {
 		projectors = append(projectors, NewHTMLProjector(
 			config,
-			cfg.InfoDirectory,
-			cfg.StaticDirectory,
-			cfg.TemplatesDirectory,
-			cfg.OutputDirectory,
+			runtime.InfoDirectory,
+			runtime.StaticDirectory,
+			runtime.TemplatesDirectory,
+			runtime.OutputDirectory,
 		))
 	}
-	if outputs["search"] && cfg.SearchMasterKey != "" {
+	if outputs["search"] && runtime.SearchMasterKey != "" {
 		projectors = append(projectors, SearchProjector{
-			stateFile: cfg.StateFile,
-			indexName: cfg.SearchIndexName,
-			force:     cfg.Force,
-			host:      cfg.SearchHost,
-			masterKey: cfg.SearchMasterKey,
-			timeout:   cfg.Timeout,
+			stateFile: runtime.StateFile,
+			indexName: runtime.SearchIndexName,
+			force:     runtime.Force,
+			host:      runtime.SearchHost,
+			masterKey: runtime.SearchMasterKey,
+			timeout:   runtime.Timeout,
 		})
 	}
 	if outputs["opengraph"] {
 		projectors = append(projectors, OpenGraphProjector{
-			outputDir: cfg.OutputDirectory,
-			stateFile: cfg.OpenGraphState,
-			force:     cfg.Force,
+			outputDir: runtime.OutputDirectory,
+			stateFile: runtime.OpenGraphState,
+			force:     runtime.Force,
 			host:      openGraphHost,
-			uploader:  buildOpenGraphUploader(),
+			uploader:  buildOpenGraphUploader(runtime),
 		})
 	}
 	if outputs["json"] {
-		projectors = append(projectors, JSONProjector{outputDir: cfg.OutputDirectory})
+		projectors = append(projectors, JSONProjector{outputDir: runtime.OutputDirectory})
 	}
 	if outputs["markdown"] {
-		projectors = append(projectors, MarkdownProjector{outputDir: cfg.OutputDirectory})
+		projectors = append(projectors, MarkdownProjector{outputDir: runtime.OutputDirectory})
 	}
 
 	return projectors
 }
 
-func buildOpenGraphUploader() OpenGraphUploader {
-	if cfg.OpenGraphR2Account == "" || cfg.OpenGraphR2KeyID == "" || cfg.OpenGraphR2Secret == "" || cfg.OpenGraphR2Bucket == "" {
+func buildOpenGraphUploader(runtime Config) OpenGraphUploader {
+	if runtime.OpenGraphR2Account == "" || runtime.OpenGraphR2KeyID == "" || runtime.OpenGraphR2Secret == "" || runtime.OpenGraphR2Bucket == "" {
 		return NoopOpenGraphUploader{}
 	}
 
 	return R2OpenGraphUploader{
-		accountID:       cfg.OpenGraphR2Account,
-		accessKeyID:     cfg.OpenGraphR2KeyID,
-		accessKeySecret: cfg.OpenGraphR2Secret,
-		bucket:          cfg.OpenGraphR2Bucket,
-		client:          &http.Client{Timeout: cfg.Timeout},
+		accountID:       runtime.OpenGraphR2Account,
+		accessKeyID:     runtime.OpenGraphR2KeyID,
+		accessKeySecret: runtime.OpenGraphR2Secret,
+		bucket:          runtime.OpenGraphR2Bucket,
+		client:          &http.Client{Timeout: runtime.Timeout},
 	}
 }
 
-func selectedOutputs() map[string]bool {
+func selectedOutputs(runtime Config) map[string]bool {
 	outputs := map[string]bool{}
-	if cfg.Outputs == "" {
+	if runtime.Outputs == "" {
 		outputs["html"] = true
-		if cfg.SearchMasterKey != "" {
+		if runtime.SearchMasterKey != "" {
 			outputs["search"] = true
 		}
 		return outputs
 	}
 
-	for _, output := range strings.Split(cfg.Outputs, ",") {
+	for _, output := range strings.Split(runtime.Outputs, ",") {
 		output = strings.TrimSpace(strings.ToLower(output))
 		if output != "" {
 			outputs[output] = true
