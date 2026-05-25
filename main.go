@@ -67,18 +67,47 @@ func run() error {
 		return fmt.Errorf("processing ignore file: %w", err)
 	}
 
-	generator, err := NewGenerator(ignore)
+	config, err := parseConfig(cfg.ConfigFile)
 	if err != nil {
-		return fmt.Errorf("creating generator: %v", err)
+		return fmt.Errorf("parsing site config: %w", err)
 	}
+	overrideConfig(&config)
 
-	if err := generator.Run(); err != nil {
-		return fmt.Errorf("running generator: %v", err)
+	schema, err := LoadSchemaMetadata(cfg.InfoDirectory)
+	if err != nil {
+		return fmt.Errorf("loading schema metadata: %w", err)
 	}
+	parser := NewParser(schema)
 
 	outputs := selectedOutputs()
+	scan, err := NewScanner(cfg.InfoDirectory, cfg.MediaDirectory, ignore).Scan()
+	if err != nil {
+		return fmt.Errorf("scanning inputs: %w", err)
+	}
+
+	defer measureTime()()
+
+	graph, err := NewGraphBuilder(config, scan, parser, cfg.InfoDirectory, outputs["opengraph"]).Build()
+	if err != nil {
+		return fmt.Errorf("building graph: %w", err)
+	}
+
+	var projectors []Projector
+	if outputs["html"] {
+		projectors = append(projectors, NewHTMLProjector(
+			config,
+			cfg.InfoDirectory,
+			cfg.StaticDirectory,
+			cfg.TemplatesDirectory,
+			cfg.OutputDirectory,
+		))
+	}
+	if err := RunProjectors(graph, projectors...); err != nil {
+		return err
+	}
+
 	if outputs["search"] && cfg.SearchMasterKey != "" {
-		if err := indexSite(ignore, generator.graph); err != nil {
+		if err := indexSite(ignore, graph); err != nil {
 			return fmt.Errorf("indexing site: %v", err)
 		}
 	}
@@ -93,24 +122,24 @@ func run() error {
 				client:          &http.Client{Timeout: cfg.Timeout},
 			}
 		}
-		if err := RunProjectors(generator.graph, OpenGraphProjector{
+		if err := RunProjectors(graph, OpenGraphProjector{
 			outputDir: cfg.OutputDirectory,
 			stateFile: cfg.OpenGraphState,
 			force:     cfg.Force,
-			host:      generator.graph.Config.OpenGraphHost,
+			host:      graph.Config.OpenGraphHost,
 			uploader:  ogUploader,
 		}); err != nil {
 			return err
 		}
 	}
-	var projectors []Projector
+	projectors = nil
 	if outputs["json"] {
 		projectors = append(projectors, JSONProjector{outputDir: cfg.OutputDirectory})
 	}
 	if outputs["markdown"] {
 		projectors = append(projectors, MarkdownProjector{outputDir: cfg.OutputDirectory})
 	}
-	if err := RunProjectors(generator.graph, projectors...); err != nil {
+	if err := RunProjectors(graph, projectors...); err != nil {
 		return err
 	}
 

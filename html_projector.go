@@ -37,15 +37,15 @@ var caser = cases.Title(language.English, cases.NoLower)
 //go:embed functions/*
 var functionsFS embed.FS
 
-// Generator is a struct that generates a static site.
-type Generator struct {
+// HTMLProjector renders the static website from a build graph.
+type HTMLProjector struct {
 	templates *template.Template
-	ignore    *gitignore.GitIgnore
 
-	// config is a site configuration, e.g. title, description, etc.
-	// It is different from Config struct in main package,
-	// which is used to store command line flags.
-	config structs.Config
+	config       structs.Config
+	infoDir      string
+	staticDir    string
+	templatesDir string
+	outputDir    string
 
 	renderedPanelsCache map[string]string
 	graph               *BuildGraph
@@ -53,20 +53,15 @@ type Generator struct {
 	muRenderedPanels sync.Mutex // protects writes to renderedPanelsCache
 }
 
-// NewGenerator creates a new Generator.
-func NewGenerator(ignore *gitignore.GitIgnore) (*Generator, error) {
-	config, err := parseConfig(cfg.ConfigFile)
-	if err != nil {
-		return nil, fmt.Errorf("parsing site config: %w", err)
-	}
-
-	overrideConfig(&config)
-
-	return &Generator{
+func NewHTMLProjector(config structs.Config, infoDir, staticDir, templatesDir, outputDir string) *HTMLProjector {
+	return &HTMLProjector{
 		config:              config,
-		ignore:              ignore,
+		infoDir:             infoDir,
+		staticDir:           staticDir,
+		templatesDir:        templatesDir,
+		outputDir:           outputDir,
 		renderedPanelsCache: map[string]string{},
-	}, nil
+	}
 }
 
 func processIgnoreFile(ignoreFile string) (*gitignore.GitIgnore, error) {
@@ -116,7 +111,7 @@ func overrideConfig(config *structs.Config) {
 	}
 }
 
-func (g *Generator) fm() template.FuncMap {
+func (g *HTMLProjector) fm() template.FuncMap {
 	return template.FuncMap{
 		"config":       func() structs.Config { return g.config },
 		"join":         filepath.Join,
@@ -478,33 +473,18 @@ func (g *Generator) fm() template.FuncMap {
 	}
 }
 
-// Run runs the generator.
-func (g *Generator) Run() error {
-	t, err := template.New("").Funcs(g.fm()).ParseGlob(cfg.TemplatesDirectory + "/*")
+func (g *HTMLProjector) Name() string {
+	return "html"
+}
+
+func (g *HTMLProjector) Run(graph *BuildGraph) error {
+	g.graph = graph
+
+	t, err := template.New("").Funcs(g.fm()).ParseGlob(g.templatesDir + "/*")
 	if err != nil {
 		return fmt.Errorf("parsing templates: %w", err)
 	}
 	g.templates = t
-
-	schema, err := LoadSchemaMetadata(cfg.InfoDirectory)
-	if err != nil {
-		return fmt.Errorf("loading schema metadata: %w", err)
-	}
-	parser := NewParser(schema)
-
-	defer measureTime()()
-
-	scan, err := NewScanner(cfg.InfoDirectory, cfg.MediaDirectory, g.ignore).Scan()
-	if err != nil {
-		return fmt.Errorf("scanning inputs: %w", err)
-	}
-
-	outputs := selectedOutputs()
-	graph, err := NewGraphBuilder(g.config, scan, parser, cfg.InfoDirectory, outputs["opengraph"]).Build()
-	if err != nil {
-		return fmt.Errorf("building graph: %w", err)
-	}
-	g.graph = graph
 
 	g.copyStaticFiles()
 	g.copyFunctionsFiles()
@@ -541,31 +521,31 @@ func (g *Generator) Run() error {
 	return nil
 }
 
-func (g *Generator) copyStaticFiles() {
-	if cfg.StaticDirectory == "" {
+func (g *HTMLProjector) copyStaticFiles() {
+	if g.staticDir == "" {
 		log.Printf("No static files directory specified, skipping")
 		return
 	}
 
-	log.Printf("Copying static files from %q to %q", cfg.StaticDirectory, cfg.OutputDirectory)
+	log.Printf("Copying static files from %q to %q", g.staticDir, g.outputDir)
 
-	if err := os.MkdirAll(cfg.OutputDirectory, 0o755); err != nil {
-		log.Fatalf("Error creating output directory %q: %v", cfg.OutputDirectory, err)
+	if err := os.MkdirAll(g.outputDir, 0o755); err != nil {
+		log.Fatalf("Error creating output directory %q: %v", g.outputDir, err)
 	}
 
 	err := filepath.Walk(
-		cfg.StaticDirectory,
+		g.staticDir,
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
 
 			if info.IsDir() {
-				return os.MkdirAll(filepath.Join(cfg.OutputDirectory, strings.TrimPrefix(path, cfg.StaticDirectory)), 0o755)
+				return os.MkdirAll(filepath.Join(g.outputDir, strings.TrimPrefix(path, g.staticDir)), 0o755)
 			}
 
-			relPath := strings.TrimPrefix(path, cfg.StaticDirectory+string(filepath.Separator))
-			outPath := filepath.Join(cfg.OutputDirectory, relPath)
+			relPath := strings.TrimPrefix(path, g.staticDir+string(filepath.Separator))
+			outPath := filepath.Join(g.outputDir, relPath)
 
 			if strings.HasSuffix(path, ".gojs") {
 				outPath = strings.TrimSuffix(outPath, ".gojs") + ".js"
@@ -577,13 +557,13 @@ func (g *Generator) copyStaticFiles() {
 		},
 	)
 	if err != nil {
-		log.Fatalf("Error walking static directory %q: %v", cfg.StaticDirectory, err)
+		log.Fatalf("Error walking static directory %q: %v", g.staticDir, err)
 	}
 
-	log.Printf("Done copying static files from %q to %q", cfg.StaticDirectory, cfg.OutputDirectory)
+	log.Printf("Done copying static files from %q to %q", g.staticDir, g.outputDir)
 }
 
-func (g *Generator) copyFunctionsFiles() {
+func (g *HTMLProjector) copyFunctionsFiles() {
 	log.Printf("Copying functions files")
 
 	// check if functions directory exists, if it does – exit
@@ -632,7 +612,7 @@ func (g *Generator) copyFunctionsFiles() {
 	}
 }
 
-func (g *Generator) processGoJSFile(src, out string) error {
+func (g *HTMLProjector) processGoJSFile(src, out string) error {
 	// treat file as a Go template
 	b, err := os.ReadFile(src)
 	if err != nil {
@@ -657,10 +637,10 @@ func (g *Generator) processGoJSFile(src, out string) error {
 	return nil
 }
 
-func (g *Generator) copyFileAsIs(file string) error {
+func (g *HTMLProjector) copyFileAsIs(file string) error {
 	return copyFile(
-		filepath.Join(cfg.InfoDirectory, file),
-		filepath.Join(cfg.OutputDirectory, file),
+		filepath.Join(g.infoDir, file),
+		filepath.Join(g.outputDir, file),
 	)
 }
 
@@ -668,7 +648,7 @@ func (g *Generator) copyFileAsIs(file string) error {
 // it is an optimisation to not render the same panel multiple times.
 // drawback is that some content still has to be changed dynamically,
 // that is why markInPathLinks function is used
-func (g *Generator) renderPanel(panel structs.Panel, index int, isLast bool, path string) string {
+func (g *HTMLProjector) renderPanel(panel structs.Panel, index int, isLast bool, path string) string {
 	g.muRenderedPanels.Lock()
 	defer g.muRenderedPanels.Unlock()
 
@@ -686,7 +666,7 @@ func (g *Generator) renderPanel(panel structs.Panel, index int, isLast bool, pat
 	return markInPathLinks(rendered, panel, path, isLast)
 }
 
-func (g *Generator) renderPanelImpl(panel structs.Panel, index int) (string, error) {
+func (g *HTMLProjector) renderPanelImpl(panel structs.Panel, index int) (string, error) {
 	var b bytes.Buffer
 	err := g.templates.Lookup("panel.gohtml").Execute(&b, struct {
 		Panel structs.Panel
@@ -739,9 +719,9 @@ func markInPathLinks(s string, panel structs.Panel, path string, isLast bool) st
 	return s
 }
 
-func (g *Generator) generateContentTemplates() error {
+func (g *HTMLProjector) generateContentTemplates() error {
 	for id, content := range g.graph.Contents {
-		path := filepath.Join(cfg.OutputDirectory, id+".html")
+		path := filepath.Join(g.outputDir, id+".html")
 		panels, breadcrumbs := g.graph.Panels(id, true)
 		cnt := content
 
@@ -762,7 +742,7 @@ func (g *Generator) generateContentTemplates() error {
 	return nil
 }
 
-func (g *Generator) generateGoTemplates() error {
+func (g *HTMLProjector) generateGoTemplates() error {
 	for path, content := range g.graph.Contents {
 		if filepath.Ext(content.Source) != ".gomd" {
 			continue
@@ -788,14 +768,14 @@ func (g *Generator) generateGoTemplates() error {
 	return nil
 }
 
-func (g *Generator) getImageForPath(path string) *structs.Media {
+func (g *HTMLProjector) getImageForPath(path string) *structs.Media {
 	if g.graph == nil {
 		return nil
 	}
 	return g.graph.Media.ImageForPath(path)
 }
 
-func (g *Generator) formatTitle(b structs.Breadcrumbs) string {
+func (g *HTMLProjector) formatTitle(b structs.Breadcrumbs) string {
 	b = b[1:] // skip the first element (it's always "Home")
 	if len(b) == 0 {
 		return g.config.Title
@@ -811,9 +791,9 @@ func (g *Generator) formatTitle(b structs.Breadcrumbs) string {
 	return strings.Join(dirs, " \\ ")
 }
 
-func (g *Generator) generateIndexes() error {
+func (g *HTMLProjector) generateIndexes() error {
 	for dir := range g.graph.DirContents {
-		path := filepath.Join(cfg.OutputDirectory, dir, "index.html")
+		path := filepath.Join(g.outputDir, dir, "index.html")
 		panels, breadcrumbs := g.graph.Panels(dir, false)
 
 		err := g.executeTemplate(path, structs.PageData{
@@ -832,7 +812,7 @@ func (g *Generator) generateIndexes() error {
 	return nil
 }
 
-func (g *Generator) generateMissing() error {
+func (g *HTMLProjector) generateMissing() error {
 	// create channel with PageData to render
 	pagesDataChan := make(chan structs.PageData)
 
@@ -856,7 +836,7 @@ func (g *Generator) generateMissing() error {
 		id := missingPage.ID
 		panels, breadcrumbs := g.graph.Panels(id, true)
 		pagesDataChan <- structs.PageData{
-			OutputPath:     filepath.Join(cfg.OutputDirectory, id+".html"),
+			OutputPath:     filepath.Join(g.outputDir, id+".html"),
 			CurrentPath:    id,
 			Dir:            filepath.Dir(id),
 			Breadcrumbs:    breadcrumbs,
@@ -873,8 +853,8 @@ func (g *Generator) generateMissing() error {
 	return nil
 }
 
-func (g *Generator) generate404() error {
-	outputPath := filepath.Join(cfg.OutputDirectory, "404.html")
+func (g *HTMLProjector) generate404() error {
+	outputPath := filepath.Join(g.outputDir, "404.html")
 
 	return g.executeTemplate(outputPath, structs.PageData{
 		CurrentPath: "404",
@@ -888,7 +868,7 @@ func (g *Generator) generate404() error {
 	}, "404.gohtml")
 }
 
-func (g *Generator) executeTemplate(path string, pageData structs.PageData, templateName string) error {
+func (g *HTMLProjector) executeTemplate(path string, pageData structs.PageData, templateName string) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return fmt.Errorf("creating directory: %w", err)
 	}
