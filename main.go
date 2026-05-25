@@ -4,14 +4,11 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"runtime/pprof"
 	"time"
 
 	flags "github.com/jessevdk/go-flags"
-	"github.com/meilisearch/meilisearch-go"
-	gitignore "github.com/sabhiram/go-gitignore"
 )
 
 // Config represents an app configuration.
@@ -92,90 +89,12 @@ func run() error {
 		return fmt.Errorf("building graph: %w", err)
 	}
 
-	var projectors []Projector
-	if outputs["html"] {
-		projectors = append(projectors, NewHTMLProjector(
-			config,
-			cfg.InfoDirectory,
-			cfg.StaticDirectory,
-			cfg.TemplatesDirectory,
-			cfg.OutputDirectory,
-		))
-	}
-	if err := RunProjectors(graph, projectors...); err != nil {
-		return err
-	}
-
-	if outputs["search"] && cfg.SearchMasterKey != "" {
-		if err := indexSite(ignore, graph); err != nil {
-			return fmt.Errorf("indexing site: %v", err)
-		}
-	}
-	if outputs["opengraph"] {
-		ogUploader := OpenGraphUploader(NoopOpenGraphUploader{})
-		if cfg.OpenGraphR2Account != "" && cfg.OpenGraphR2KeyID != "" && cfg.OpenGraphR2Secret != "" && cfg.OpenGraphR2Bucket != "" {
-			ogUploader = R2OpenGraphUploader{
-				accountID:       cfg.OpenGraphR2Account,
-				accessKeyID:     cfg.OpenGraphR2KeyID,
-				accessKeySecret: cfg.OpenGraphR2Secret,
-				bucket:          cfg.OpenGraphR2Bucket,
-				client:          &http.Client{Timeout: cfg.Timeout},
-			}
-		}
-		if err := RunProjectors(graph, OpenGraphProjector{
-			outputDir: cfg.OutputDirectory,
-			stateFile: cfg.OpenGraphState,
-			force:     cfg.Force,
-			host:      graph.Config.OpenGraphHost,
-			uploader:  ogUploader,
-		}); err != nil {
-			return err
-		}
-	}
-	projectors = nil
-	if outputs["json"] {
-		projectors = append(projectors, JSONProjector{outputDir: cfg.OutputDirectory})
-	}
-	if outputs["markdown"] {
-		projectors = append(projectors, MarkdownProjector{outputDir: cfg.OutputDirectory})
-	}
+	projectors := buildProjectors(config, outputs, graph.Config.OpenGraphHost)
 	if err := RunProjectors(graph, projectors...); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func indexSite(
-	ignore *gitignore.GitIgnore,
-	graph *BuildGraph,
-) error {
-	log.Printf("Current state contains %d entries", len(graph.Hashes))
-
-	client := meilisearch.New(
-		cfg.SearchHost,
-		meilisearch.WithAPIKey(cfg.SearchMasterKey),
-		meilisearch.WithCustomClient(&http.Client{
-			Timeout: cfg.Timeout,
-		}),
-	)
-
-	indexer, err := NewIndexer(
-		client,
-		ignore,
-		cfg.InfoDirectory,
-		cfg.MediaDirectory,
-		graph,
-	)
-	if err != nil {
-		return fmt.Errorf("creating indexer: %v", err)
-	}
-
-	return indexer.Index(
-		cfg.StateFile,
-		cfg.SearchIndexName,
-		cfg.Force,
-	)
 }
 
 func profileWrapper(fn func() error, cpuProfile, memProfile string) func() error {
