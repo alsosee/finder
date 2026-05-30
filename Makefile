@@ -1,3 +1,6 @@
+-include .env
+export
+
 .PHONY: help
 ## help: prints this help message
 help:
