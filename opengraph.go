@@ -267,5 +267,5 @@ func drawBlockRune(img *image.RGBA, r rune, x, y, scale int, c color.Color) {
 }
 
 var blockFont = map[rune][]string{
-	'?': []string{"111", "001", "011", "000", "010"},
+	'?': {"111", "001", "011", "000", "010"},
 }
