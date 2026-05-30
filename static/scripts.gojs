@@ -407,7 +407,11 @@ if (typeof hasRun === 'undefined') {
 
             // if there are no results, show a message
             if (response.hits.length == 0) {
-                // add banner before #container
+                // remove existing banner if present, then add a new one
+                var existingBanner = document.querySelector('.banner');
+                if (existingBanner) {
+                    existingBanner.parentNode.removeChild(existingBanner);
+                }
                 var banner = document.createElement('div');
                 banner.className = 'banner noSearchResults';
                 banner.innerHTML = `<p>{{ (config).NoResultsLabel }}</p>`;

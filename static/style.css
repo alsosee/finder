@@ -438,6 +438,7 @@ fieldset.radio label:last-of-type {
 }
 
 #breadcrumbs a:focus-visible {
+  position: relative;
   outline: 2px solid var(--color-outline);
   border-radius: 2px;
   clip-path: none;
@@ -1606,10 +1607,6 @@ p .award + .award {
 
   #breadcrumbs {
     box-shadow: 0 0.5px 0px rgba(255, 255, 255, 0.1);
-  }
-
-  #breadcrumbs li a {
-    position: relative;
   }
 
   #breadcrumbs li a::after {
