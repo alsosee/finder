@@ -47,6 +47,7 @@ type HTMLProjector struct {
 
 	renderedPanelsCache map[string]string
 	graph               *BuildGraph
+	contents            structs.Contents
 
 	muRenderedPanels sync.Mutex // protects writes to renderedPanelsCache
 	crc32cache       map[string]string
@@ -95,10 +96,11 @@ func (g *HTMLProjector) fm() template.FuncMap {
 		// "content" returns a Content struct for a given file path (without extension)
 		// It is used to render references.
 		"content": func(path, caller string) *structs.Content {
-			if g.graph == nil {
+			if g.contents == nil {
 				return nil
 			}
-			if c, ok := g.graph.Contents[path]; ok {
+			path = g.canonicalContentPath(path)
+			if c, ok := g.contents[path]; ok {
 				return &c
 			}
 			return nil
@@ -424,7 +426,26 @@ func (g *HTMLProjector) fm() template.FuncMap {
 		},
 		"groupConnections": groupConnections,
 		"escapeFileName":   structs.EscapeFileName,
+		"canonicalPath":    g.canonicalContentPath,
 	}
+}
+
+func (g *HTMLProjector) canonicalContentPath(path string) string {
+	if g.contents == nil {
+		return path
+	}
+	if _, ok := g.contents[path]; ok {
+		return path
+	}
+
+	withoutColons := strings.ReplaceAll(path, ":", "")
+	if withoutColons != path {
+		if _, ok := g.contents[withoutColons]; ok {
+			return withoutColons
+		}
+	}
+
+	return path
 }
 
 func (g *HTMLProjector) Name() string {
@@ -433,6 +454,7 @@ func (g *HTMLProjector) Name() string {
 
 func (g *HTMLProjector) Run(graph *BuildGraph) error {
 	g.graph = graph
+	g.contents = cloneContents(graph.Contents)
 
 	t, err := template.New("").Funcs(g.fm()).ParseGlob(g.templatesDir + "/*")
 	if err != nil {
@@ -674,7 +696,7 @@ func markInPathLinks(s string, panel structs.Panel, path string, isLast bool) st
 }
 
 func (g *HTMLProjector) generateContentTemplates() error {
-	for id, content := range g.graph.Contents {
+	for id, content := range g.contents {
 		path := filepath.Join(g.outputDir, id+".html")
 		panels, breadcrumbs := g.graph.Panels(id, true)
 		cnt := content
@@ -697,7 +719,7 @@ func (g *HTMLProjector) generateContentTemplates() error {
 }
 
 func (g *HTMLProjector) generateGoTemplates() error {
-	for path, content := range g.graph.Contents {
+	for path, content := range g.contents {
 		if filepath.Ext(content.Source) != ".gomd" {
 			continue
 		}
@@ -716,7 +738,7 @@ func (g *HTMLProjector) generateGoTemplates() error {
 		htmlBody := markdown.ToHTML(buf.Bytes(), nil, nil)
 		content.HTML = string(htmlBody)
 
-		g.graph.Contents[path] = content
+		g.contents[path] = content
 	}
 
 	return nil

@@ -10,6 +10,7 @@ Inputs:
 */ -}}
 {{- $id := .Path -}}
 {{- if .Prefix }}{{ $id = (join .Prefix .Path) }}{{ end }}
+{{- $id = canonicalPath $id -}}
 {{- $content := .Content -}}
 {{- if not $content }}{{ $content = content $id "reference" }}{{ end }}
 {{- if $content -}}

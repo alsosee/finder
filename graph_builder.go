@@ -23,6 +23,7 @@ type GraphBuilder struct {
 	openGraphEnabled bool
 
 	contents             structs.Contents
+	contentsByLower      map[string]string // lowercase path → canonical path
 	dirContents          map[string][]structs.File
 	connections          structs.Connections
 	media                MediaCatalog
@@ -44,6 +45,7 @@ func NewGraphBuilder(config structs.Config, scan *ScanResult, parser *Parser, in
 		infoDir:              infoDir,
 		openGraphEnabled:     openGraphEnabled,
 		contents:             structs.Contents{},
+		contentsByLower:      map[string]string{},
 		dirContents:          map[string][]structs.File{},
 		connections:          structs.Connections{},
 		media:                MediaCatalog{},
@@ -180,6 +182,7 @@ func (b *GraphBuilder) processGoMarkdownFile(file string) error {
 func (b *GraphBuilder) addContent(content structs.Content) {
 	content.GenerateID()
 	b.contents[content.SourceNoExtention] = content
+	b.contentsByLower[strings.ToLower(content.SourceNoExtention)] = content.SourceNoExtention
 }
 
 func (b *GraphBuilder) addConnections(content structs.Content) {
@@ -299,6 +302,7 @@ func (b *GraphBuilder) addAwards() {
 
 			awardedContent, ok := b.contents[path]
 			if !ok {
+				path = b.canonicalMissingPath(path)
 				b.awardsMissingContent[path] = append(b.awardsMissingContent[path], award)
 				continue
 			}
@@ -351,6 +355,22 @@ func (b *GraphBuilder) canonicalContentPath(path string) string {
 		}
 	}
 
+	if canonical, ok := b.contentsByLower[strings.ToLower(path)]; ok {
+		return canonical
+	}
+
+	return path
+}
+
+// canonicalMissingPath returns an existing key from awardsMissingContent that
+// matches path case-insensitively, or path itself if no match exists.
+func (b *GraphBuilder) canonicalMissingPath(path string) string {
+	lower := strings.ToLower(path)
+	for key := range b.awardsMissingContent {
+		if strings.ToLower(key) == lower {
+			return key
+		}
+	}
 	return path
 }
 
