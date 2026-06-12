@@ -16,7 +16,26 @@
     var uploader_preview = document.querySelector('#uploader .preview');
     var uploader_error = document.querySelector('#uploader .error');
     var uploader_args = document.querySelector('#uploader .args');
+    var uploader_width = document.querySelector('#uploader_width');
+    var uploader_height = document.querySelector('#uploader_height');
     var btn_uploader_upload = document.querySelector('#btn_uploader_upload');
+
+    function refresh_uploader_elements() {
+        backdrop = document.querySelector('#backdrop');
+        uploader = document.querySelector('#uploader');
+        uploader_title = document.querySelector('#uploader .title');
+        uploader_body = document.querySelector('#uploader .body');
+        uploader_preview = document.querySelector('#uploader .preview');
+        uploader_error = document.querySelector('#uploader .error');
+        uploader_args = document.querySelector('#uploader .args');
+        uploader_width = document.querySelector('#uploader_width');
+        uploader_height = document.querySelector('#uploader_height');
+        btn_uploader_upload = document.querySelector('#btn_uploader_upload');
+
+        return backdrop && uploader && uploader_title && uploader_body &&
+            uploader_preview && uploader_error && uploader_args &&
+            uploader_width && uploader_height && btn_uploader_upload;
+    }
 
     var uploader_max_width = 420;
     var uploader_max_height = 420;
@@ -44,6 +63,11 @@
     }
 
     function uploader_show(title, name, suffix) {
+        if (!refresh_uploader_elements()) {
+            console.error("Uploader elements are missing");
+            return;
+        }
+
         uploader_title.innerText = name;
         uploader.dataset.target = name;
         uploader.dataset.suffix = suffix;
@@ -60,6 +84,11 @@
     }
 
     function uploader_show_error(message) {
+        if (!refresh_uploader_elements()) {
+            console.error("Uploader elements are missing", message);
+            return;
+        }
+
         uploader.classList.remove('loading');
         uploader_error.innerText = message;
         uploader.classList.add('error');
@@ -93,6 +122,10 @@
     }
 
     function uploader_cancel() {
+        if (!refresh_uploader_elements()) {
+            return;
+        }
+
         backdrop.classList.remove('open');
         uploader.classList.remove('open');
         setTimeout(function() {
@@ -145,6 +178,11 @@
     }
 
     function set_image_handler_image(image) {
+        if (!refresh_uploader_elements()) {
+            console.error("Uploader elements are missing");
+            return;
+        }
+
         if (useCroppie) {
             set_image_handler_image_croppie(image);
             return;
@@ -164,19 +202,27 @@
 
         var img = new Image();
         img.onload = function() {
-            uploader_width.value = img.width;
-            uploader_height.value = img.height;
+            try {
+                uploader_width.value = img.width;
+                uploader_height.value = img.height;
 
-            uploader_resize(img.width, img.height, true, function() {
-                offScreenCanvas.width = img.width;
-                offScreenCanvas.height = img.height;
-                offScreenCanvas.getContext('2d').drawImage(img, 0, 0);
+                uploader_resize(img.width, img.height, true, function() {
+                    offScreenCanvas.width = img.width;
+                    offScreenCanvas.height = img.height;
+                    offScreenCanvas.getContext('2d').drawImage(img, 0, 0);
 
-                // copy original image to visible canvas
-                canvas.width = img.width;
-                canvas.height = img.height;
-                canvas.getContext('2d').drawImage(img, 0, 0);
-            });
+                    // copy original image to visible canvas
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                });
+            } catch (error) {
+                console.error("Error rendering image preview", error);
+                uploader_show_error("Error rendering image preview: " + error.message);
+            }
+        }
+        img.onerror = function() {
+            uploader_show_error("Error loading image preview");
         }
         img.src = image;
 
@@ -222,7 +268,10 @@
 
     function image_handler_destroy() {
         if (useCroppie) {
-            c.destroy();
+            if (c) {
+                c.destroy();
+                c = null;
+            }
             return;
         }
 
@@ -262,6 +311,10 @@
     }
 
     function uploader_set_width(el) {
+        if (!refresh_uploader_elements()) {
+            return;
+        }
+
         let width = parseInt(el.value);
         if (width < minWidth || width > maxWidth) {
             uploader_width.setCustomValidity(`Width must be between ${minWidth} and ${maxWidth} pixels`);
@@ -278,6 +331,10 @@
     }
 
     function uploader_set_height(el) {
+        if (!refresh_uploader_elements()) {
+            return;
+        }
+
         let height = parseInt(el.value);
         if (height < minHeight || height > maxHeight) {
             uploader_height.setCustomValidity(`Height must be between ${minHeight} and ${maxHeight} pixels`);
@@ -294,6 +351,10 @@
     }
 
     function uploader_upload() {
+        if (!refresh_uploader_elements()) {
+            return;
+        }
+
         // add animated stripes background to the button
         btn_uploader_upload.classList.add('htmx-request');
         btn_uploader_upload.disabled = true;
@@ -339,6 +400,128 @@
         });
     }
 
+    function firstLine(value) {
+        if (!value) {
+            return "";
+        }
+
+        return value.split("\n")[0].trim();
+    }
+
+    function imageURLFromHTML(html) {
+        if (!html) {
+            return "";
+        }
+
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var image = doc.querySelector("img[src]");
+        if (image) {
+            return image.getAttribute("src").trim();
+        }
+
+        return "";
+    }
+
+    function droppedImageURL(dataTransfer) {
+        var htmlURL = imageURLFromHTML(dataTransfer.getData("text/html"));
+        if (htmlURL) {
+            return htmlURL;
+        }
+
+        var uriList = dataTransfer.getData("text/uri-list");
+        if (uriList) {
+            var urls = uriList.split("\n").map(function(line) {
+                return line.trim();
+            }).filter(function(line) {
+                return line && !line.startsWith("#");
+            });
+            if (urls.length > 0) {
+                return urls[0];
+            }
+        }
+
+        var plainText = firstLine(dataTransfer.getData("text/plain"));
+        if (plainText) {
+            var plainHTMLURL = imageURLFromHTML(plainText);
+            if (plainHTMLURL) {
+                return plainHTMLURL;
+            }
+
+            return plainText;
+        }
+
+        return firstLine(dataTransfer.getData("text/x-moz-url"));
+    }
+
+    function readBlob(reader, blob) {
+        var contentType = (blob.type || "").toLowerCase();
+        if (!contentType.startsWith("image/")) {
+            uploader_show_error("URL did not return an image");
+            return;
+        }
+
+        reader.readAsDataURL(blob);
+    }
+
+    function loadImageURLWithProxy(reader, url) {
+        return fetch("/image-proxy", {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({ url: url }),
+        }).then(function(response) {
+            if (response.ok) {
+                return response.blob();
+            }
+
+            return response.json().then(function(body) {
+                throw new Error(body.error || "Image proxy failed");
+            }).catch(function(error) {
+                if (error.message) {
+                    throw error;
+                }
+
+                throw new Error("Image proxy failed");
+            });
+        }).then(function(blob) {
+            readBlob(reader, blob);
+        });
+    }
+
+    function loadImageURL(reader, url) {
+        var parsedURL;
+        try {
+            parsedURL = new URL(url, window.location.href);
+        } catch (error) {
+            uploader_show_error("Invalid image URL: " + url);
+            return;
+        }
+
+        if (parsedURL.protocol !== "https:") {
+            uploader_show_error("Only HTTPS image URLs are supported");
+            return;
+        }
+
+        uploader.classList.add('loading');
+
+        fetch(parsedURL.toString(), {
+            redirect: "follow",
+        }).then(function(response) {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            return response.blob();
+        }).then(function(blob) {
+            readBlob(reader, blob);
+        }).catch(function() {
+            loadImageURLWithProxy(reader, parsedURL.toString()).catch(function(error) {
+                uploader_show_error("Error fetching image: " + error.message);
+            });
+        });
+    }
+
     document.addEventListener('dragover', function (event) {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'copy';
@@ -352,6 +535,11 @@
             return;
         }
 
+        if (!refresh_uploader_elements()) {
+            console.error("Uploader elements are missing");
+            return;
+        }
+
         drop = event.target;
 
         if (!drop.classList.contains('drop')) {
@@ -360,7 +548,7 @@
             while (drop && !drop.classList.contains('drop')) {
                 drop = drop.parentElement;
             }
-            if (!parent) {
+            if (!drop) {
                 return;
             }
         }
@@ -416,45 +604,10 @@
         if (event.dataTransfer.files.length > 0) {
             reader.readAsDataURL(event.dataTransfer.files[0]);
         } else if (event.dataTransfer.items.length > 0) {
-            var link = event.dataTransfer.getData('text/x-moz-url').trim();
-            // if link contains newline, take the first line
-            if (link.indexOf('\n') > -1) {
-                link = link.split('\n')[0].trim();
-            }
-
-            if (link.match(/src="([^"]*)"/)) {
-                // parse <img src ...> from link
-                link = link.match(/src="([^"]*)"/)[1];
-            }
-
+            var link = droppedImageURL(event.dataTransfer);
             if (link) {
                 console.log("link", link);
-                // if link is a valid image URL, load it
-                if (link.match(/\.(jpg|jpeg|png|gif)$/i)) {
-                    uploader.classList.add('loading');
-
-                    fetch(
-                        link,
-                        {
-                            redirect: 'follow'
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            return response.blob();
-                        })
-                        .then(blob => {
-                            reader.readAsDataURL(blob);
-                            // Loading is handled by the reader.onload event
-                        })
-                        .catch(error => {
-                            uploader_show_error("Error fetching image: " + error.message);
-                        });
-                } else {
-                    uploader_show_error("Invalid image URL: " + link);
-                    return;
-                }
+                loadImageURL(reader, link);
             }
         }
     });
