@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/alsosee/finder/structs"
+	"gopkg.in/yaml.v3"
 )
 
 func TestGetFilesForPathSimple(t *testing.T) {
@@ -172,6 +173,66 @@ func TestGroupConnections(t *testing.T) {
 				t.Errorf("%s expected parent %s, got %s", actual[i].From, expected[i].Parents[j], actual[i].Parents[j])
 			}
 		}
+	}
+}
+
+func TestContentNotReferences(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     string
+		wantPaths []string
+	}{
+		{
+			name: "single",
+			input: `
+name: Outer Wilds
+not: Games/2019/Outer Worlds
+`,
+			wantPaths: []string{"Games/2019/Outer Worlds"},
+		},
+		{
+			name: "list",
+			input: `
+name: Outer Wilds
+not:
+  - Games/2019/Outer Worlds
+  - Movies/1995/Heat
+`,
+			wantPaths: []string{"Games/2019/Outer Worlds", "Movies/1995/Heat"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var content structs.Content
+			if err := yaml.Unmarshal([]byte(tt.input), &content); err != nil {
+				t.Fatalf("unmarshaling content: %v", err)
+			}
+
+			if len(content.Not) != len(tt.wantPaths) {
+				t.Fatalf("expected %d not references, got %d", len(tt.wantPaths), len(content.Not))
+			}
+
+			for i, wantPath := range tt.wantPaths {
+				if content.Not[i].Path != wantPath {
+					t.Fatalf("reference %d path = %q, expected %q", i, content.Not[i].Path, wantPath)
+				}
+			}
+
+			connections := content.Connections()
+			if len(connections) != len(tt.wantPaths) {
+				t.Fatalf("expected %d connections, got %d", len(tt.wantPaths), len(connections))
+			}
+
+			for i, wantPath := range tt.wantPaths {
+				if connections[i].To != wantPath {
+					t.Errorf("connection %d To = %q, expected %q", i, connections[i].To, wantPath)
+				}
+				if connections[i].Label != "Not" {
+					t.Errorf("connection %d Label = %q, expected %q", i, connections[i].Label, "Not")
+				}
+			}
+		})
 	}
 }
 
