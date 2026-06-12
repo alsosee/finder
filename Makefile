@@ -1,7 +1,7 @@
 -include .env
 export
 
-GOLANGCI_LINT_VERSION ?= v2.4.0
+GOLANGCI_LINT_VERSION ?= v2.12.2
 
 .PHONY: help
 ## help: prints this help message
