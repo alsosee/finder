@@ -13,18 +13,19 @@ Depth: int
 */ -}}
 {{- range .Content.Properties }}
 {{- $path := rootTypePath .Type }}
+{{- $fieldName := fieldNameFor . $.AvoidGeneratedContentFieldCollisions }}
 {{- if eq .Type "reference" }}
-if {{ $.Prefix }}.{{ titleCase .Name }} != nil {
+if {{ $.Prefix }}.{{ $fieldName }} != nil {
     connections = append(connections, Connection{
-        To: {{ $.Prefix }}.{{ titleCase .Name }}.Path,
+        To: {{ $.Prefix }}.{{ $fieldName }}.Path,
         Label: "{{ .Label }}",
         {{ with .Meta }}Meta: "{{ . }}",{{ end }}
     })
 }
 {{- else if $path }}
-if {{ $.Prefix }}.{{ titleCase .Name }} != "" {
+if {{ $.Prefix }}.{{ $fieldName }} != "" {
     connections = append(connections, Connection{
-        To: "{{ $path }}/" + {{ $.Prefix }}.{{ titleCase .Name }},
+        To: "{{ $path }}/" + {{ $.Prefix }}.{{ $fieldName }},
         Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
         {{- if eq $.Meta "parent" }}
         {{ with .Info }}Parent: {{ structRef . $.Prefix false }},{{ end }}
@@ -35,7 +36,7 @@ if {{ $.Prefix }}.{{ titleCase .Name }} != "" {
     })
 }
 {{- else if and (eq .Type "array") (eq .Items.Type "reference") }}
-for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ titleCase .Name }} {
+for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ $fieldName }} {
     connections = append(connections, Connection{
         To: {{ camelCaseConcat $.Prefix .Items.Type }}.Path,
         Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
@@ -43,27 +44,28 @@ for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ tit
     })
 }
 {{- else if and (eq .Type "array") (rootTypePath .Items.Type) }}
-for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ titleCase .Name }} {
+for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ $fieldName }} {
     connections = append(connections, Connection{
         To: "{{ rootTypePath .Items.Type}}/" + {{ camelCaseConcat $.Prefix .Items.Type }},
         Label: "{{ if .Label }}{{ .Label }}{{ else }}{{ titleCase .Name }}{{ end }}",
         {{ with .Info }}Parent: {{ structRef . $.Prefix false }},{{ end }}
     })
 }
-{{- else if and (eq .Type "array") (extraType .Items.Type) }}
-for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ titleCase .Name }} {
+{{- else if and (eq .Type "array") (extraType .Items.Type) (hasConnections (lookupExtraType .Items.Type)) }}
+for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ $fieldName }} {
     {{- template "connections" dict
         "Content" (lookupExtraType .Items.Type)
         "Prefix" (camelCaseConcat $.Prefix .Items.Type)
         "Parent" (structRef .Info $.Prefix false)
         "Meta" .Meta
+        "AvoidGeneratedContentFieldCollisions" false
         "Depth" (add $.Depth 1)
     }}
 }
 {{- else if eq .Meta "series" }}
-if {{ $.Prefix }}.{{ titleCase .Name }} != "" {
+if {{ $.Prefix }}.{{ $fieldName }} != "" {
     connections = append(connections, Connection{
-        To: {{ $.Prefix }}.{{ titleCase .Name }},
+        To: {{ $.Prefix }}.{{ $fieldName }},
         {{ with .Meta }}Meta: "{{ . }}",{{ end }}
     })
 }

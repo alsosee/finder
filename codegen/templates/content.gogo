@@ -52,7 +52,7 @@ type Content struct {
 	IsMissing         bool   `yaml:"-" json:",omitempty"` // true if the content is missing
 
 	{{- range .Content.Properties }}
-	{{ if eq .Meta "name" }}Name{{ else }}{{ titleCase .Name }}{{ end }} {{ fieldType . }} `yaml:"{{ if eq .Type "media" }}-{{ else }}{{ .Name }},omitempty{{ end }}" json:"{{ .Name }},omitempty"`
+	{{ if eq .Meta "name" }}Name{{ else }}{{ contentFieldName . }}{{ end }} {{ fieldType . }} `yaml:"{{ if eq .Type "media" }}-{{ else }}{{ .Name }},omitempty{{ end }}" json:"{{ .Name }},omitempty"`
 	{{- end }}
 
 	// unknown fields are stored in the Extra map
@@ -109,15 +109,15 @@ func (c Content) Type() string {
 func (c Content) Header() string {
 	{{- range .Content.Properties }}
 	{{- if or (eq .Name "title") (eq .Alias "title") }}
-	if c.{{ titleCase .Name }} != "" {
-		return c.{{ titleCase .Name }}
+	if c.{{ contentFieldName . }} != "" {
+		return c.{{ contentFieldName . }}
 	}
 	{{- end }}
 	{{- end }}
 
 	{{- range .Content.Properties }}
 	{{- if or (eq .Name "name") (eq .Alias "name") }}
-	return c.{{ titleCase .Name }}
+	return c.{{ contentFieldName . }}
 	{{- end }}
 	{{- end }}
 }
@@ -125,7 +125,7 @@ func (c Content) Header() string {
 func (c *Content) SetName(name string) {
 	{{- range .Content.Properties }}
 	{{- if or (eq .Name "name") (eq .Alias "name") }}
-	c.{{ titleCase .Name }} = name
+	c.{{ contentFieldName . }} = name
 	{{- end }}
 	{{- end }}
 }
@@ -133,7 +133,7 @@ func (c *Content) SetName(name string) {
 func (c Content) GetName() string {
 	{{- range .Content.Properties }}
 	{{- if or (eq .Name "name") (eq .Alias "name") }}
-	return c.{{ titleCase .Name }}
+	return c.{{ contentFieldName . }}
 	{{- end }}
 	{{- end }}
 }
@@ -155,6 +155,7 @@ func (c Content) Connections() []Connection {
 	{{ template "connections" dict
 		"Content" .Content
 		"Prefix" "c"
+		"AvoidGeneratedContentFieldCollisions" true
 		"Depth" 0 }}
 	return connections
 }
@@ -162,7 +163,7 @@ func (c Content) Connections() []Connection {
 
 type {{ titleCase $key }} struct {
 {{- range $content.Properties }}
-	{{ titleCase .Name }} {{ fieldType . }} `yaml:"{{ .Name }},omitempty" json:"{{ .Name }},omitempty"`
+	{{ fieldName . }} {{ fieldType . }} `yaml:"{{ .Name }},omitempty" json:"{{ .Name }},omitempty"`
 {{- end }}
 
 	// unknown fields are stored in the Extra map
@@ -174,7 +175,8 @@ type {{ titleCase $key }} struct {
 func (c *Content) AddMedia(getImage func(string) *Media) {
 	{{- template "media" dict
 		"Content" .Content
-		"Prefix" "c" }}
+		"Prefix" "c"
+		"AvoidGeneratedContentFieldCollisions" true }}
 }
 
 func IsPerson(path string) bool {

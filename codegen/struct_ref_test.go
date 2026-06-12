@@ -46,3 +46,64 @@ func TestStructRef(t *testing.T) {
 		}
 	}
 }
+
+func TestFieldTypeCustomIssueArray(t *testing.T) {
+	s := Schema{
+		Extra: map[string]Content{
+			"issue": {},
+		},
+	}
+
+	got := s.FieldType(Property{
+		Name: "issues",
+		Type: "array",
+		Items: &Property{
+			Type: "issue",
+		},
+	})
+	if got != "[]*Issue" {
+		t.Fatalf("got %s, expected []*Issue", got)
+	}
+}
+
+func TestFieldNameAvoidsGeneratedContentFieldCollision(t *testing.T) {
+	got := contentFieldName(Property{Name: "awards"})
+	if got != "AwardItems" {
+		t.Fatalf("got %s, expected AwardItems", got)
+	}
+}
+
+func TestFieldNameAllowsExtraTypeAwards(t *testing.T) {
+	got := fieldName(Property{Name: "awards"})
+	if got != "Awards" {
+		t.Fatalf("got %s, expected Awards", got)
+	}
+}
+
+func TestFieldNameUsesNonSemanticAlias(t *testing.T) {
+	got := contentFieldName(Property{Name: "awards", Alias: "source_awards"})
+	if got != "SourceAwards" {
+		t.Fatalf("got %s, expected SourceAwards", got)
+	}
+}
+
+func TestCustomIssueTypeHasNoConnectionsOrMedia(t *testing.T) {
+	schema = &Schema{
+		Extra: map[string]Content{
+			"issue": {
+				Properties: PropertySlice{
+					{Name: "number", Type: "string"},
+					{Name: "title", Type: "string"},
+					{Name: "released", Type: "string"},
+				},
+			},
+		},
+	}
+
+	if hasConnections(schema.Extra["issue"]) {
+		t.Fatal("issue should not generate connection traversal")
+	}
+	if hasMedia(schema.Extra["issue"]) {
+		t.Fatal("issue should not generate media traversal")
+	}
+}

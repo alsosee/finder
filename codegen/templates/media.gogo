@@ -5,13 +5,15 @@ prefix: string, e.g. "c", "item"
 f
 */ -}}
 {{- range .Content.Properties }}
+{{- $fieldName := fieldNameFor . $.AvoidGeneratedContentFieldCollisions }}
 {{- if eq .Type "media" }}
-{{ $.Prefix }}.{{ titleCase .Name }} = getImage({{ structRef .Path $.Prefix true }})
-{{- else if and (eq .Type "array") (extraType .Items.Type) }}
-for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ titleCase .Name }} {
+{{ $.Prefix }}.{{ $fieldName }} = getImage({{ structRef .Path $.Prefix true }})
+{{- else if and (eq .Type "array") (extraType .Items.Type) (hasMedia (lookupExtraType .Items.Type)) }}
+for _, {{ camelCaseConcat $.Prefix .Items.Type }} := range {{ $.Prefix }}.{{ $fieldName }} {
     {{- template "media" dict
         "Content" (lookupExtraType .Items.Type)
-        "Prefix" (camelCaseConcat $.Prefix .Items.Type) }}
+        "Prefix" (camelCaseConcat $.Prefix .Items.Type)
+        "AvoidGeneratedContentFieldCollisions" false }}
 }
 {{- end }}
 {{- end }}

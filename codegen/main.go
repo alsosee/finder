@@ -215,7 +215,7 @@ func generateCode(schema *Schema, out string) error {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
 
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	tmpls, err := template.New("").Funcs(fm).ParseFS(templatesFS, "templates/*")
 	if err != nil {
@@ -234,7 +234,15 @@ var fm = template.FuncMap{
 	"add": func(a, b int) int {
 		return a + b
 	},
-	"titleCase": titleCase,
+	"titleCase":        titleCase,
+	"fieldName":        fieldName,
+	"contentFieldName": contentFieldName,
+	"fieldNameFor": func(property Property, avoidGeneratedContentFieldCollisions bool) string {
+		if avoidGeneratedContentFieldCollisions {
+			return contentFieldName(property)
+		}
+		return fieldName(property)
+	},
 	"fieldType": func(property Property) string {
 		return schema.FieldType(property)
 	},
@@ -258,19 +266,22 @@ var fm = template.FuncMap{
 	"lookupExtraType": func(t string) Content {
 		return schema.Extra[t]
 	},
+	"hasConnections": hasConnections,
+	"hasMedia":       hasMedia,
 	"columnValue": func(p Property) string {
+		field := "c." + contentFieldName(p)
 		switch p.Type {
 		case "string":
-			return "c." + titleCase(p.Name)
+			return field
 		case "duration":
-			return "length(c." + titleCase(p.Name) + ")"
+			return "length(" + field + ")"
 		case "references":
-			return "strings.Join(c." + titleCase(p.Name) + ", \", \")"
+			return "strings.Join(" + field + ", \", \")"
 		case "array":
-			return "strings.Join(c." + titleCase(p.Name) + ", \", \")"
+			return "strings.Join(" + field + ", \", \")"
 		default:
 			if schema.RootTypes.HasType(p.Type) {
-				return "c." + titleCase(p.Name)
+				return field
 			}
 
 			log.Fatalf("columnValue: unknown type %q for field %q (%s)", p.Type, p.Name, p.Description)
@@ -382,6 +393,72 @@ func titleCase(s string) string {
 	}
 
 	return result
+}
+
+var generatedContentFieldNames = map[string]bool{
+	"Awards":               true,
+	"EditorsAwards":        true,
+	"WritersAwards":        true,
+	"DirectorsAwards":      true,
+	"CinematographyAwards": true,
+	"MusicAwards":          true,
+	"ScreenplayAwards":     true,
+}
+
+func fieldName(p Property) string {
+	if p.Alias != "" && p.Alias != "name" && p.Alias != "title" {
+		return titleCase(p.Alias)
+	}
+
+	return titleCase(p.Name)
+}
+
+func contentFieldName(p Property) string {
+	name := fieldName(p)
+	if generatedContentFieldNames[name] {
+		if strings.HasSuffix(name, "s") {
+			return strings.TrimSuffix(name, "s") + "Items"
+		}
+		return name + "Field"
+	}
+
+	return name
+}
+
+func hasConnections(content Content) bool {
+	for _, property := range content.Properties {
+		if property.Type == "reference" || schema.RootTypes.HasType(property.Type) || property.Meta == "series" {
+			return true
+		}
+
+		if property.Type != "array" || property.Items == nil {
+			continue
+		}
+
+		if property.Items.Type == "reference" || schema.RootTypes.HasType(property.Items.Type) {
+			return true
+		}
+
+		if schema.HasExtraType(property.Items.Type) && hasConnections(schema.Extra[property.Items.Type]) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func hasMedia(content Content) bool {
+	for _, property := range content.Properties {
+		if property.Type == "media" {
+			return true
+		}
+
+		if property.Type == "array" && property.Items != nil && schema.HasExtraType(property.Items.Type) && hasMedia(schema.Extra[property.Items.Type]) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (s *Schema) FieldType(property Property) string {

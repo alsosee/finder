@@ -173,6 +173,8 @@ type Content struct {
 	Contact           string        `yaml:"contact,omitempty" json:"contact,omitempty"`
 	Parent            string        `yaml:"parent,omitempty" json:"parent,omitempty"`
 	Founded           string        `yaml:"founded,omitempty" json:"founded,omitempty"`
+	Headquarters      string        `yaml:"headquarters,omitempty" json:"headquarters,omitempty"`
+	Location          string        `yaml:"location,omitempty" json:"location,omitempty"`
 	Founders          oneOrMany     `yaml:"founders,omitempty" json:"founders,omitempty"`
 	Website           *Link         `yaml:"website,omitempty" json:"website,omitempty"`
 	Websites          Links         `yaml:"websites,omitempty" json:"websites,omitempty"`
@@ -230,6 +232,9 @@ type Content struct {
 	Vudu              string        `yaml:"vudu,omitempty" json:"vudu,omitempty"`
 	DarkHorse         string        `yaml:"darkhorse,omitempty" json:"darkhorse,omitempty"`
 	Kickstarter       string        `yaml:"kickstarter,omitempty" json:"kickstarter,omitempty"`
+	Itch              string        `yaml:"itch,omitempty" json:"itch,omitempty"`
+	Drivethrurpg      string        `yaml:"drivethrurpg,omitempty" json:"drivethrurpg,omitempty"`
+	GitHub            string        `yaml:"github,omitempty" json:"github,omitempty"`
 	ISBN              string        `yaml:"isbn,omitempty" json:"isbn,omitempty"`
 	ISBN10            string        `yaml:"isbn10,omitempty" json:"isbn10,omitempty"`
 	ISBN13            string        `yaml:"isbn13,omitempty" json:"isbn13,omitempty"`
@@ -238,6 +243,8 @@ type Content struct {
 	Publication       string        `yaml:"publication,omitempty" json:"publication,omitempty"`
 	Artists           oneOrMany     `yaml:"artists,omitempty" json:"artists,omitempty"`
 	Colorist          string        `yaml:"colorist,omitempty" json:"colorist,omitempty"`
+	Letterer          string        `yaml:"letterer,omitempty" json:"letterer,omitempty"`
+	Issues            []*Issue      `yaml:"issues,omitempty" json:"issues,omitempty"`
 	Illustrators      oneOrMany     `yaml:"illustrators,omitempty" json:"illustrators,omitempty"`
 	Imprint           string        `yaml:"imprint,omitempty" json:"imprint,omitempty"`
 	UPC               string        `yaml:"upc,omitempty" json:"upc,omitempty"`
@@ -268,10 +275,13 @@ type Content struct {
 	Composers         oneOrMany     `yaml:"composers,omitempty" json:"composers,omitempty"`
 	Programmers       oneOrMany     `yaml:"programmers,omitempty" json:"programmers,omitempty"`
 	Designers         oneOrMany     `yaml:"designers,omitempty" json:"designers,omitempty"`
+	License           string        `yaml:"license,omitempty" json:"license,omitempty"`
 	Hosts             oneOrMany     `yaml:"hosts,omitempty" json:"hosts,omitempty"`
 	Guests            oneOrMany     `yaml:"guests,omitempty" json:"guests,omitempty"`
 	RemakeOf          *Reference    `yaml:"remake_of,omitempty" json:"remake_of,omitempty"`
+	Not               References    `yaml:"not,omitempty" json:"not,omitempty"`
 	Characters        []*Character  `yaml:"characters,omitempty" json:"characters,omitempty"`
+	AwardItems        []*Award      `yaml:"awards,omitempty" json:"awards,omitempty"`
 	Categories        []Category    `yaml:"categories,omitempty" json:"categories,omitempty"`
 	References        References    `yaml:"references,omitempty" json:"references,omitempty"`
 	Episodes          []*Episode    `yaml:"episodes,omitempty" json:"episodes,omitempty"`
@@ -430,6 +440,12 @@ func (c Content) Connections() []Connection {
 			Label: "Colorist",
 		})
 	}
+	if c.Letterer != "" {
+		connections = append(connections, Connection{
+			To:    "People/" + c.Letterer,
+			Label: "Letterer",
+		})
+	}
 	for _, person := range c.Illustrators {
 		connections = append(connections, Connection{
 			To:    "People/" + person,
@@ -580,6 +596,12 @@ func (c Content) Connections() []Connection {
 			Label: "Remake",
 		})
 	}
+	for _, reference := range c.Not {
+		connections = append(connections, Connection{
+			To:    reference.Path,
+			Label: "Not",
+		})
+	}
 	for _, character := range c.Characters {
 		if character.Actor != "" {
 			connections = append(connections, Connection{
@@ -705,6 +727,15 @@ type Episode struct {
 	Netflix        string        `yaml:"netflix,omitempty" json:"netflix,omitempty"`
 	Wikipedia      string        `yaml:"wikipedia,omitempty" json:"wikipedia,omitempty"`
 	Fandom         string        `yaml:"fandom,omitempty" json:"fandom,omitempty"`
+
+	// unknown fields are stored in the Extra map
+	Extra map[string]interface{} `yaml:",inline" json:",omitempty"`
+}
+
+type Issue struct {
+	Number   string `yaml:"number,omitempty" json:"number,omitempty"`
+	Title    string `yaml:"title,omitempty" json:"title,omitempty"`
+	Released string `yaml:"released,omitempty" json:"released,omitempty"`
 
 	// unknown fields are stored in the Extra map
 	Extra map[string]interface{} `yaml:",inline" json:",omitempty"`
