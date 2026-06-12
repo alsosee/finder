@@ -1,6 +1,8 @@
 -include .env
 export
 
+GOLANGCI_LINT_VERSION ?= v2.4.0
+
 .PHONY: help
 ## help: prints this help message
 help:
@@ -16,7 +18,7 @@ test:
 ## lint: run golangci-lint
 # Install: https://golangci-lint.run/usage/install/
 lint:
-	@golangci-lint run ./... --out-format colored-line-number
+	@go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION) run ./...
 
 .PHONY: clean
 ## clean: clean the output

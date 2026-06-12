@@ -11,8 +11,6 @@ import (
 	"strings"
 	"text/template"
 
-	_ "embed"
-
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"gopkg.in/yaml.v3"

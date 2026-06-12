@@ -30,7 +30,7 @@ jobs:
         uses: golangci/golangci-lint-action@v9.2.1
         with:
           working-directory: ./codegen
-          version: latest
+          version: v2.4.0
 
       - name: Test
         run: go test -v -count=1 -race -shuffle=on -coverprofile=coverage.txt -json ./codegen/... > test.json
