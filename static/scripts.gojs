@@ -1,5 +1,5 @@
 if (typeof hasRun === 'undefined') {
-    document.getElementById("_").scrollIntoView();
+    scrollToMarker();
 
     var viewSwitcher = document.querySelector('#toolbar fieldset');
     var container = document.querySelector('#container');
@@ -11,6 +11,71 @@ if (typeof hasRun === 'undefined') {
 
     function path() {
         return decodeURI(window.location.pathname).substr(1);
+    }
+
+    var currentScrollKey = locationKey();
+
+    function locationKey() {
+        return window.location.pathname + window.location.search + window.location.hash;
+    }
+
+    function scrollStorageKey(key) {
+        return "scrollPosition:" + key;
+    }
+
+    function scrollToMarker() {
+        var marker = document.getElementById("_");
+        if (marker) {
+            marker.scrollIntoView();
+        }
+    }
+
+    function scrollTargets() {
+        return Array.from(document.querySelectorAll('#container, .panel, .content'));
+    }
+
+    function saveScrollPosition(key) {
+        var positions = scrollTargets().map(function(target) {
+            return {
+                selector: target.id ? "#" + target.id : "." + Array.from(target.classList).join("."),
+                level: target.dataset.level || null,
+                top: target.scrollTop,
+                left: target.scrollLeft
+            };
+        });
+        sessionStorage.setItem(scrollStorageKey(key || currentScrollKey), JSON.stringify(positions));
+    }
+
+    function restoreScrollPosition(key) {
+        var raw = sessionStorage.getItem(scrollStorageKey(key || locationKey()));
+        if (!raw) {
+            return false;
+        }
+
+        var positions;
+        try {
+            positions = JSON.parse(raw);
+        } catch (error) {
+            return false;
+        }
+
+        positions.forEach(function(position) {
+            var selector = position.selector;
+            var target = null;
+            if (position.level !== null) {
+                target = document.querySelector(`${selector}[data-level="${position.level}"]`);
+            }
+            if (!target) {
+                target = document.querySelector(selector);
+            }
+            if (!target) {
+                return;
+            }
+
+            target.scrollTop = position.top || 0;
+            target.scrollLeft = position.left || 0;
+        });
+        return true;
     }
 
     function addContentThumb(thumb) {
@@ -78,7 +143,7 @@ if (typeof hasRun === 'undefined') {
         view = value;
         localStorage.setItem('view', value);
         document.body.setAttribute('data-view', value);
-        document.getElementById("_").scrollIntoView();
+        scrollToMarker();
         restoreFocus("setView");
     };
 
@@ -115,6 +180,9 @@ if (typeof hasRun === 'undefined') {
     function restoreFocus(when) {
         // restore panel scroll positions
         var scrollPostions = JSON.parse(localStorage.getItem('scrollY'));
+        if (!scrollPostions) {
+            scrollPostions = [];
+        }
         var panels = document.querySelectorAll('.panel');
         panels.forEach(function(panel, index) {
             if (scrollPostions[index] === null) {
@@ -144,6 +212,7 @@ if (typeof hasRun === 'undefined') {
     }
 
     htmx.on('htmx:historyRestore', function(evt) {
+        currentScrollKey = locationKey();
         viewSwitcher = document.querySelector('#toolbar fieldset');
         viewSwitcher.addEventListener('change', (event) => {
             setView(event.target.value);
@@ -154,6 +223,7 @@ if (typeof hasRun === 'undefined') {
 
     var xhr = null;
     htmx.on('htmx:beforeRequest', function(evt) {
+        saveScrollPosition();
         if (xhr !== null) {
             // cancel any in-flight requests
             xhr.abort();
@@ -173,7 +243,10 @@ if (typeof hasRun === 'undefined') {
       if (!content || view === "columns") {
           restoreFocus("afterSwap");
       }
-      document.getElementById("_").scrollIntoView();
+      if (!restoreScrollPosition()) {
+          scrollToMarker();
+      }
+      currentScrollKey = locationKey();
     });
 
     htmx.on('htmx:afterSwap', function(evt) {
@@ -185,7 +258,7 @@ if (typeof hasRun === 'undefined') {
         if (!content || view === "columns") {
             restoreFocus("afterSwap");
         }
-        document.getElementById("_").scrollIntoView();
+        scrollToMarker();
 
         if (content) {
             loadImagesFromIndexedDB();
@@ -208,6 +281,7 @@ if (typeof hasRun === 'undefined') {
         } else {
             editLink.href = "{{ (config).Repo }}/tree/main/" + path();
         }
+        currentScrollKey = locationKey();
     });
 
     /* search */
@@ -370,6 +444,7 @@ if (typeof hasRun === 'undefined') {
             if (pushState) {
                 console.log("Pushing state", urlBackup);
                 history.pushState({}, "", urlBackup);
+                currentScrollKey = locationKey();
                 urlBackup = "";
             }
             return;
@@ -388,6 +463,7 @@ if (typeof hasRun === 'undefined') {
         if (pushState) {
             console.log("Pushing state", query);
             history.pushState({query: query}, "", "/search?q=" + encodeURIComponent(query));
+            currentScrollKey = locationKey();
             document.title = "{{ (config).SearchLabel }}: " + query;
         }
 
@@ -506,6 +582,7 @@ if (typeof hasRun === 'undefined') {
 
     // restore the search query if the user navigates back
     window.addEventListener('popstate', function(event) {
+        saveScrollPosition();
         console.log("Popstate", event.state, "URL", window.location.href);
         var query = "";
         if (event.state !== null && event.state.query !== undefined) {
@@ -530,7 +607,7 @@ if (typeof hasRun === 'undefined') {
             search({target: {value: ""}}, false);
             searchInput.value = "";
         }
-    });
+    }, true);
 
     // on page load, restore the search query if there is one
     window.addEventListener('load', function(event) {
@@ -546,15 +623,19 @@ if (typeof hasRun === 'undefined') {
 
         content = document.querySelector('.content');
         if (content) {
-            document.getElementById("_").scrollIntoView();
+            if (!restoreScrollPosition()) {
+                scrollToMarker();
+            }
         } else {
             restoreFocus("load");
+            restoreScrollPosition();
         }
 
         if (sessionStorage.getItem('restoreSearchInputFocus')) {
             searchInput.focus();
             sessionStorage.removeItem('restoreSearchInputFocus');
         }
+        currentScrollKey = locationKey();
     });
 
     function panelClick(event) {
@@ -583,6 +664,7 @@ if (typeof hasRun === 'undefined') {
 
     // if menu is open, and click is outside of the menu, close it
     document.addEventListener('click', function(event) {
+        saveScrollPosition();
         if (menu.classList.contains('open') && !menu.contains(event.target) && !menu_popup.contains(event.target)) {
             menu.classList.remove('open');
         }
