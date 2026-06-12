@@ -25,7 +25,7 @@ func (g *HTMLProjector) crc32sum(path string) string {
 		log.Printf("Error opening file %q: %v", filePath, err)
 		return ""
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	hash := crc32.NewIEEE()
 	if _, err := io.Copy(hash, file); err != nil {

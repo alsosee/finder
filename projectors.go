@@ -196,7 +196,7 @@ func (p MarkdownProjector) Run(graph *BuildGraph) error {
 			}
 			sort.Strings(keys)
 			for _, key := range keys {
-				b.WriteString(fmt.Sprintf("- **%s:** %s\n", key, columns[key]))
+				fmt.Fprintf(&b, "- **%s:** %s\n", key, columns[key])
 			}
 			if len(keys) > 0 {
 				b.WriteString("\n")

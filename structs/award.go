@@ -19,7 +19,7 @@ type Winner struct {
 	Actor     string `yaml:",omitempty" json:",omitempty"`
 	Track     string `yaml:",omitempty" json:",omitempty"`
 
-	Fallback       string    `yaml:"-" json:"-,omitempty"` // used to store the fallback value for template
+	Fallback       string    `yaml:"-" json:"-"` // used to store the fallback value for template
 	Editors        oneOrMany `yaml:",omitempty" json:",omitempty"`
 	Directors      oneOrMany `yaml:",omitempty" json:",omitempty"`
 	Writers        oneOrMany `yaml:",omitempty" json:",omitempty"`

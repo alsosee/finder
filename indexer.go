@@ -288,7 +288,7 @@ func readStateFromFile(stateFile string) (map[string]string, error) {
 		}
 		return nil, fmt.Errorf("opening state file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
@@ -317,7 +317,7 @@ func writeStateToFile(stateFile string, state map[string]string) error {
 	if err != nil {
 		return fmt.Errorf("creating state file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	stateSlice := make([]string, 0, len(state))
 

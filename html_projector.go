@@ -569,7 +569,7 @@ func (g *HTMLProjector) copyFunctionsFiles() {
 		if err != nil {
 			return fmt.Errorf("creating file %q: %w", outPath, err)
 		}
-		defer outFile.Close()
+		defer func() { _ = outFile.Close() }()
 
 		inFile, err := functionsFS.Open(path)
 		if err != nil {
@@ -604,7 +604,7 @@ func (g *HTMLProjector) processGoJSFile(src, out string) error {
 	if err != nil {
 		return fmt.Errorf("creating file: %w", err)
 	}
-	defer outFile.Close()
+	defer func() { _ = outFile.Close() }()
 
 	if err = t.Execute(outFile, nil); err != nil {
 		return fmt.Errorf("%w for %q: %w", errExecutingTemplate, src, err)
