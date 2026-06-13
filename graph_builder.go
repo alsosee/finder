@@ -68,6 +68,7 @@ func (b *GraphBuilder) Build() (*BuildGraph, error) {
 			return nil, fmt.Errorf("processing file %q: %w", file.Path, err)
 		}
 	}
+	ReportDiagnostics(b.diagnostics)
 
 	b.addAwards()
 
@@ -133,10 +134,7 @@ func (b *GraphBuilder) processYAMLFile(file string) error {
 	if err != nil {
 		return err
 	}
-	for _, diagnostic := range diagnostics {
-		diagnostic.Log()
-		b.diagnostics = append(b.diagnostics, diagnostic)
-	}
+	b.diagnostics = append(b.diagnostics, diagnostics...)
 
 	content.Source = file
 	content.GenerateID()

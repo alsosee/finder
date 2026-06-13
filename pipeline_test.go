@@ -62,6 +62,12 @@ character:
 	if diagnostics[0].Path != "characters[0].typo" {
 		t.Fatalf("got path %q, expected characters[0].typo", diagnostics[0].Path)
 	}
+	if diagnostics[0].Type != "character" {
+		t.Fatalf("got type %q, expected character", diagnostics[0].Type)
+	}
+	if diagnostics[0].Field != "typo" {
+		t.Fatalf("got field %q, expected typo", diagnostics[0].Field)
+	}
 	if diagnostics[0].Line != 4 {
 		t.Fatalf("got line %d, expected 4", diagnostics[0].Line)
 	}
