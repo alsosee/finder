@@ -1072,7 +1072,11 @@ fieldset.radio label:last-of-type {
   z-index: 1;
 }
 
-[data-view="list"] .panel li.header span {
+[data-view="list"] .panel li.header .header-row {
+  display: table-row;
+}
+
+[data-view="list"] .panel li.header .header-row > span {
   font-size: 75%;
   font-weight: 600;
   border-bottom: 1px solid var(--color-border);
@@ -1080,11 +1084,11 @@ fieldset.radio label:last-of-type {
   padding-bottom: 2px;
 }
 
-[data-view="list"] .panel li.header span.icon {
+[data-view="list"] .panel li.header .header-row > span.icon {
   min-width: 39px;
 }
 
-[data-view="list"] .panel li.header span {
+[data-view="list"] .panel li.header .header-row > span {
   display: table-cell;
 }
 
@@ -1730,7 +1734,7 @@ p .award + .award {
       inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   }
 
-  [data-view="list"] .panel li.header span {
+  [data-view="list"] .panel li.header .header-row > span {
     text-shadow: 0 -1px 0px rgba(0,0,0,0.5);
   }
 

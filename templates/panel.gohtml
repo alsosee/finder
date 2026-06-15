@@ -1,12 +1,13 @@
         {{- $columns := chooseColumns .Panel.Files }}
         <ul class="panel menubar-navigation" role="menu" data-level="{{ .Index }}" onclick="panelClick(event)">
-            <li role="none" class="header">
+            <li role="none" class="header"><span class="header-row">
                 <span class="icon"></span>
                 <span>{{ (config).ColumnName }}</span>
                 {{- range $columns }}
                 <span class="column" data-label="{{ . }}">{{ . }}</span>
                 {{- end }}
                 <span class="column expand"></span>
+                </span>
             </li>
             {{- range .Panel.Files }}
             {{- $file := . }}

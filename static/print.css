@@ -92,7 +92,7 @@ a {
   background: none;
 }
 
-[data-view="list"] .panel li.header span {
+[data-view="list"] .panel li.header .header-row > span {
   border-top: 1px solid var(--color-border);
 }
 

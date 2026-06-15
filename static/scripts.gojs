@@ -546,7 +546,7 @@ if (typeof hasRun === 'undefined') {
         chosenColumns = chooseColumns(columnsCounts, results.length);
 
         // for each result item, add "columns" dictionary with fields they may be shown in list view
-        var resultsHeader = `<li role="none" class="header">
+        var resultsHeader = `<li role="none" class="header"><span class="header-row">
                 <span class="icon"></span>
                 <span>{{ (config).ColumnName }}</span>
                 <span class="column">{{ (config).ColumnKind }}</span>`;
@@ -555,7 +555,7 @@ if (typeof hasRun === 'undefined') {
             var title = columnsTitles[column]
             resultsHeader += `<span class="column" data-label="${column}">${title}</span>`;
         }
-        resultsHeader += `<span class="column expand"></span></li>`;
+        resultsHeader += `<span class="column expand"></span></span></li>`;
 
         const resultsHTML = results.map(function(result) {
             var columns = `<span class="column" data-label="{{ (config).ColumnKind }}">${kind(result.href)}</span>`;
