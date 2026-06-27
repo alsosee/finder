@@ -1,4 +1,4 @@
-name: worker
+name: worker consumers
 
 on:
   push:
@@ -10,16 +10,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  notify:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v6.0.2
 
-      - name: Deploy Worker
-        uses: cloudflare/wrangler-action@v3.5.0
+      - name: Trigger info worker deploy
+        uses: peter-evans/repository-dispatch@v4.0.1
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: deploy --config worker/wrangler.toml
+          token: ${{ secrets.PKG_TOKEN }}
+          repository: alsosee/info
+          event-type: finder-worker
+          client-payload: '{"trigger": "finder-worker", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'

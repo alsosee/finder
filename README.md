@@ -41,8 +41,8 @@ The Worker in `worker/` handles interactive API routes:
 - `PUT /api/upload`
 - `POST /api/image-proxy`
 
-Deploys run from `.github/workflows/worker.yml` only when Worker files change.
-The Worker expects the `MEDIA` R2 binding from `worker/wrangler.toml` and a `GHP_TOKEN` Worker secret for GitHub repository dispatches.
+`worker/wrangler.toml` is local-development configuration. Projects that consume `finder` own their production Worker deployment config, route, R2 bindings, and secrets.
+When Worker source changes, `.github/workflows/worker.yml` notifies known downstream projects so they can deploy with their own configuration.
 
 ## Architecture decisions log
 
