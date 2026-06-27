@@ -2,12 +2,9 @@ package main
 
 import (
 	"bytes"
-	"embed"
 	"errors"
 	"fmt"
 	"html"
-	"io"
-	"io/fs"
 	"log"
 	"net/url"
 	"os"
@@ -31,9 +28,6 @@ import (
 var errExecutingTemplate = errors.New("error executing template")
 
 var caser = cases.Title(language.English, cases.NoLower)
-
-//go:embed functions/*
-var functionsFS embed.FS
 
 // HTMLProjector renders the static website from a build graph.
 type HTMLProjector struct {
@@ -463,7 +457,6 @@ func (g *HTMLProjector) Run(graph *BuildGraph) error {
 	g.templates = t
 
 	g.copyStaticFiles()
-	g.copyFunctionsFiles()
 	for _, file := range graph.PassthroughFiles {
 		if err := g.copyFileAsIs(file); err != nil {
 			return fmt.Errorf("copying passthrough file %q: %w", file, err)
@@ -537,55 +530,6 @@ func (g *HTMLProjector) copyStaticFiles() {
 	}
 
 	log.Printf("Done copying static files from %q to %q", g.staticDir, g.outputDir)
-}
-
-func (g *HTMLProjector) copyFunctionsFiles() {
-	log.Printf("Copying functions files")
-
-	// check if functions directory exists, if it does – exit
-	if _, err := os.Stat("functions"); err == nil {
-		log.Printf("Functions directory already exists, skipping")
-		return
-	}
-
-	// unlike static files, functions directory has to be the directory where app is running
-	// so it is not written to the HTML output directory
-	if err := os.MkdirAll("functions", 0o755); err != nil {
-		log.Fatalf("Error creating functions directory: %v", err)
-	}
-
-	// copy embedded functionsFS files to the functions directory
-	err := fs.WalkDir(functionsFS, ".", func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if d.IsDir() {
-			return os.MkdirAll(path, 0o755)
-		}
-
-		outPath := filepath.Join(path)
-		outFile, err := os.Create(outPath)
-		if err != nil {
-			return fmt.Errorf("creating file %q: %w", outPath, err)
-		}
-		defer func() { _ = outFile.Close() }()
-
-		inFile, err := functionsFS.Open(path)
-		if err != nil {
-			return fmt.Errorf("opening file %q: %w", path, err)
-		}
-
-		_, err = io.Copy(outFile, inFile)
-		if err != nil {
-			return fmt.Errorf("copying file %q to %q: %w", path, outPath, err)
-		}
-
-		return nil
-	})
-	if err != nil {
-		log.Fatalf("Error walking functions directory: %v", err)
-	}
 }
 
 func (g *HTMLProjector) processGoJSFile(src, out string) error {

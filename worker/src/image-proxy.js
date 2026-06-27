@@ -77,7 +77,12 @@ function isBlockedHostname(hostname) {
     return true;
   }
 
-  if (host === "::1" || host.startsWith("fc") || host.startsWith("fd") || host.startsWith("fe80:")) {
+  if (
+    host === "::1" ||
+    host.startsWith("fc") ||
+    host.startsWith("fd") ||
+    host.startsWith("fe80:")
+  ) {
     return true;
   }
 
@@ -201,13 +206,13 @@ async function fetchImage(rawURL) {
   throw new Error("Image URL redirected too many times");
 }
 
-export async function onRequest(context) {
-  if (context.request.method !== "POST") {
+export async function handleImageProxy(request) {
+  if (request.method !== "POST") {
     return jsonResponse({ error: "Method Not Allowed" }, 405);
   }
 
   try {
-    const body = await context.request.json();
+    const body = await request.json();
     if (!body || typeof body.url !== "string") {
       return jsonResponse({ error: "Missing image URL" }, 400);
     }

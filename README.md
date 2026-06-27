@@ -12,8 +12,9 @@ It is part of a larger project to store information in a structured way:
 * [info](https://github.com/alsosee/info)
 * [media](https://github.com/alsosee/media)
 
-On a high level, `finder` takes a `info` directory and generates a static website that served via Cloudflare Pages.
+On a high level, `finder` takes a `info` directory and generates a static website that is served from Cloudflare R2.
 It also procceses the `media` directory and generates thumbnails sprites for all directories and images, and uploads them to Cloudflare R2 Storage.
+Interactive API routes live in a Cloudflare Worker under `/api/*`.
 
 On a lower level, `finder` walks the `info` directory, using go routines to process each YAML file concurrently.
 While doing so, it keeps track of all "connections" between files, to use later in go templates.
@@ -32,6 +33,16 @@ make serve
 ```
 
 Then press <kbd>b</kbd> that will open URL like this https://127.0.0.1:8788/ in your browser.
+
+## Worker
+
+The Worker in `worker/` handles interactive API routes:
+
+- `PUT /api/upload`
+- `POST /api/image-proxy`
+
+Deploys run from `.github/workflows/worker.yml` only when Worker files change.
+The Worker expects the `MEDIA` R2 binding from `worker/wrangler.toml` and a `GHP_TOKEN` Worker secret for GitHub repository dispatches.
 
 ## Architecture decisions log
 

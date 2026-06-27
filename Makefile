@@ -2,6 +2,7 @@
 export
 
 GOLANGCI_LINT_VERSION ?= v2.12.2
+WRANGLER_PORT ?= 8788
 
 .PHONY: help
 ## help: prints this help message
@@ -40,7 +41,7 @@ hash:
 .PHONY: serve
 ## serve: serve the static site
 serve: hash build
-	@wrangler pages dev --local-protocol=https output/ --compatibility-date=2024-02-25 --binding GHP_TOKEN=${GHP_TOKEN} --binding GITHUB_REPO=${GITHUB_REPO} --port=${WRANGLER_PORT}
+	@wrangler dev --config worker/wrangler.toml --assets=output --local-protocol=https --port=${WRANGLER_PORT}
 
 .PHONY: codegen
 ## codegen: generate code from the schema

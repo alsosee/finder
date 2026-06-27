@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - worker/**
+      - .github/workflows/worker.yml
   pull_request:
 
 jobs:

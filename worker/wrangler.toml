@@ -1,0 +1,14 @@
+name = "finder-api"
+main = "src/index.js"
+compatibility_date = "2024-02-25"
+
+routes = [
+  { pattern = "alsosee.info/api/*", zone_name = "alsosee.info" }
+]
+
+[vars]
+GITHUB_REPO = "alsosee/media"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "media-purgatory"

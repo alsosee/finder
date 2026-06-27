@@ -376,7 +376,7 @@
             };
             reader.readAsDataURL(blob);
 
-            fetch('/upload', {
+            fetch('/api/upload', {
                 method: 'PUT',
                 headers: {
                     'x-file-name': encodeURIComponent(path() + suffix + "." + format),
@@ -464,7 +464,7 @@
     }
 
     function loadImageURLWithProxy(reader, url) {
-        return fetch("/image-proxy", {
+        return fetch("/api/image-proxy", {
             method: "POST",
             headers: {
                 "content-type": "application/json",
