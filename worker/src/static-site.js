@@ -124,15 +124,17 @@ async function objectResponse(object, key, request, status = 200) {
   }
 
   let body = object.body;
-  if (!headers.has("content-encoding") && isPrecompressed(key)) {
+  const contentEncoding = headers.get("content-encoding") || "";
+  let isGzip = contentEncoding.toLowerCase().includes("gzip");
+  if (!isGzip && isPrecompressed(key)) {
     const sniffed = await sniffGzipBody(body);
     body = sniffed.body;
-    if (sniffed.isGzip) {
-      headers.set("content-encoding", "gzip");
-    }
+    isGzip = sniffed.isGzip;
   }
-  if (headers.has("content-encoding")) {
-    headers.append("vary", "Accept-Encoding");
+  if (isGzip) {
+    body = body.pipeThrough(new DecompressionStream("gzip"));
+    headers.delete("content-encoding");
+    headers.delete("content-length");
   }
 
   return new Response(request.method === "HEAD" ? null : body, {
