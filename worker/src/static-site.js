@@ -17,6 +17,18 @@ const BINARY_TYPES = {
   webp: "image/webp",
 };
 
+const PRECOMPRESSED_EXTENSIONS = new Set([
+  "css",
+  "html",
+  "js",
+  "json",
+  "map",
+  "svg",
+  "txt",
+  "webmanifest",
+  "xml",
+]);
+
 export async function handleStaticSite(request, env) {
   if (request.method !== "GET" && request.method !== "HEAD") {
     return new Response("Method Not Allowed", {
@@ -102,7 +114,7 @@ function hasFileExtension(path) {
   return name.includes(".");
 }
 
-function objectResponse(object, key, request, status = 200) {
+async function objectResponse(object, key, request, status = 200) {
   const headers = new Headers();
   object.writeHttpMetadata(headers);
   headers.set("etag", object.httpEtag);
@@ -111,7 +123,19 @@ function objectResponse(object, key, request, status = 200) {
     headers.set("content-type", contentType(key));
   }
 
-  return new Response(request.method === "HEAD" ? null : object.body, {
+  let body = object.body;
+  if (!headers.has("content-encoding") && isPrecompressed(key)) {
+    const sniffed = await sniffGzipBody(body);
+    body = sniffed.body;
+    if (sniffed.isGzip) {
+      headers.set("content-encoding", "gzip");
+    }
+  }
+  if (headers.has("content-encoding")) {
+    headers.append("vary", "Accept-Encoding");
+  }
+
+  return new Response(request.method === "HEAD" ? null : body, {
     status,
     headers,
   });
@@ -120,4 +144,25 @@ function objectResponse(object, key, request, status = 200) {
 function contentType(key) {
   const extension = key.split(".").pop()?.toLowerCase() || "";
   return TEXT_TYPES[extension] || BINARY_TYPES[extension] || "application/octet-stream";
+}
+
+function isPrecompressed(key) {
+  const extension = key.split(".").pop()?.toLowerCase() || "";
+  return PRECOMPRESSED_EXTENSIONS.has(extension);
+}
+
+async function sniffGzipBody(body) {
+  if (!body) {
+    return { body, isGzip: false };
+  }
+
+  const [sniffedBody, responseBody] = body.tee();
+  const reader = sniffedBody.getReader();
+  try {
+    const { value } = await reader.read();
+    const isGzip = value && value.length >= 2 && value[0] === 0x1f && value[1] === 0x8b;
+    return { body: responseBody, isGzip };
+  } finally {
+    await reader.cancel();
+  }
 }
