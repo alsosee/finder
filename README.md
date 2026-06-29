@@ -36,12 +36,14 @@ Then press <kbd>b</kbd> that will open URL like this https://127.0.0.1:8788/ in 
 
 ## Worker
 
-The Worker in `worker/` handles interactive API routes:
+The Worker in `worker/` serves the static site from an R2 bucket and handles interactive API routes:
 
 - `PUT /api/upload`
 - `POST /api/image-proxy`
 
-`worker/wrangler.toml` is local-development configuration. Projects that consume `finder` own their production Worker deployment config, route, R2 bindings, and secrets.
+Static requests are resolved like Pages-style routes: `/` loads `index.html`, trailing-slash paths load `index.html`, extensionless paths try `.html` and then `index.html`, and misses serve `404.html` with a 404 status.
+
+`worker/wrangler.toml` is local-development configuration. Projects that consume `finder` own their production Worker deployment config, route, R2 bindings, and secrets. Production configs should route the full site host to the Worker and bind the static site bucket as `SITE`.
 When Worker source changes, `.github/workflows/worker.yml` notifies known downstream projects so they can deploy with their own configuration.
 
 ## Architecture decisions log

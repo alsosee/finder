@@ -1,4 +1,5 @@
 import { handleImageProxy } from "./image-proxy.js";
+import { handleStaticSite } from "./static-site.js";
 import { handleUpload } from "./upload.js";
 
 export default {
@@ -11,6 +12,10 @@ export default {
 
     if (url.pathname === "/api/image-proxy") {
       return handleImageProxy(request);
+    }
+
+    if (env.SITE) {
+      return handleStaticSite(request, env);
     }
 
     if (env.ASSETS) {
