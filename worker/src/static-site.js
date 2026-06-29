@@ -132,15 +132,19 @@ async function objectResponse(object, key, request, status = 200) {
     isGzip = sniffed.isGzip;
   }
   if (isGzip) {
-    body = body.pipeThrough(new DecompressionStream("gzip"));
-    headers.delete("content-encoding");
-    headers.delete("content-length");
+    headers.set("content-encoding", "gzip");
+    headers.append("vary", "Accept-Encoding");
   }
 
-  return new Response(request.method === "HEAD" ? null : body, {
+  const init = {
     status,
     headers,
-  });
+  };
+  if (isGzip) {
+    init.encodeBody = "manual";
+  }
+
+  return new Response(request.method === "HEAD" ? null : body, init);
 }
 
 function contentType(key) {
