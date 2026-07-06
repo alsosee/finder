@@ -5,9 +5,30 @@ if (typeof hasRun === 'undefined') {
     var container = document.querySelector('#container');
     var breadcrumbs = document.querySelector('#breadcrumbs');
     var panels = document.querySelector('#panels');
-    var searchInput = document.querySelector('#search');
     var searchMode = false;
     var content = null;
+
+    function currentSearchInput() {
+        return document.querySelector('#search');
+    }
+
+    function setSearchInputValue(value) {
+        var searchInput = currentSearchInput();
+        if (searchInput) {
+            searchInput.value = value;
+        }
+    }
+
+    function focusSearchInput() {
+        var searchInput = currentSearchInput();
+        if (searchInput) {
+            searchInput.focus();
+        }
+    }
+
+    function isSearchInputFocused() {
+        return document.activeElement === currentSearchInput();
+    }
 
     function path() {
         return decodeURI(window.location.pathname).substr(1);
@@ -589,7 +610,7 @@ if (typeof hasRun === 'undefined') {
             query = event.state.query;
             document.title = "{{ (config).SearchLabel }}: " + query;
             search({target: {value: query}}, false);
-            searchInput.value = query;
+            setSearchInputValue(query);
         }
 
         if (event.state == null) {
@@ -599,13 +620,13 @@ if (typeof hasRun === 'undefined') {
                 query = url.searchParams.get("q");
                 document.title = "{{ (config).SearchLabel }}: " + query;
                 search({target: {value: query}}, false);
-                searchInput.value = query;
+                setSearchInputValue(query);
                 return;
             }
 
             // return to empty search state
             search({target: {value: ""}}, false);
-            searchInput.value = "";
+            setSearchInputValue("");
         }
     }, true);
 
@@ -618,7 +639,7 @@ if (typeof hasRun === 'undefined') {
             previousQuery = query; // bugfix for cases where the user navigates back to the empty search from a page that was loaded directly with a search query
             search({target: {value: query}}, false);
             document.title = "{{ (config).SearchLabel }}: " + query;
-            searchInput.value = query;
+            setSearchInputValue(query);
         }
 
         content = document.querySelector('.content');
@@ -632,7 +653,7 @@ if (typeof hasRun === 'undefined') {
         }
 
         if (sessionStorage.getItem('restoreSearchInputFocus')) {
-            searchInput.focus();
+            focusSearchInput();
             sessionStorage.removeItem('restoreSearchInputFocus');
         }
         currentScrollKey = locationKey();
@@ -684,7 +705,7 @@ if (typeof hasRun === 'undefined') {
         e.stopImmediatePropagation();
         if (e.keyCode === 190) { // .
             // of search input is focused, do nothing
-            if (document.activeElement === searchInput) {
+            if (isSearchInputFocused()) {
                 return;
             }
 
@@ -707,7 +728,7 @@ if (typeof hasRun === 'undefined') {
         }
 
         if (e.keyCode === 191) { // /
-            searchInput.focus();
+            focusSearchInput();
             e.preventDefault();
             return;
         }
@@ -739,7 +760,7 @@ if (typeof hasRun === 'undefined') {
             return;
         }
 
-        if (document.activeElement === searchInput) {
+        if (isSearchInputFocused()) {
             if (e.keyCode === 40) { // down
                 content = document.querySelector('.content');
                 if (content) {
