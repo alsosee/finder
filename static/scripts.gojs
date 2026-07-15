@@ -534,9 +534,10 @@ if (typeof hasRun === 'undefined') {
             const path = hit.Source.substring(0, hit.Source.lastIndexOf('.'))
             const dir = path.substring(0, path.lastIndexOf('/'));
             var attr = "";
+            var linkClass = "";
             if (hit.image) {
                 const ext = hit.image.Path.substring(hit.image.Path.lastIndexOf('.') + 1)
-                var linkClass = "has-image";
+                linkClass = "has-image";
                 if (ext == "jpg" || ext == "jpeg") {
                     linkClass += " jpg";
                 }
