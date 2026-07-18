@@ -278,7 +278,7 @@ func (b *GraphBuilder) addAwards() {
 				category.Winner.Reference = p + "/" + category.Winner.Game
 				category.Winner.Fallback = category.Winner.Game
 			case category.Winner.Series != "":
-				category.Winner.Reference = "Series/" + year + "/" + category.Winner.Series
+				category.Winner.Reference = "Shows/" + year + "/" + category.Winner.Series
 				category.Winner.Fallback = category.Winner.Series
 			case category.Winner.Person != "":
 				category.Winner.Reference = filepath.Join("People", category.Winner.Person)

@@ -32,6 +32,11 @@ build:
 	@go build -o generator .
 	./generator
 
+.PHONY: redirects
+## redirects: generate Worker redirects module
+redirects:
+	@go run . --outputs worker-redirects --worker-redirects-output worker/src/redirects.generated.js
+
 .PHONY: hash
 ## hash: update static files hashes in index.html
 hash:
@@ -40,7 +45,7 @@ hash:
 
 .PHONY: serve
 ## serve: serve the static site
-serve: hash build
+serve: hash build worker-redirects
 	@wrangler dev --config worker/wrangler.toml --assets=output --local-protocol=https --port=${WRANGLER_PORT}
 
 .PHONY: codegen

@@ -52,6 +52,12 @@ func buildProjectors(runtime Config, config structs.Config, outputs map[string]b
 	if outputs["markdown"] {
 		projectors = append(projectors, MarkdownProjector{outputDir: runtime.OutputDirectory})
 	}
+	if outputs["worker-redirects"] {
+		projectors = append(projectors, WorkerRedirectsProjector{
+			infoDir: runtime.InfoDirectory,
+			output:  runtime.WorkerRedirectsOut,
+		})
+	}
 
 	return projectors
 }
@@ -87,6 +93,10 @@ func selectedOutputs(runtime Config) map[string]bool {
 		}
 	}
 	return outputs
+}
+
+func onlyWorkerRedirects(outputs map[string]bool) bool {
+	return len(outputs) == 1 && outputs["worker-redirects"]
 }
 
 type JSONProjector struct {

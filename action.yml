@@ -38,6 +38,9 @@ inputs:
   outputs:
     description: Comma-separated projectors to run
     required: false
+  worker_redirects_output:
+    description: Path to generated Worker redirects module
+    required: false
   search_host:
     description: Host of MeiliSearch
     required: false

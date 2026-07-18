@@ -1,3 +1,6 @@
+import { redirectFor } from "./redirects.js";
+import { HAS_REDIRECTS } from "./redirects.generated.js";
+
 const TEXT_TYPES = {
   css: "text/css; charset=utf-8",
   html: "text/html; charset=utf-8",
@@ -38,6 +41,13 @@ export async function handleStaticSite(request, env) {
         "content-type": "text/plain; charset=utf-8",
       },
     });
+  }
+
+  if (HAS_REDIRECTS) {
+    const redirect = redirectFor(request.url);
+    if (redirect) {
+      return redirect;
+    }
   }
 
   const bucket = env.SITE;

@@ -61,3 +61,15 @@ func TestBuildProjectorsSkipsSearchWithoutMasterKey(t *testing.T) {
 		t.Fatalf("buildProjectors() names = %v, want %v", names, want)
 	}
 }
+
+func TestOnlyWorkerRedirects(t *testing.T) {
+	if !onlyWorkerRedirects(map[string]bool{"worker-redirects": true}) {
+		t.Fatal("onlyWorkerRedirects() = false, want true")
+	}
+	if onlyWorkerRedirects(map[string]bool{"worker-redirects": true, "html": true}) {
+		t.Fatal("onlyWorkerRedirects() = true, want false")
+	}
+	if onlyWorkerRedirects(map[string]bool{}) {
+		t.Fatal("onlyWorkerRedirects() = true, want false")
+	}
+}

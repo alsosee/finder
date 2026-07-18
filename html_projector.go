@@ -813,11 +813,12 @@ func (g *HTMLProjector) executeTemplate(path string, pageData structs.PageData, 
 	return nil
 }
 
-// series generates path to a series page
-// for Movies: /Movies/Series/<Series name>
-// for Video Games: /Games/Video/Series/<Series name>
-// Since most of the content arranged in a folders by year,
-// series page is 2 levels up from the current page.
+// series generates path to a series page.
+// For Movies: /Movies/Series/<Series name>
+// For Video Games: /Games/Video/Series/<Series name>
+// For Shows: /Shows/Series/<Series name>
+// Since most content is arranged in folders by year, the base series page is
+// inferred from the current page instead of being stored as a full path.
 func series(c structs.Content) string {
 	return filepath.Join(
 		filepath.Dir(filepath.Dir(c.Source)),
