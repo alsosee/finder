@@ -8,6 +8,31 @@ if (typeof hasRun === 'undefined') {
     var searchMode = false;
     var content = null;
 
+    function updateAppHeight() {
+        var viewport = window.visualViewport;
+        var height = viewport ? viewport.height : window.innerHeight;
+        document.documentElement.style.setProperty("--app-height", height + "px");
+    }
+
+    function scheduleAppHeightUpdate() {
+        requestAnimationFrame(updateAppHeight);
+    }
+
+    updateAppHeight();
+    window.addEventListener('resize', scheduleAppHeightUpdate);
+    window.addEventListener('orientationchange', function() {
+        setTimeout(updateAppHeight, 250);
+    });
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', scheduleAppHeightUpdate);
+        window.visualViewport.addEventListener('scroll', scheduleAppHeightUpdate);
+    }
+    document.addEventListener('focusout', function(event) {
+        if (event.target.matches('input, textarea, select')) {
+            setTimeout(updateAppHeight, 250);
+        }
+    });
+
     function currentSearchInput() {
         return document.querySelector('#search');
     }
