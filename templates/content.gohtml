@@ -277,15 +277,6 @@ Inputs (same as for "index" template):
     </ul>
     {{- end }}
 
-    {{- with .Not }}
-    <h2>Not to be confused with</h2>
-    <ul class="connections flat">
-        {{- range . }}
-        <li>{{ template "reference" dict "Path" .Path }}</li>
-        {{- end }}
-    </ul>
-    {{- end }}
-
     {{- with .Extra }}
     <pre>
         {{- range $key, $value := . }}
