@@ -3,6 +3,7 @@ package main
 import (
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/alsosee/finder/structs"
 )
@@ -40,6 +41,15 @@ func (m MediaCatalog) PathsSharingThumb(path string) []string {
 		dir = ""
 	}
 
+	base := filepath.Base(path)
+	if base == ".thumbs.yml" {
+		return m.contentPathsForDir(dir)
+	}
+
+	if strings.HasPrefix(base, "thumbnails_") {
+		return m.contentPathsForThumbFile(dir, base)
+	}
+
 	image := m.ImageForPath(removeFileExtention(path))
 	if image == nil || image.ThumbPath == "" {
 		return nil
@@ -48,6 +58,27 @@ func (m MediaCatalog) PathsSharingThumb(path string) []string {
 	var result []string
 	for _, media := range m[dir] {
 		if media.ThumbPath == image.ThumbPath && media.Path != image.Path {
+			result = append(result, filepath.Join(dir, removeFileExtention(media.Path)+".yml"))
+		}
+	}
+	sort.Strings(result)
+	return result
+}
+
+func (m MediaCatalog) contentPathsForDir(dir string) []string {
+	var result []string
+	for _, media := range m[dir] {
+		result = append(result, filepath.Join(dir, removeFileExtention(media.Path)+".yml"))
+	}
+	sort.Strings(result)
+	return result
+}
+
+func (m MediaCatalog) contentPathsForThumbFile(dir, thumbFile string) []string {
+	var result []string
+	for _, media := range m[dir] {
+		thumbPath := strings.Split(media.ThumbPath, "?")[0]
+		if thumbPath == thumbFile {
 			result = append(result, filepath.Join(dir, removeFileExtention(media.Path)+".yml"))
 		}
 	}

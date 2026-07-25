@@ -57,6 +57,22 @@ func TestIndexerPlanUpdateForceModes(t *testing.T) {
 	if want := []string{"Movies/A.yml", "Movies/B.yml"}; !reflect.DeepEqual(plan.updatePaths, want) {
 		t.Fatalf("planUpdate(comma force).updatePaths = %v, want %v", plan.updatePaths, want)
 	}
+
+	plan, err = indexer.planUpdate(nil, "Movies/.thumbs.yml")
+	if err != nil {
+		t.Fatalf("planUpdate(thumbnails metadata force) error = %v", err)
+	}
+	if want := []string{"Movies/A.yml", "Movies/B.yml"}; !reflect.DeepEqual(plan.updatePaths, want) {
+		t.Fatalf("planUpdate(thumbnails metadata force).updatePaths = %v, want %v", plan.updatePaths, want)
+	}
+
+	plan, err = indexer.planUpdate(nil, "Movies/thumbnails_0.jpg")
+	if err != nil {
+		t.Fatalf("planUpdate(thumbnail atlas force) error = %v", err)
+	}
+	if want := []string{"Movies/A.yml", "Movies/B.yml"}; !reflect.DeepEqual(plan.updatePaths, want) {
+		t.Fatalf("planUpdate(thumbnail atlas force).updatePaths = %v, want %v", plan.updatePaths, want)
+	}
 }
 
 func TestIndexerUpdateIndexUsesGraphDocumentsAndSearchIDs(t *testing.T) {
@@ -100,8 +116,8 @@ func testSearchGraph() *BuildGraph {
 		},
 		Media: MediaCatalog{
 			"Movies": {
-				{Path: "A.jpg", ThumbPath: "sheet.jpg"},
-				{Path: "B.jpg", ThumbPath: "sheet.jpg"},
+				{Path: "A.jpg", ThumbPath: "thumbnails_0.jpg?crc=abc123"},
+				{Path: "B.jpg", ThumbPath: "thumbnails_0.jpg?crc=abc123"},
 			},
 		},
 		Hashes: map[string]string{

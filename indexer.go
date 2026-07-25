@@ -157,7 +157,9 @@ func cleanPathList(paths []string) []string {
 func (i *Indexer) expandThumbnailUpdates(paths []string) []string {
 	updateSet := map[string]struct{}{}
 	for _, path := range paths {
-		updateSet[path] = struct{}{}
+		if _, exists := i.graph.Hashes[path]; exists {
+			updateSet[path] = struct{}{}
+		}
 		for _, sharedPath := range i.graph.Media.PathsSharingThumb(path) {
 			if _, exists := i.graph.Hashes[sharedPath]; exists {
 				updateSet[sharedPath] = struct{}{}
