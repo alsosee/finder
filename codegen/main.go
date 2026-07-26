@@ -276,7 +276,11 @@ var fm = template.FuncMap{
 		case "references":
 			return "strings.Join(" + field + ", \", \")"
 		case "array":
-			return "strings.Join(" + field + ", \", \")"
+			if p.Items != nil && schema.RootTypes.HasType(p.Items.Type) {
+				return "strings.Join(" + field + ", \", \")"
+			}
+			log.Fatalf("columnValue: unsupported array column %q (%s)", p.Name, p.Description)
+			return ""
 		default:
 			if schema.RootTypes.HasType(p.Type) {
 				return field

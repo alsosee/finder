@@ -92,7 +92,7 @@ var ColumnsList = []Column{
 	{
 		Name:       "network",
 		Title:      "Network",
-		Type:       "company",
+		Type:       "array",
 		AlwaysShow: false,
 	},
 	{
@@ -256,7 +256,7 @@ type Content struct {
 	Manufacturers     oneOrMany     `yaml:"manufacturers,omitempty" json:"manufacturers,omitempty"`
 	Rating            string        `yaml:"rating,omitempty" json:"rating,omitempty"`
 	Released          string        `yaml:"released,omitempty" json:"released,omitempty"`
-	Network           string        `yaml:"network,omitempty" json:"network,omitempty"`
+	Network           oneOrMany     `yaml:"network,omitempty" json:"network,omitempty"`
 	Engine            string        `yaml:"engine,omitempty" json:"engine,omitempty"`
 	Creators          oneOrMany     `yaml:"creators,omitempty" json:"creators,omitempty"`
 	DevelopedBy       oneOrMany     `yaml:"developed_by,omitempty" json:"developed_by,omitempty"`
@@ -368,7 +368,7 @@ func (c Content) Columns() map[string]string {
 		"Manufacturers": strings.Join(c.Manufacturers, ", "),
 		"Rating":        c.Rating,
 		"Released":      c.Released,
-		"Network":       c.Network,
+		"Network":       strings.Join(c.Network, ", "),
 		"Creators":      strings.Join(c.Creators, ", "),
 		"DevelopedBy":   strings.Join(c.DevelopedBy, ", "),
 		"Showrunners":   strings.Join(c.Showrunners, ", "),
@@ -476,9 +476,9 @@ func (c Content) Connections() []Connection {
 			Label: "Manufacturer",
 		})
 	}
-	if c.Network != "" {
+	for _, company := range c.Network {
 		connections = append(connections, Connection{
-			To:    "Companies/" + c.Network,
+			To:    "Companies/" + company,
 			Label: "Network",
 		})
 	}
