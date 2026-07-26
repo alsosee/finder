@@ -42,6 +42,9 @@ if (typeof hasRun === 'undefined') {
         if (!document.hidden) {
             updateAppHeight();
             setTimeout(updateAppHeight, 250);
+        } else {
+            saveScrollPosition();
+            rememberAppLocation();
         }
     });
     if (window.visualViewport) {
@@ -87,6 +90,73 @@ if (typeof hasRun === 'undefined') {
         return decodeURI(window.location.pathname).substr(1);
     }
 
+    var lastAppLocationKey = "lastAppLocation";
+    var appSessionStartedKey = "appSessionStarted";
+    var pwaLaunchSource = "pwa";
+
+    function currentURL() {
+        return new URL(window.location.href);
+    }
+
+    function isPWAStartURL(url) {
+        return url.pathname === "/" && url.searchParams.get("source") === pwaLaunchSource;
+    }
+
+    function hasAppSessionStarted() {
+        try {
+            return sessionStorage.getItem(appSessionStartedKey) === "true";
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function markAppSessionStarted() {
+        try {
+            sessionStorage.setItem(appSessionStartedKey, "true");
+        } catch (error) {
+            console.warn("Failed to mark app session started", error);
+        }
+    }
+
+    function rememberAppLocation() {
+        var url = currentURL();
+        if (isPWAStartURL(url)) {
+            return;
+        }
+
+        try {
+            localStorage.setItem(lastAppLocationKey, locationKey());
+        } catch (error) {
+            console.warn("Failed to remember app location", error);
+        }
+    }
+
+    function restorePWAStartLocation() {
+        var url = currentURL();
+        var isColdRootLaunch = url.pathname === "/" && url.search === "" && !hasAppSessionStarted();
+        if (!isStandaloneMode() || (!isPWAStartURL(url) && !isColdRootLaunch)) {
+            markAppSessionStarted();
+            return;
+        }
+
+        var lastLocation = null;
+        try {
+            lastLocation = localStorage.getItem(lastAppLocationKey);
+        } catch (error) {
+            console.warn("Failed to read app location", error);
+        }
+
+        if (lastLocation && lastLocation !== "/" && lastLocation !== locationKey()) {
+            window.location.replace(lastLocation);
+            return;
+        }
+
+        history.replaceState(history.state, "", "/");
+        markAppSessionStarted();
+    }
+
+    restorePWAStartLocation();
+
     var currentScrollKey = locationKey();
 
     function locationKey() {
@@ -117,11 +187,26 @@ if (typeof hasRun === 'undefined') {
                 left: target.scrollLeft
             };
         });
-        sessionStorage.setItem(scrollStorageKey(key || currentScrollKey), JSON.stringify(positions));
+        var storageKey = scrollStorageKey(key || currentScrollKey);
+        var value = JSON.stringify(positions);
+        sessionStorage.setItem(storageKey, value);
+        try {
+            localStorage.setItem(storageKey, value);
+        } catch (error) {
+            console.warn("Failed to persist scroll position", error);
+        }
     }
 
     function restoreScrollPosition(key) {
-        var raw = sessionStorage.getItem(scrollStorageKey(key || locationKey()));
+        var storageKey = scrollStorageKey(key || locationKey());
+        var raw = sessionStorage.getItem(storageKey);
+        if (!raw) {
+            try {
+                raw = localStorage.getItem(storageKey);
+            } catch (error) {
+                raw = null;
+            }
+        }
         if (!raw) {
             return false;
         }
@@ -287,12 +372,18 @@ if (typeof hasRun === 'undefined') {
 
     htmx.on('htmx:historyRestore', function(evt) {
         currentScrollKey = locationKey();
+        rememberAppLocation();
         viewSwitcher = document.querySelector('#toolbar fieldset');
         viewSwitcher.addEventListener('change', (event) => {
             setView(event.target.value);
         });
         viewSwitcher.querySelector(`input[value=${view}]`).checked = true;
         loadImagesFromIndexedDB();
+    });
+
+    htmx.on('htmx:pushedIntoHistory', function(evt) {
+        currentScrollKey = locationKey();
+        rememberAppLocation();
     });
 
     var xhr = null;
@@ -321,6 +412,7 @@ if (typeof hasRun === 'undefined') {
           scrollToMarker();
       }
       currentScrollKey = locationKey();
+      rememberAppLocation();
     });
 
     htmx.on('htmx:afterSwap', function(evt) {
@@ -356,6 +448,7 @@ if (typeof hasRun === 'undefined') {
             editLink.href = "{{ (config).Repo }}/tree/main/" + path();
         }
         currentScrollKey = locationKey();
+        rememberAppLocation();
     });
 
     /* search */
@@ -519,6 +612,7 @@ if (typeof hasRun === 'undefined') {
                 console.log("Pushing state", urlBackup);
                 history.pushState({}, "", urlBackup);
                 currentScrollKey = locationKey();
+                rememberAppLocation();
                 urlBackup = "";
             }
             return;
@@ -538,6 +632,7 @@ if (typeof hasRun === 'undefined') {
             console.log("Pushing state", query);
             history.pushState({query: query}, "", "/search?q=" + encodeURIComponent(query));
             currentScrollKey = locationKey();
+            rememberAppLocation();
             document.title = "{{ (config).SearchLabel }}: " + query;
         }
 
@@ -682,6 +777,8 @@ if (typeof hasRun === 'undefined') {
             search({target: {value: ""}}, false);
             setSearchInputValue("");
         }
+        currentScrollKey = locationKey();
+        rememberAppLocation();
     }, true);
 
     // on page load, restore the search query if there is one
@@ -711,6 +808,12 @@ if (typeof hasRun === 'undefined') {
             sessionStorage.removeItem('restoreSearchInputFocus');
         }
         currentScrollKey = locationKey();
+        rememberAppLocation();
+    });
+
+    window.addEventListener('pagehide', function() {
+        saveScrollPosition();
+        rememberAppLocation();
     });
 
     function panelClick(event) {
