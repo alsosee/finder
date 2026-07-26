@@ -15,6 +15,11 @@ help:
 test:
 	@go test -cover ./...
 
+.PHONY: test-js
+## test-js: run JavaScript tests against generated output
+test-js:
+	@node --test tests/generated-scripts.test.js
+
 .PHONY: lint
 ## lint: run golangci-lint
 # Install: https://golangci-lint.run/usage/install/

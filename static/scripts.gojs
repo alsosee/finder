@@ -158,9 +158,19 @@ if (typeof hasRun === 'undefined') {
     restorePWAStartLocation();
 
     var currentScrollKey = locationKey();
+    var scrollSaveScheduled = false;
 
     function locationKey() {
         return window.location.pathname + window.location.search + window.location.hash;
+    }
+
+    function locationKeyFromURL(value) {
+        try {
+            var url = new URL(value, window.location.origin);
+            return url.pathname + url.search + url.hash;
+        } catch (error) {
+            return value;
+        }
     }
 
     function scrollStorageKey(key) {
@@ -171,6 +181,14 @@ if (typeof hasRun === 'undefined') {
         var marker = document.getElementById("_");
         if (marker) {
             marker.scrollIntoView();
+        }
+    }
+
+    function focusWithoutScrolling(element) {
+        try {
+            element.focus({preventScroll: true});
+        } catch (error) {
+            element.focus();
         }
     }
 
@@ -189,7 +207,11 @@ if (typeof hasRun === 'undefined') {
         });
         var storageKey = scrollStorageKey(key || currentScrollKey);
         var value = JSON.stringify(positions);
-        sessionStorage.setItem(storageKey, value);
+        try {
+            sessionStorage.setItem(storageKey, value);
+        } catch (error) {
+            console.warn("Failed to persist session scroll position", error);
+        }
         try {
             localStorage.setItem(storageKey, value);
         } catch (error) {
@@ -199,7 +221,12 @@ if (typeof hasRun === 'undefined') {
 
     function restoreScrollPosition(key) {
         var storageKey = scrollStorageKey(key || locationKey());
-        var raw = sessionStorage.getItem(storageKey);
+        var raw = null;
+        try {
+            raw = sessionStorage.getItem(storageKey);
+        } catch (error) {
+            raw = null;
+        }
         if (!raw) {
             try {
                 raw = localStorage.getItem(storageKey);
@@ -236,6 +263,22 @@ if (typeof hasRun === 'undefined') {
         });
         return true;
     }
+
+    function scheduleScrollPositionSave(event) {
+        if (event && event.target && event.target.matches && !event.target.matches('#container, .panel, .content')) {
+            return;
+        }
+        if (scrollSaveScheduled) {
+            return;
+        }
+        scrollSaveScheduled = true;
+        requestAnimationFrame(function() {
+            scrollSaveScheduled = false;
+            saveScrollPosition();
+        });
+    }
+
+    document.addEventListener('scroll', scheduleScrollPositionSave, true);
 
     function addContentThumb(thumb) {
         var content = document.querySelector('.content');
@@ -337,21 +380,24 @@ if (typeof hasRun === 'undefined') {
         localStorage.setItem('scrollY', JSON.stringify(scrollPostions));
     }
     function restoreFocus(when) {
-        // restore panel scroll positions
-        var scrollPostions = JSON.parse(localStorage.getItem('scrollY'));
-        if (!scrollPostions) {
-            scrollPostions = [];
-        }
-        var panels = document.querySelectorAll('.panel');
-        panels.forEach(function(panel, index) {
-            if (scrollPostions[index] === null) {
-                return;
+        if (view === "columns") {
+            // Column view maintains multiple visible panels and needs its own
+            // panel offsets in addition to route-level scroll restoration.
+            var scrollPostions = JSON.parse(localStorage.getItem('scrollY'));
+            if (!scrollPostions) {
+                scrollPostions = [];
             }
-            panel.scrollTop = scrollPostions[index];
+            var panels = document.querySelectorAll('.panel');
+            panels.forEach(function(panel, index) {
+                if (scrollPostions[index] === null) {
+                    return;
+                }
+                panel.scrollTop = scrollPostions[index];
 
-            var inPath = panel.querySelector(".in-path");
-            scrollToIfNotVisible(inPath);
-        });
+                var inPath = panel.querySelector(".in-path");
+                scrollToIfNotVisible(inPath);
+            });
+        }
 
         if (focusedLink) {
             var suffix = "";
@@ -361,7 +407,7 @@ if (typeof hasRun === 'undefined') {
 
             var link = document.querySelector(`.panel${suffix} a[href="${focusedLink}"]`);
             if (link) {
-                link.focus();
+                focusWithoutScrolling(link);
             } else {
                 console.log(`no link found for ${focusedLink} ${when}`);
                 focusedLink = null;
@@ -585,6 +631,8 @@ if (typeof hasRun === 'undefined') {
     function search(event, pushState = true) {
         var query = event.target.value || "";
         if (query.length == 0) {
+            saveScrollPosition();
+            var restoreKey = urlBackup ? locationKeyFromURL(urlBackup) : locationKey();
             // query is cleared, restore the original state
             if (breadcrumbsBackup) {
                 breadcrumbs.innerHTML = breadcrumbsBackup;
@@ -615,9 +663,12 @@ if (typeof hasRun === 'undefined') {
                 rememberAppLocation();
                 urlBackup = "";
             }
+            currentScrollKey = restoreKey;
+            restoreScrollPosition(restoreKey);
             return;
         }
         if (previousQuery.length == 0) {
+            saveScrollPosition();
             // previous query was empty, save the state
             breadcrumbsBackup = breadcrumbs.innerHTML;
             panelsBackup = panels.innerHTML;
@@ -629,6 +680,7 @@ if (typeof hasRun === 'undefined') {
 
         // push history update and change URL
         if (pushState) {
+            saveScrollPosition();
             console.log("Pushing state", query);
             history.pushState({query: query}, "", "/search?q=" + encodeURIComponent(query));
             currentScrollKey = locationKey();
@@ -672,7 +724,11 @@ if (typeof hasRun === 'undefined') {
                 }
             }
 
-            displaySearchResults(response.hits, null);
+            displaySearchResults(response.hits, function() {
+                if (!restoreScrollPosition()) {
+                    scrollToMarker();
+                }
+            });
         });
     }
 
@@ -743,11 +799,11 @@ if (typeof hasRun === 'undefined') {
             </li>`;
         }).join("");
 
+        panels.innerHTML = `<ul class="panel menubar-navigation" role="menu" data-level="0" id="_">${resultsHeader}${resultsHTML}</ul>`;
+
         if (callback) {
             callback();
         }
-
-        panels.innerHTML = `<ul class="panel menubar-navigation" role="menu" data-level="0" id="_">${resultsHeader}${resultsHTML}</ul>`;
     }
 
     // restore the search query if the user navigates back
