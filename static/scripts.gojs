@@ -12,9 +12,13 @@ if (typeof hasRun === 'undefined') {
         return document.activeElement && document.activeElement.matches('input, textarea, select');
     }
 
+    function isStandaloneMode() {
+        return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    }
+
     function updateAppHeight() {
         var viewport = window.visualViewport;
-        if (viewport && hasFocusedEditable()) {
+        if (viewport && (hasFocusedEditable() || isStandaloneMode())) {
             document.documentElement.style.setProperty("--app-height", viewport.height + "px");
             return;
         }
