@@ -19,6 +19,7 @@ test:
 ## test-js: run JavaScript tests against generated output
 test-js:
 	@node --test tests/generated-scripts.test.js
+	@node --test tests/worker-diagnostics.test.mjs
 
 .PHONY: lint
 ## lint: run golangci-lint

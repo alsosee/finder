@@ -1,4 +1,5 @@
 import { handleImageProxy } from "./image-proxy.js";
+import { handleSitemapDiagnostic } from "./site-diagnostics.js";
 import { handleStaticSite } from "./static-site.js";
 import { handleUpload } from "./upload.js";
 
@@ -12,6 +13,10 @@ export default {
 
     if (url.pathname === "/api/image-proxy") {
       return handleImageProxy(request);
+    }
+
+    if (url.pathname === "/api/debug/sitemap") {
+      return handleSitemapDiagnostic(request, env);
     }
 
     if (env.SITE) {
