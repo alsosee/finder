@@ -93,3 +93,26 @@ test("sitemap diagnostic checks sitemap.xml in SITE binding", async () => {
   assert.deepEqual(body.http_metadata, { contentType: "application/xml; charset=utf-8" });
   assert.deepEqual(body.custom_metadata, { sha256: "deadbeef" });
 });
+
+test("sitemap path can return the diagnostic with finder-debug query", async () => {
+  const worker = await importWorker();
+  const env = {
+    SITE: {
+      async head() {
+        return null;
+      },
+      async get() {
+        return null;
+      },
+    },
+  };
+
+  const response = await worker.default.fetch(new Request("https://example.com/sitemap.xml?finder-debug=1"), env);
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(body.key, "sitemap.xml");
+  assert.equal(body.bucket_configured, true);
+  assert.equal(body.head_found, false);
+  assert.equal(body.get_found, false);
+});

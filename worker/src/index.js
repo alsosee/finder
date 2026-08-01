@@ -19,6 +19,10 @@ export default {
       return handleSitemapDiagnostic(request, env);
     }
 
+    if (url.pathname === "/sitemap.xml" && url.searchParams.has("finder-debug")) {
+      return handleSitemapDiagnostic(request, env);
+    }
+
     if (env.SITE) {
       return handleStaticSite(request, env);
     }
