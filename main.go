@@ -28,7 +28,7 @@ type Config struct {
 	OpenGraphR2Bucket  string `env:"INPUT_OPENGRAPH_R2_BUCKET" long:"opengraph-r2-bucket" description:"Cloudflare R2 bucket for OpenGraph uploads" default:""`
 	SearchHost         string `env:"INPUT_SEARCH_HOST" short:"h" long:"search-host" description:"Host for search" default:""`
 	SearchAPIKey       string `env:"INPUT_SEARCH_API_KEY" short:"k" long:"search-api-key" description:"API key for search" default:""`
-	Outputs            string `env:"INPUT_OUTPUTS" long:"outputs" description:"comma-separated projectors to run: html,search,opengraph,json,markdown,worker-redirects" default:""`
+	Outputs            string `env:"INPUT_OUTPUTS" long:"outputs" description:"comma-separated projectors to run: html,sitemap,search,opengraph,json,markdown,worker-redirects" default:""`
 	WorkerRedirectsOut string `env:"INPUT_WORKER_REDIRECTS_OUTPUT" long:"worker-redirects-output" description:"Path to generated Worker redirects module" default:"worker/src/redirects.generated.js"`
 	NumWorkers         int    `env:"INPUT_NUMWORKERS" short:"w" long:"workers" description:"Number of workers to use" default:"4"`
 

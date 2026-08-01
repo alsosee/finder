@@ -27,6 +27,12 @@ func buildProjectors(runtime Config, config structs.Config, outputs map[string]b
 			runtime.OutputDirectory,
 		))
 	}
+	if outputs["html"] || outputs["sitemap"] {
+		projectors = append(projectors, SitemapProjector{
+			infoDir:   runtime.InfoDirectory,
+			outputDir: runtime.OutputDirectory,
+		})
+	}
 	if outputs["search"] && runtime.SearchMasterKey != "" {
 		projectors = append(projectors, SearchProjector{
 			stateFile: runtime.StateFile,
@@ -80,6 +86,7 @@ func selectedOutputs(runtime Config) map[string]bool {
 	outputs := map[string]bool{}
 	if runtime.Outputs == "" {
 		outputs["html"] = true
+		outputs["sitemap"] = true
 		if runtime.SearchMasterKey != "" {
 			outputs["search"] = true
 		}

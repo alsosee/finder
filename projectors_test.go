@@ -32,7 +32,7 @@ func TestBuildProjectorsKeepsExplicitOrder(t *testing.T) {
 		names = append(names, projector.Name())
 	}
 
-	want := []string{"html", "search", "opengraph", "json", "markdown"}
+	want := []string{"html", "sitemap", "search", "opengraph", "json", "markdown"}
 	if !reflect.DeepEqual(names, want) {
 		t.Fatalf("buildProjectors() names = %v, want %v", names, want)
 	}
@@ -56,7 +56,23 @@ func TestBuildProjectorsSkipsSearchWithoutMasterKey(t *testing.T) {
 		names = append(names, projector.Name())
 	}
 
-	want := []string{"html"}
+	want := []string{"html", "sitemap"}
+	if !reflect.DeepEqual(names, want) {
+		t.Fatalf("buildProjectors() names = %v, want %v", names, want)
+	}
+}
+
+func TestBuildProjectorsAllowsSitemapOnly(t *testing.T) {
+	projectors := buildProjectors(Config{OutputDirectory: "output"}, structs.Config{}, map[string]bool{
+		"sitemap": true,
+	}, "")
+
+	names := make([]string, 0, len(projectors))
+	for _, projector := range projectors {
+		names = append(names, projector.Name())
+	}
+
+	want := []string{"sitemap"}
 	if !reflect.DeepEqual(names, want) {
 		t.Fatalf("buildProjectors() names = %v, want %v", names, want)
 	}
