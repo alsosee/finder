@@ -36,6 +36,7 @@ test("sitemap diagnostic reports missing SITE binding", async () => {
   assert.equal(response.headers.get("content-type"), "application/json; charset=utf-8");
   assert.deepEqual(body, {
     key: "sitemap.xml",
+    candidate_keys: ["sitemap.xml"],
     bucket_configured: false,
     found: false,
   });
@@ -45,18 +46,27 @@ test("sitemap diagnostic checks sitemap.xml in SITE binding", async () => {
   const worker = await importWorker();
   const uploaded = new Date("2026-08-01T12:34:56.000Z");
   const requestedKeys = [];
+  const object = {
+    size: 123,
+    etag: "abc123",
+    httpEtag: '"abc123"',
+    uploaded,
+    httpMetadata: { contentType: "application/xml; charset=utf-8" },
+    customMetadata: { sha256: "deadbeef" },
+    writeHttpMetadata(headers) {
+      headers.set("content-type", this.httpMetadata.contentType);
+    },
+    body: null,
+  };
   const env = {
     SITE: {
       async head(key) {
-        requestedKeys.push(key);
-        return {
-          size: 123,
-          etag: "abc123",
-          httpEtag: '"abc123"',
-          uploaded,
-          httpMetadata: { contentType: "application/xml; charset=utf-8" },
-          customMetadata: { sha256: "deadbeef" },
-        };
+        requestedKeys.push(["head", key]);
+        return object;
+      },
+      async get(key) {
+        requestedKeys.push(["get", key]);
+        return object;
       },
     },
   };
@@ -64,11 +74,20 @@ test("sitemap diagnostic checks sitemap.xml in SITE binding", async () => {
   const response = await worker.default.fetch(new Request("https://example.com/api/debug/sitemap"), env);
   const body = await response.json();
 
-  assert.deepEqual(requestedKeys, ["sitemap.xml"]);
+  assert.deepEqual(requestedKeys, [
+    ["head", "sitemap.xml"],
+    ["get", "sitemap.xml"],
+    ["get", "sitemap.xml"],
+  ]);
   assert.equal(response.status, 200);
   assert.equal(body.key, "sitemap.xml");
+  assert.deepEqual(body.candidate_keys, ["sitemap.xml"]);
   assert.equal(body.bucket_configured, true);
   assert.equal(body.found, true);
+  assert.equal(body.head_found, true);
+  assert.equal(body.get_found, true);
+  assert.equal(body.static_status, 200);
+  assert.equal(body.static_content_type, "application/xml; charset=utf-8");
   assert.equal(body.size, 123);
   assert.equal(body.uploaded, "2026-08-01T12:34:56.000Z");
   assert.deepEqual(body.http_metadata, { contentType: "application/xml; charset=utf-8" });
