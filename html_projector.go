@@ -29,6 +29,8 @@ var errExecutingTemplate = errors.New("error executing template")
 
 var caser = cases.Title(language.English, cases.NoLower)
 
+const sharedPanelsDir = "_panels"
+
 // HTMLProjector renders the static website from a build graph.
 type HTMLProjector struct {
 	templates *template.Template
@@ -400,10 +402,11 @@ func (g *HTMLProjector) fm() template.FuncMap {
 		"columns": func() []structs.Column {
 			return structs.ColumnsList
 		},
-		"column":        column,
-		"chooseColumns": chooseColumns,
-		"rootTypes":     func() map[string]string { return structs.RootTypes },
-		"renderPanel":   g.renderPanel,
+		"column":          column,
+		"chooseColumns":   chooseColumns,
+		"rootTypes":       func() map[string]string { return structs.RootTypes },
+		"renderPanel":     g.renderPanel,
+		"sharedPanelPath": sharedPanelPath,
 		"label": func(label string, list []string) string {
 			if len(list) == 1 && strings.HasSuffix(label, "s") {
 				return label[:len(label)-1]
@@ -466,6 +469,10 @@ func (g *HTMLProjector) Run(graph *BuildGraph) error {
 	// Render Go templates
 	if err := g.generateGoTemplates(); err != nil {
 		return fmt.Errorf("generating go templates: %w", err)
+	}
+
+	if err := g.generateSharedPanels(); err != nil {
+		return fmt.Errorf("generating shared panels: %w", err)
 	}
 
 	if err := g.generateMissing(); err != nil {
@@ -601,6 +608,41 @@ func (g *HTMLProjector) renderPanelImpl(panel structs.Panel, index int) (string,
 	}
 
 	return b.String(), nil
+}
+
+func sharedPanelPath(dir string) string {
+	if dir != structs.PersonPrefix() {
+		return ""
+	}
+
+	return filepath.Join(sharedPanelsDir, dir+".html")
+}
+
+func (g *HTMLProjector) generateSharedPanels() error {
+	dir := structs.PersonPrefix()
+	path := sharedPanelPath(dir)
+	files, ok := g.graph.DirContents[dir]
+	if path == "" || !ok {
+		return nil
+	}
+
+	rendered, err := g.renderPanelImpl(structs.Panel{
+		Dir:   dir,
+		Files: files,
+	}, 1)
+	if err != nil {
+		return fmt.Errorf("rendering panel %q: %w", dir, err)
+	}
+
+	outputPath := filepath.Join(g.outputDir, path)
+	if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
+		return fmt.Errorf("creating shared panels directory: %w", err)
+	}
+	if err := os.WriteFile(outputPath, []byte(rendered), 0o644); err != nil {
+		return fmt.Errorf("writing shared panel %q: %w", dir, err)
+	}
+
+	return nil
 }
 
 func markInPathLinks(s string, panel structs.Panel, path string, isLast bool) string {

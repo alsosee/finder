@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"text/template"
@@ -73,4 +75,90 @@ func TestReferenceTemplateCanonicalizesColonPath(t *testing.T) {
 	if strings.Contains(got, `href="/Movies/2024/Dune: Part Two"`) {
 		t.Fatalf("rendered reference %q still uses colon path", got)
 	}
+}
+
+func TestHTMLProjectorExtractsPeoplePanel(t *testing.T) {
+	outputDir := t.TempDir()
+	config := structs.Config{
+		HomeLabel:  "Home",
+		ColumnName: "Name",
+	}
+	graph := &BuildGraph{
+		Config: config,
+		Contents: structs.Contents{
+			"People/Alice": {
+				Name:   "Alice",
+				Source: "People/Alice.yml",
+			},
+			"People/Bob": {
+				Name:   "Bob",
+				Source: "People/Bob.yml",
+			},
+		},
+		DirContents: map[string][]structs.File{
+			"": {
+				{Name: "People", Title: "People", IsFolder: true},
+			},
+			"People": {
+				{Name: "Alice", Title: "Alice"},
+				{Name: "Bob", Title: "Bob"},
+			},
+		},
+	}
+
+	projector := NewHTMLProjector(config, "", "", "templates", outputDir)
+	if err := projector.Run(graph); err != nil {
+		t.Fatalf("Run() error = %v", err)
+	}
+
+	panel := mustReadFile(t, filepath.Join(outputDir, sharedPanelPath("People")))
+	if !strings.Contains(panel, `href="/People/Alice"`) || !strings.Contains(panel, `href="/People/Bob"`) {
+		t.Fatalf("shared panel does not contain all people: %s", panel)
+	}
+	if strings.Contains(panel, "active in-path") {
+		t.Fatalf("shared panel contains route-specific state: %s", panel)
+	}
+
+	personPage := mustReadFile(t, filepath.Join(outputDir, "People", "Alice.html"))
+	if !strings.Contains(personPage, `id="shared-panel-people"`) {
+		t.Fatalf("person page does not contain the shared panel placeholder")
+	}
+	if !strings.Contains(personPage, `data-panel-src="/_panels/People.html?crc=`) {
+		t.Fatalf("person page does not reference the cache-busted shared panel")
+	}
+	if !strings.Contains(personPage, `hx-history="false"`) {
+		t.Fatalf("person page does not exclude the shared panel from HTMX history snapshots")
+	}
+	placeholderStart := strings.Index(personPage, `id="shared-panel-people"`)
+	placeholderEnd := strings.Index(personPage[placeholderStart:], `</ul>`)
+	placeholder := personPage[placeholderStart : placeholderStart+placeholderEnd]
+	if strings.Contains(placeholder, `hx-preserve`) {
+		t.Fatalf("person page asks HTMX to preserve the oversized panel DOM")
+	}
+	if strings.Contains(personPage, `href="/People/Bob"`) {
+		t.Fatalf("person page still embeds the People panel")
+	}
+
+	peopleIndex := mustReadFile(t, filepath.Join(outputDir, "People", "index.html"))
+	if !strings.Contains(peopleIndex, `data-scroll-marker="true"`) {
+		t.Fatalf("People index does not mark its shared panel as the current panel")
+	}
+}
+
+func TestSharedPanelPath(t *testing.T) {
+	if got := sharedPanelPath("People"); got != filepath.Join("_panels", "People.html") {
+		t.Fatalf("sharedPanelPath(People) = %q", got)
+	}
+	if got := sharedPanelPath("Movies"); got != "" {
+		t.Fatalf("sharedPanelPath(Movies) = %q, expected no shared panel", got)
+	}
+}
+
+func mustReadFile(t *testing.T, path string) string {
+	t.Helper()
+	b, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("ReadFile(%q) error = %v", path, err)
+	}
+	return string(b)
 }

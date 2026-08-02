@@ -80,3 +80,24 @@ test("displaySearchResults updates DOM before callback", () => {
   assert.notEqual(callback, -1, "displaySearchResults does not invoke callback");
   assert.ok(updateDOM < callback, "displaySearchResults invokes callback before search results exist in the DOM");
 });
+
+test("shared panels are cached and reprocessed by htmx", () => {
+  const script = generatedScript();
+  const response = scriptFunction(script, "sharedPanelResponse");
+  const hydrate = scriptFunction(script, "hydrateSharedPanel");
+
+  assert.ok(response.includes('fetch(src, {cache: "force-cache"})'), "shared panel fetch should use the browser cache");
+  assert.ok(hydrate.includes("htmx.process(panel);"), "links inserted into a shared panel should be processed by htmx");
+  assert.ok(
+    hydrate.includes('restoreFocus("sharedPanel");'),
+    "shared panel hydration should restore keyboard focus and column scroll",
+  );
+});
+
+test("shared panel highlighting follows the current pathname", () => {
+  const update = scriptFunction(generatedScript(), "updateSharedPanelState");
+
+  assert.ok(update.includes('link.classList.remove("active", "in-path");'), "stale route classes should be removed");
+  assert.ok(update.includes("normalizedPathname(link.href) === currentPath"), "matching should use normalized link paths");
+  assert.ok(update.includes('currentLink.classList.add("active", "in-path");'), "the current person should be highlighted");
+});

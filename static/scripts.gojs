@@ -178,7 +178,7 @@ if (typeof hasRun === 'undefined') {
     }
 
     function scrollToMarker() {
-        var marker = document.getElementById("_");
+        var marker = document.getElementById("_") || document.querySelector('[data-scroll-marker="true"]');
         if (marker) {
             marker.scrollIntoView();
         }
@@ -262,6 +262,106 @@ if (typeof hasRun === 'undefined') {
             target.scrollLeft = position.left || 0;
         });
         return true;
+    }
+
+    var sharedPanelResponses = {};
+    var loadingSharedPanels = new WeakSet();
+
+    function normalizedPathname(value) {
+        var pathname;
+        try {
+            pathname = new URL(value, window.location.origin).pathname;
+        } catch (error) {
+            pathname = value;
+        }
+
+        try {
+            pathname = decodeURI(pathname);
+        } catch (error) {
+            // Keep the encoded path when it contains an invalid escape sequence.
+        }
+
+        if (pathname.length > 1) {
+            pathname = pathname.replace(/\/+$/, "");
+        }
+        return pathname;
+    }
+
+    function updateSharedPanelState(panel) {
+        panel.querySelectorAll("a.active, a.in-path").forEach(function(link) {
+            link.classList.remove("active", "in-path");
+        });
+
+        var currentPath = normalizedPathname(window.location.pathname);
+        var currentLink = Array.from(panel.querySelectorAll("a[href]")).find(function(link) {
+            return normalizedPathname(link.href) === currentPath;
+        });
+        if (currentLink) {
+            currentLink.classList.add("active", "in-path");
+        }
+        return currentLink;
+    }
+
+    function sharedPanelResponse(src) {
+        if (!sharedPanelResponses[src]) {
+            sharedPanelResponses[src] = fetch(src, {cache: "force-cache"}).then(function(response) {
+                if (!response.ok) {
+                    throw new Error(`loading shared panel returned ${response.status}`);
+                }
+                return response.text();
+            }).catch(function(error) {
+                delete sharedPanelResponses[src];
+                throw error;
+            });
+        }
+        return sharedPanelResponses[src];
+    }
+
+    function hydrateSharedPanel(panel) {
+        if (panel.dataset.panelLoaded === "true") {
+            updateSharedPanelState(panel);
+            return;
+        }
+        if (loadingSharedPanels.has(panel)) {
+            return;
+        }
+
+        loadingSharedPanels.add(panel);
+        panel.setAttribute("aria-busy", "true");
+        sharedPanelResponse(panel.dataset.panelSrc).then(function(html) {
+            var template = document.createElement("template");
+            template.innerHTML = html;
+            var renderedPanel = template.content.querySelector(".panel");
+            if (!renderedPanel) {
+                throw new Error("shared panel response does not contain a panel");
+            }
+
+            var children = document.createDocumentFragment();
+            while (renderedPanel.firstChild) {
+                children.appendChild(renderedPanel.firstChild);
+            }
+            panel.replaceChildren(children);
+            panel.dataset.panelLoaded = "true";
+            loadingSharedPanels.delete(panel);
+            panel.removeAttribute("aria-busy");
+            panel.removeAttribute("data-panel-error");
+            htmx.process(panel);
+
+            var currentLink = updateSharedPanelState(panel);
+            if (!restoreScrollPosition()) {
+                scrollToIfNotVisible(currentLink);
+            }
+            restoreFocus("sharedPanel");
+        }).catch(function(error) {
+            loadingSharedPanels.delete(panel);
+            panel.removeAttribute("aria-busy");
+            panel.dataset.panelError = "true";
+            console.error("Failed to load shared panel", error);
+        });
+    }
+
+    function hydrateSharedPanels() {
+        document.querySelectorAll("[data-panel-src]").forEach(hydrateSharedPanel);
     }
 
     function scheduleScrollPositionSave(event) {
@@ -380,6 +480,10 @@ if (typeof hasRun === 'undefined') {
         localStorage.setItem('scrollY', JSON.stringify(scrollPostions));
     }
     function restoreFocus(when) {
+        if (document.querySelector('[data-panel-src]:not([data-panel-loaded="true"])')) {
+            return;
+        }
+
         if (view === "columns") {
             // Column view maintains multiple visible panels and needs its own
             // panel offsets in addition to route-level scroll restoration.
@@ -424,12 +528,14 @@ if (typeof hasRun === 'undefined') {
             setView(event.target.value);
         });
         viewSwitcher.querySelector(`input[value=${view}]`).checked = true;
+        hydrateSharedPanels();
         loadImagesFromIndexedDB();
     });
 
     htmx.on('htmx:pushedIntoHistory', function(evt) {
         currentScrollKey = locationKey();
         rememberAppLocation();
+        hydrateSharedPanels();
     });
 
     var xhr = null;
@@ -464,6 +570,7 @@ if (typeof hasRun === 'undefined') {
     htmx.on('htmx:afterSwap', function(evt) {
         breadcrumbs = document.querySelector('#breadcrumbs');
         panels = document.querySelector('#panels');
+        hydrateSharedPanels();
 
         // if #content is present, focus on it
         content = document.querySelector('.content');
@@ -836,6 +943,8 @@ if (typeof hasRun === 'undefined') {
         currentScrollKey = locationKey();
         rememberAppLocation();
     }, true);
+
+    hydrateSharedPanels();
 
     // on page load, restore the search query if there is one
     window.addEventListener('load', function(event) {

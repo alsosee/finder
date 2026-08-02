@@ -62,7 +62,15 @@
     <nav id="panels">
     {{- $lenPanels := len $.Panels }}
     {{- range $index, $panel := .Panels }}
+        {{- $sharedPanelPath := sharedPanelPath $panel.Dir }}
+        {{- if $sharedPanelPath }}
+        <ul id="shared-panel-people" class="panel menubar-navigation" role="menu" data-level="{{ $index }}"
+            data-panel-src="/{{ $sharedPanelPath }}?crc={{ crc32 $sharedPanelPath }}"
+            {{- if and (isLast $index $lenPanels) (not $.Content) }} data-scroll-marker="true"{{ end }}
+            hx-history="false" aria-busy="true" onclick="panelClick(event)"></ul>
+        {{- else }}
         {{- renderPanel $panel $index (and (isLast $index $lenPanels) (not $.Content)) $.CurrentPath }}
+        {{- end }}
     {{- end }}
     {{- if .Content }}
         {{- template "content" . }}
