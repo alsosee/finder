@@ -515,18 +515,6 @@ fieldset.radio label:last-of-type {
   filter: none;
 }
 
-#breadcrumbs [data-shared-panel-breadcrumb] > a,
-#breadcrumbs [data-shared-panel-breadcrumb] > span {
-  position: relative;
-}
-
-#breadcrumbs [data-shared-panel-breadcrumb] > a::after,
-#breadcrumbs [data-shared-panel-breadcrumb] > span::after {
-  display: inline-block;
-  width: 4.5em;
-  content: "";
-}
-
 #breadcrumbs [data-shared-panel-state="loading"] > a,
 #breadcrumbs [data-shared-panel-state="loading"] > span {
   background-image: var(--background-stripes-dark);
@@ -534,14 +522,9 @@ fieldset.radio label:last-of-type {
   animation: var(--background-stripes-animation);
 }
 
-#breadcrumbs [data-shared-panel-state="loading"] > a::after,
-#breadcrumbs [data-shared-panel-state="loading"] > span::after {
-  color: var(--color-text-muted);
-  content: " loading";
-}
-
 #breadcrumbs [data-shared-panel-state="error"] > a::after,
 #breadcrumbs [data-shared-panel-state="error"] > span::after {
+  display: inline-block;
   color: var(--color-error);
   text-align: center;
   content: "!";
