@@ -7,8 +7,9 @@
         {{- $slash = "" }}
         {{- end }}
         {{- $isCurrent := or .IsCurrent (eq $.CurrentPath .Path) }}
+        {{- $sharedPanelPath := sharedPanelPath .Path }}
         {{- if $isCurrent }}
-        <li role="none"><span>
+        <li role="none"{{ if $sharedPanelPath }} data-shared-panel-breadcrumb="/{{ $sharedPanelPath }}?crc={{ crc32 $sharedPanelPath }}" data-shared-panel-state="loading"{{ end }}><span>
             {{- if and $.Content $.Content.GetName }}
                 {{- $.Content.GetName }}
             {{- else }}
@@ -16,7 +17,7 @@
             {{- end -}}
         </span></li>
         {{- else }}
-        <li role="none"><a role="menuitem" href="/{{ .Path }}{{ $slash }}">{{ .Name }}</a></li>
+        <li role="none"{{ if $sharedPanelPath }} data-shared-panel-breadcrumb="/{{ $sharedPanelPath }}?crc={{ crc32 $sharedPanelPath }}" data-shared-panel-state="loading"{{ end }}><a role="menuitem" href="/{{ .Path }}{{ $slash }}">{{ .Name }}</a></li>
         {{- end }}
         {{- end }}
     </ul>

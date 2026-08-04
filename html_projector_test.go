@@ -126,6 +126,12 @@ func TestHTMLProjectorExtractsPeoplePanel(t *testing.T) {
 	if !strings.Contains(personPage, `data-panel-src="/_panels/People.html?crc=`) {
 		t.Fatalf("person page does not reference the cache-busted shared panel")
 	}
+	if !strings.Contains(personPage, `data-shared-panel-breadcrumb="/_panels/People.html?crc=`) {
+		t.Fatalf("person page does not mark the People breadcrumb as shared-panel backed")
+	}
+	if !strings.Contains(personPage, `data-shared-panel-state="loading"`) {
+		t.Fatalf("person page does not show an initial shared-panel loading state")
+	}
 	if !strings.Contains(personPage, `hx-history="false"`) {
 		t.Fatalf("person page does not exclude the shared panel from HTMX history snapshots")
 	}

@@ -302,6 +302,29 @@ if (typeof hasRun === 'undefined') {
         return currentLink;
     }
 
+    function updateSharedPanelBreadcrumb(src, state) {
+        document.querySelectorAll('[data-shared-panel-breadcrumb="' + src + '"]').forEach(function(item) {
+            item.dataset.sharedPanelState = state;
+            item.setAttribute("aria-busy", state === "loading" ? "true" : "false");
+        });
+    }
+
+    function hasLoadedSharedPanel(src) {
+        return Array.from(document.querySelectorAll("[data-panel-src]")).some(function(panel) {
+            return panel.dataset.panelSrc === src && panel.dataset.panelLoaded === "true";
+        });
+    }
+
+    function finishSharedPanelBreadcrumb(src) {
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                if (hasLoadedSharedPanel(src)) {
+                    updateSharedPanelBreadcrumb(src, "loaded");
+                }
+            });
+        });
+    }
+
     function sharedPanelResponse(src) {
         if (!sharedPanelResponses[src]) {
             sharedPanelResponses[src] = fetch(src, {cache: "force-cache"}).then(function(response) {
@@ -320,14 +343,17 @@ if (typeof hasRun === 'undefined') {
     function hydrateSharedPanel(panel) {
         if (panel.dataset.panelLoaded === "true") {
             updateSharedPanelState(panel);
+            finishSharedPanelBreadcrumb(panel.dataset.panelSrc);
             return;
         }
         if (loadingSharedPanels.has(panel)) {
+            updateSharedPanelBreadcrumb(panel.dataset.panelSrc, "loading");
             return;
         }
 
         loadingSharedPanels.add(panel);
         panel.setAttribute("aria-busy", "true");
+        updateSharedPanelBreadcrumb(panel.dataset.panelSrc, "loading");
         sharedPanelResponse(panel.dataset.panelSrc).then(function(html) {
             var template = document.createElement("template");
             template.innerHTML = html;
@@ -345,6 +371,7 @@ if (typeof hasRun === 'undefined') {
             loadingSharedPanels.delete(panel);
             panel.removeAttribute("aria-busy");
             panel.removeAttribute("data-panel-error");
+            finishSharedPanelBreadcrumb(panel.dataset.panelSrc);
             htmx.process(panel);
 
             var currentLink = updateSharedPanelState(panel);
@@ -356,6 +383,7 @@ if (typeof hasRun === 'undefined') {
             loadingSharedPanels.delete(panel);
             panel.removeAttribute("aria-busy");
             panel.dataset.panelError = "true";
+            updateSharedPanelBreadcrumb(panel.dataset.panelSrc, "error");
             console.error("Failed to load shared panel", error);
         });
     }

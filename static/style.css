@@ -515,6 +515,38 @@ fieldset.radio label:last-of-type {
   filter: none;
 }
 
+#breadcrumbs [data-shared-panel-breadcrumb] > a,
+#breadcrumbs [data-shared-panel-breadcrumb] > span {
+  position: relative;
+}
+
+#breadcrumbs [data-shared-panel-breadcrumb] > a::after,
+#breadcrumbs [data-shared-panel-breadcrumb] > span::after {
+  display: inline-block;
+  width: 4.5em;
+  content: "";
+}
+
+#breadcrumbs [data-shared-panel-state="loading"] > a,
+#breadcrumbs [data-shared-panel-state="loading"] > span {
+  background-image: var(--background-stripes-dark);
+  background-size: var(--background-stripes-size);
+  animation: var(--background-stripes-animation);
+}
+
+#breadcrumbs [data-shared-panel-state="loading"] > a::after,
+#breadcrumbs [data-shared-panel-state="loading"] > span::after {
+  color: var(--color-text-muted);
+  content: " loading";
+}
+
+#breadcrumbs [data-shared-panel-state="error"] > a::after,
+#breadcrumbs [data-shared-panel-state="error"] > span::after {
+  color: var(--color-error);
+  text-align: center;
+  content: "!";
+}
+
 .banner {
   padding: 10px;
   background: var(--color-background-higher);
@@ -597,6 +629,10 @@ fieldset.radio label:last-of-type {
   background: var(--background-radial);
   border-radius: var(--border-radius-avatar);
   background-size: 100%;
+}
+
+#shared-panel-people > li {
+  contain-intrinsic-inline-size: 100%;
 }
 
 .noSearchResults {
@@ -942,6 +978,11 @@ fieldset.radio label:last-of-type {
   padding: 10px;
 }
 
+[data-view="icons"] #shared-panel-people > li {
+  content-visibility: auto;
+  contain-intrinsic-block-size: 160px;
+}
+
 [data-view="icons"] .panel li.header {
   display: none;
 }
@@ -1253,6 +1294,11 @@ fieldset.radio label:last-of-type {
 [data-view="columns"] .panel li a {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+[data-view="columns"] #shared-panel-people > li {
+  content-visibility: auto;
+  contain-intrinsic-block-size: 34px;
 }
 
 [data-view="columns"] .panel li.header {

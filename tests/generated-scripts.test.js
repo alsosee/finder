@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 
-const scriptPath = process.argv[2] || path.join("output", "scripts.js");
+const scriptPath = process.env.SCRIPT_PATH || process.argv[2] || path.join("output", "scripts.js");
 
 function generatedScript() {
   try {
@@ -91,6 +91,29 @@ test("shared panels are cached and reprocessed by htmx", () => {
   assert.ok(
     hydrate.includes('restoreFocus("sharedPanel");'),
     "shared panel hydration should restore keyboard focus and column scroll",
+  );
+  assert.ok(
+    hydrate.includes('updateSharedPanelBreadcrumb(panel.dataset.panelSrc, "loading");'),
+    "shared panel hydration should mark the breadcrumb as loading",
+  );
+  assert.ok(
+    hydrate.includes("finishSharedPanelBreadcrumb(panel.dataset.panelSrc);"),
+    "shared panel hydration should defer clearing the breadcrumb loading state",
+  );
+  assert.ok(
+    hydrate.includes('updateSharedPanelBreadcrumb(panel.dataset.panelSrc, "error");'),
+    "shared panel hydration should expose load failures in the breadcrumb",
+  );
+});
+
+test("shared panel breadcrumb loaded state waits for a paint", () => {
+  const finish = scriptFunction(generatedScript(), "finishSharedPanelBreadcrumb");
+
+  assert.ok(finish.includes("requestAnimationFrame(function()"), "loaded state should wait for a frame");
+  assert.ok(finish.includes("hasLoadedSharedPanel(src)"), "loaded state should verify the current panel is loaded");
+  assert.ok(
+    finish.includes('updateSharedPanelBreadcrumb(src, "loaded");'),
+    "loaded state should eventually clear the breadcrumb loading marker",
   );
 });
 
