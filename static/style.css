@@ -459,6 +459,7 @@ fieldset.radio label:last-of-type {
 
 #breadcrumbs a {
   display: inline-block;
+  position: relative;
   padding: 0 16px;
   background-color: var(--color-background);
   color: var(--color-text);
