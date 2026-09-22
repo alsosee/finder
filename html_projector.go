@@ -421,9 +421,11 @@ func (g *HTMLProjector) fm() template.FuncMap {
 			}
 			return ""
 		},
-		"groupConnections": groupConnections,
-		"escapeFileName":   structs.EscapeFileName,
-		"canonicalPath":    g.canonicalContentPath,
+		"groupConnections": func(connections map[string][]structs.Connection) []structs.ConnectionLine {
+			return groupConnectionsBySeries(connections, g.contents)
+		},
+		"escapeFileName": structs.EscapeFileName,
+		"canonicalPath":  g.canonicalContentPath,
 	}
 }
 
@@ -858,12 +860,17 @@ func (g *HTMLProjector) executeTemplate(path string, pageData structs.PageData, 
 // series generates path to a series page.
 // For Movies: /Movies/Series/<Series name>
 // For Video Games: /Games/Video/Series/<Series name>
-// For Shows: /Shows/Series/<Series name>
+// For Shows: /Shows/<Series name>
 // Since most content is arranged in folders by year, the base series page is
 // inferred from the current page instead of being stored as a full path.
 func series(c structs.Content) string {
+	base := filepath.Dir(filepath.Dir(c.Source))
+	if pathType(c.Source) == "Shows" {
+		return filepath.Join(base, c.Series)
+	}
+
 	return filepath.Join(
-		filepath.Dir(filepath.Dir(c.Source)),
+		base,
 		"Series",
 		c.Series,
 	)
@@ -966,6 +973,16 @@ func column(file structs.File, column string) string {
 }
 
 func groupConnections(connections map[string][]structs.Connection) []structs.ConnectionLine {
+	return groupConnectionsBySeries(connections, nil)
+}
+
+// groupConnectionsBySeries collapses repeated, series-wide show credits while
+// preserving season and episode detail for roles that can vary over time.
+func groupConnectionsBySeries(
+	connections map[string][]structs.Connection,
+	contents structs.Contents,
+) []structs.ConnectionLine {
+	connections, seasonCounts := collapseSeriesConnections(connections, contents)
 	result := []structs.ConnectionLine{}
 
 	// - Groups:
@@ -983,6 +1000,7 @@ func groupConnections(connections map[string][]structs.Connection) []structs.Con
 			From:    from,
 			Groups:  []structs.ConnectionLineItem{},
 			Parents: []string{},
+			Seasons: seasonCounts[from],
 		}
 
 		labelGroups := map[string]structs.ConnectionLineItem{}
@@ -1037,6 +1055,77 @@ func groupConnections(connections map[string][]structs.Connection) []structs.Con
 	})
 
 	return result
+}
+
+type seriesConnectionKey struct {
+	From  string
+	Label string
+}
+
+func collapseSeriesConnections(
+	connections map[string][]structs.Connection,
+	contents structs.Contents,
+) (map[string][]structs.Connection, map[string]int) {
+	if len(contents) == 0 {
+		return connections, nil
+	}
+
+	candidates := map[seriesConnectionKey]map[string]struct{}{}
+	for from, conns := range connections {
+		content, ok := contents[from]
+		if !ok || content.Series == "" || pathType(content.Source) != "Shows" {
+			continue
+		}
+
+		seriesFrom := filepath.Join("Shows", content.Series)
+		for _, conn := range conns {
+			if !isSeriesWideConnection(conn) {
+				continue
+			}
+
+			key := seriesConnectionKey{From: seriesFrom, Label: conn.Label}
+			if candidates[key] == nil {
+				candidates[key] = map[string]struct{}{}
+			}
+			candidates[key][from] = struct{}{}
+		}
+	}
+
+	collapsed := make(map[string][]structs.Connection, len(connections))
+	seasonCounts := map[string]int{}
+	added := map[seriesConnectionKey]bool{}
+	for from, conns := range connections {
+		content := contents[from]
+		seriesFrom := ""
+		if content.Series != "" && pathType(content.Source) == "Shows" {
+			seriesFrom = filepath.Join("Shows", content.Series)
+		}
+
+		for _, conn := range conns {
+			key := seriesConnectionKey{From: seriesFrom, Label: conn.Label}
+			seasons := candidates[key]
+			if seriesFrom == "" || !isSeriesWideConnection(conn) || len(seasons) < 2 {
+				collapsed[from] = append(collapsed[from], conn)
+				continue
+			}
+
+			if !added[key] {
+				collapsed[seriesFrom] = append(collapsed[seriesFrom], conn)
+				seasonCounts[seriesFrom] = len(seasons)
+				added[key] = true
+			}
+		}
+	}
+
+	return collapsed, seasonCounts
+}
+
+func isSeriesWideConnection(conn structs.Connection) bool {
+	if conn.Info != "" || conn.Parent != "" {
+		return false
+	}
+
+	return conn.Label == "Creator" || conn.Label == "Network"
 }
 
 func newFileValue(content structs.Content, dir string) string {

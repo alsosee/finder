@@ -51,7 +51,7 @@ hash:
 
 .PHONY: serve
 ## serve: serve the static site
-serve: hash build worker-redirects
+serve: hash build redirects
 	@wrangler dev --config worker/wrangler.toml --assets=output --local-protocol=https --port=${WRANGLER_PORT}
 
 .PHONY: codegen

@@ -176,6 +176,47 @@ func TestGroupConnections(t *testing.T) {
 	}
 }
 
+func TestGroupConnectionsCollapsesSeriesWideShowRoles(t *testing.T) {
+	connections := map[string][]structs.Connection{
+		"Shows/1969/Sesame Street": {
+			{To: "People/Joan Ganz Cooney", Label: "Creator"},
+			{To: "People/Joan Ganz Cooney", Label: "Director"},
+		},
+		"Shows/1970/Sesame Street, Season 2": {
+			{To: "People/Joan Ganz Cooney", Label: "Creator"},
+			{To: "People/Joan Ganz Cooney", Label: "Director"},
+		},
+	}
+	contents := structs.Contents{
+		"Shows/1969/Sesame Street": {
+			Source: "Shows/1969/Sesame Street.yml",
+			Series: "Sesame Street",
+		},
+		"Shows/1970/Sesame Street, Season 2": {
+			Source: "Shows/1970/Sesame Street, Season 2.yml",
+			Series: "Sesame Street",
+		},
+	}
+
+	actual := groupConnectionsBySeries(connections, contents)
+	if len(actual) != 3 {
+		t.Fatalf("expected one series line and two season lines, got %d", len(actual))
+	}
+
+	if actual[0].From != "Shows/1969/Sesame Street" || actual[0].Groups[0].Label != "Director" {
+		t.Errorf("first season-specific line was not preserved: %#v", actual[0])
+	}
+	if actual[1].From != "Shows/1970/Sesame Street, Season 2" || actual[1].Groups[0].Label != "Director" {
+		t.Errorf("second season-specific line was not preserved: %#v", actual[1])
+	}
+	if actual[2].From != "Shows/Sesame Street" || actual[2].Groups[0].Label != "Creator" {
+		t.Errorf("series-wide creator line was not collapsed: %#v", actual[2])
+	}
+	if actual[2].Seasons != 2 {
+		t.Errorf("expected 2 collapsed seasons, got %d", actual[2].Seasons)
+	}
+}
+
 func TestContentNotReferences(t *testing.T) {
 	tests := []struct {
 		name      string

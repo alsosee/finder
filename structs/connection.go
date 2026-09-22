@@ -31,4 +31,5 @@ type ConnectionLine struct {
 	From    string               `yaml:"from,omitempty"`
 	Groups  []ConnectionLineItem `yaml:"groups,omitempty"`
 	Parents []string             `yaml:"parents,omitempty"`
+	Seasons int                  `yaml:"seasons,omitempty"`
 }

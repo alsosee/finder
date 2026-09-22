@@ -11,7 +11,12 @@ import (
 
 func processIgnoreFile(infoDir, ignoreFile string) (*gitignore.GitIgnore, error) {
 	ignore := &gitignore.GitIgnore{}
-	ignoreFilepath := filepath.Join(infoDir, ignoreFile)
+	ignoreFilepath := ignoreFile
+	if !filepath.IsAbs(ignoreFilepath) {
+		if _, err := os.Stat(ignoreFilepath); err != nil {
+			ignoreFilepath = filepath.Join(infoDir, ignoreFilepath)
+		}
+	}
 	if _, err := os.Stat(ignoreFilepath); err == nil {
 		ignore, err = gitignore.CompileIgnoreFile(ignoreFilepath)
 		if err != nil {
