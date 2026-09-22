@@ -1,4 +1,5 @@
 import { handleImageProxy } from "./image-proxy.js";
+import { redirectFor } from "./redirects.js";
 import { handleSitemapDiagnostic } from "./site-diagnostics.js";
 import { handleStaticSite } from "./static-site.js";
 import { handleUpload } from "./upload.js";
@@ -17,6 +18,19 @@ export default {
 
     if (url.pathname === "/api/debug/sitemap") {
       return handleSitemapDiagnostic(request, env);
+    }
+
+    if (url.pathname === "/api/debug/redirect") {
+      const candidate = new URL(url.searchParams.get("path") || "/", url);
+      const redirect = redirectFor(candidate.toString());
+      return Response.json(
+        {
+          path: candidate.pathname,
+          status: redirect?.status || null,
+          location: redirect?.headers.get("location") || null,
+        },
+        { headers: { "cache-control": "no-store" } },
+      );
     }
 
     if (url.pathname === "/sitemap.xml" && url.searchParams.has("finder-debug")) {
